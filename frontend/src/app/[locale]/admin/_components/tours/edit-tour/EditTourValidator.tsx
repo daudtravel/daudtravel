@@ -61,7 +61,7 @@ export const isLocalizationFilled = (loc: any): boolean => {
   return !!(loc.name && loc.name.trim().length > 0);
 };
 
-export const useEditTourForm = (tourId: string) => {
+export const useEditTourForm = () => {
   return useForm<EditTourFormData>({
     resolver: zodResolver(editTourSchema),
     defaultValues: {

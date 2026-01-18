@@ -1,5 +1,3 @@
-// app/[locale]/insurance/page.tsx
-
 "use client";
 
 import React, { useState } from "react";
@@ -17,7 +15,7 @@ import {
   Phone,
   Image as ImageIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import {
   useInsuranceSettings,
   useSubmitInsurance,
@@ -32,7 +30,6 @@ interface PersonForm {
 }
 
 export default function InsuranceSubmissionPage() {
-  const router = useRouter();
   const { data: settingsData, isLoading: settingsLoading } =
     useInsuranceSettings();
   const submitInsurance = useSubmitInsurance();

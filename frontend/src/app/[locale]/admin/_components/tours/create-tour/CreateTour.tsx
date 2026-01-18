@@ -147,7 +147,7 @@ export default function CreateTour() {
             <FormField
               control={form.control}
               name="type"
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">ტურის ტიპი</FormLabel>

@@ -49,9 +49,7 @@ const CreateFaq = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const params = useParams();
-  const locale = params.locale as string;
 
-  // Initialize form with all locales
   const form = useForm<CreateFaqForm>({
     resolver: zodResolver(createFaqSchema),
     defaultValues: {

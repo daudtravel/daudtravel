@@ -21,7 +21,6 @@ import {
 } from "@/src/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { faqApi, FAQLocalization } from "@/src/services/faq.service";
@@ -38,7 +37,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const form = useEditFaqValidator();
-  const locale = useLocale();
+
   const queryClient = useQueryClient();
 
   useEffect(() => {

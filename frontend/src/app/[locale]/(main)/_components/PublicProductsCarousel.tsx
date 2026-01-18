@@ -8,14 +8,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/src/components/ui/carousel";
-import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import { usePublicQuickLinks } from "@/src/hooks/quick-payment/useQuickPayment";
 import { Loader2, ShoppingCart, Package } from "lucide-react";
 import Link from "next/link";
 
 export default function PublicProductsCarousel() {
-  const t = useTranslations("main");
   const [api, setApi] = useState<any>(null);
   const [current, setCurrent] = useState(0);
 

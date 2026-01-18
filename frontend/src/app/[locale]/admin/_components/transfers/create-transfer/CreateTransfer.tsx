@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   CreateTransferFormData,
   useCreateTransferValidator,
@@ -39,7 +39,6 @@ const CreateTransfer = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const form = useCreateTransferValidator();
-  const params = useParams();
 
   const { mutate: createTransfer, isPending } = useCreateTransfer();
 

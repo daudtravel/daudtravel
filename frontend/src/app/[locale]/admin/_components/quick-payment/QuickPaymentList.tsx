@@ -52,6 +52,7 @@ export const QuickLinksList = () => {
         await toggleLink.mutateAsync(slug);
       } catch (error) {
         alert("შეცდომა სტატუსის შეცვლისას");
+        console.error(error);
       }
     }
   };
@@ -62,6 +63,7 @@ export const QuickLinksList = () => {
         await deleteLink.mutateAsync(slug);
       } catch (error) {
         alert("შეცდომა წაშლისას");
+        console.error(error);
       }
     }
   };
@@ -115,7 +117,7 @@ export const QuickLinksList = () => {
       {links.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <p className="text-lg">ლინკები არ მოიძებნა</p>
-          <p className="text-sm mt-2">დააჭირეთ "ახალი ლინკი"-ს რათა შექმნათ</p>
+          <p className="text-sm mt-2">დააჭირეთ ახალი ლინკი-ს რათა შექმნათ</p>
         </div>
       ) : (
         <>
@@ -133,7 +135,7 @@ export const QuickLinksList = () => {
                     შეკვეთები
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    ხილვადობა {/* ✅ NEW */}
+                    ხილვადობა
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                     სტატუსი
