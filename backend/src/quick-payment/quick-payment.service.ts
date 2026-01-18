@@ -15,6 +15,7 @@ import {
   InitiatePaymentDto,
 } from './dto/quick-payment.dto';
 import { FileUploadService } from '@/common/utils/file-upload.util';
+import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
 
 @Injectable()
 export class QuickPaymentService {
@@ -51,7 +52,13 @@ export class QuickPaymentService {
       },
     });
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
+
+    if (!frontendUrl) {
+      throw new InternalServerErrorException(
+        'FRONTEND_URL environment variable is not configured',
+      );
+    }
 
     return {
       success: true,
@@ -112,9 +119,13 @@ export class QuickPaymentService {
     const accessToken = await getBOGAccessToken();
     const amount = Number(link.price);
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
+
+    // Also update the error check:
     if (!frontendUrl) {
-      throw new InternalServerErrorException('FRONTEND_URL not configured');
+      throw new InternalServerErrorException(
+        'FRONTEND_URL environment variable is not configured',
+      );
     }
 
     const bogOrderRequest = {
@@ -268,7 +279,14 @@ export class QuickPaymentService {
       }),
     ]);
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
+
+    // Also update the error check:
+    if (!frontendUrl) {
+      throw new InternalServerErrorException(
+        'FRONTEND_URL environment variable is not configured',
+      );
+    }
 
     return {
       success: true,
@@ -313,8 +331,13 @@ export class QuickPaymentService {
       this.prisma.quickPaymentLink.count(),
     ]);
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
 
+    if (!frontendUrl) {
+      throw new InternalServerErrorException(
+        'FRONTEND_URL environment variable is not configured',
+      );
+    }
     return {
       success: true,
       data: links.map((link) => ({

@@ -10,13 +10,13 @@ import { getBOGAccessToken } from '@/common/utils/bog-auth';
 import { BOG_API_URL, verifyBOGSignature } from '@/common/utils/bog-payments';
 import { PaymentStatus } from '@prisma/client';
 import { FileUploadService } from '@/common/utils/file-upload.util';
- 
+
 import {
   CreateInsuranceSubmissionDto,
   UpdateInsuranceSettingsDto,
 } from './dto/insurance.dto';
 import { MailService } from '@/mail/mail.service';
- 
+import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
 
 @Injectable()
 export class InsuranceService {
@@ -24,10 +24,7 @@ export class InsuranceService {
     private prisma: PrismaService,
     private fileUpload: FileUploadService,
     private mailService: MailService,
-    
   ) {}
-
-  
 
   // ============ SETTINGS MANAGEMENT ============
 
@@ -82,10 +79,7 @@ export class InsuranceService {
     };
   }
 
-  // ============ SUBMISSION MANAGEMENT ============
-
   async createSubmission(dto: CreateInsuranceSubmissionDto) {
-    // Check if service is active
     const settings = await this.prisma.insuranceSettings.findFirst();
     if (!settings) {
       throw new InternalServerErrorException(
@@ -124,13 +118,14 @@ export class InsuranceService {
       }),
     );
 
-    // Create submission with payment
     const external_order_id = `INS_${uuidv4()}`;
     const accessToken = await getBOGAccessToken();
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
     if (!frontendUrl) {
-      throw new InternalServerErrorException('FRONTEND_URL not configured');
+      throw new InternalServerErrorException(
+        'FRONTEND_URL environment variable is not configured',
+      );
     }
 
     const bogOrderRequest = {

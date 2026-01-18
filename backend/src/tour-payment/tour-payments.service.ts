@@ -14,6 +14,7 @@ import {
 } from '@/common/utils/bog-payments';
 import { MailService } from '@/mail/mail.service';
 import { Prisma, PaymentStatus } from '@prisma/client';
+import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
 
 interface TourBookingData {
   tourId: string;
@@ -159,7 +160,8 @@ export class TourPaymentsService {
     const external_order_id = `TOUR_ORDER_${uuidv4()}`;
     const accessToken = await getBOGAccessToken();
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
+
     if (!frontendUrl) {
       throw new InternalServerErrorException(
         'FRONTEND_URL environment variable is not configured',
@@ -384,12 +386,20 @@ export class TourPaymentsService {
         },
       });
 
+      const frontendUrl = getPrimaryFrontendUrl();
+
+      if (!frontendUrl) {
+        throw new InternalServerErrorException(
+          'FRONTEND_URL environment variable is not configured',
+        );
+      }
+
       if (shouldSendEmail && order && order.customerEmail) {
         await this.mailService.sendPaymentSuccessEmail({
           firstName: order.customerFirstName,
           lastName: order.customerLastName || '',
           email: order.customerEmail,
-          detailsLink: `${process.env.FRONTEND_URL}/tours/order/${order.id}`,
+          detailsLink: `${frontendUrl}/tours/order/${order.id}`,
         });
       }
 
@@ -652,18 +662,24 @@ export class TourPaymentsService {
           data: updateData,
         });
 
-        // ✅ Send email on successful payment
+        const frontendUrl = getPrimaryFrontendUrl();
+
+        if (!frontendUrl) {
+          throw new InternalServerErrorException(
+            'FRONTEND_URL environment variable is not configured',
+          );
+        }
+
         if (newStatus === PaymentStatus.PAID && dbOrder.customerEmail) {
           await this.mailService.sendPaymentSuccessEmail({
             firstName: dbOrder.customerFirstName,
             lastName: dbOrder.customerLastName || '',
             email: dbOrder.customerEmail,
-            detailsLink: `${process.env.FRONTEND_URL}/tours/order/${dbOrder.id}`,
+            detailsLink: `${frontendUrl}/tours/order/${dbOrder.id}`,
           });
         }
       }
 
-      // ✅ Return normalized response
       return {
         success: isSuccessful,
         order_id: receipt.order_id,
@@ -782,7 +798,9 @@ export class TourPaymentsService {
       this.prisma.tourPaymentOrder.count(),
     ]);
 
-    const formattedOrders = orders.map((order) => this.formatOrder(order));
+    const formattedOrders = orders.map((order) =>
+      this.formatOrder(order, false),
+    );
 
     const totalPages = Math.ceil(totalRecords / limitNum);
 
@@ -818,7 +836,7 @@ export class TourPaymentsService {
 
     return {
       success: true,
-      data: this.formatOrder(order),
+      data: this.formatOrder(order, true), // ✅ Always mask for public access
     };
   }
 
@@ -855,14 +873,100 @@ export class TourPaymentsService {
     };
   }
 
-  private formatOrder(order: any) {
+  private maskEmail(email: string): string {
+    if (!email || !email.includes('@')) return email;
+
+    const [localPart, domain] = email.split('@');
+
+    if (localPart.length <= 3) {
+      // Very short emails: show first char only
+      return `${localPart[0]}***@${domain}`;
+    }
+
+    // Show first 3 chars and last char before @
+    const visibleStart = localPart.substring(0, 3);
+    const visibleEnd = localPart.charAt(localPart.length - 1);
+
+    return `${visibleStart}***${visibleEnd}@${domain}`;
+  }
+
+  private maskPhone(phone: string): string {
+    if (!phone) return phone;
+
+    // Remove all non-digit characters for processing
+    const digitsOnly = phone.replace(/\D/g, '');
+
+    if (digitsOnly.length <= 4) {
+      return phone; // Too short to mask meaningfully
+    }
+
+    // For Georgian numbers: +995 555 135 856 -> +995 555 135 ***
+    // Show first half, mask second half
+    const visibleLength = Math.ceil(digitsOnly.length / 2);
+    const maskedLength = digitsOnly.length - visibleLength;
+
+    // Try to preserve original format
+    if (phone.startsWith('+')) {
+      // International format
+      const countryCode = phone.match(/^\+\d{1,3}/)?.[0] || '+995';
+      const remainingDigits = digitsOnly.substring(
+        countryCode.replace('+', '').length,
+      );
+      const visiblePart = remainingDigits.substring(0, visibleLength);
+      const masked = '***'.repeat(Math.ceil(maskedLength / 3));
+
+      // Format nicely: +995 555 135 ***
+      const formatted =
+        `${countryCode} ${visiblePart.substring(0, 3)} ${visiblePart.substring(3)} ${masked}`.trim();
+      return formatted;
+    }
+
+    // Fallback: show first half, mask rest
+    const visible = digitsOnly.substring(0, visibleLength);
+    const masked = '*'.repeat(maskedLength);
+
+    return `${visible}${masked}`;
+  }
+
+  private maskName(firstName: string, lastName?: string): string {
+    if (!firstName) return '';
+
+    let maskedFirst = firstName;
+    if (firstName.length > 3) {
+      // Show first 3 chars: "Lado" -> "Lad***"
+      maskedFirst = `${firstName.substring(0, 3)}***`;
+    }
+
+    let maskedLast = '';
+    if (lastName) {
+      if (lastName.length > 3) {
+        // Show first 3 chars: "Asambadze" -> "Asa***"
+        maskedLast = `${lastName.substring(0, 3)}***`;
+      } else {
+        maskedLast = lastName;
+      }
+    }
+
+    return lastName ? `${maskedFirst} ${maskedLast}` : maskedFirst;
+  }
+
+  private formatOrder(order: any, maskSensitiveData: boolean = true) {
     return {
       id: order.id,
       tourId: order.tourId,
-      customerFirstName: order.customerFirstName,
-      customerLastName: order.customerLastName,
-      customerEmail: order.customerEmail,
-      customerPhone: order.customerPhone,
+
+      // Conditionally mask sensitive data
+      customerFirstName: maskSensitiveData
+        ? this.maskName(order.customerFirstName, order.customerLastName)
+        : `${order.customerFirstName} ${order.customerLastName || ''}`.trim(),
+      customerLastName: maskSensitiveData ? null : order.customerLastName, // Hide when masked
+      customerEmail: maskSensitiveData
+        ? this.maskEmail(order.customerEmail)
+        : order.customerEmail,
+      customerPhone: maskSensitiveData
+        ? this.maskPhone(order.customerPhone)
+        : order.customerPhone,
+
       peopleAmount: order.peopleCount,
       selectedDate: order.selectedDate?.toISOString(),
       tourDurationDays: order.tourDurationDays,

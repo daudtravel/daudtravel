@@ -14,6 +14,7 @@ import {
 } from '@/common/utils/bog-payments';
 import { MailService } from '@/mail/mail.service';
 import { Prisma, PaymentStatus, VehicleType } from '@prisma/client';
+import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
 
 interface TransferBookingData {
   transferId: string;
@@ -149,7 +150,8 @@ export class TransferPaymentsService {
     const external_order_id = `TRANSFER_ORDER_${uuidv4()}`;
     const accessToken = await getBOGAccessToken();
 
-    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '');
+    const frontendUrl = getPrimaryFrontendUrl();
+
     if (!frontendUrl) {
       throw new InternalServerErrorException(
         'FRONTEND_URL environment variable is not configured',
@@ -362,7 +364,13 @@ export class TransferPaymentsService {
         throw new Error('Order not found for update');
       }
 
-      // Fetch updated order
+      const frontendUrl = getPrimaryFrontendUrl();
+
+      if (!frontendUrl) {
+        throw new InternalServerErrorException(
+          'FRONTEND_URL environment variable is not configured',
+        );
+      }
       const order = await this.prisma.transferPaymentOrder.findFirst({
         where: {
           OR: [
@@ -386,11 +394,10 @@ export class TransferPaymentsService {
             firstName: order.customerFirstName,
             lastName: order.customerLastName || '',
             email: order.customerEmail,
-            detailsLink: `${process.env.FRONTEND_URL}/transfer/order/${order.id}`,
+            detailsLink: `${frontendUrl}/transfer/order/${order.id}`,
           });
         } catch (emailError) {
           console.error('❌ Failed to send success email:', emailError);
-          // Don't throw - email failure shouldn't fail the callback
         }
       }
 
@@ -614,6 +621,14 @@ export class TransferPaymentsService {
         statusKey === 'completed' || statusKey === 'partial_completed';
       const isFailed = statusKey === 'rejected' || statusKey === 'failed';
 
+      const frontendUrl = getPrimaryFrontendUrl();
+
+      if (!frontendUrl) {
+        throw new InternalServerErrorException(
+          'FRONTEND_URL environment variable is not configured',
+        );
+      }
+
       // Sync database with BOG receipt
       if (dbOrder) {
         let newStatus: PaymentStatus;
@@ -670,7 +685,7 @@ export class TransferPaymentsService {
               firstName: dbOrder.customerFirstName,
               lastName: dbOrder.customerLastName || '',
               email: dbOrder.customerEmail,
-              detailsLink: `${process.env.FRONTEND_URL}/transfer/order/${dbOrder.id}`,
+              detailsLink: `${frontendUrl}/transfer/order/${dbOrder.id}`,
             });
           } catch (emailError) {
             console.error('❌ Failed to send success email:', emailError);

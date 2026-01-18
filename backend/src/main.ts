@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { json, urlencoded, raw } from 'express';
 import cookieParser from 'cookie-parser';
+import { getAllFrontendUrls } from './common/utils/frontend-url.util';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -42,14 +43,7 @@ async function bootstrap() {
     }),
   );
 
-  const frontendUrlsString =
-    process.env.FRONTEND_URL || 'http://localhost:3000';
-  const frontendUrls = frontendUrlsString
-    .split(',')
-    .map((url) => url.trim())
-    .filter((url) => url.length > 0);
-
-  console.log('Allowed CORS origins:', frontendUrls);
+  const frontendUrls = getAllFrontendUrls();
 
   const corsOptions = {
     origin: (
