@@ -41,13 +41,11 @@ async function bootstrap() {
     }),
   );
 
+  const frontendUrls = process.env.FRONTEND_URL?.split(',') || [
+    'http://localhost:3000',
+  ];
   const corsOptions = {
-    origin: [
-      'https://daudtravel.com',
-      'https://www.daudtravel.com',
-      'http://localhost:3000',
-      'http://localhost:3001',
-    ],
+    origin: frontendUrls,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
