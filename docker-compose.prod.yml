@@ -1,0 +1,73 @@
+version: "3.8"
+
+name: daudtravel-prod
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: daudtravel_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: daudtravel
+    ports:
+      - "5432:5432" # ✅ Changed from expose to ports for local testing
+    volumes:
+      - daudtravel_postgres_data:/var/lib/postgresql/data
+    networks:
+      - daudtravel_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: daudtravel_backend_prod
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/daudtravel # ✅ Added explicit DB URL
+      - NODE_ENV=production
+    volumes:
+      - daudtravel_uploads_data:/app/public/uploads
+    networks:
+      - daudtravel_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args: # ✅ Added build args for Next.js
+        - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:4000}
+    container_name: daudtravel_frontend_prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env.production
+    environment:
+      - NODE_ENV=production
+    networks:
+      - daudtravel_network
+    depends_on:
+      - backend
+
+networks: # ✅ Added network definition
+  daudtravel_network:
+    driver: bridge
+
+volumes:
+  daudtravel_postgres_data:
+  daudtravel_uploads_data:

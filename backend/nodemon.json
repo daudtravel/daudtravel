@@ -1,0 +1,13 @@
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "exec": "ts-node -r tsconfig-paths/register src/main.ts",
+  "ignore": ["node_modules"],
+  "events": {
+    "restart": "echo 'App restarted due to file changes'"
+  },
+  "delay": "1000ms",
+  "legacyWatch": true,
+  "verbose": true,
+  "poll": 1000
+}

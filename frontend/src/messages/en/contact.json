@@ -1,0 +1,15 @@
+{
+  "sendUsMessage": "Send Us a Message",
+  "sendUsDescribe": "Fill out the form below and we will contact you soon.",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "email": "Email",
+  "message": "Message",
+  "sendMessage": "Send",
+  "contactInfo": "Contact Information",
+  "ourOffice": "Our Office",
+  "phone": "Phone",
+  "followUs": "Follow Us",
+  "sending": "Sending...",
+  "submitSuccess": "Submited Successfully"
+}

@@ -1,0 +1,16 @@
+{
+  "sendUsMessage": "Bize Mesaj Gönderin",
+  "sendUsDescribe": "Aşağıdaki formu doldurun, en kısa sürede sizinle iletişime geçeceğiz.",
+  "firstName": "Ad",
+  "lastName": "Soyad",
+  "email": "E-posta",
+  "message": "Mesaj",
+  "sendMessage": "Gönder",
+  "contactInfo": "İletişim Bilgileri",
+  "ourOffice": "Ofisimiz",
+  "phone": "Telefon",
+  "followUs": "Bizi Takip Edin",
+  "sending": "Gönderiliyor...",
+  "submitSuccess": "Başarıyla Gönderildi"
+   
+}

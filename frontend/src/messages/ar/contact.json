@@ -1,0 +1,16 @@
+{
+  "sendUsMessage": "أرسل لنا رسالة",
+  "sendUsDescribe": "املأ النموذج أدناه وسنتواصل معك قريبًا.",
+  "firstName": "الاسم الأول",
+  "lastName": "الاسم الأخير",
+  "email": "البريد الإلكتروني",
+  "message": "الرسالة",
+  "sendMessage": "إرسال",
+  "contactInfo": "معلومات الاتصال",
+  "ourOffice": "مكتبنا",
+  "phone": "الهاتف",
+  "followUs": "تابعنا",
+  "sending": "جارٍ الإرسال...",
+  "submitSuccess": "تم الإرسال بنجاح"
+  
+}

@@ -1,0 +1,13 @@
+{
+  "main": "Main",
+  "tours": "Tours",
+  "transfers": "Transfers",
+  "about": "About us",
+  "contact": "Contact",
+  "signin": "Sign in",
+  "signup": "Sign up",
+  "logout": "Log out",
+  "daudTravel": "Daud Travel",
+  "groupTourType": "Group tour",
+  "individualTourType": "Individual tour"
+}

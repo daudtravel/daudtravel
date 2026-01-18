@@ -1,0 +1,13 @@
+{
+  "main": "მთავარი ",
+  "tours": "ტურები",
+  "transfers": "ტრანსფერები",
+  "about": "ჩვენს შესახებ",
+  "contact": "კონტაქტი",
+  "signin": "ავტორიზაცია",
+  "signup": "რეგისტრაცია",
+  "logout": "გამოსვლა",
+  "daudTravel": "დაუდ თრეველ",
+  "groupTourType": "ჯგუფური ტური",
+  "individualTourType": "ინდივიდუალური ტური"
+}

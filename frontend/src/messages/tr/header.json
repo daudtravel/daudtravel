@@ -1,0 +1,13 @@
+{
+  "main": "Ana Sayfa",
+  "tours": "Turlar",
+  "transfers": "Transferler",
+  "about": "Hakkımızda",
+  "contact": "İletişim",
+  "signin": "Giriş Yap",
+  "signup": "Kayıt Ol",
+  "logout": "Çıkış Yap",
+  "daudTravel": "Daud seyahati",
+  "groupTourType": "Grup turu",
+  "individualTourType": "Bireysel tur"
+}

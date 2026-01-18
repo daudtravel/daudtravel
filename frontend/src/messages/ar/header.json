@@ -1,0 +1,13 @@
+{
+  "main": "داود ترافيل",
+  "tours": "الجولات",
+  "transfers": "النقل",
+  "about": "معلومات عنا",
+  "contact": "اتصل بنا",
+  "signin": "تسجيل الدخول",
+  "signup": "إنشاء حساب",
+  "logout": "تسجيل الخروج",
+   "daudTravel": "سفر داود",
+   "groupTourType": "جولة جماعية",
+   "individualTourType": "جولة فردية"
+}

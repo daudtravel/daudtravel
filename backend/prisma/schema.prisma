@@ -1,0 +1,457 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// Enums for better type safety
+enum TourType {
+  GROUP
+  INDIVIDUAL
+}
+
+enum VehicleType {
+  SEDAN
+  MINIVAN
+  VITO
+  SPRINTER
+  BUS
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// Tour Models
+model Tour {
+  id               String             @id @default(uuid())
+  type             TourType           @default(GROUP)
+  days             Int                @default(1)
+  nights           Int                @default(0)
+  maxPersons       Int?               @map("max_persons")
+  startDate        DateTime?          @map("start_date")
+  isPublic         Boolean            @default(false) @map("is_public")
+  isDaily          Boolean            @default(false) @map("is_daily")
+  mainImage        String             @map("main_image")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  
+  // Relations
+  localizations    TourLocalization[]
+  images           TourImage[]
+  groupPricing     GroupPricing?
+  individualPricing IndividualPricing?
+  paymentOrders    TourPaymentOrder[]
+
+  @@index([type, isPublic, isDaily])
+  @@map("tours")
+}
+
+model TourLocalization {
+  id              String   @id @default(uuid())
+  tourId          String   @map("tour_id")
+  locale          String   @default("ka")
+  name            String
+  description     String   @db.Text
+  startLocation   String   @map("start_location")
+  locations       String[] @default([])
+  
+  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  
+  @@unique([tourId, locale])
+  @@index([locale])
+  @@map("tour_localizations")
+}
+
+model TourImage {
+  id        String   @id @default(uuid())
+  tourId    String   @map("tour_id")
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  
+  @@index([tourId])
+  @@map("tour_images")
+}
+
+model GroupPricing {
+  id                String   @id @default(uuid())
+  tourId            String   @unique @map("tour_id")
+  totalPrice        Decimal  @map("total_price") @db.Decimal(10, 2)
+  reservationPrice  Decimal  @map("reservation_price") @db.Decimal(10, 2)
+  discountedPrice   Decimal? @map("discounted_price") @db.Decimal(10, 2)
+  
+  tour              Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  
+  @@map("group_pricing")
+}
+
+model IndividualPricing {
+  id     String @id @default(uuid())
+  tourId String @unique @map("tour_id")
+  
+  seasonTotalPrice        Decimal @map("season_total_price") @db.Decimal(10, 2)
+  seasonReservationPrice  Decimal @map("season_reservation_price") @db.Decimal(10, 2)
+  seasonDiscountedPrice   Decimal @map("season_discounted_price") @db.Decimal(10, 2)
+  
+  offSeasonTotalPrice       Decimal @map("off_season_total_price") @db.Decimal(10, 2)
+  offSeasonReservationPrice Decimal @map("off_season_reservation_price") @db.Decimal(10, 2)
+  offSeasonDiscountedPrice  Decimal @map("off_season_discounted_price") @db.Decimal(10, 2)
+  
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  
+  @@map("individual_pricing")
+}
+
+// Transfer Models
+model Transfer {
+  id            String                 @id @default(uuid())
+  isPublic      Boolean                @default(false) @map("is_public")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+  
+  localizations TransferLocalization[]
+  vehicleTypes  TransferVehicleType[]
+  paymentOrders TransferPaymentOrder[]
+  
+  @@map("transfers")
+}
+
+model TransferLocalization {
+  id            String   @id @default(uuid())
+  transferId    String   @map("transfer_id")
+  locale        String   @default("ka")
+  startLocation String   @map("start_location")
+  endLocation   String   @map("end_location")
+  
+  transfer Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  
+  @@unique([transferId, locale])
+  @@index([locale])
+  @@map("transfer_localizations")
+}
+
+model TransferVehicleType {
+  id         String      @id @default(uuid())
+  transferId String      @map("transfer_id")
+  type       VehicleType
+  price      Decimal     @db.Decimal(10, 2)
+  maxPersons Int         @map("max_persons")
+  
+  transfer Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  
+  @@index([transferId])
+  @@map("transfer_vehicle_types")
+}
+// Payment Models
+model TourPaymentOrder {
+  id                  String        @id @default(uuid())
+  tourId              String        @map("tour_id")
+  externalOrderId     String        @unique @map("external_order_id")
+  bogOrderId          String        @unique @map("bog_order_id")
+  
+  // Customer Info
+  customerFirstName   String        @map("customer_first_name")
+  customerLastName    String        @map("customer_last_name")
+  customerEmail       String        @map("customer_email")
+  customerPhone       String        @map("customer_phone")
+  
+  // Tour Info
+  peopleCount         Int           @map("people_count")
+  selectedDate        DateTime      @map("selected_date")
+  
+  // ✅ NEW: Language-specific tour data saved at booking time
+  tourLocale          String        @default("ka") @map("tour_locale")
+  tourName            String        @map("tour_name")
+  tourDescription     String?       @map("tour_description") @db.Text
+  tourDurationDays    Int           @default(1) @map("tour_duration_days")
+  tourDurationNights  Int           @default(0) @map("tour_duration_nights")
+  startLocation       String        @map("start_location")
+  endLocation         String        @map("end_location")
+  locations           String[]      @default([])
+  
+  // Payment Info
+  isFullPayment       Boolean       @map("is_full_payment")
+  totalPrice          Decimal       @map("total_price") @db.Decimal(10, 2)
+  paidAmount          Decimal       @map("paid_amount") @db.Decimal(10, 2)
+  remainingAmount     Decimal?      @map("remaining_amount") @db.Decimal(10, 2)
+  
+  status              PaymentStatus @default(PENDING)
+  paymentUrl          String?       @map("payment_url")
+  transactionId       String?       @map("transaction_id")
+  paymentMethod       String?       @map("payment_method")
+  rejectionReason     String?       @map("rejection_reason")
+  callbackData        Json?         @map("callback_data")
+  
+  expiresAt           DateTime?     @map("expires_at")
+  paidAt              DateTime?     @map("paid_at")
+  failedAt            DateTime?     @map("failed_at")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+  
+  tour Tour @relation(fields: [tourId], references: [id])
+  
+  @@index([status, createdAt])
+  @@index([tourLocale])
+  @@map("tour_payment_orders")
+}
+
+model TransferPaymentOrder {
+  id                String        @id @default(uuid())
+  transferId        String        @map("transfer_id")
+  externalOrderId   String        @unique @map("external_order_id")
+  bogOrderId        String        @unique @map("bog_order_id")
+  
+  // Customer Info
+  customerFirstName String        @map("customer_first_name")
+  customerLastName  String        @map("customer_last_name")
+  customerEmail     String        @map("customer_email")
+  customerPhone     String        @map("customer_phone")
+  
+  // Transfer Info
+  passengerCount    Int           @map("passenger_count")
+  transferDate      DateTime      @map("transfer_date")
+  transferTime      DateTime      @map("transfer_time")
+  vehicleType       VehicleType   @map("vehicle_type")
+  
+  // ✅ NEW: Language-specific transfer data saved at booking time
+  transferLocale         String   @default("ka") @map("transfer_locale")
+  transferStartLocation  String   @map("transfer_start_location")
+  transferEndLocation    String   @map("transfer_end_location")
+  
+  // Payment Info
+  paymentAmount     Decimal       @map("payment_amount") @db.Decimal(10, 2)
+  status            PaymentStatus @default(PENDING)
+  paymentUrl        String?       @map("payment_url")
+  transactionId     String?       @map("transaction_id")
+  paymentMethod     String?       @map("payment_method")
+  rejectionReason   String?       @map("rejection_reason")
+  callbackData      Json?         @map("callback_data")
+  
+  refundedAmount    Decimal?      @map("refunded_amount") @db.Decimal(10, 2)
+  refundedAt        DateTime?     @map("refunded_at")
+  expiresAt         DateTime?     @map("expires_at")
+  paidAt            DateTime?     @map("paid_at")
+  failedAt          DateTime?     @map("failed_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+  
+  transfer Transfer @relation(fields: [transferId], references: [id])
+  
+  @@index([status, createdAt])
+  @@index([transferLocale])
+  @@map("transfer_payment_orders")
+}
+
+// User Models
+model User {
+  id         String   @id @default(uuid())
+  firstName  String   @map("first_name")
+  lastName   String   @map("last_name")
+  email      String   @unique
+  password   String
+  isVerified Boolean  @default(false) @map("is_verified")
+  isAdmin    Boolean  @default(false) @map("is_admin")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  
+  @@index([email])
+  @@map("users")
+}
+
+model EmailVerification {
+  email     String   @id
+  code      String
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@index([expiresAt])
+  @@map("email_verifications")
+}
+
+
+ 
+model Driver {
+  id        String   @id @default(uuid())
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  photo     String?  // URL or file path
+
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("drivers")
+}
+
+
+model FAQ {
+  id             String              @id @default(uuid())
+  category       String?
+  localizations  FAQLocalization[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@map("faqs")
+}
+
+model FAQLocalization {
+  id        String   @id @default(uuid())
+  faqId     String
+  locale    String
+  question  String   @db.Text
+  answer    String   @db.Text
+  faq       FAQ      @relation(fields: [faqId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([faqId, locale])
+  @@map("faq_localizations")
+}
+
+model Video {
+  id          String   @id @default(uuid())
+  url         String
+  title       String?
+  description String?  @db.Text
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("videos")
+}
+
+
+model QuickPaymentLink {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  
+  name          String
+  description   String?  @db.Text
+  image         String?
+  price         Decimal  @db.Decimal(10, 2)
+  
+  isActive      Boolean  @default(true)
+  showOnWebsite Boolean  @default(false) @map("show_on_website")  // ✅ NEW
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  orders        QuickPaymentOrder[]
+  
+  @@index([slug])
+  @@index([showOnWebsite]) // ✅ NEW INDEX for filtering
+  @@map("quick_payment_links")
+}
+
+model QuickPaymentOrder {
+  id                String   @id @default(uuid())
+  linkId            String?
+  link              QuickPaymentLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  
+  // Customer Info
+  customerFullName  String
+  customerEmail     String   // ✅ NEW - Required
+  customerPhone     String?  // ✅ NEW - Optional
+  
+  // Product snapshot at time of purchase
+  productName       String
+  productDescription String? @db.Text
+  productPrice      Decimal @db.Decimal(10, 2)
+  
+  // Payment Info
+  externalOrderId   String   @unique
+  bogOrderId        String   @unique
+  paymentUrl        String?
+  
+  status            PaymentStatus @default(PENDING)
+  transactionId     String?
+  paymentMethod     String?
+  callbackData      Json?
+  
+  expiresAt         DateTime
+  paidAt            DateTime?
+  failedAt          DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([linkId])
+  @@index([externalOrderId])
+  @@index([status, createdAt])
+  @@index([customerEmail]) // ✅ NEW INDEX
+  @@map("quick_payment_orders")
+}
+
+
+model InsuranceSettings {
+  id                String   @id @default(uuid())
+  pricePerPerson    Decimal  @db.Decimal(10, 2)
+  adminEmail        String   // Email where completed insurance notifications are sent
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("insurance_settings")
+}
+
+model InsuranceSubmission {
+  id              String        @id @default(uuid())
+  
+  // Submitter Info (main contact)
+  submitterEmail  String        @map("submitter_email")
+  
+  // Payment Info
+  externalOrderId String        @unique @map("external_order_id")
+  bogOrderId      String        @unique @map("bog_order_id")
+  paymentUrl      String?       @map("payment_url")
+  
+  totalAmount     Decimal       @db.Decimal(10, 2) @map("total_amount")
+  peopleCount     Int           @map("people_count")
+  pricePerPerson  Decimal       @db.Decimal(10, 2) @map("price_per_person")
+  
+  status          PaymentStatus @default(PENDING)
+  transactionId   String?       @map("transaction_id")
+  paymentMethod   String?       @map("payment_method")
+  callbackData    Json?         @map("callback_data")
+  
+  // Notification tracking
+  emailSent       Boolean       @default(false) @map("email_sent")
+  emailSentAt     DateTime?     @map("email_sent_at")
+  
+  expiresAt       DateTime      @map("expires_at")
+  paidAt          DateTime?     @map("paid_at")
+  failedAt        DateTime?     @map("failed_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  
+  // Relations
+  people          InsurancePerson[]
+  
+  @@index([submitterEmail])
+  @@index([status, createdAt])
+  @@index([externalOrderId])
+  @@map("insurance_submissions")
+}
+
+model InsurancePerson {
+  id           String              @id @default(uuid())
+  submissionId String              @map("submission_id")
+  
+  fullName     String              @map("full_name")
+  phoneNumber  String              @map("phone_number")
+  passportPhoto String             @map("passport_photo") // URL to uploaded image
+  
+  createdAt    DateTime            @default(now()) @map("created_at")
+  
+  submission   InsuranceSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  @@index([submissionId])
+  @@map("insurance_people")
+}
