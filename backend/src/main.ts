@@ -21,6 +21,7 @@ async function bootstrap() {
     raw({ type: 'application/json' }),
   );
   app.use('/api/quick-payment/bog/callback', raw({ type: 'application/json' }));
+  app.use('/api/insurance/bog/callback', raw({ type: 'application/json' }));
 
   app.use(json({ limit: '100mb' }));
   app.use(urlencoded({ extended: true, limit: '100mb' }));
@@ -41,11 +42,31 @@ async function bootstrap() {
     }),
   );
 
-  const frontendUrls = process.env.FRONTEND_URL?.split(',') || [
-    'http://localhost:3000',
-  ];
+  const frontendUrlsString =
+    process.env.FRONTEND_URL || 'http://localhost:3000';
+  const frontendUrls = frontendUrlsString
+    .split(',')
+    .map((url) => url.trim())
+    .filter((url) => url.length > 0);
+
+  console.log('Allowed CORS origins:', frontendUrls);
+
   const corsOptions = {
-    origin: frontendUrls,
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (frontendUrls.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn('Blocked CORS request from origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
