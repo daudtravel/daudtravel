@@ -6,7 +6,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-// Enums for better type safety
+
+// Enums stay the same
 enum TourType {
   GROUP
   INDIVIDUAL
@@ -29,7 +30,7 @@ enum PaymentStatus {
 
 // Tour Models
 model Tour {
-  id               String             @id @default(uuid())
+  id               String             @id @default(cuid()) // ✅ Changed
   type             TourType           @default(GROUP)
   days             Int                @default(1)
   nights           Int                @default(0)
@@ -41,7 +42,6 @@ model Tour {
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
   
-  // Relations
   localizations    TourLocalization[]
   images           TourImage[]
   groupPricing     GroupPricing?
@@ -53,7 +53,7 @@ model Tour {
 }
 
 model TourLocalization {
-  id              String   @id @default(uuid())
+  id              String   @id @default(cuid()) // ✅ Changed
   tourId          String   @map("tour_id")
   locale          String   @default("ka")
   name            String
@@ -69,7 +69,7 @@ model TourLocalization {
 }
 
 model TourImage {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid()) // ✅ Changed
   tourId    String   @map("tour_id")
   url       String
   order     Int      @default(0)
@@ -82,7 +82,7 @@ model TourImage {
 }
 
 model GroupPricing {
-  id                String   @id @default(uuid())
+  id                String   @id @default(cuid()) // ✅ Changed
   tourId            String   @unique @map("tour_id")
   totalPrice        Decimal  @map("total_price") @db.Decimal(10, 2)
   reservationPrice  Decimal  @map("reservation_price") @db.Decimal(10, 2)
@@ -94,7 +94,7 @@ model GroupPricing {
 }
 
 model IndividualPricing {
-  id     String @id @default(uuid())
+  id     String @id @default(cuid()) // ✅ Changed
   tourId String @unique @map("tour_id")
   
   seasonTotalPrice        Decimal @map("season_total_price") @db.Decimal(10, 2)
@@ -110,9 +110,8 @@ model IndividualPricing {
   @@map("individual_pricing")
 }
 
-// Transfer Models
 model Transfer {
-  id            String                 @id @default(uuid())
+  id            String                 @id @default(cuid()) // ✅ Changed
   isPublic      Boolean                @default(false) @map("is_public")
   createdAt     DateTime               @default(now()) @map("created_at")
   updatedAt     DateTime               @updatedAt @map("updated_at")
@@ -125,7 +124,7 @@ model Transfer {
 }
 
 model TransferLocalization {
-  id            String   @id @default(uuid())
+  id            String   @id @default(cuid()) // ✅ Changed
   transferId    String   @map("transfer_id")
   locale        String   @default("ka")
   startLocation String   @map("start_location")
@@ -139,7 +138,7 @@ model TransferLocalization {
 }
 
 model TransferVehicleType {
-  id         String      @id @default(uuid())
+  id         String      @id @default(cuid()) // ✅ Changed
   transferId String      @map("transfer_id")
   type       VehicleType
   price      Decimal     @db.Decimal(10, 2)
@@ -150,24 +149,21 @@ model TransferVehicleType {
   @@index([transferId])
   @@map("transfer_vehicle_types")
 }
-// Payment Models
+
 model TourPaymentOrder {
-  id                  String        @id @default(uuid())
+  id                  String        @id @default(cuid()) // ✅ Changed
   tourId              String        @map("tour_id")
   externalOrderId     String        @unique @map("external_order_id")
   bogOrderId          String        @unique @map("bog_order_id")
   
-  // Customer Info
   customerFirstName   String        @map("customer_first_name")
   customerLastName    String        @map("customer_last_name")
   customerEmail       String        @map("customer_email")
   customerPhone       String        @map("customer_phone")
   
-  // Tour Info
   peopleCount         Int           @map("people_count")
   selectedDate        DateTime      @map("selected_date")
   
-  // ✅ NEW: Language-specific tour data saved at booking time
   tourLocale          String        @default("ka") @map("tour_locale")
   tourName            String        @map("tour_name")
   tourDescription     String?       @map("tour_description") @db.Text
@@ -177,7 +173,6 @@ model TourPaymentOrder {
   endLocation         String        @map("end_location")
   locations           String[]      @default([])
   
-  // Payment Info
   isFullPayment       Boolean       @map("is_full_payment")
   totalPrice          Decimal       @map("total_price") @db.Decimal(10, 2)
   paidAmount          Decimal       @map("paid_amount") @db.Decimal(10, 2)
@@ -204,29 +199,25 @@ model TourPaymentOrder {
 }
 
 model TransferPaymentOrder {
-  id                String        @id @default(uuid())
+  id                String        @id @default(cuid()) // ✅ Changed
   transferId        String        @map("transfer_id")
   externalOrderId   String        @unique @map("external_order_id")
   bogOrderId        String        @unique @map("bog_order_id")
   
-  // Customer Info
   customerFirstName String        @map("customer_first_name")
   customerLastName  String        @map("customer_last_name")
   customerEmail     String        @map("customer_email")
   customerPhone     String        @map("customer_phone")
   
-  // Transfer Info
   passengerCount    Int           @map("passenger_count")
   transferDate      DateTime      @map("transfer_date")
   transferTime      DateTime      @map("transfer_time")
   vehicleType       VehicleType   @map("vehicle_type")
   
-  // ✅ NEW: Language-specific transfer data saved at booking time
   transferLocale         String   @default("ka") @map("transfer_locale")
   transferStartLocation  String   @map("transfer_start_location")
   transferEndLocation    String   @map("transfer_end_location")
   
-  // Payment Info
   paymentAmount     Decimal       @map("payment_amount") @db.Decimal(10, 2)
   status            PaymentStatus @default(PENDING)
   paymentUrl        String?       @map("payment_url")
@@ -250,9 +241,8 @@ model TransferPaymentOrder {
   @@map("transfer_payment_orders")
 }
 
-// User Models
 model User {
-  id         String   @id @default(uuid())
+  id         String   @id @default(cuid()) // ✅ Changed
   firstName  String   @map("first_name")
   lastName   String   @map("last_name")
   email      String   @unique
@@ -276,14 +266,11 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
-
- 
 model Driver {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid()) // ✅ Changed
   firstName String   @map("first_name")
   lastName  String   @map("last_name")
-  photo     String?  // URL or file path
-
+  photo     String?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
@@ -291,9 +278,8 @@ model Driver {
   @@map("drivers")
 }
 
-
 model FAQ {
-  id             String              @id @default(uuid())
+  id             String              @id @default(cuid()) // ✅ Changed
   category       String?
   localizations  FAQLocalization[]
   createdAt      DateTime            @default(now())
@@ -303,7 +289,7 @@ model FAQ {
 }
 
 model FAQLocalization {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid()) // ✅ Changed
   faqId     String
   locale    String
   question  String   @db.Text
@@ -317,7 +303,7 @@ model FAQLocalization {
 }
 
 model Video {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid()) // ✅ Changed
   url         String
   title       String?
   description String?  @db.Text
@@ -328,9 +314,8 @@ model Video {
   @@map("videos")
 }
 
-
 model QuickPaymentLink {
-  id            String   @id @default(uuid())
+  id            String   @id @default(cuid()) // ✅ Changed
   slug          String   @unique
   
   name          String
@@ -339,7 +324,7 @@ model QuickPaymentLink {
   price         Decimal  @db.Decimal(10, 2)
   
   isActive      Boolean  @default(true)
-  showOnWebsite Boolean  @default(false) @map("show_on_website")  // ✅ NEW
+  showOnWebsite Boolean  @default(false) @map("show_on_website")
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -347,26 +332,23 @@ model QuickPaymentLink {
   orders        QuickPaymentOrder[]
   
   @@index([slug])
-  @@index([showOnWebsite]) // ✅ NEW INDEX for filtering
+  @@index([showOnWebsite])
   @@map("quick_payment_links")
 }
 
 model QuickPaymentOrder {
-  id                String   @id @default(uuid())
+  id                String   @id @default(cuid()) // ✅ Changed
   linkId            String?
   link              QuickPaymentLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
   
-  // Customer Info
   customerFullName  String
-  customerEmail     String   // ✅ NEW - Required
-  customerPhone     String?  // ✅ NEW - Optional
+  customerEmail     String
+  customerPhone     String?
   
-  // Product snapshot at time of purchase
   productName       String
   productDescription String? @db.Text
   productPrice      Decimal @db.Decimal(10, 2)
   
-  // Payment Info
   externalOrderId   String   @unique
   bogOrderId        String   @unique
   paymentUrl        String?
@@ -385,15 +367,14 @@ model QuickPaymentOrder {
   @@index([linkId])
   @@index([externalOrderId])
   @@index([status, createdAt])
-  @@index([customerEmail]) // ✅ NEW INDEX
+  @@index([customerEmail])
   @@map("quick_payment_orders")
 }
 
-
 model InsuranceSettings {
-  id                String   @id @default(uuid())
+  id                String   @id @default(cuid()) // ✅ Changed
   pricePerPerson    Decimal  @db.Decimal(10, 2)
-  adminEmail        String   // Email where completed insurance notifications are sent
+  adminEmail        String
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -402,12 +383,10 @@ model InsuranceSettings {
 }
 
 model InsuranceSubmission {
-  id              String        @id @default(uuid())
+  id              String        @id @default(cuid()) // ✅ Changed
   
-  // Submitter Info (main contact)
   submitterEmail  String        @map("submitter_email")
   
-  // Payment Info
   externalOrderId String        @unique @map("external_order_id")
   bogOrderId      String        @unique @map("bog_order_id")
   paymentUrl      String?       @map("payment_url")
@@ -421,7 +400,6 @@ model InsuranceSubmission {
   paymentMethod   String?       @map("payment_method")
   callbackData    Json?         @map("callback_data")
   
-  // Notification tracking
   emailSent       Boolean       @default(false) @map("email_sent")
   emailSentAt     DateTime?     @map("email_sent_at")
   
@@ -431,7 +409,6 @@ model InsuranceSubmission {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
   
-  // Relations
   people          InsurancePerson[]
   
   @@index([submitterEmail])
@@ -441,12 +418,12 @@ model InsuranceSubmission {
 }
 
 model InsurancePerson {
-  id           String              @id @default(uuid())
+  id           String              @id @default(cuid()) // ✅ Changed
   submissionId String              @map("submission_id")
   
   fullName     String              @map("full_name")
   phoneNumber  String              @map("phone_number")
-  passportPhoto String             @map("passport_photo") // URL to uploaded image
+  passportPhoto String             @map("passport_photo")
   
   createdAt    DateTime            @default(now()) @map("created_at")
   
