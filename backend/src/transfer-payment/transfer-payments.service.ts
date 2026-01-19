@@ -175,8 +175,8 @@ export class TransferPaymentsService {
         ],
       },
       redirect_urls: {
-        success: `${frontendUrl}/transfer/payment/success?order_id=${external_order_id}`,
-        fail: `${frontendUrl}/transfer/payment/failure?order_id=${external_order_id}`,
+        success: `${frontendUrl}/payment/success?order_id=${external_order_id}`,
+        fail: `${frontendUrl}/payment/failure?order_id=${external_order_id}`,
       },
       buyer: {
         full_name: `${firstName} ${lastName}`,

@@ -220,7 +220,7 @@ Daud Travel Team
             
             <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px;">
               <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-                © 2024 Daud Travel. All rights reserved.<br>
+                © 2025 Daud Travel. All rights reserved.<br>
                 This is an automated message, please do not reply to this email.
               </p>
             </div>
@@ -236,7 +236,7 @@ Daud Travel Team
         
         If you did not create an account with Daud Travel, please ignore this email.
         
-        © 2024 Daud Travel. All rights reserved.
+        © 2025 Daud Travel. All rights reserved.
       `,
       });
 
@@ -348,7 +348,7 @@ Daud Travel Team
 
           <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px;">
             <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
-              © 2024 Daud Travel. All rights reserved.<br>
+              © 2025 Daud Travel. All rights reserved.<br>
               This is an automated confirmation email.
             </p>
           </div>
@@ -374,7 +374,7 @@ Our team will process your insurance documents and send them to this email addre
 
 If you have any questions, please reply to this email with your Order ID: ${externalOrderId}
 
-© 2024 Daud Travel. All rights reserved.
+© 2025 Daud Travel. All rights reserved.
     `.trim();
 
       const { data, error } = await this.resend.emails.send({

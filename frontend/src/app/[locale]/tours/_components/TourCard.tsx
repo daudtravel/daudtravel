@@ -37,7 +37,11 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const localization = tour.localizations[0];
+  // Find the localization matching current locale, fallback to first one
+  const localization =
+    tour.localizations.find((loc) => loc.locale === currentLocale) ||
+    tour.localizations[0];
+
   const isIndividual = tour.type === "INDIVIDUAL";
 
   const isCurrentSeasonSummer = () => {
@@ -122,7 +126,6 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
   return (
     <div className="flex flex-col w-full bg-[#f2f5ff] border border-gray-300 rounded-xl shadow-xs overflow-hidden transition-all duration-300 hover:shadow-lg h-full">
       <Link className="w-full h-full flex flex-col" href={`/tours/${tour.id}`}>
-        {/* Image Section */}
         <div className="relative w-full h-[200px] md:h-[230px] flex-shrink-0">
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 bg-gray-200 animate-pulse" />
@@ -153,18 +156,15 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
           )}
         </div>
 
-        {/* Content Section */}
         <div
           className="w-full py-4 px-4 flex flex-col gap-4 flex-grow"
           dir={isRTL ? "rtl" : "ltr"}
         >
-          {/* Tour Name */}
           <div className="flex items-center gap-2">
             <TextIcon className="w-4 h-4 text-main" />
             <span className="text-sm line-clamp-1">{localization?.name}</span>
           </div>
 
-          {/* Start Location & Duration */}
           <div className="flex md:items-center gap-3 md:gap-0 flex-col md:flex-row md:justify-between">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-main" />
@@ -186,7 +186,6 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             </div>
           </div>
 
-          {/* Persons & Price */}
           <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:items-center md:justify-between">
             {isIndividual && tour.maxPersons && (
               <div className="flex items-center gap-2">
@@ -202,7 +201,6 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             </div>
           </div>
 
-          {/* Start Date */}
           <div className="flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-main" />
             <span className="text-sm font-bold">{t("startDate")}:</span>
@@ -215,7 +213,6 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             </span>
           </div>
 
-          {/* Tour Type */}
           <div className="flex items-center gap-2">
             {isIndividual ? (
               <User className="w-4 h-4 text-main" />
@@ -228,7 +225,6 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             </span>
           </div>
 
-          {/* Locations Route */}
           {localization?.locations && localization.locations.length > 0 && (
             <div className="relative py-4 min-h-[80px]">
               <div className="absolute left-0 right-0 top-1/3 h-1 bg-white border-gray-300 border rounded-lg transform -translate-y-1/2" />
@@ -256,7 +252,6 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
 
           <div className="flex-grow" />
 
-          {/* View Details Button */}
           <Button className="w-full h-8 group mt-auto">
             {isRTL && (
               <ArrowIcon className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" />

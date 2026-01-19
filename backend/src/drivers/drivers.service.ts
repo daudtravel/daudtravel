@@ -14,7 +14,6 @@ export class DriversService {
     let photo: string | undefined;
 
     if (file) {
-      // ✅ Convert Multer file → base64 (what util expects)
       const base64 = `data:${file.mimetype};base64,${file.buffer.toString(
         'base64',
       )}`;
@@ -48,14 +47,12 @@ export class DriversService {
   }
 
   async delete(id: string) {
-    // Optional: Delete the photo file if it exists
     const driver = await this.prisma.driver.findUnique({
       where: { id },
     });
 
     if (driver?.photo) {
-      // Delete the physical file if needed
-      // await this.fileUploadService.deleteFile(driver.photo);
+      await this.fileUploadService.deleteFile(driver.photo);
     }
 
     return this.prisma.driver.delete({

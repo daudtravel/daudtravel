@@ -10,6 +10,8 @@ import { getBOGAccessToken } from '@/common/utils/bog-auth';
 import { BOG_API_URL, verifyBOGSignature } from '@/common/utils/bog-payments';
 import { PaymentStatus } from '@prisma/client';
 import { FileUploadService } from '@/common/utils/file-upload.util';
+import { Response } from 'express';
+import * as crypto from 'crypto';
 
 import {
   CreateInsuranceSubmissionDto,
@@ -25,6 +27,86 @@ export class InsuranceService {
     private fileUpload: FileUploadService,
     private mailService: MailService,
   ) {}
+
+  // ============ HELPER METHODS ============
+
+  private generateSecureViewToken(
+    submissionId: string,
+    personId: string,
+  ): string {
+    const secret = process.env.JWT_SECRET || 'your-secret-key';
+
+    // Token expires in 7 days
+    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    const payload = `${submissionId}:${personId}:${expiresAt}`;
+
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(payload);
+    const signature = hmac.digest('hex');
+
+    return `${Buffer.from(payload).toString('base64')}.${signature}`;
+  }
+
+  async viewSecurePassportPhoto(
+    submissionId: string,
+    personId: string,
+    token: string,
+    res: Response,
+  ) {
+    const secret = process.env.JWT_SECRET || 'your-secret-key';
+
+    try {
+      // Parse token
+      const [encodedPayload, signature] = token.split('.');
+      if (!encodedPayload || !signature) {
+        throw new BadRequestException('Invalid token format');
+      }
+
+      const payload = Buffer.from(encodedPayload, 'base64').toString('utf-8');
+      const [tokenSubmissionId, tokenPersonId, expiresAt] = payload.split(':');
+
+      // Verify signature
+      const hmac = crypto.createHmac('sha256', secret);
+      hmac.update(payload);
+      const expectedSignature = hmac.digest('hex');
+
+      if (signature !== expectedSignature) {
+        throw new BadRequestException('Invalid token signature');
+      }
+
+      // Check expiration
+      if (Date.now() > parseInt(expiresAt)) {
+        throw new BadRequestException('Token expired');
+      }
+
+      // Verify IDs match
+      if (tokenSubmissionId !== submissionId || tokenPersonId !== personId) {
+        throw new BadRequestException('Token mismatch');
+      }
+
+      // Get person and photo
+      const person = await this.prisma.insurancePerson.findUnique({
+        where: { id: personId },
+        include: { submission: true },
+      });
+
+      if (!person || person.submissionId !== submissionId) {
+        throw new NotFoundException('Photo not found');
+      }
+
+      // Return the photo file
+      const filePath = person.passportPhoto.replace('/uploads/', '');
+      return res.sendFile(filePath, { root: './uploads' });
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid or expired link');
+    }
+  }
 
   // ============ SETTINGS MANAGEMENT ============
 
@@ -145,8 +227,8 @@ export class InsuranceService {
         ],
       },
       redirect_urls: {
-        success: `${frontendUrl}/insurance/success?order_id=${external_order_id}`,
-        fail: `${frontendUrl}/insurance/failure?order_id=${external_order_id}`,
+        success: `${frontendUrl}/payment/success?order_id=${external_order_id}`,
+        fail: `${frontendUrl}/payment/failure?order_id=${external_order_id}`,
       },
       ttl: 30,
     };
@@ -285,23 +367,36 @@ export class InsuranceService {
     if (!settings) return;
 
     try {
-      // Build people details HTML
+      const baseUrl = process.env.BASE_URL || 'https://api.daudtravel.com';
+
+      // Build people details HTML with secure links
       const peopleDetailsHtml = submission.people
-        .map(
-          (person, index) => `
+        .map((person, index) => {
+          // Generate secure token for this specific photo
+          const viewToken = this.generateSecureViewToken(
+            submission.id,
+            person.id,
+          );
+          const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}?token=${viewToken}`;
+
+          return `
         <div style="background-color: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #2196F3;">
           <h4 style="color: #333; margin: 0 0 10px 0;">Person ${index + 1}</h4>
           <p style="margin: 5px 0;"><strong>Name:</strong> ${person.fullName}</p>
           <p style="margin: 5px 0;"><strong>Phone:</strong> ${person.phoneNumber}</p>
-          <p style="margin: 5px 0;">
-            <strong>Passport Photo:</strong> 
-            <a href="${person.passportPhoto}" target="_blank" style="color: #2196F3; text-decoration: none;">
-              View Photo
+          <p style="margin: 10px 0;">
+            <a href="${securePhotoUrl}" 
+               target="_blank" 
+               style="display: inline-block; background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 5px;">
+              🔒 View Secure Photo
             </a>
+            <span style="display: block; margin-top: 5px; font-size: 12px; color: #666;">
+              (Link expires in 7 days)
+            </span>
           </p>
         </div>
-      `,
-        )
+      `;
+        })
         .join('');
 
       const html = `
@@ -319,8 +414,8 @@ export class InsuranceService {
               <p style="margin: 5px 0;"><strong>Number of People:</strong> ${submission.peopleCount}</p>
               <p style="margin: 5px 0;"><strong>Price per Person:</strong> ${submission.pricePerPerson} GEL</p>
               <p style="margin: 5px 0;"><strong>Total Amount:</strong> ${submission.totalAmount} GEL</p>
-              <p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${submission.transactionId || 'N/A'}</p>
-              <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${submission.paymentMethod || 'N/A'}</p>
+              ${submission.transactionId ? `<p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${submission.transactionId}</p>` : ''}
+              ${submission.paymentMethod ? `<p style="margin: 5px 0;"><strong>Payment Method:</strong> ${submission.paymentMethod}</p>` : ''}
             </div>
 
             <h3 style="color: #333; margin: 30px 0 15px 0;">Submitted People Details</h3>
@@ -329,6 +424,12 @@ export class InsuranceService {
             <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 30px 0; border-radius: 4px;">
               <p style="color: #856404; margin: 0; font-size: 14px;">
                 📧 <strong>Reply to submitter:</strong> ${submission.submitterEmail}
+              </p>
+            </div>
+
+            <div style="background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 4px;">
+              <p style="color: #2e7d32; margin: 0; font-size: 13px;">
+                🔒 <strong>Security Note:</strong> Photo links are secured and expire after 7 days
               </p>
             </div>
 
@@ -356,19 +457,22 @@ Payment Details:
 - Number of People: ${submission.peopleCount}
 - Price per Person: ${submission.pricePerPerson} GEL
 - Total Amount: ${submission.totalAmount} GEL
-- Transaction ID: ${submission.transactionId || 'N/A'}
-- Payment Method: ${submission.paymentMethod || 'N/A'}
+${submission.transactionId ? `- Transaction ID: ${submission.transactionId}` : ''}
+${submission.paymentMethod ? `- Payment Method: ${submission.paymentMethod}` : ''}
 
 Submitted People:
 ${submission.people
-  .map(
-    (person, index) => `
+  .map((person, index) => {
+    const viewToken = this.generateSecureViewToken(submission.id, person.id);
+    const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}?token=${viewToken}`;
+
+    return `
 Person ${index + 1}:
 - Name: ${person.fullName}
 - Phone: ${person.phoneNumber}
-- Passport Photo: ${person.passportPhoto}
-`,
-  )
+- Passport Photo: ${securePhotoUrl} (expires in 7 days)
+`;
+  })
   .join('\n')}
 
 Reply to submitter: ${submission.submitterEmail}
@@ -397,8 +501,6 @@ Paid on ${submission.paidAt?.toLocaleString()}
       console.log(`✅ Admin notification sent for submission: ${submissionId}`);
     } catch (error) {
       console.error('❌ Failed to send admin notification:', error);
-      // Don't throw - we still want the payment to succeed even if email fails
-      // Email can be resent manually later since we have the data in DB
     }
   }
 
@@ -427,7 +529,6 @@ Paid on ${submission.paidAt?.toLocaleString()}
       );
     } catch (error) {
       console.error('❌ Failed to send customer confirmation:', error);
-      // Don't throw - email failure shouldn't break the payment flow
     }
   }
 
@@ -587,7 +688,6 @@ Paid on ${submission.paidAt?.toLocaleString()}
             `⚠️ Failed to delete passport photo: ${person.passportPhoto}`,
             error,
           );
-          // Continue even if file deletion fails
         }
       }),
     );
@@ -637,10 +737,6 @@ Paid on ${submission.paidAt?.toLocaleString()}
     };
   }
 
-  /**
-   * Delete failed/pending submissions older than X days
-   * These are likely abandoned payments
-   */
   async cleanupAbandonedSubmissions(daysOld: number = 30) {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysOld);
@@ -676,9 +772,6 @@ Paid on ${submission.paidAt?.toLocaleString()}
     };
   }
 
-  /**
-   * Bulk delete multiple submissions by IDs
-   */
   async bulkDeleteSubmissions(submissionIds: string[]) {
     const results = {
       success: true,
@@ -700,9 +793,6 @@ Paid on ${submission.paidAt?.toLocaleString()}
     return results;
   }
 
-  /**
-   * Get storage statistics
-   */
   async getStorageStats() {
     const [total, paid, pending, failed] = await Promise.all([
       this.prisma.insuranceSubmission.count(),
@@ -728,7 +818,7 @@ Paid on ${submission.paidAt?.toLocaleString()}
         failed,
       },
       totalPeople,
-      estimatedStorageFiles: totalPeople, // Each person has 1 passport photo
+      estimatedStorageFiles: totalPeople,
     };
   }
 }

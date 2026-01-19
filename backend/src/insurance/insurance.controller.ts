@@ -9,10 +9,12 @@ import {
   Query,
   Headers,
   Req,
+  Res,
   UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { InsuranceService } from './insurance.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
@@ -63,6 +65,22 @@ export class InsuranceController {
   @ApiOperation({ summary: 'Get submission status by order ID (Public)' })
   async getSubmissionStatus(@Param('externalOrderId') externalOrderId: string) {
     return this.service.getSubmissionStatus(externalOrderId);
+  }
+
+  @Get('view-passport/:submissionId/:personId')
+  @ApiOperation({ summary: 'View passport photo with secure token (Public)' })
+  async viewPassportPhoto(
+    @Param('submissionId') submissionId: string,
+    @Param('personId') personId: string,
+    @Query('token') token: string,
+    @Res() res: Response,
+  ) {
+    return this.service.viewSecurePassportPhoto(
+      submissionId,
+      personId,
+      token,
+      res,
+    );
   }
 
   // ============ ADMIN ENDPOINTS ============

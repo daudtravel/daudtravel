@@ -43,7 +43,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
     customerPhone?: string;
   }>({});
 
-  // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -75,19 +74,16 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
   const validateForm = () => {
     const errors: typeof formErrors = {};
 
-    // Validate full name
     if (!formData.customerFullName.trim()) {
       errors.customerFullName = "სახელი სავალდებულოა";
     }
 
-    // Validate email
     if (!formData.customerEmail.trim()) {
       errors.customerEmail = "ელ.ფოსტა სავალდებულოა";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)) {
       errors.customerEmail = "გთხოვთ შეიყვანოთ სწორი ელ.ფოსტა";
     }
 
-    // Validate phone (optional, but if provided must be valid)
     if (
       formData.customerPhone.trim() &&
       !/^[\d\s\+\-\(\)]+$/.test(formData.customerPhone)
@@ -114,7 +110,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
         customerEmail: formData.customerEmail.trim(),
       };
 
-      // Only include phone if provided
       if (formData.customerPhone.trim()) {
         payload.customerPhone = formData.customerPhone.trim();
       }
@@ -182,15 +177,12 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-gray-100 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          {/* Header */}
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-8 text-white text-center">
             <Package className="w-16 h-16 mx-auto mb-4" />
             <h1 className="text-3xl font-bold">გადახდა</h1>
           </div>
 
-          {/* Product Info */}
           <div className="p-8">
-            {/* Product Image */}
             {product.image && (
               <div className="mb-6">
                 <img
@@ -218,7 +210,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
               </div>
             </div>
 
-            {/* Customer Information Form */}
             <form onSubmit={handlePay} className="space-y-5">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <p className="text-sm text-blue-800 font-medium">
@@ -226,7 +217,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
                 </p>
               </div>
 
-              {/* Full Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   სრული სახელი <span className="text-red-500">*</span>
@@ -264,7 +254,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
                 )}
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ელ.ფოსტა <span className="text-red-500">*</span>
@@ -302,7 +291,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
                 )}
               </div>
 
-              {/* Phone (Optional) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ტელეფონის ნომერი{" "}
@@ -343,7 +331,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
                 )}
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={paying}
@@ -363,7 +350,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
               </button>
             </form>
 
-            {/* Security Note */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500">
                 🔒 უსაფრთხო გადახდა Bank of Georgia-ს საშუალებით
@@ -372,7 +358,6 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
           </div>
         </div>
 
-        {/* Info Banner */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
           <p className="text-sm text-blue-800">
             გადახდის შემდეგ დაბრუნდებით დადასტურების გვერდზე

@@ -7,7 +7,6 @@ import { useTourPaymentStatus } from "@/src/hooks/tours/useTourPaymentStatus";
 import { useQuickPaymentStatus } from "@/src/hooks/quick-payment/useQuickPaymentStatus";
 import { useTransferPaymentStatus } from "@/src/hooks/transfers/useTransferPaymentStatus";
 import { useInsurancePaymentStatus } from "@/src/hooks/insurance/useInsurancePaymentStatus";
- 
 
 type PaymentType = "tour" | "quick" | "transfer" | "insurance" | "unknown";
 
@@ -28,7 +27,6 @@ export default function PaymentFailure() {
 
   const paymentType = getPaymentType();
 
-  // Use appropriate hook based on payment type
   const tourPayment = useTourPaymentStatus(
     paymentType === "tour" ? orderId : null
   );
@@ -42,7 +40,6 @@ export default function PaymentFailure() {
     paymentType === "insurance" ? orderId : null
   );
 
-  // Get the relevant data based on payment type
   const isLoading =
     paymentType === "tour"
       ? tourPayment.isLoading

@@ -101,7 +101,7 @@ export default function Header() {
         <nav className="lg:flex items-center gap-3 md:gap-4 items-center hidden">
           <Link href="/">
             <span
-              className={`relative tracking-widest text-base font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
+              className={`relative tracking-widest text-lg font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
             >
               {t("main")}
               <span
@@ -119,7 +119,7 @@ export default function Header() {
             <button
               onClick={() => setIsServicesOpen(!isServicesOpen)}
               onMouseEnter={() => setIsServicesOpen(true)}
-              className="relative tracking-widest text-sm font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2 flex items-center gap-1"
+              className="relative tracking-widest text-lg font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2 flex items-center gap-1"
             >
               {t("services") || "Services"}
               <svg
@@ -165,7 +165,7 @@ export default function Header() {
                         isActive(item.href) ? "bg-[#FFA41B]/10" : ""
                       }`}
                     >
-                      <span className="text-sm font-semibold bg-gradient-to-r from-[#FF6B6B] via-[#FF8E53] to-[#FFA41B] bg-clip-text text-transparent">
+                      <span className="text-lg font-semibold bg-gradient-to-r from-[#FF6B6B] via-[#FF8E53] to-[#FFA41B] bg-clip-text text-transparent">
                         {item.label}
                       </span>
                     </div>
@@ -181,7 +181,7 @@ export default function Header() {
           ].map((item) => (
             <Link key={item.href} href={item.href}>
               <span
-                className={`relative tracking-widest text-sm font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
+                className={`relative tracking-widest text-lg font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
               >
                 {item.label}
                 <span

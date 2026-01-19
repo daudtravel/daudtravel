@@ -1,5 +1,3 @@
-// src/components/admin/insurance/InsuranceSubmissionDetails.tsx
-
 "use client";
 
 import React from "react";

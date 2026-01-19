@@ -26,8 +26,6 @@ import {
 import { Switch } from "@/src/components/ui/switch";
 import RichTextEditor from "@/src/components/textEditor/TextEditor";
 import { toursAPI } from "@/src/services/tours.service";
-import { handleFileToBase64 } from "@/src/utlis/base64/mainImageUpload";
-import { handleMultipleFilesToBase64 } from "@/src/utlis/base64/galleryImageUpload";
 import {
   EditTourFormData,
   SUPPORTED_LOCALES,
@@ -44,7 +42,12 @@ export function EditTour() {
   const form = useEditTourForm(tourId || "");
 
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
   const [hasNewMainImage, setHasNewMainImage] = useState(false);
+
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>([]);
 
   const {
     data: tourData,
@@ -56,11 +59,35 @@ export function EditTour() {
     enabled: !!tourId,
   });
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const updateMutation = useMutation({
-    mutationFn: (data: EditTourFormData) => {
+    mutationFn: async (data: EditTourFormData) => {
+      let mainImageBase64: string | undefined = undefined;
+      if (mainImageFile) {
+        mainImageBase64 = await fileToBase64(mainImageFile);
+      }
+
+      const newGalleryBase64: string[] = [];
+      if (galleryFiles.length > 0) {
+        const promises = galleryFiles.map((file) => fileToBase64(file));
+        const results = await Promise.all(promises);
+        newGalleryBase64.push(...results);
+      }
+
+      const combinedGallery = [...existingGalleryUrls, ...newGalleryBase64];
+
       const payload = {
         ...data,
-        mainImage: data.mainImage ?? undefined,
+        mainImage: mainImageBase64,
+        gallery: combinedGallery,
       } as UpdateTourInput;
 
       return toursAPI.put(tourId, payload);
@@ -73,8 +100,7 @@ export function EditTour() {
   });
 
   const tourType = form.watch("type");
-  const galleryImages = form.watch("gallery") || [];
-  const isSubmitting = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting || updateMutation.isPending;
 
   useEffect(() => {
     if (!tourData?.data) return;
@@ -93,6 +119,8 @@ export function EditTour() {
     });
 
     const galleryUrls = tour.images?.map((img: any) => img.url) || [];
+    setExistingGalleryUrls(galleryUrls);
+    setGalleryPreviews(galleryUrls);
 
     form.reset({
       type: tour.type as TourType,
@@ -126,24 +154,43 @@ export function EditTour() {
   }, [tourData, form]);
 
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileToBase64(e, (base64) => {
-      form.setValue("mainImage", base64);
-      setMainImagePreview(base64);
+    const file = e.target.files?.[0];
+    if (file) {
+      setMainImageFile(file);
       setHasNewMainImage(true);
-    });
+      const previewUrl = URL.createObjectURL(file);
+      setMainImagePreview(previewUrl);
+    }
   };
 
   const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleMultipleFilesToBase64(e, (base64Images) => {
-      const currentGallery = form.getValues("gallery") || [];
-      form.setValue("gallery", [...currentGallery, ...base64Images]);
-    });
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setGalleryFiles((prev) => [...prev, ...files]);
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setGalleryPreviews((prev) => [...prev, ...newPreviews]);
   };
 
   const removeGalleryImage = (index: number) => {
-    const currentGallery = form.getValues("gallery") || [];
-    const newGallery = currentGallery.filter((_, i) => i !== index);
-    form.setValue("gallery", newGallery);
+    const preview = galleryPreviews[index];
+
+    const existingIndex = existingGalleryUrls.indexOf(preview);
+
+    if (existingIndex !== -1) {
+      setExistingGalleryUrls((prev) =>
+        prev.filter((_, i) => i !== existingIndex)
+      );
+    } else {
+      const newFileIndex = index - existingGalleryUrls.length;
+      if (newFileIndex >= 0) {
+        URL.revokeObjectURL(preview);
+        setGalleryFiles((prev) => prev.filter((_, i) => i !== newFileIndex));
+      }
+    }
+
+    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const normalizeImageUrl = (url: string): string => {
@@ -171,11 +218,6 @@ export function EditTour() {
     if (!hasNewMainImage) {
       delete payload.mainImage;
     }
-
-    const currentGallery = data.gallery || [];
-    const normalizedGallery = currentGallery.map(normalizeImageUrl);
-
-    payload.gallery = normalizedGallery;
 
     if (tourType === TourType.GROUP) {
       delete payload.individualPricing;
@@ -299,6 +341,7 @@ export function EditTour() {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                 </FormItem>
@@ -315,6 +358,7 @@ export function EditTour() {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                 </FormItem>
@@ -418,6 +462,7 @@ export function EditTour() {
                                     );
                                     field.onChange(updated);
                                   }}
+                                  disabled={isSubmitting}
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
@@ -430,6 +475,7 @@ export function EditTour() {
                               onClick={() =>
                                 field.onChange([...field.value, ""])
                               }
+                              disabled={isSubmitting}
                               className="w-full"
                             >
                               <Plus className="h-4 w-4 mr-2" />
@@ -484,6 +530,7 @@ export function EditTour() {
                         type="number"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -502,6 +549,7 @@ export function EditTour() {
                         type="number"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormMessage />
@@ -517,7 +565,7 @@ export function EditTour() {
                     <FormItem>
                       <FormLabel>თარიღი</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type="date" {...field} disabled={isSubmitting} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -545,6 +593,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -567,6 +616,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -589,6 +639,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -616,6 +667,7 @@ export function EditTour() {
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
+                          disabled={isSubmitting}
                         />
                       </FormControl>
                       <FormMessage />
@@ -640,6 +692,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                           <FormMessage />
                         </FormItem>
@@ -660,6 +713,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                           <FormMessage />
                         </FormItem>
@@ -680,6 +734,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                           <FormMessage />
                         </FormItem>
@@ -705,6 +760,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                           <FormMessage />
                         </FormItem>
@@ -725,6 +781,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                           <FormMessage />
                         </FormItem>
@@ -745,6 +802,7 @@ export function EditTour() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            disabled={isSubmitting}
                           />
                           <FormMessage />
                         </FormItem>
@@ -766,12 +824,14 @@ export function EditTour() {
                       type="file"
                       accept="image/*"
                       onChange={handleMainImageUpload}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   {mainImagePreview && (
                     <div className="mt-2 relative w-full max-w-md">
                       <Image
                         src={
+                          mainImagePreview.startsWith("blob:") ||
                           mainImagePreview.startsWith("data:")
                             ? mainImagePreview
                             : mainImagePreview.startsWith("http")
@@ -782,8 +842,16 @@ export function EditTour() {
                         width={400}
                         height={225}
                         className="object-cover rounded"
-                        unoptimized={mainImagePreview.startsWith("data:")}
+                        unoptimized={
+                          mainImagePreview.startsWith("blob:") ||
+                          mainImagePreview.startsWith("data:")
+                        }
                       />
+                      {hasNewMainImage && (
+                        <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                          ახალი
+                        </span>
+                      )}
                     </div>
                   )}
                   <FormMessage />
@@ -803,16 +871,20 @@ export function EditTour() {
                       accept="image/*"
                       multiple
                       onChange={handleGalleryUpload}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  {galleryImages.length > 0 && (
+                  {galleryPreviews.length > 0 && (
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-2">
-                      {galleryImages.map((preview, idx) => {
-                        const imageSrc = preview.startsWith("data:")
-                          ? preview
-                          : preview.startsWith("http")
+                      {galleryPreviews.map((preview, idx) => {
+                        const isNewImage = preview.startsWith("blob:");
+                        const imageSrc =
+                          preview.startsWith("blob:") ||
+                          preview.startsWith("data:")
                             ? preview
-                            : `${process.env.NEXT_PUBLIC_BASE_URL}${preview}`;
+                            : preview.startsWith("http")
+                              ? preview
+                              : `${process.env.NEXT_PUBLIC_BASE_URL}${preview}`;
 
                         return (
                           <div
@@ -825,17 +897,21 @@ export function EditTour() {
                               width={200}
                               height={150}
                               className="w-full h-32 object-cover rounded"
-                              unoptimized={preview.startsWith("data:")}
+                              unoptimized={
+                                preview.startsWith("blob:") ||
+                                preview.startsWith("data:")
+                              }
                             />
                             <button
                               type="button"
                               onClick={() => removeGalleryImage(idx)}
                               className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                               aria-label="წაშლა"
+                              disabled={isSubmitting}
                             >
                               <X className="h-4 w-4" />
                             </button>
-                            {preview.startsWith("data:") && (
+                            {isNewImage && (
                               <span className="absolute bottom-1 left-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">
                                 ახალი
                               </span>
@@ -846,16 +922,8 @@ export function EditTour() {
                     </div>
                   )}
                   <FormDescription>
-                    არსებული სურათები:{" "}
-                    {
-                      galleryImages.filter((img) => !img.startsWith("data:"))
-                        .length
-                    }{" "}
-                    | ახალი სურათები:{" "}
-                    {
-                      galleryImages.filter((img) => img.startsWith("data:"))
-                        .length
-                    }
+                    არსებული სურათები: {existingGalleryUrls.length} | ახალი
+                    სურათები: {galleryFiles.length}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

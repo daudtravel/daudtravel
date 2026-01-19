@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PaymentStatusCard from "./PaymentStatusCard";
 import { useTourPaymentStatus } from "@/src/hooks/tours/useTourPaymentStatus";
 import { useQuickPaymentStatus } from "@/src/hooks/quick-payment/useQuickPaymentStatus";
@@ -14,7 +14,6 @@ export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("order_id");
-  const [redirectCountdown, setRedirectCountdown] = useState(5);
 
   const getPaymentType = (): PaymentType => {
     if (!orderId) return "unknown";
@@ -27,7 +26,6 @@ export default function PaymentSuccess() {
 
   const paymentType = getPaymentType();
 
-  // Use appropriate hook based on payment type
   const tourPayment = useTourPaymentStatus(
     paymentType === "tour" ? orderId : null
   );
@@ -41,7 +39,6 @@ export default function PaymentSuccess() {
     paymentType === "insurance" ? orderId : null
   );
 
-  // Get the relevant data based on payment type
   const isLoading =
     paymentType === "tour"
       ? tourPayment.isLoading
@@ -134,35 +131,7 @@ export default function PaymentSuccess() {
     }
   }, [isFailed, orderId, router]);
 
-  useEffect(() => {
-    if (isCompleted && !isLoading) {
-      const timer = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-
-            if (paymentType === "tour") {
-              router.push(`/tours/order/details?order_id=${orderId}`);
-            } else if (paymentType === "transfer") {
-              router.push(`/transfer/order/details?order_id=${orderId}`);
-            } else {
-              router.push("/");
-            }
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [isCompleted, isLoading, paymentType, orderId, router]);
-
-  if (isFailed) {
-    return null;
-  }
-
-  const handleRedirectNow = () => {
+  const handleViewDetails = () => {
     if (paymentType === "tour") {
       router.push(`/tours/order/details?order_id=${orderId}`);
     } else if (paymentType === "transfer") {
@@ -172,11 +141,13 @@ export default function PaymentSuccess() {
     }
   };
 
-  const getRedirectMessage = () => {
-    if (paymentType === "tour") return "order details";
-    if (paymentType === "transfer") return "booking details";
-    return "home";
+  const handleGoHome = () => {
+    router.push("/");
   };
+
+  if (isFailed) {
+    return null;
+  }
 
   return (
     <div className="relative">
@@ -190,39 +161,46 @@ export default function PaymentSuccess() {
         paymentType={paymentType}
       />
 
-      {isCompleted && !isLoading && redirectCountdown > 0 && (
+      {isCompleted && !isLoading && (
         <div className="fixed bottom-6 right-6 bg-white rounded-lg shadow-xl p-4 border-2 border-green-200 animate-fade-in z-50">
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0">
-              <svg
-                className="w-5 h-5 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </div>
-            <div>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex-shrink-0">
+                <svg
+                  className="w-5 h-5 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
               <p className="text-sm font-medium text-gray-900">
-                Redirecting to {getRedirectMessage()}
-              </p>
-              <p className="text-xs text-gray-500">
-                in {redirectCountdown} second
-                {redirectCountdown !== 1 ? "s" : ""}...
+                Payment Successful!
               </p>
             </div>
-            <button
-              onClick={handleRedirectNow}
-              className="ml-2 text-xs text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Go now
-            </button>
+
+            <div className="flex gap-2">
+              {(paymentType === "tour" || paymentType === "transfer") && (
+                <button
+                  onClick={handleViewDetails}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  View Details
+                </button>
+              )}
+              <button
+                onClick={handleGoHome}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Go Home
+              </button>
+            </div>
           </div>
         </div>
       )}

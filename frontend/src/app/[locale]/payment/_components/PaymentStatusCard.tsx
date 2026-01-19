@@ -353,12 +353,6 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
             </div>
           )}
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-            <p className="text-yellow-800 text-sm">
-              💡 Don't worry, no money has been charged to your account.
-            </p>
-          </div>
-
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
             <p className="text-blue-900 text-sm font-medium mb-2">
               Common issues:

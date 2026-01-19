@@ -22,8 +22,6 @@ export default function GroupToursSection() {
   const params = useParams();
   const locale = params.locale as string;
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-
   const [api, setApi] = useState<any>(null);
   const [current, setCurrent] = useState(0);
 
@@ -147,7 +145,6 @@ export default function GroupToursSection() {
           </Carousel>
 
           <div className="flex justify-center gap-2 mt-2">
-            {/* eslint-disable @typescript-eslint/no-explicit-any */}
             {toursData?.data?.tours?.map((_: any, index: number) => (
               <button
                 key={index}

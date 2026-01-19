@@ -31,13 +31,13 @@ import {
   createTourSchema,
   TourType,
 } from "./CreateTourValidator";
-import { handleFileToBase64 } from "@/src/utlis/base64/mainImageUpload";
-import { handleMultipleFilesToBase64 } from "@/src/utlis/base64/galleryImageUpload";
 import { useCreateTour } from "@/src/hooks/tours/useCreateTour";
 
 export default function CreateTour() {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [tourType, setTourType] = useState<TourType>(TourType.GROUP);
 
   const router = useRouter();
@@ -81,38 +81,96 @@ export default function CreateTour() {
     mode: "onChange",
   });
 
-  const onSubmit = (data: CreateTourFormData) => {
-    createMutation.mutate(data, {
-      onSuccess: () => {
-        form.reset();
-        setMainImagePreview(null);
-        setGalleryPreviews([]);
-        router.push("?tours=all");
-      },
+  // Optimized: Convert to base64 only when submitting
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
+  };
+
+  const onSubmit = async (data: CreateTourFormData) => {
+    try {
+      // Validate that main image file exists
+      if (!mainImageFile) {
+        form.setError("mainImage", {
+          type: "manual",
+          message: "Main image is required",
+        });
+        return;
+      }
+
+      // Convert files to base64 only at submit time (not during upload)
+      const mainImageBase64 = await fileToBase64(mainImageFile);
+
+      const galleryBase64: string[] = [];
+      if (galleryFiles.length > 0) {
+        // Convert all gallery images in parallel for speed
+        const promises = galleryFiles.map((file) => fileToBase64(file));
+        const results = await Promise.all(promises);
+        galleryBase64.push(...results);
+      }
+
+      // Create the payload
+      const payload = {
+        ...data,
+        mainImage: mainImageBase64,
+        gallery: galleryBase64,
+      };
+
+      createMutation.mutate(payload, {
+        onSuccess: () => {
+          form.reset();
+          setMainImagePreview(null);
+          setMainImageFile(null);
+          setGalleryPreviews([]);
+          setGalleryFiles([]);
+          router.push("?tours=all");
+        },
+      });
+    } catch (error) {
+      console.error("Error converting images:", error);
+      form.setError("mainImage", {
+        type: "manual",
+        message: "Failed to process images. Please try again.",
+      });
+    }
   };
 
   const handleMainImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    handleFileToBase64(event, (base64Image) => {
-      form.setValue("mainImage", base64Image);
-      setMainImagePreview(base64Image);
-    });
+    const file = event.target.files?.[0];
+    if (file) {
+      // Store the file
+      setMainImageFile(file);
+
+      // Create preview using URL.createObjectURL (much faster than base64)
+      const previewUrl = URL.createObjectURL(file);
+      setMainImagePreview(previewUrl);
+    }
   };
 
   const handleGalleryUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleMultipleFilesToBase64(event, (base64Images) => {
-      setGalleryPreviews((prev) => [...prev, ...base64Images]);
-      const currentGallery = form.getValues("gallery") || [];
-      form.setValue("gallery", [...currentGallery, ...base64Images]);
-    });
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    // Store files
+    setGalleryFiles((prev) => [...prev, ...files]);
+
+    // Create previews using URL.createObjectURL (instant, no encoding)
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setGalleryPreviews((prev) => [...prev, ...newPreviews]);
   };
 
   const removeGalleryImage = (index: number) => {
-    const newGalleryPreviews = galleryPreviews.filter((_, i) => i !== index);
-    setGalleryPreviews(newGalleryPreviews);
-    form.setValue("gallery", newGalleryPreviews);
+    // Revoke the object URL to free memory
+    URL.revokeObjectURL(galleryPreviews[index]);
+
+    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
+    setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleTypeChange = (checked: boolean) => {
@@ -644,6 +702,7 @@ export default function CreateTour() {
                             type="button"
                             onClick={() => removeGalleryImage(index)}
                             className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                            disabled={isSubmitting}
                           >
                             <X className="h-4 w-4" />
                           </button>

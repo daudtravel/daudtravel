@@ -30,6 +30,12 @@ const individualPricingSchema = z.object({
   offSeasonDiscountedPrice: z.coerce.number().min(0),
 });
 
+// Custom validator for image - accepts both base64 string and empty string (File will be added at submit)
+const imageValidator = z.union([
+  z.string().regex(/^data:image\//, "Invalid image format"),
+  z.string().length(0), // Allow empty string when File object is stored separately
+]);
+
 export const createTourSchema = z
   .object({
     type: z.nativeEnum(TourType).default(TourType.GROUP),
@@ -41,11 +47,11 @@ export const createTourSchema = z
     days: z.coerce.number().min(1, "Days must be at least 1").default(1),
     nights: z.coerce.number().min(0, "Nights must be positive").default(0),
 
-    mainImage: z.string().regex(/^data:image\//, "Invalid image format"),
+    // Changed: Accept empty string during form filling, will validate File object at submit
+    mainImage: z.string().default(""),
 
-    gallery: z
-      .array(z.string().regex(/^data:image\//, "Invalid image"))
-      .default([]),
+    // Changed: Accept array of empty strings during form filling
+    gallery: z.array(z.string()).default([]),
 
     isPublic: z.boolean().default(false),
     isDaily: z.boolean().default(false),

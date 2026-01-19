@@ -10,8 +10,6 @@ import {
   Users,
   Trash2,
   Settings,
-  TrendingDown,
-  BarChart3,
   Eye,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -115,25 +113,11 @@ export const InsuranceSubmissionsList = () => {
 
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => router.push(`${pathname}?insurance=stats`)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-              >
-                <BarChart3 size={18} />
-                <span className="hidden sm:inline">სტატისტიკა</span>
-              </button>
-              <button
                 onClick={() => router.push(`${pathname}?insurance=settings`)}
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
                 <Settings size={18} />
                 <span className="hidden sm:inline">პარამეტრები</span>
-              </button>
-              <button
-                onClick={() => router.push(`${pathname}?insurance=cleanup`)}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
-              >
-                <TrendingDown size={18} />
-                <span className="hidden sm:inline">გასუფთავება</span>
               </button>
             </div>
           </div>
