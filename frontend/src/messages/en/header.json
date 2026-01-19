@@ -10,5 +10,7 @@
   "logout": "Log out",
   "daudTravel": "Daud Travel",
   "groupTourType": "Group tour",
-  "individualTourType": "Individual tour"
+  "individualTourType": "Individual tour",
+  "insurance": "Insurance",
+  "services": "Services"
 }

@@ -1,12 +1,21 @@
 import React from "react";
 import { CheckCircle, XCircle, Loader2, AlertCircle } from "lucide-react";
-import { PaymentStatusResponse } from "../types";
+import {
+  PaymentStatusResponse,
+  QuickPaymentDetails,
+  InsurancePaymentDetails,
+} from "../types";
+
+type PaymentType = "tour" | "quick" | "transfer" | "insurance" | "unknown";
 
 interface PaymentStatusCardProps {
   isLoading: boolean;
-  paymentDetails: PaymentStatusResponse | null;
+  paymentDetails?: PaymentStatusResponse | null;
+  quickPaymentDetails?: QuickPaymentDetails | null;
+  insurancePaymentDetails?: InsurancePaymentDetails | null;
   error: string;
   completed: boolean;
+  paymentType: PaymentType;
 }
 
 const Card = ({
@@ -77,33 +86,42 @@ const Button = ({
 const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
   isLoading,
   paymentDetails,
+  quickPaymentDetails,
+  insurancePaymentDetails,
   error,
   completed,
+  paymentType,
 }) => {
   const isSuccess =
-    completed &&
-    paymentDetails?.success === true &&
-    (paymentDetails?.status === "completed" ||
-      paymentDetails?.status === "PAID") &&
-    (paymentDetails?.payment_response?.code === "100" ||
-      paymentDetails?.payment_response?.is_successful === true);
+    paymentType === "quick"
+      ? quickPaymentDetails?.status === "PAID"
+      : paymentType === "insurance"
+        ? insurancePaymentDetails?.status === "PAID"
+        : completed &&
+          paymentDetails?.success === true &&
+          (paymentDetails?.status === "completed" ||
+            paymentDetails?.status === "PAID") &&
+          (paymentDetails?.payment_response?.code === "100" ||
+            paymentDetails?.payment_response?.is_successful === true);
 
   const isPending =
-    !isLoading &&
-    paymentDetails &&
-    (paymentDetails.success === null ||
-      paymentDetails.status === "PENDING" ||
-      paymentDetails.status === "pending");
+    paymentType === "quick"
+      ? !isLoading && quickPaymentDetails?.status === "PENDING"
+      : paymentType === "insurance"
+        ? !isLoading && insurancePaymentDetails?.status === "PENDING"
+        : !isLoading &&
+          paymentDetails &&
+          (paymentDetails.success === null ||
+            paymentDetails.status === "PENDING" ||
+            paymentDetails.status === "pending");
 
   const getErrorMessage = (): string => {
     if (paymentDetails?.payment_response?.description) {
       return paymentDetails.payment_response.description;
     }
-
     if (paymentDetails?.status_description) {
       return paymentDetails.status_description;
     }
-
     if (paymentDetails?.reject_reason) {
       const reasons: Record<string, string> = {
         expiration:
@@ -120,16 +138,35 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
         paymentDetails.reject_reason
       );
     }
-
     if (paymentDetails?.message) {
       return paymentDetails.message;
     }
-
     if (error) {
       return error;
     }
-
     return "Your payment could not be processed";
+  };
+
+  const getSuccessMessage = () => {
+    if (paymentType === "tour")
+      return "Congratulations! You have successfully purchased your tour.";
+    if (paymentType === "transfer")
+      return "Your transfer has been booked successfully!";
+    if (paymentType === "insurance")
+      return "Your insurance application has been submitted successfully.";
+    if (paymentType === "quick")
+      return "Your payment has been completed successfully.";
+    return "Payment completed successfully!";
+  };
+
+  const getEmailMessage = () => {
+    if (paymentType === "tour")
+      return "You will receive tour information via email shortly.";
+    if (paymentType === "transfer")
+      return "You will receive transfer confirmation via email shortly.";
+    if (paymentType === "insurance")
+      return "We will process your insurance application and contact you soon.";
+    return "Payment confirmation has been sent to your email.";
   };
 
   if (isLoading || isPending) {
@@ -159,7 +196,12 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
     );
   }
 
-  if (error && !paymentDetails) {
+  if (
+    error &&
+    !paymentDetails &&
+    !quickPaymentDetails &&
+    !insurancePaymentDetails
+  ) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -198,39 +240,89 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
               <CheckCircle className="h-6 w-6" />
               Payment Successful!
             </CardTitle>
-            <CardDescription>
-              Congratulations! You have successfully purchased your tour.
-            </CardDescription>
+            <CardDescription>{getSuccessMessage()}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {paymentDetails?.amount && (
+            {/* Tour/Transfer Payment Details */}
+            {(paymentType === "tour" || paymentType === "transfer") &&
+              paymentDetails?.amount && (
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-blue-900 font-medium">
+                      Amount Paid:
+                    </span>
+                    <span className="text-lg font-bold text-blue-900">
+                      {paymentDetails.amount.currency}{" "}
+                      {paymentDetails.amount.transferred.toFixed(2)}
+                    </span>
+                  </div>
+                  {paymentDetails.transaction_id && (
+                    <div className="mt-2 pt-2 border-t border-blue-200">
+                      <span className="text-xs text-blue-700">
+                        Transaction ID: {paymentDetails.transaction_id}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            {/* Quick Payment Details */}
+            {paymentType === "quick" && quickPaymentDetails && (
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                <div className="flex justify-between items-center">
+                <div className="mb-3">
+                  <span className="text-sm text-gray-600">Product:</span>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {quickPaymentDetails.productName}
+                  </p>
+                  {quickPaymentDetails.productDescription && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {quickPaymentDetails.productDescription}
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-between items-center pt-3 border-t border-blue-200">
                   <span className="text-sm text-blue-900 font-medium">
                     Amount Paid:
                   </span>
                   <span className="text-lg font-bold text-blue-900">
-                    {paymentDetails.amount.currency}{" "}
-                    {paymentDetails.amount.transferred.toFixed(2)}
+                    ₾{quickPaymentDetails.productPrice.toFixed(2)}
                   </span>
                 </div>
-                {paymentDetails.transaction_id && (
-                  <div className="mt-2 pt-2 border-t border-blue-200">
-                    <span className="text-xs text-blue-700">
-                      Transaction ID: {paymentDetails.transaction_id}
-                    </span>
-                  </div>
-                )}
               </div>
             )}
+
+            {/* Insurance Payment Details */}
+            {paymentType === "insurance" && insurancePaymentDetails && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <div className="mb-3">
+                  <span className="text-sm text-gray-600">Insurance for:</span>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {insurancePaymentDetails.peopleCount}{" "}
+                    {insurancePaymentDetails.peopleCount === 1
+                      ? "person"
+                      : "people"}
+                  </p>
+                </div>
+                <div className="flex justify-between items-center pt-3 border-t border-blue-200">
+                  <span className="text-sm text-blue-900 font-medium">
+                    Total Amount:
+                  </span>
+                  <span className="text-lg font-bold text-blue-900">
+                    ₾{insurancePaymentDetails.totalAmount.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="bg-green-50 border border-green-200 rounded-md p-4">
               <p className="text-green-800 text-sm mb-2">
-                ✅ You will receive tour information via email shortly.
+                ✅ {getEmailMessage()}
               </p>
               <p className="text-green-800 text-sm">
-                📧 Check your inbox for booking confirmation.
+                📧 Check your inbox for confirmation.
               </p>
             </div>
+
             <div className="pt-4 space-y-2">
               <Button onClick={() => (window.location.href = "/")}>
                 Return Home
@@ -263,7 +355,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
             <p className="text-yellow-800 text-sm">
-              💡 Don t worry, no money has been charged to your account.
+              💡 Don't worry, no money has been charged to your account.
             </p>
           </div>
 

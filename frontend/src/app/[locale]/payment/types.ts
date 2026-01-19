@@ -1,32 +1,56 @@
-export interface PaymentAmount {
-  requested: number;
-  transferred: number;
-  refunded?: number;
-  currency: string;
-}
-
-export interface PaymentResponse {
-  code: string | null;
-  description: string;
-  is_successful: boolean;
-}
-
+// Tour Payment Types
 export interface PaymentStatusResponse {
-  success: boolean;
+  success: boolean | null;
   order_id: string;
   external_order_id: string;
   status: string;
-  status_description: string;
-  payment_response: PaymentResponse;
-  amount: PaymentAmount;
+  status_description?: string;
+  payment_response?: {
+    code?: string;
+    description?: string;
+    is_successful?: boolean;
+  };
+  amount?: {
+    requested: number;
+    transferred: number;
+    currency: string;
+  };
   payment_method?: string;
-  transaction_id?: string | null;
-  paid_at?: string | null;
-  failed_at?: string | null;
-  created_at?: string;
-  expires_at?: string;
-  reject_reason?: string | null;
+  transaction_id?: string;
+  reject_reason?: string;
   message?: string;
-  error?: string;
-  full_details?: any;
+  paid_at?: string;
+  failed_at?: string;
+}
+
+// Quick Payment Types
+export interface QuickPaymentDetails {
+  id: string;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  customerFullName: string;
+  productName: string;
+  productDescription?: string;
+  productPrice: number;
+  paidAt?: string;
+  createdAt: string;
+}
+
+// Transfer Payment Types (same structure as tour payments)
+export type TransferPaymentStatusResponse = PaymentStatusResponse;
+
+// Insurance Payment Types
+export interface InsurancePaymentDetails {
+  id: string;
+  externalOrderId: string;
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  submitterEmail: string;
+  peopleCount: number;
+  totalAmount: number;
+  pricePerPerson: number;
+  people: Array<{
+    fullName: string;
+    phoneNumber: string;
+  }>;
+  paidAt?: string;
+  createdAt: string;
 }

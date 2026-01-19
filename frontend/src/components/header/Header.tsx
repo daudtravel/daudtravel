@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -11,6 +12,8 @@ export default function Header() {
   const t = useTranslations("header");
   const pathname = usePathname();
   const { locale } = useParams();
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const isActive = (href: string) => {
     if (
@@ -23,6 +26,26 @@ export default function Header() {
       pathname === `/${locale}${href}` || pathname === `/${locale}${href}/`
     );
   };
+
+  const isServiceActive = () => {
+    return ["/tours", "/transfers", "/insurance", "/products"].some((path) =>
+      isActive(path)
+    );
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsServicesOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="top-0 w-full bg-[#f2f5ff] shadow-md z-50">
@@ -76,17 +99,89 @@ export default function Header() {
           </svg>
         </Link>
         <nav className="lg:flex items-center gap-3 md:gap-4 items-center hidden">
+          <Link href="/">
+            <span
+              className={`relative tracking-widest text-base font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
+            >
+              {t("main")}
+              <span
+                className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FF6B6B] via-[#FF8E53] to-[#FFA41B] transition-transform duration-300 ease-in-out ${
+                  isActive("/")
+                    ? "scale-x-100"
+                    : "scale-x-0 group-hover:scale-x-100"
+                } before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-full before:h-0.5 before:bg-gradient-to-r before:from-[#FF6B6B] before:via-[#FF8E53] before:to-[#FFA41B] before:transition-transform before:duration-300 before:ease-in-out`}
+              />
+              <span className="absolute top-0 left-0 w-full h-full bg-white/10 rounded-lg transform scale-y-0 transition-transform duration-300 ease-in-out group-hover:scale-y-100 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-white/10 after:rounded-lg after:transition-transform after:duration-300 after:ease-in-out" />
+            </span>
+          </Link>
+
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsServicesOpen(!isServicesOpen)}
+              onMouseEnter={() => setIsServicesOpen(true)}
+              className="relative tracking-widest text-sm font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2 flex items-center gap-1"
+            >
+              {t("services") || "Services"}
+              <svg
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isServicesOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                  className="stroke-[#FF6B6B]"
+                />
+              </svg>
+              <span
+                className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FF6B6B] via-[#FF8E53] to-[#FFA41B] transition-transform duration-300 ease-in-out ${
+                  isServiceActive()
+                    ? "scale-x-100"
+                    : "scale-x-0 group-hover:scale-x-100"
+                }`}
+              />
+              <span className="absolute top-0 left-0 w-full h-full bg-white/10 rounded-lg transform scale-y-0 transition-transform duration-300 ease-in-out group-hover:scale-y-100" />
+            </button>
+
+            {isServicesOpen && (
+              <div
+                className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg py-2 min-w-[200px] z-50"
+                onMouseLeave={() => setIsServicesOpen(false)}
+              >
+                {[
+                  { href: "/tours", label: t("tours") },
+                  { href: "/transfers", label: t("transfers") },
+                  { href: "/insurance", label: t("insurance") },
+                  { href: "/products", label: t("products") },
+                ].map((item) => (
+                  <Link key={item.href} href={item.href}>
+                    <div
+                      className={`px-6 py-3 hover:bg-gradient-to-r hover:from-[#FF6B6B]/10 hover:via-[#FF8E53]/10 hover:to-[#FFA41B]/10 transition-colors duration-200 ${
+                        isActive(item.href) ? "bg-[#FFA41B]/10" : ""
+                      }`}
+                    >
+                      <span className="text-sm font-semibold bg-gradient-to-r from-[#FF6B6B] via-[#FF8E53] to-[#FFA41B] bg-clip-text text-transparent">
+                        {item.label}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           {[
-            { href: "/", label: t("main") },
-            { href: "/tours", label: t("tours") },
-            { href: "/transfers", label: t("transfers") },
-            { href: "/products", label: t("products") },
             { href: "/about", label: t("about") },
             { href: "/contact", label: t("contact") },
           ].map((item) => (
             <Link key={item.href} href={item.href}>
               <span
-                className={`relative tracking-widest text-base font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
+                className={`relative tracking-widest text-sm font-bold bg-main bg-clip-text text-transparent drop-shadow-md leading-none group cursor-pointer px-4 py-2`}
               >
                 {item.label}
                 <span

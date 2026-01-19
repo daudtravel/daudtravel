@@ -1,5 +1,6 @@
 {
   "main": "მთავარი ",
+  "insurance": "დაზღვევა",
   "tours": "ტურები",
   "transfers": "ტრანსფერები",
   "about": "ჩვენს შესახებ",
@@ -10,5 +11,6 @@
   "logout": "გამოსვლა",
   "daudTravel": "დაუდ თრეველ",
   "groupTourType": "ჯგუფური ტური",
-  "individualTourType": "ინდივიდუალური ტური"
+  "individualTourType": "ინდივიდუალური ტური",
+  "services": "სერვისები"
 }

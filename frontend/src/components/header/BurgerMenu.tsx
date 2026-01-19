@@ -25,6 +25,7 @@ export default function BurgerMenu() {
     { href: "/tours?type=INDIVIDUAL", label: t("individualTourType") },
     { href: "/tours?type=GROUP", label: t("groupTourType") },
     { href: "/transfers", label: t("transfers") },
+    { href: "/insurance", label: t("insurance") },
     { href: "/products", label: t("products") },
     { href: "/about", label: t("about") },
     { href: "/contact", label: t("contact") },
