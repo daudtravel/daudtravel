@@ -28,7 +28,7 @@ export const EditQuickLink = () => {
     description: "",
     price: "",
     image: "",
-    showOnWebsite: false, // ✅ NEW
+    showOnWebsite: false,
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export const EditQuickLink = () => {
         description: link.description || "",
         price: link.price.toString(),
         image: "",
-        showOnWebsite: link.showOnWebsite || false, // ✅ NEW
+        showOnWebsite: link.showOnWebsite || false,
       });
 
       const imageUrl = getImageUrl(link.image);
@@ -109,10 +109,9 @@ export const EditQuickLink = () => {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: priceValue,
-        showOnWebsite: formData.showOnWebsite, // ✅ NEW
+        showOnWebsite: formData.showOnWebsite,
       };
 
-      // Only include image if a new one was uploaded
       if (formData.image) {
         submitData.image = formData.image;
       }
@@ -139,21 +138,21 @@ export const EditQuickLink = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-3xl">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center gap-4 mb-6">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-3xl">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <button
             onClick={handleCancel}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
             ლინკის რედაქტირება
           </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               პროდუქტის დასახელება <span className="text-red-500">*</span>
@@ -164,7 +163,7 @@ export const EditQuickLink = () => {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               placeholder="მაგ: პრემიუმ პაკეტი"
               required
             />
@@ -180,7 +179,7 @@ export const EditQuickLink = () => {
                 setFormData({ ...formData, description: e.target.value })
               }
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
               placeholder="პროდუქტის დეტალური აღწერა..."
             />
           </div>
@@ -197,7 +196,7 @@ export const EditQuickLink = () => {
               onChange={(e) =>
                 setFormData({ ...formData, price: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               placeholder="0.00"
               required
             />
@@ -210,8 +209,8 @@ export const EditQuickLink = () => {
 
             {imagePreview ? (
               <div className="space-y-3">
-                <div className="relative inline-block">
-                  <div className="relative w-48 h-48 rounded-lg overflow-hidden border bg-gray-100">
+                <div className="relative inline-block w-full sm:w-auto">
+                  <div className="relative w-full sm:w-48 h-48 rounded-lg overflow-hidden border bg-gray-100">
                     <Image
                       src={imagePreview}
                       alt="Preview"
@@ -231,9 +230,9 @@ export const EditQuickLink = () => {
                   )}
                 </div>
                 <div>
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
                     <Upload size={16} />
-                    <span className="text-sm">სურათის შეცვლა</span>
+                    <span>სურათის შეცვლა</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -244,9 +243,9 @@ export const EditQuickLink = () => {
                 </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-500">
+              <label className="flex flex-col items-center justify-center w-full h-40 sm:h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mb-2" />
+                <span className="text-xs sm:text-sm text-gray-500">
                   ატვირთეთ სურათი (არასავალდებულო)
                 </span>
                 <input
@@ -262,8 +261,8 @@ export const EditQuickLink = () => {
             </p>
           </div>
 
-          {/* ✅ NEW: Show on Website Toggle */}
-          <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          {/* Show on Website Toggle */}
+          <div className="flex items-start sm:items-center gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <input
               type="checkbox"
               id="showOnWebsite"
@@ -271,13 +270,16 @@ export const EditQuickLink = () => {
               onChange={(e) =>
                 setFormData({ ...formData, showOnWebsite: e.target.checked })
               }
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5 sm:mt-0 flex-shrink-0"
             />
             <label
               htmlFor="showOnWebsite"
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer"
+              className="flex items-start sm:items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 cursor-pointer"
             >
-              <Globe size={18} className="text-blue-600" />
+              <Globe
+                size={16}
+                className="sm:w-[18px] sm:h-[18px] text-blue-600 flex-shrink-0 mt-0.5 sm:mt-0"
+              />
               <span>გამოჩნდეს ვებსაიტზე (საჯარო პროდუქტი)</span>
             </label>
           </div>
@@ -285,11 +287,11 @@ export const EditQuickLink = () => {
             თუ გამორთულია, პროდუქტი ხელმისაწვდომი იქნება მხოლოდ პირდაპირი ლინკით
           </p>
 
-          <div className="flex gap-4 pt-6 border-t">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t">
             <button
               type="submit"
               disabled={updateLink.isPending}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
+              className="flex-1 bg-blue-600 text-white py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
             >
               {updateLink.isPending ? (
                 <>
@@ -304,7 +306,7 @@ export const EditQuickLink = () => {
               type="button"
               onClick={handleCancel}
               disabled={updateLink.isPending}
-              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-medium"
+              className="flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-medium text-sm sm:text-base"
             >
               გაუქმება
             </button>

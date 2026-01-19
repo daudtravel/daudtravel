@@ -38,21 +38,21 @@ export const QuickPaymentOrders = () => {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
             <CheckCircle size={14} />
-            გადახდილი
+            <span className="hidden sm:inline">გადახდილი</span>
           </span>
         );
       case "PENDING":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             <Clock size={14} />
-            მიმდინარე
+            <span className="hidden sm:inline">მიმდინარე</span>
           </span>
         );
       case "FAILED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle size={14} />
-            წარუმატებელი
+            <span className="hidden sm:inline">წარუმატებელი</span>
           </span>
         );
       default:
@@ -73,19 +73,21 @@ export const QuickPaymentOrders = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="bg-white rounded-lg shadow-md">
-        <div className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="p-4 sm:p-6 border-b">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => router.push(`${pathname}?quickPayment=all`)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">შეკვეთები</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                  შეკვეთები
+                </h2>
                 <p className="text-gray-600 text-sm mt-1">
                   სულ: {pagination?.total || 0} შეკვეთა
                 </p>
@@ -96,7 +98,7 @@ export const QuickPaymentOrders = () => {
               <select
                 value={statusFilter || ""}
                 onChange={(e) => setStatusFilter(e.target.value || undefined)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
               >
                 <option value="">ყველა სტატუსი</option>
                 <option value="PAID">გადახდილი</option>
@@ -113,7 +115,8 @@ export const QuickPaymentOrders = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b">
                   <tr>
@@ -233,22 +236,111 @@ export const QuickPaymentOrders = () => {
               </table>
             </div>
 
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {orders.map((order: any) => (
+                <div key={order.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span className="font-medium text-gray-900 text-sm truncate">
+                        {order.customerFullName}
+                      </span>
+                    </div>
+                    {getStatusBadge(order.status)}
+                  </div>
+
+                  <div className="flex items-center gap-3 mb-3 pb-3 border-b">
+                    {order.linkImage ? (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_BASE_URL}${order.linkImage}`}
+                        alt={order.productName}
+                        className="w-12 h-12 rounded object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        <Package className="w-6 h-6 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 text-sm mb-1">
+                        {order.productName}
+                      </p>
+                      {order.productDescription && (
+                        <p className="text-xs text-gray-500 line-clamp-2 mb-1">
+                          {order.productDescription}
+                        </p>
+                      )}
+                      {order.linkSlug && (
+                        <p className="text-xs text-blue-500">
+                          /{order.linkSlug}
+                        </p>
+                      )}
+                      {!order.linkSlug && order.linkName === "Deleted Link" && (
+                        <p className="text-xs text-red-500">ლინკი წაშლილია</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">თანხა</p>
+                      <span className="text-base font-semibold text-gray-900">
+                        ₾{order.productPrice.toFixed(2)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">თარიღი</p>
+                      <div className="text-sm text-gray-600">
+                        {order.paidAt ? (
+                          <span>
+                            {format(new Date(order.paidAt), "dd/MM/yyyy HH:mm")}
+                          </span>
+                        ) : order.failedAt ? (
+                          <span className="text-red-600">
+                            {format(
+                              new Date(order.failedAt),
+                              "dd/MM/yyyy HH:mm"
+                            )}
+                          </span>
+                        ) : (
+                          <span>
+                            {format(
+                              new Date(order.createdAt),
+                              "dd/MM/yyyy HH:mm"
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">შეკვეთის ID</p>
+                    <code className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded block w-fit">
+                      {order.externalOrderId}
+                    </code>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {pagination && pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between px-6 py-4 border-t">
+              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t">
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   წინა
                 </button>
-                <span className="text-sm text-gray-600">
+                <span className="text-xs sm:text-sm text-gray-600">
                   გვერდი {pagination.page} / {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page >= pagination.totalPages}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   შემდეგი
                 </button>

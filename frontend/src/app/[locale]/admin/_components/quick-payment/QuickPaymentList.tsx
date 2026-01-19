@@ -88,28 +88,30 @@ export const QuickLinksList = () => {
   const pagination = data?.pagination;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mx-2 sm:mx-0">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">გადახდის ლინკები</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+            გადახდის ლინკები
+          </h2>
           <p className="text-gray-600 text-sm mt-1">
             სულ: {pagination?.total || 0} ლინკი
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => router.push(`${pathname}?quickPayment=orders`)}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex-1 sm:flex-initial"
           >
-            <TrendingUp size={20} />
-            შეკვეთები
+            <TrendingUp size={18} />
+            <span>შეკვეთები</span>
           </button>
           <button
             onClick={handleCreateNew}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex-1 sm:flex-initial"
           >
-            <Plus size={20} />
-            ახალი ლინკი
+            <Plus size={18} />
+            <span>ახალი ლინკი</span>
           </button>
         </div>
       </div>
@@ -121,7 +123,8 @@ export const QuickLinksList = () => {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
@@ -186,7 +189,6 @@ export const QuickLinksList = () => {
                         {link.paidOrdersCount} გადახდილი
                       </span>
                     </td>
-                    {/* ✅ NEW: Website Visibility Badge */}
                     <td className="px-4 py-4">
                       {link.showOnWebsite ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -264,7 +266,6 @@ export const QuickLinksList = () => {
                         >
                           <Trash2 size={18} />
                         </button>
-
                         <button
                           onClick={() => handleEdit(link.slug)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -280,22 +281,140 @@ export const QuickLinksList = () => {
             </table>
           </div>
 
+          {/* Mobile Card View */}
+          <div className="lg:hidden space-y-3">
+            {links.map((link: any) => (
+              <div
+                key={link.id}
+                className="border rounded-lg p-3 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  {link.image ? (
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}${link?.image}`}
+                      alt={link.name}
+                      className="w-16 h-16 rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 mb-1">
+                      {link.name}
+                    </p>
+                    {link.description && (
+                      <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                        {link.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-base font-semibold text-green-600">
+                        ₾{link.price}
+                      </span>
+                      {link.isActive ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          აქტიური
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                          გამორთული
+                        </span>
+                      )}
+                      {link.showOnWebsite ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <Globe size={12} />
+                          საჯარო
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <GlobeLock size={12} />
+                          პირადი
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-3 pb-3 border-b">
+                  <button
+                    onClick={() => handleCopyLink(link.paymentLink, link.slug)}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors text-sm"
+                  >
+                    {copiedSlug === link.slug ? (
+                      <>
+                        <CheckCircle size={14} />
+                        <span>კოპირებულია!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} />
+                        <span>/{link.slug}</span>
+                      </>
+                    )}
+                  </button>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-2">
+                    {link.paidOrdersCount} გადახდილი
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2">
+                  <a
+                    href={link.paymentLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <ExternalLink size={18} />
+                  </a>
+                  <button
+                    onClick={() => handleToggle(link.slug)}
+                    disabled={toggleLink.isPending}
+                    className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
+                      link.isActive
+                        ? "text-green-600 hover:bg-green-50"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Power size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(link.slug)}
+                    disabled={deleteLink.isPending}
+                    className="flex items-center justify-center p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleEdit(link.slug)}
+                    className="flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  >
+                    <Edit size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t">
+            <div className="flex items-center justify-between mt-4 sm:mt-6 pt-4 border-t">
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 წინა
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-xs sm:text-sm text-gray-600">
                 გვერდი {pagination.page} / {pagination.totalPages}
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 შემდეგი
               </button>

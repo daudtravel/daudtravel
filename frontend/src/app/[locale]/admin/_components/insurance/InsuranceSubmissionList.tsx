@@ -1,5 +1,3 @@
-// src/components/admin/insurance/InsuranceSubmissionsList.tsx
-
 "use client";
 
 import React, { useState } from "react";
@@ -47,21 +45,21 @@ export const InsuranceSubmissionsList = () => {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
             <CheckCircle size={14} />
-            გადახდილი
+            <span className="hidden sm:inline">გადახდილი</span>
           </span>
         );
       case "PENDING":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             <Clock size={14} />
-            მიმდინარე
+            <span className="hidden sm:inline">მიმდინარე</span>
           </span>
         );
       case "FAILED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle size={14} />
-            წარუმატებელი
+            <span className="hidden sm:inline">წარუმატებელი</span>
           </span>
         );
       default:
@@ -102,12 +100,12 @@ export const InsuranceSubmissionsList = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="bg-white rounded-lg shadow-md">
-        <div className="p-6 border-b">
-          <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                 დაზღვევის შეკვეთები
               </h2>
               <p className="text-gray-600 text-sm mt-1">
@@ -115,27 +113,27 @@ export const InsuranceSubmissionsList = () => {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => router.push(`${pathname}?insurance=stats`)}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
               >
-                <BarChart3 size={20} />
-                სტატისტიკა
+                <BarChart3 size={18} />
+                <span className="hidden sm:inline">სტატისტიკა</span>
               </button>
               <button
                 onClick={() => router.push(`${pathname}?insurance=settings`)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
-                <Settings size={20} />
-                პარამეტრები
+                <Settings size={18} />
+                <span className="hidden sm:inline">პარამეტრები</span>
               </button>
               <button
                 onClick={() => router.push(`${pathname}?insurance=cleanup`)}
-                className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
               >
-                <TrendingDown size={20} />
-                გასუფთავება
+                <TrendingDown size={18} />
+                <span className="hidden sm:inline">გასუფთავება</span>
               </button>
             </div>
           </div>
@@ -147,7 +145,7 @@ export const InsuranceSubmissionsList = () => {
                 setStatusFilter(e.target.value || undefined);
                 setPage(1);
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">ყველა სტატუსი</option>
               <option value="PAID">გადახდილი</option>
@@ -163,7 +161,8 @@ export const InsuranceSubmissionsList = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b">
                   <tr>
@@ -322,22 +321,130 @@ export const InsuranceSubmissionsList = () => {
               </table>
             </div>
 
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {submissions.map((submission: any) => (
+                <div key={submission.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <p className="font-medium text-gray-900 text-sm truncate">
+                          {submission.submitterEmail}
+                        </p>
+                      </div>
+                      <code className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded block w-fit">
+                        {submission.externalOrderId}
+                      </code>
+                    </div>
+                    {getStatusBadge(submission.status)}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">ადამიანები</p>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4 text-blue-500" />
+                        <span className="font-semibold text-gray-900">
+                          {submission.peopleCount}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">
+                        ფასი/ადამიანი
+                      </p>
+                      <span className="text-sm text-gray-700">
+                        ₾{submission.pricePerPerson}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">სულ</p>
+                      <span className="text-lg font-semibold text-green-600">
+                        ₾{submission.totalAmount}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">ელ.ფოსტა</p>
+                      {submission.emailSent ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <CheckCircle size={12} />
+                          კი
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <XCircle size={12} />
+                          არა
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <p className="text-xs text-gray-500 mb-1">თარიღი</p>
+                    <div className="text-sm text-gray-600">
+                      {submission.paidAt ? (
+                        <span className="text-green-600">
+                          {format(
+                            new Date(submission.paidAt),
+                            "dd/MM/yyyy HH:mm"
+                          )}
+                        </span>
+                      ) : submission.failedAt ? (
+                        <span className="text-red-600">
+                          {format(
+                            new Date(submission.failedAt),
+                            "dd/MM/yyyy HH:mm"
+                          )}
+                        </span>
+                      ) : (
+                        format(
+                          new Date(submission.createdAt),
+                          "dd/MM/yyyy HH:mm"
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t">
+                    <button
+                      onClick={() => handleViewDetails(submission.id)}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                    >
+                      <Eye size={16} />
+                      დეტალები
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleDelete(submission.id, submission.submitterEmail)
+                      }
+                      disabled={deleteSubmission.isPending}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 text-sm"
+                    >
+                      <Trash2 size={16} />
+                      წაშლა
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {pagination && pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between px-6 py-4 border-t">
+              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t">
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   წინა
                 </button>
-                <span className="text-sm text-gray-600">
+                <span className="text-xs sm:text-sm text-gray-600">
                   გვერდი {pagination.page} / {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page >= pagination.totalPages}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
                   შემდეგი
                 </button>

@@ -10,7 +10,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
@@ -174,10 +173,7 @@ export class ToursController {
   })
   @ApiResponse({ status: 200, description: 'Tour retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Tour not found' })
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Query('locale') locale?: string,
-  ) {
+  async findOne(@Param('id') id: string, @Query('locale') locale?: string) {
     const tour = await this.toursService.findOne(id, locale);
     return {
       message: 'Tour retrieved successfully',
@@ -190,10 +186,7 @@ export class ToursController {
   @ApiOperation({ summary: 'Update tour' })
   @ApiResponse({ status: 200, description: 'Tour updated successfully' })
   @ApiResponse({ status: 404, description: 'Tour not found' })
-  async update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateTourDto,
-  ) {
+  async update(@Param('id') id: string, @Body() dto: UpdateTourDto) {
     const tour = await this.toursService.update(id, dto);
     return {
       message: 'Tour updated successfully',
@@ -207,7 +200,7 @@ export class ToursController {
   @ApiOperation({ summary: 'Delete tour' })
   @ApiResponse({ status: 204, description: 'Tour deleted successfully' })
   @ApiResponse({ status: 404, description: 'Tour not found' })
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id') id: string) {
     await this.toursService.remove(id);
   }
 }
