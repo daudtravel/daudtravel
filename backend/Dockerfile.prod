@@ -47,6 +47,9 @@ COPY --from=builder /app/dist ./dist
 RUN mkdir -p /app/public/uploads && \
     chown -R node:node /app/public
 
+# FIX: Give node user ownership of node_modules BEFORE switching user
+RUN chown -R node:node /app/node_modules
+
 # Switch to non-root user
 USER node
 
