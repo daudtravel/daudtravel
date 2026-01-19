@@ -34,25 +34,13 @@ export const useTourPaymentStatus = (orderId: string | null) => {
       const data: PaymentStatusResponse = await response.json();
       setPaymentDetails(data);
 
-      // const isSuccess =
-      //   data.success === true ||
-      //   data.status === "PAID" ||
-      //   data.status === "completed";
-
-      // const isFailed =
-      //   data.success === false &&
-      //   (data.status === "FAILED" ||
-      //     data.status === "failed" ||
-      //     data.status === "rejected");
-
       const isPending =
         data.success === null ||
         data.status === "PENDING" ||
         data.status === "pending";
 
       if (!response.ok && !isPending) {
-        const errorMsg =
-          data.message || data.error || "Payment verification failed";
+        const errorMsg = data.message || "Payment verification failed";
         setError(errorMsg);
       }
 
