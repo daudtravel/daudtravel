@@ -2,20 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Upload, X, ArrowLeft, Globe } from "lucide-react";
+import { Loader2, Upload, X, ArrowLeft, Globe, Languages } from "lucide-react";
 import Image from "next/image";
 import { useUpdateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 import { quickPaymentService } from "@/src/services/quick-payment.service";
 
 const getImageUrl = (imagePath: string | null): string | null => {
   if (!imagePath) return null;
-
   if (imagePath.startsWith("http") || imagePath.startsWith("data:")) {
     return imagePath;
   }
-
   return `${process.env.NEXT_PUBLIC_BASE_URL}${imagePath}`;
 };
+
+interface Localization {
+  locale: string;
+  name: string;
+  description: string;
+}
 
 export const EditQuickLink = () => {
   const router = useRouter();
@@ -23,15 +27,14 @@ export const EditQuickLink = () => {
   const slug = searchParams.get("quickPayment");
 
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    image: "",
-    showOnWebsite: false,
-  });
+  const [localizations, setLocalizations] = useState<Localization[]>([
+    { locale: "ka", name: "", description: "" },
+  ]);
+  const [price, setPrice] = useState("");
+  const [showOnWebsite, setShowOnWebsite] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
+  const [newImageBase64, setNewImageBase64] = useState<string>("");
 
   const updateLink = useUpdateQuickLink();
 
@@ -47,13 +50,22 @@ export const EditQuickLink = () => {
       const response = await quickPaymentService.getLink(slug!);
       const link = response.data;
 
-      setFormData({
-        name: link.name,
-        description: link.description || "",
-        price: link.price.toString(),
-        image: "",
-        showOnWebsite: link.showOnWebsite || false,
-      });
+      // Load existing localizations or create default
+      if (link.localizations && link.localizations.length > 0) {
+        setLocalizations(link.localizations);
+      } else {
+        // Fallback for old data structure
+        setLocalizations([
+          {
+            locale: "ka",
+            name: link.name || "",
+            description: link.description || "",
+          },
+        ]);
+      }
+
+      setPrice(link.price.toString());
+      setShowOnWebsite(link.showOnWebsite || false);
 
       const imageUrl = getImageUrl(link.image);
       setExistingImage(imageUrl);
@@ -65,6 +77,34 @@ export const EditQuickLink = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLocalizationChange = (
+    locale: string,
+    field: "name" | "description",
+    value: string
+  ) => {
+    setLocalizations((prev) =>
+      prev.map((loc) =>
+        loc.locale === locale ? { ...loc, [field]: value } : loc
+      )
+    );
+  };
+
+  const addLocalization = (locale: string) => {
+    if (localizations.some((loc) => loc.locale === locale)) {
+      alert("ეს ენა უკვე დამატებულია");
+      return;
+    }
+    setLocalizations([...localizations, { locale, name: "", description: "" }]);
+  };
+
+  const removeLocalization = (locale: string) => {
+    if (locale === "ka") {
+      alert("ქართული ენა სავალდებულოა");
+      return;
+    }
+    setLocalizations((prev) => prev.filter((loc) => loc.locale !== locale));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,26 +119,28 @@ export const EditQuickLink = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setFormData((prev) => ({ ...prev, image: base64String }));
+      setNewImageBase64(base64String);
       setImagePreview(base64String);
     };
     reader.readAsDataURL(file);
   };
 
   const removeImage = () => {
-    setFormData((prev) => ({ ...prev, image: "" }));
+    setNewImageBase64("");
     setImagePreview(existingImage);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.price) {
-      alert("გთხოვთ შეავსოთ ყველა სავალდებულო ველი");
+    // Validate Georgian localization (required)
+    const georgianLoc = localizations.find((loc) => loc.locale === "ka");
+    if (!georgianLoc || !georgianLoc.name.trim()) {
+      alert("ქართული სახელი სავალდებულოა");
       return;
     }
 
-    const priceValue = parseFloat(formData.price);
+    const priceValue = parseFloat(price);
     if (isNaN(priceValue) || priceValue <= 0) {
       alert("გთხოვთ შეიყვანოთ სწორი ფასი");
       return;
@@ -106,14 +148,19 @@ export const EditQuickLink = () => {
 
     try {
       const submitData: any = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
+        localizations: localizations
+          .filter((loc) => loc.name.trim()) // Only include localizations with names
+          .map((loc) => ({
+            locale: loc.locale,
+            name: loc.name.trim(),
+            description: loc.description.trim() || undefined,
+          })),
         price: priceValue,
-        showOnWebsite: formData.showOnWebsite,
+        showOnWebsite,
       };
 
-      if (formData.image) {
-        submitData.image = formData.image;
+      if (newImageBase64) {
+        submitData.image = newImageBase64;
       }
 
       await updateLink.mutateAsync({ slug: slug!, data: submitData });
@@ -128,6 +175,17 @@ export const EditQuickLink = () => {
   const handleCancel = () => {
     router.push("/admin?quickPayment=all");
   };
+
+  const availableLocales = [
+    { code: "ka", label: "ქართული", flag: "🇬🇪" },
+    { code: "en", label: "English", flag: "🇬🇧" },
+    { code: "ru", label: "Русский", flag: "🇷🇺" },
+  ];
+
+  const addedLocales = localizations.map((loc) => loc.locale);
+  const availableToAdd = availableLocales.filter(
+    (loc) => !addedLocales.includes(loc.code)
+  );
 
   if (loading) {
     return (
@@ -147,43 +205,130 @@ export const EditQuickLink = () => {
           >
             <ArrowLeft size={20} />
           </button>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-            ლინკის რედაქტირება
-          </h2>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+              ლინკის რედაქტირება
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              მრავალენოვანი პროდუქტის რედაქტირება
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              პროდუქტის დასახელება <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-              placeholder="მაგ: პრემიუმ პაკეტი"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Localizations Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Languages className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-800">
+                  თარგმანები
+                </h3>
+              </div>
+              {availableToAdd.length > 0 && (
+                <div className="relative group">
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                  >
+                    + ენის დამატება
+                  </button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border hidden group-hover:block z-10">
+                    {availableToAdd.map((locale) => (
+                      <button
+                        key={locale.code}
+                        type="button"
+                        onClick={() => addLocalization(locale.code)}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
+                      >
+                        <span>{locale.flag}</span>
+                        <span>{locale.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {localizations.map((loc) => {
+              const localeInfo = availableLocales.find(
+                (l) => l.code === loc.locale
+              );
+              return (
+                <div
+                  key={loc.locale}
+                  className="border border-gray-200 rounded-lg p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{localeInfo?.flag}</span>
+                      <span className="font-medium text-gray-700">
+                        {localeInfo?.label}
+                      </span>
+                      {loc.locale === "ka" && (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full">
+                          სავალდებულო
+                        </span>
+                      )}
+                    </div>
+                    {loc.locale !== "ka" && (
+                      <button
+                        type="button"
+                        onClick={() => removeLocalization(loc.locale)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X size={18} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      სახელი{" "}
+                      {loc.locale === "ka" && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
+                    <input
+                      type="text"
+                      value={loc.name}
+                      onChange={(e) =>
+                        handleLocalizationChange(
+                          loc.locale,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                      placeholder={`პროდუქტის სახელი ${localeInfo?.label}-ად`}
+                      required={loc.locale === "ka"}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      აღწერა
+                    </label>
+                    <textarea
+                      value={loc.description}
+                      onChange={(e) =>
+                        handleLocalizationChange(
+                          loc.locale,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      rows={3}
+                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
+                      placeholder={`პროდუქტის აღწერა ${localeInfo?.label}-ად`}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              აღწერა
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              rows={4}
-              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-              placeholder="პროდუქტის დეტალური აღწერა..."
-            />
-          </div>
-
+          {/* Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               ფასი (₾) <span className="text-red-500">*</span>
@@ -192,16 +337,15 @@ export const EditQuickLink = () => {
               type="number"
               step="0.01"
               min="0.01"
-              value={formData.price}
-              onChange={(e) =>
-                setFormData({ ...formData, price: e.target.value })
-              }
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
               className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               placeholder="0.00"
               required
             />
           </div>
 
+          {/* Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               სურათი
@@ -219,7 +363,7 @@ export const EditQuickLink = () => {
                       unoptimized={imagePreview.startsWith("data:") || false}
                     />
                   </div>
-                  {formData.image && (
+                  {newImageBase64 && (
                     <button
                       type="button"
                       onClick={removeImage}
@@ -266,10 +410,8 @@ export const EditQuickLink = () => {
             <input
               type="checkbox"
               id="showOnWebsite"
-              checked={formData.showOnWebsite}
-              onChange={(e) =>
-                setFormData({ ...formData, showOnWebsite: e.target.checked })
-              }
+              checked={showOnWebsite}
+              onChange={(e) => setShowOnWebsite(e.target.checked)}
               className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5 sm:mt-0 flex-shrink-0"
             />
             <label
@@ -287,6 +429,7 @@ export const EditQuickLink = () => {
             თუ გამორთულია, პროდუქტი ხელმისაწვდომი იქნება მხოლოდ პირდაპირი ლინკით
           </p>
 
+          {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t">
             <button
               type="submit"

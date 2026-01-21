@@ -9,6 +9,8 @@ import {
   User,
   Mail,
   Phone,
+  Plus,
+  Minus,
 } from "lucide-react";
 
 interface QuickPaymentPageProps {
@@ -22,6 +24,8 @@ interface ProductData {
   description?: string;
   image?: string;
   price: number;
+  locale: string;
+  availableLocales: string[];
 }
 
 export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
@@ -32,6 +36,7 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const [formData, setFormData] = useState({
     customerFullName: "",
     customerEmail: "",
@@ -47,7 +52,7 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
     const fetchProduct = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/quick-payment/links/${slug}`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/quick-payment/links/${slug}?locale=${locale || "ka"}`
         );
 
         if (!response.ok) {
@@ -69,7 +74,13 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
     };
 
     fetchProduct();
-  }, [slug]);
+  }, [slug, locale]);
+
+  const handleQuantityChange = (delta: number) => {
+    setQuantity((prev) => Math.max(1, Math.min(100, prev + delta)));
+  };
+
+  const totalPrice = product ? product.price * quantity : 0;
 
   const validateForm = () => {
     const errors: typeof formErrors = {};
@@ -108,6 +119,8 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
       const payload: any = {
         customerFullName: formData.customerFullName.trim(),
         customerEmail: formData.customerEmail.trim(),
+        locale: locale || "ka",
+        quantity: quantity,
       };
 
       if (formData.customerPhone.trim()) {
@@ -200,12 +213,75 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
               {product.description && (
                 <p className="text-gray-600 mb-4">{product.description}</p>
               )}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <span className="text-gray-600 font-medium text-lg">
-                  ჯამური თანხა:
+
+              {/* Unit Price */}
+              <div className="flex items-center justify-between py-3 border-b border-gray-200">
+                <span className="text-gray-600 font-medium">
+                  ერთეულის ფასი:
                 </span>
-                <span className="text-4xl font-bold text-orange-500">
+                <span className="text-xl font-semibold text-gray-800">
                   ₾{product.price.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Quantity Selector */}
+              <div className="py-4 border-b border-gray-200">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  რაოდენობა
+                </label>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(-1)}
+                    disabled={quantity <= 1}
+                    className="w-12 h-12 rounded-xl bg-orange-100 hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                  >
+                    <Minus className="w-5 h-5 text-orange-600" />
+                  </button>
+
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) =>
+                      setQuantity(
+                        Math.max(
+                          1,
+                          Math.min(100, parseInt(e.target.value) || 1)
+                        )
+                      )
+                    }
+                    min="1"
+                    max="100"
+                    className="flex-1 max-w-[120px] text-center text-2xl font-bold py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(1)}
+                    disabled={quantity >= 100}
+                    className="w-12 h-12 rounded-xl bg-orange-100 hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                  >
+                    <Plus className="w-5 h-5 text-orange-600" />
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  მაქსიმუმ 100 ერთეული
+                </p>
+              </div>
+
+              {/* Total Price */}
+              <div className="flex items-center justify-between pt-4">
+                <div>
+                  <span className="text-gray-600 font-medium text-lg block">
+                    ჯამური თანხა:
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    ₾{product.price.toFixed(2)} × {quantity}{" "}
+                    {quantity === 1 ? "ერთეული" : "ერთეული"}
+                  </span>
+                </div>
+                <span className="text-4xl font-bold text-orange-500">
+                  ₾{totalPrice.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -344,7 +420,7 @@ export const QuickPaymentPage: React.FC<QuickPaymentPageProps> = ({
                 ) : (
                   <>
                     <CreditCard className="w-6 h-6" />
-                    გადახდა - ₾{product.price.toFixed(2)}
+                    გადახდა - ₾{totalPrice.toFixed(2)}
                   </>
                 )}
               </button>

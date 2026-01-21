@@ -9,12 +9,15 @@ export const CreateQuickLink = () => {
   const router = useRouter();
   const pathname = usePathname();
   const createLink = useCreateQuickLink();
+
+  // Georgian localization (default/required)
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    nameKa: "",
+    descriptionKa: "",
     price: "",
     showOnWebsite: false,
   });
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
 
@@ -48,20 +51,25 @@ export const CreateQuickLink = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.price) return;
+    if (!formData.nameKa || !formData.price) return;
 
     try {
       await createLink.mutateAsync({
-        name: formData.name,
-        description: formData.description || undefined,
+        localizations: [
+          {
+            locale: "ka",
+            name: formData.nameKa,
+            description: formData.descriptionKa || undefined,
+          },
+        ],
         image: imageBase64 || undefined,
         price: parseFloat(formData.price),
         showOnWebsite: formData.showOnWebsite,
       });
 
       setFormData({
-        name: "",
-        description: "",
+        nameKa: "",
+        descriptionKa: "",
         price: "",
         showOnWebsite: false,
       });
@@ -93,28 +101,35 @@ export const CreateQuickLink = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
+        {/* Georgian Name - Required */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            პროდუქტის სახელი *
+            პროდუქტის სახელი (ქართული) *
           </label>
           <input
             type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            value={formData.nameKa}
+            onChange={(e) =>
+              setFormData({ ...formData, nameKa: e.target.value })
+            }
             placeholder="მაგ: თაფლი 500გ"
             className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             required
           />
+          <p className="text-xs text-gray-500 mt-1">
+            ქართული სახელი სავალდებულოა. სხვა ენები დაემატება რედაქტირებისას.
+          </p>
         </div>
 
+        {/* Georgian Description - Optional */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            აღწერა (არასავალდებულო)
+            აღწერა (ქართული) (არასავალდებულო)
           </label>
           <textarea
-            value={formData.description}
+            value={formData.descriptionKa}
             onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
+              setFormData({ ...formData, descriptionKa: e.target.value })
             }
             placeholder="მაგ: ორგანული მთის თაფლი..."
             rows={3}
@@ -122,6 +137,7 @@ export const CreateQuickLink = () => {
           />
         </div>
 
+        {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             სურათი (არასავალდებულო)
@@ -158,6 +174,7 @@ export const CreateQuickLink = () => {
           )}
         </div>
 
+        {/* Price */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             ფასი (₾) *
@@ -201,6 +218,14 @@ export const CreateQuickLink = () => {
         <p className="text-xs text-gray-500 -mt-2 ml-1">
           თუ გამორთულია, პროდუქტი ხელმისაწვდომი იქნება მხოლოდ პირდაპირი ლინკით
         </p>
+
+        {/* Info Box */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-yellow-800">
+            💡 <strong>ინფორმაცია:</strong> პროდუქტის შექმნის შემდეგ შეგიძლიათ
+            დაამატოთ ინგლისური და რუსული თარგმანები რედაქტირების გვერდიდან.
+          </p>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <button

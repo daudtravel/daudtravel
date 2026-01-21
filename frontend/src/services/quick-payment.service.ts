@@ -3,15 +3,21 @@ import { axiosInstance } from "../utlis/axiosInstance";
 export const quickPaymentService = {
   // ============ PUBLIC METHODS ============
 
-  getPublicLinks: async (page: number = 1, limit: number = 10) => {
+  getPublicLinks: async (
+    page: number = 1,
+    limit: number = 10,
+    locale: string = "ka"
+  ) => {
     const response = await axiosInstance.get(`/quick-payment/public/links`, {
-      params: { page, limit },
+      params: { page, limit, locale },
     });
     return response.data;
   },
 
-  getLink: async (slug: string) => {
-    const response = await axiosInstance.get(`/quick-payment/links/${slug}`);
+  getLink: async (slug: string, locale: string = "ka") => {
+    const response = await axiosInstance.get(`/quick-payment/links/${slug}`, {
+      params: { locale },
+    });
     return response.data;
   },
 
@@ -21,6 +27,8 @@ export const quickPaymentService = {
       customerFullName: string;
       customerEmail: string;
       customerPhone?: string;
+      locale?: string;
+      quantity?: number;
     }
   ) => {
     const response = await axiosInstance.post(
@@ -39,16 +47,23 @@ export const quickPaymentService = {
 
   // ============ ADMIN METHODS ============
 
-  getAllLinks: async (page: number = 1, limit: number = 20) => {
+  getAllLinks: async (
+    page: number = 1,
+    limit: number = 20,
+    locale?: string
+  ) => {
     const response = await axiosInstance.get(`/quick-payment/links`, {
-      params: { page, limit },
+      params: { page, limit, locale },
     });
     return response.data;
   },
 
   createLink: async (data: {
-    name: string;
-    description?: string;
+    localizations: Array<{
+      locale: string;
+      name: string;
+      description?: string;
+    }>;
     image?: string;
     price: number;
     showOnWebsite?: boolean;
@@ -60,8 +75,11 @@ export const quickPaymentService = {
   updateLink: async (
     slug: string,
     data: {
-      name?: string;
-      description?: string;
+      localizations?: Array<{
+        locale: string;
+        name: string;
+        description?: string;
+      }>;
       image?: string;
       price?: number;
       showOnWebsite?: boolean;
