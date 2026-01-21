@@ -28,6 +28,10 @@ export class QuickPaymentService {
     return uuidv4().split('-')[0];
   }
 
+  private getDefaultLocale(): string {
+    return 'ka';
+  }
+
   async createQuickLink(dto: CreateQuickLinkDto) {
     let imageUrl: string | null = null;
 
@@ -41,19 +45,27 @@ export class QuickPaymentService {
 
     const slug = this.generateSlug();
 
+    // Create link with localizations
     const link = await this.prisma.quickPaymentLink.create({
       data: {
         slug,
-        name: dto.name,
-        description: dto.description,
         image: imageUrl,
         price: dto.price,
-        showOnWebsite: dto.showOnWebsite ?? false, // ✅ NEW
+        showOnWebsite: dto.showOnWebsite ?? false,
+        localizations: {
+          create: dto.localizations.map((loc) => ({
+            locale: loc.locale,
+            name: loc.name,
+            description: loc.description,
+          })),
+        },
+      },
+      include: {
+        localizations: true,
       },
     });
 
     const frontendUrl = getPrimaryFrontendUrl();
-
     if (!frontendUrl) {
       throw new InternalServerErrorException(
         'FRONTEND_URL environment variable is not configured',
@@ -65,21 +77,27 @@ export class QuickPaymentService {
       data: {
         id: link.id,
         slug: link.slug,
-        name: link.name,
-        description: link.description,
         image: link.image,
         price: Number(link.price),
         paymentLink: `${frontendUrl}/pay/${link.slug}`,
         isActive: link.isActive,
-        showOnWebsite: link.showOnWebsite, // ✅ NEW
+        showOnWebsite: link.showOnWebsite,
+        localizations: link.localizations.map((loc) => ({
+          locale: loc.locale,
+          name: loc.name,
+          description: loc.description,
+        })),
         createdAt: link.createdAt.toISOString(),
       },
     };
   }
 
-  async getQuickLink(slug: string) {
+  async getQuickLink(slug: string, locale?: string) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
+      include: {
+        localizations: true,
+      },
     });
 
     if (!link) {
@@ -90,14 +108,28 @@ export class QuickPaymentService {
       throw new BadRequestException('This payment link is no longer active');
     }
 
+    const requestedLocale = locale || this.getDefaultLocale();
+    const localization = link.localizations.find(
+      (l) => l.locale === requestedLocale,
+    );
+
+    if (!localization && link.localizations.length === 0) {
+      throw new NotFoundException('No translations available for this link');
+    }
+
+    // Fallback to first available locale if requested locale not found
+    const selectedLoc = localization || link.localizations[0];
+
     return {
       success: true,
       data: {
         id: link.id,
-        name: link.name,
-        description: link.description,
+        name: selectedLoc.name,
+        description: selectedLoc.description,
         image: link.image,
         price: Number(link.price),
+        locale: selectedLoc.locale,
+        availableLocales: link.localizations.map((l) => l.locale),
       },
     };
   }
@@ -105,6 +137,9 @@ export class QuickPaymentService {
   async initiatePayment(slug: string, dto: InitiatePaymentDto) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
+      include: {
+        localizations: true,
+      },
     });
 
     if (!link) {
@@ -115,13 +150,25 @@ export class QuickPaymentService {
       throw new BadRequestException('This payment link is no longer active');
     }
 
+    const requestedLocale = dto.locale || this.getDefaultLocale();
+    const localization = link.localizations.find(
+      (l) => l.locale === requestedLocale,
+    );
+    const selectedLoc = localization || link.localizations[0];
+
+    if (!selectedLoc) {
+      throw new NotFoundException('No translations available for this link');
+    }
+
+    // ✅ Handle quantity (default: 1, min: 1, max: 100)
+    const quantity = Math.max(1, Math.min(100, dto.quantity || 1));
+    const unitPrice = Number(link.price);
+    const totalAmount = unitPrice * quantity;
+
     const external_order_id = `QP_${uuidv4()}`;
     const accessToken = await getBOGAccessToken();
-    const amount = Number(link.price);
-
     const frontendUrl = getPrimaryFrontendUrl();
 
-    // Also update the error check:
     if (!frontendUrl) {
       throw new InternalServerErrorException(
         'FRONTEND_URL environment variable is not configured',
@@ -133,14 +180,14 @@ export class QuickPaymentService {
       external_order_id,
       purchase_units: {
         currency: 'GEL',
-        total_amount: amount,
+        total_amount: totalAmount, // ✅ Total based on quantity
         basket: [
           {
             product_id: link.id,
-            description: link.name,
-            quantity: 1,
-            unit_price: amount,
-            total_price: amount,
+            description: selectedLoc.name,
+            quantity: quantity, // ✅ Dynamic quantity
+            unit_price: unitPrice,
+            total_price: totalAmount,
           },
         ],
       },
@@ -170,16 +217,18 @@ export class QuickPaymentService {
 
     const bogOrderData = await bogResponse.json();
 
-    // ✅ THIS IS THE IMPORTANT PART - MAKE SURE THESE TWO LINES ARE ADDED
     await this.prisma.quickPaymentOrder.create({
       data: {
         linkId: link.id,
         customerFullName: dto.customerFullName,
-        customerEmail: dto.customerEmail, // ✅ REQUIRED
-        customerPhone: dto.customerPhone, // ✅ OPTIONAL
-        productName: link.name,
-        productDescription: link.description,
-        productPrice: link.price,
+        customerEmail: dto.customerEmail,
+        customerPhone: dto.customerPhone,
+        productName: selectedLoc.name,
+        productDescription: selectedLoc.description,
+        productUnitPrice: link.price, // ✅ Store unit price
+        productQuantity: quantity, // ✅ Store quantity
+        productTotalPrice: totalAmount, // ✅ Store total
+        productLocale: selectedLoc.locale,
         externalOrderId: external_order_id,
         bogOrderId: bogOrderData.id,
         paymentUrl: bogOrderData._links.redirect.href,
@@ -191,6 +240,8 @@ export class QuickPaymentService {
     return {
       success: true,
       paymentUrl: bogOrderData._links.redirect.href,
+      totalAmount: totalAmount, // ✅ Return total to frontend
+      quantity: quantity,
     };
   }
 
@@ -248,27 +299,23 @@ export class QuickPaymentService {
     };
   }
 
-  // ✅ NEW: Get public website links
-  async getPublicLinks(page: number = 1, limit: number = 20) {
+  async getPublicLinks(locale?: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
+    const requestedLocale = locale || this.getDefaultLocale();
 
     const [links, total] = await Promise.all([
       this.prisma.quickPaymentLink.findMany({
         where: {
           isActive: true,
-          showOnWebsite: true, // ✅ Only show links marked for website
+          showOnWebsite: true,
         },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          description: true,
-          image: true,
-          price: true,
-          createdAt: true,
+        include: {
+          localizations: {
+            where: { locale: requestedLocale },
+          },
         },
       }),
       this.prisma.quickPaymentLink.count({
@@ -280,8 +327,6 @@ export class QuickPaymentService {
     ]);
 
     const frontendUrl = getPrimaryFrontendUrl();
-
-    // Also update the error check:
     if (!frontendUrl) {
       throw new InternalServerErrorException(
         'FRONTEND_URL environment variable is not configured',
@@ -290,16 +335,18 @@ export class QuickPaymentService {
 
     return {
       success: true,
-      data: links.map((link) => ({
-        id: link.id,
-        slug: link.slug,
-        name: link.name,
-        description: link.description,
-        image: link.image,
-        price: Number(link.price),
-        paymentLink: `${frontendUrl}/pay/${link.slug}`,
-        createdAt: link.createdAt.toISOString(),
-      })),
+      data: links
+        .filter((link) => link.localizations.length > 0)
+        .map((link) => ({
+          id: link.id,
+          slug: link.slug,
+          name: link.localizations[0].name,
+          description: link.localizations[0].description,
+          image: link.image,
+          price: Number(link.price),
+          paymentLink: `${frontendUrl}/pay/${link.slug}`,
+          createdAt: link.createdAt.toISOString(),
+        })),
       pagination: {
         page,
         limit,
@@ -309,9 +356,9 @@ export class QuickPaymentService {
     };
   }
 
-  // Admin: Get all links (including private ones)
-  async getAllLinks(page: number = 1, limit: number = 20) {
+  async getAllLinks(locale?: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
+    const requestedLocale = locale || this.getDefaultLocale();
 
     const [links, total] = await Promise.all([
       this.prisma.quickPaymentLink.findMany({
@@ -319,6 +366,7 @@ export class QuickPaymentService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
+          localizations: locale ? { where: { locale: requestedLocale } } : true,
           _count: {
             select: {
               orders: {
@@ -332,27 +380,31 @@ export class QuickPaymentService {
     ]);
 
     const frontendUrl = getPrimaryFrontendUrl();
-
     if (!frontendUrl) {
       throw new InternalServerErrorException(
         'FRONTEND_URL environment variable is not configured',
       );
     }
+
     return {
       success: true,
-      data: links.map((link) => ({
-        id: link.id,
-        slug: link.slug,
-        name: link.name,
-        description: link.description,
-        image: link.image,
-        price: Number(link.price),
-        isActive: link.isActive,
-        showOnWebsite: link.showOnWebsite, // ✅ NEW
-        paidOrdersCount: link._count.orders,
-        paymentLink: `${frontendUrl}/pay/${link.slug}`,
-        createdAt: link.createdAt.toISOString(),
-      })),
+      data: links.map((link) => {
+        const defaultLoc = link.localizations[0];
+        return {
+          id: link.id,
+          slug: link.slug,
+          name: defaultLoc?.name || 'No translation',
+          description: defaultLoc?.description,
+          image: link.image,
+          price: Number(link.price),
+          isActive: link.isActive,
+          showOnWebsite: link.showOnWebsite,
+          paidOrdersCount: link._count.orders,
+          paymentLink: `${frontendUrl}/pay/${link.slug}`,
+          localizations: locale ? undefined : link.localizations,
+          createdAt: link.createdAt.toISOString(),
+        };
+      }),
       pagination: {
         page,
         limit,
@@ -365,6 +417,7 @@ export class QuickPaymentService {
   async updateLink(slug: string, dto: UpdateQuickLinkDto) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
+      include: { localizations: true },
     });
 
     if (!link) {
@@ -374,11 +427,9 @@ export class QuickPaymentService {
     let imageUrl = link.image;
 
     if (dto.image) {
-      // Delete old image if exists
       if (link.image) {
         await this.fileUpload.deleteFile(link.image);
       }
-
       const uploaded = await this.fileUpload.uploadBase64Image(
         dto.image,
         'quick-payments',
@@ -386,15 +437,30 @@ export class QuickPaymentService {
       imageUrl = uploaded.url;
     }
 
+    const updateData: any = {
+      image: imageUrl,
+    };
+
+    if (dto.price !== undefined) updateData.price = dto.price;
+    if (dto.showOnWebsite !== undefined)
+      updateData.showOnWebsite = dto.showOnWebsite;
+
+    // Handle localizations update
+    if (dto.localizations && dto.localizations.length > 0) {
+      updateData.localizations = {
+        deleteMany: {},
+        create: dto.localizations.map((loc) => ({
+          locale: loc.locale,
+          name: loc.name,
+          description: loc.description,
+        })),
+      };
+    }
+
     const updated = await this.prisma.quickPaymentLink.update({
       where: { slug },
-      data: {
-        name: dto.name,
-        description: dto.description,
-        image: imageUrl,
-        price: dto.price,
-        showOnWebsite: dto.showOnWebsite, // ✅ NEW
-      },
+      data: updateData,
+      include: { localizations: true },
     });
 
     return {
@@ -402,12 +468,15 @@ export class QuickPaymentService {
       data: {
         id: updated.id,
         slug: updated.slug,
-        name: updated.name,
-        description: updated.description,
         image: updated.image,
         price: Number(updated.price),
         isActive: updated.isActive,
-        showOnWebsite: updated.showOnWebsite, // ✅ NEW
+        showOnWebsite: updated.showOnWebsite,
+        localizations: updated.localizations.map((loc) => ({
+          locale: loc.locale,
+          name: loc.name,
+          description: loc.description,
+        })),
       },
     };
   }
@@ -441,7 +510,6 @@ export class QuickPaymentService {
       throw new NotFoundException('Payment link not found');
     }
 
-    // Delete image if exists
     if (link.image) {
       await this.fileUpload.deleteFile(link.image);
     }
@@ -473,7 +541,10 @@ export class QuickPaymentService {
         customerFullName: order.customerFullName,
         productName: order.productName,
         productDescription: order.productDescription,
-        productPrice: Number(order.productPrice),
+        productUnitPrice: Number(order.productUnitPrice),
+        productQuantity: order.productQuantity,
+        productTotalPrice: Number(order.productTotalPrice),
+        productLocale: order.productLocale,
         paidAt: order.paidAt?.toISOString(),
         createdAt: order.createdAt.toISOString(),
       },
@@ -498,9 +569,9 @@ export class QuickPaymentService {
         include: {
           link: {
             select: {
-              name: true,
               slug: true,
               image: true,
+              localizations: true,
             },
           },
         },
@@ -519,9 +590,11 @@ export class QuickPaymentService {
         customerFullName: order.customerFullName,
         productName: order.productName,
         productDescription: order.productDescription,
-        productPrice: Number(order.productPrice),
+        productUnitPrice: Number(order.productUnitPrice),
+        productQuantity: order.productQuantity,
+        productTotalPrice: Number(order.productTotalPrice),
+        productLocale: order.productLocale,
         status: order.status,
-        linkName: order.link?.name ?? order.productName,
         linkSlug: order.link?.slug ?? null,
         linkImage: order.link?.image ?? null,
         transactionId: order.transactionId,
@@ -545,9 +618,9 @@ export class QuickPaymentService {
       include: {
         link: {
           select: {
-            name: true,
             slug: true,
             image: true,
+            localizations: true,
           },
         },
       },
@@ -566,9 +639,11 @@ export class QuickPaymentService {
         customerFullName: order.customerFullName,
         productName: order.productName,
         productDescription: order.productDescription,
-        productPrice: Number(order.productPrice),
+        productUnitPrice: Number(order.productUnitPrice),
+        productQuantity: order.productQuantity,
+        productTotalPrice: Number(order.productTotalPrice),
+        productLocale: order.productLocale,
         status: order.status,
-        linkName: order.link?.name ?? order.productName,
         linkSlug: order.link?.slug ?? null,
         linkImage: order.link?.image ?? null,
         transactionId: order.transactionId,

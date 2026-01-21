@@ -315,11 +315,10 @@ model Video {
 }
 
 model QuickPaymentLink {
-  id            String   @id @default(cuid()) // ✅ Changed
+  id            String   @id @default(cuid())
   slug          String   @unique
   
-  name          String
-  description   String?  @db.Text
+  // Remove name and description - they'll be in localizations
   image         String?
   price         Decimal  @db.Decimal(10, 2)
   
@@ -329,6 +328,7 @@ model QuickPaymentLink {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
+  localizations QuickPaymentLinkLocalization[] // ✅ NEW
   orders        QuickPaymentOrder[]
   
   @@index([slug])
@@ -336,8 +336,24 @@ model QuickPaymentLink {
   @@map("quick_payment_links")
 }
 
+// ✅ NEW MODEL
+model QuickPaymentLinkLocalization {
+  id          String   @id @default(cuid())
+  linkId      String   @map("link_id")
+  locale      String   @default("ka")
+  
+  name        String
+  description String?  @db.Text
+  
+  link        QuickPaymentLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  
+  @@unique([linkId, locale])
+  @@index([locale])
+  @@map("quick_payment_link_localizations")
+}
+
 model QuickPaymentOrder {
-  id                String   @id @default(cuid()) // ✅ Changed
+  id                String   @id @default(cuid())
   linkId            String?
   link              QuickPaymentLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
   
@@ -345,9 +361,13 @@ model QuickPaymentOrder {
   customerEmail     String
   customerPhone     String?
   
+  // Keep these for historical record
   productName       String
   productDescription String? @db.Text
-  productPrice      Decimal @db.Decimal(10, 2)
+  productUnitPrice  Decimal @db.Decimal(10, 2) @map("product_unit_price") // ✅ Price per unit
+  productQuantity   Int     @default(1) @map("product_quantity") // ✅ Quantity purchased
+  productTotalPrice Decimal @db.Decimal(10, 2) @map("product_total_price") // ✅ Total amount paid
+  productLocale     String  @default("ka") @map("product_locale")
   
   externalOrderId   String   @unique
   bogOrderId        String   @unique
@@ -368,6 +388,7 @@ model QuickPaymentOrder {
   @@index([externalOrderId])
   @@index([status, createdAt])
   @@index([customerEmail])
+  @@index([productLocale])
   @@map("quick_payment_orders")
 }
 

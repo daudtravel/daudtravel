@@ -1,68 +1,72 @@
+// quick-payment.dto.ts
+
 import {
   IsString,
-  IsOptional,
   IsNumber,
+  IsOptional,
   IsBoolean,
-  IsEmail,
-  Min,
+  IsArray,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateQuickLinkDto {
-  @ApiProperty({ example: 'Premium Package' })
+class QuickLinkLocalizationDto {
+  @ApiProperty({ example: 'ka' })
+  @IsString()
+  locale: string;
+
+  @ApiProperty({ example: 'გამომძიებლის მომსახურება' })
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({ example: 'Access to all premium features' })
+  @ApiPropertyOptional({ example: 'სრული აღწერა ქართულად' })
   @IsString()
   @IsOptional()
   description?: string;
+}
+
+export class CreateQuickLinkDto {
+  @ApiProperty({ type: [QuickLinkLocalizationDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuickLinkLocalizationDto)
+  localizations: QuickLinkLocalizationDto[];
 
   @ApiPropertyOptional({ example: 'base64_image_string' })
   @IsString()
   @IsOptional()
   image?: string;
 
-  @ApiProperty({ example: 99.99 })
+  @ApiProperty({ example: 150.0 })
   @IsNumber()
-  @Min(0)
   price: number;
 
-  @ApiPropertyOptional({
-    example: false,
-    description: 'Show this link on public website',
-  })
+  @ApiPropertyOptional({ example: true })
   @IsBoolean()
   @IsOptional()
   showOnWebsite?: boolean;
 }
 
 export class UpdateQuickLinkDto {
-  @ApiPropertyOptional({ example: 'Updated Package Name' })
-  @IsString()
+  @ApiPropertyOptional({ type: [QuickLinkLocalizationDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuickLinkLocalizationDto)
   @IsOptional()
-  name?: string;
+  localizations?: QuickLinkLocalizationDto[];
 
-  @ApiPropertyOptional({ example: 'Updated description' })
-  @IsString()
-  @IsOptional()
-  description?: string;
-
-  @ApiPropertyOptional({ example: 'base64_image_string' })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   image?: string;
 
-  @ApiPropertyOptional({ example: 149.99 })
+  @ApiPropertyOptional()
   @IsNumber()
-  @Min(0)
   @IsOptional()
   price?: number;
 
-  @ApiPropertyOptional({
-    example: true,
-    description: 'Show this link on public website',
-  })
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   showOnWebsite?: boolean;
@@ -73,13 +77,28 @@ export class InitiatePaymentDto {
   @IsString()
   customerFullName: string;
 
-  @ApiProperty({ example: 'john.doe@example.com' })
+  @ApiProperty({ example: 'john@example.com' })
   @IsString()
-  @IsEmail()
   customerEmail: string;
 
   @ApiPropertyOptional({ example: '+995555123456' })
   @IsString()
   @IsOptional()
   customerPhone?: string;
+
+  @ApiPropertyOptional({
+    example: 'ka',
+    description: 'Preferred language locale',
+  })
+  @IsString()
+  @IsOptional()
+  locale?: string;
+
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Quantity (default: 1, min: 1, max: 100)',
+  })
+  @IsNumber()
+  @IsOptional()
+  quantity?: number; // ✅ NEW - user can select quantity from frontend
 }

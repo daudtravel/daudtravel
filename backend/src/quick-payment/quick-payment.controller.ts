@@ -32,17 +32,20 @@ export class QuickPaymentController {
 
   @Get('public/links')
   @ApiOperation({ summary: 'Get public payment links for website (No Auth)' })
+  @ApiQuery({ name: 'locale', required: false, example: 'ka' })
   async getPublicLinks(
+    @Query('locale') locale?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.service.getPublicLinks(page, limit);
+    return this.service.getPublicLinks(locale, page, limit);
   }
 
   @Get('links/:slug')
   @ApiOperation({ summary: 'Get payment link details (Public)' })
-  async getLink(@Param('slug') slug: string) {
-    return this.service.getQuickLink(slug);
+  @ApiQuery({ name: 'locale', required: false, example: 'ka' })
+  async getLink(@Param('slug') slug: string, @Query('locale') locale?: string) {
+    return this.service.getQuickLink(slug, locale);
   }
 
   @Post('links/:slug/pay')
@@ -88,11 +91,13 @@ export class QuickPaymentController {
   @Get('links')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get all payment links (Admin)' })
+  @ApiQuery({ name: 'locale', required: false, example: 'ka' })
   async getAllLinks(
+    @Query('locale') locale?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.service.getAllLinks(page, limit);
+    return this.service.getAllLinks(locale, page, limit);
   }
 
   @Put('links/:slug')
