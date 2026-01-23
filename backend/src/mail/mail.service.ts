@@ -396,4 +396,153 @@ If you have any questions, please reply to this email with your Order ID: ${exte
       throw error;
     }
   }
+
+  async sendInsuranceAdminNotification(emailData: {
+    submission: {
+      id: string;
+      externalOrderId: string;
+      submitterEmail: string;
+      peopleCount: number;
+      pricePerPerson: number;
+      totalAmount: number;
+      transactionId?: string;
+      paymentMethod?: string;
+      paidAt?: Date;
+    };
+    people: Array<{
+      id: string;
+      fullName: string;
+      phoneNumber: string;
+    }>;
+    adminEmail: string;
+    baseUrl: string;
+    generateSecureViewToken: (submissionId: string, personId: string) => string;
+  }): Promise<void> {
+    const { submission, people, adminEmail, baseUrl, generateSecureViewToken } =
+      emailData;
+
+    try {
+      const peopleDetailsHtml = people
+        .map((person, index) => {
+          const viewToken = generateSecureViewToken(submission.id, person.id);
+          const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}?token=${viewToken}`;
+
+          return `
+        <div style="background-color: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #2196F3;">
+          <h4 style="color: #333; margin: 0 0 10px 0;">Person ${index + 1}</h4>
+          <p style="margin: 5px 0;"><strong>Name:</strong> ${person.fullName}</p>
+          <p style="margin: 5px 0;"><strong>Phone:</strong> ${person.phoneNumber}</p>
+          <p style="margin: 10px 0;">
+            <a href="${securePhotoUrl}" 
+               target="_blank" 
+               style="display: inline-block; background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 5px;">
+              🔒 View Secure Photo
+            </a>
+            <span style="display: block; margin-top: 5px; font-size: 12px; color: #666;">
+              (Link expires in 7 days)
+            </span>
+          </p>
+        </div>
+      `;
+        })
+        .join('');
+
+      const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2196F3; margin-bottom: 10px;">New Insurance Submission</h1>
+            <div style="width: 60px; height: 4px; background-color: #2196F3; margin: 0 auto;"></div>
+          </div>
+          
+          <div style="background-color: #e7f3fe; border-left: 4px solid #2196F3; padding: 20px; margin: 20px 0; border-radius: 4px;">
+            <h3 style="color: #1565c0; margin: 0 0 15px 0;">Payment Details</h3>
+            <p style="margin: 5px 0;"><strong>Order ID:</strong> ${submission.externalOrderId}</p>
+            <p style="margin: 5px 0;"><strong>Submitter Email:</strong> ${submission.submitterEmail}</p>
+            <p style="margin: 5px 0;"><strong>Number of People:</strong> ${submission.peopleCount}</p>
+            <p style="margin: 5px 0;"><strong>Price per Person:</strong> ${submission.pricePerPerson} GEL</p>
+            <p style="margin: 5px 0;"><strong>Total Amount:</strong> ${submission.totalAmount} GEL</p>
+            ${submission.transactionId ? `<p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${submission.transactionId}</p>` : ''}
+            ${submission.paymentMethod ? `<p style="margin: 5px 0;"><strong>Payment Method:</strong> ${submission.paymentMethod}</p>` : ''}
+          </div>
+
+          <h3 style="color: #333; margin: 30px 0 15px 0;">Submitted People Details</h3>
+          ${peopleDetailsHtml}
+
+          <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 30px 0; border-radius: 4px;">
+            <p style="color: #856404; margin: 0; font-size: 14px;">
+              📧 <strong>Reply to submitter:</strong> ${submission.submitterEmail}
+            </p>
+          </div>
+
+          <div style="background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="color: #2e7d32; margin: 0; font-size: 13px;">
+              🔒 <strong>Security Note:</strong> Photo links are secured and expire after 7 days
+            </p>
+          </div>
+
+          <div style="border-top: 1px solid #eee; margin-top: 30px; padding-top: 20px;">
+            <p style="color: #999; font-size: 12px; text-align: center; margin: 0;">
+              Paid on ${submission.paidAt?.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+      const text = `
+New Insurance Submission Received
+
+Payment Details:
+- Order ID: ${submission.externalOrderId}
+- Submitter Email: ${submission.submitterEmail}
+- Number of People: ${submission.peopleCount}
+- Price per Person: ${submission.pricePerPerson} GEL
+- Total Amount: ${submission.totalAmount} GEL
+${submission.transactionId ? `- Transaction ID: ${submission.transactionId}` : ''}
+${submission.paymentMethod ? `- Payment Method: ${submission.paymentMethod}` : ''}
+
+Submitted People:
+${people
+  .map((person, index) => {
+    const viewToken = generateSecureViewToken(submission.id, person.id);
+    const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}?token=${viewToken}`;
+
+    return `
+Person ${index + 1}:
+- Name: ${person.fullName}
+- Phone: ${person.phoneNumber}
+- Passport Photo: ${securePhotoUrl} (expires in 7 days)
+`;
+  })
+  .join('\n')}
+
+Reply to submitter: ${submission.submitterEmail}
+
+Paid on ${submission.paidAt?.toLocaleString()}
+    `.trim();
+
+      await this.resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'noreply@daudtravel.com',
+        to: [adminEmail],
+        replyTo: submission.submitterEmail,
+        subject: `🆕 Insurance Submission - ${submission.externalOrderId}`,
+        html,
+        text,
+      });
+
+      console.log(
+        `✅ Admin notification sent for submission: ${submission.id}`,
+      );
+    } catch (error) {
+      console.error('❌ Failed to send admin notification:', error);
+      throw error;
+    }
+  }
 }

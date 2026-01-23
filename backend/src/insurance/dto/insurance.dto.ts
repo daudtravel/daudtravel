@@ -12,7 +12,6 @@ import {
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-// DTO for each person's insurance data
 export class InsurancePersonDto {
   @ApiProperty({ example: 'Lado Asambadze' })
   @IsString()
@@ -30,10 +29,9 @@ export class InsurancePersonDto {
   })
   @IsString()
   @IsNotEmpty()
-  passportPhoto: string; // Base64 image
+  passportPhoto: string;
 }
 
-// DTO for creating insurance submission
 export class CreateInsuranceSubmissionDto {
   @ApiProperty({ example: 'lado@example.com' })
   @IsEmail()
@@ -50,7 +48,6 @@ export class CreateInsuranceSubmissionDto {
   people: InsurancePersonDto[];
 }
 
-// DTO for updating insurance settings (Admin)
 export class UpdateInsuranceSettingsDto {
   @ApiProperty({ example: 1.0 })
   @IsNumber()
