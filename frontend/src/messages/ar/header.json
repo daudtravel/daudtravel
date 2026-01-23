@@ -1,13 +1,16 @@
 {
-  "main": "داود ترافيل",
+  "main": "الرئيسية",
   "tours": "الجولات",
   "transfers": "النقل",
-  "about": "معلومات عنا",
+  "about": "من نحن",
   "contact": "اتصل بنا",
+  "products": "المنتجات",
   "signin": "تسجيل الدخول",
   "signup": "إنشاء حساب",
   "logout": "تسجيل الخروج",
-  "daudTravel": "داود للسفر والسياحة",
+  "daudTravel": "داود ترافل",
   "groupTourType": "جولة جماعية",
-  "individualTourType": "جولة فردية"
+  "individualTourType": "جولة فردية",
+  "insurance": "التأمين",
+  "services": "الخدمات"
 }

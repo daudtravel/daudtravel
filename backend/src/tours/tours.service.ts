@@ -82,8 +82,13 @@ export class ToursService {
       this.prisma.tour.count({ where }),
     ]);
 
+    // Apply default English fallback for each tour
+    const processedTours = tours.map((tour) =>
+      this.applyDefaultLocale(tour, locale),
+    );
+
     return {
-      data: tours,
+      data: processedTours,
       meta: {
         total,
         page,
@@ -107,7 +112,7 @@ export class ToursService {
       throw new NotFoundException(`Tour with ID ${id} not found`);
     }
 
-    return tour;
+    return this.applyDefaultLocale(tour, locale);
   }
 
   async update(id: string, dto: UpdateTourDto) {
@@ -407,6 +412,54 @@ export class ToursService {
       groupPricing: true,
       individualPricing: true,
     };
+  }
+
+  /**
+   * Apply default English locale if requested locale is not available
+   */
+  private applyDefaultLocale(tour: any, requestedLocale?: string) {
+    if (!tour || !tour.localizations) {
+      return tour;
+    }
+
+    // If no locale was requested, return tour as is
+    if (!requestedLocale) {
+      return tour;
+    }
+
+    // If requested locale exists, return tour as is
+    if (tour.localizations.length > 0) {
+      return tour;
+    }
+
+    // Requested locale not found, fetch English as default
+    // Re-fetch with English locale
+    return this.fetchTourWithFallbackLocale(tour.id);
+  }
+
+  /**
+   * Fetch tour with fallback to English locale
+   */
+  private async fetchTourWithFallbackLocale(tourId: string) {
+    const tourWithEnglish = await this.prisma.tour.findUnique({
+      where: { id: tourId },
+      include: {
+        localizations: { where: { locale: 'en' } },
+        images: { orderBy: { order: 'asc' as const } },
+        groupPricing: true,
+        individualPricing: true,
+      },
+    });
+
+    // If English is also not available, return all localizations
+    if (!tourWithEnglish || tourWithEnglish.localizations.length === 0) {
+      return this.prisma.tour.findUnique({
+        where: { id: tourId },
+        include: this.DEFAULT_INCLUDE,
+      });
+    }
+
+    return tourWithEnglish;
   }
 
   private validateTourData(dto: CreateTourDto | UpdateTourDto) {

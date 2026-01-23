@@ -1,14 +1,14 @@
 {
   "modalTitle": "أكمل حجزك",
-  "modalDescription": "املأ بياناتك للمتابعة بدفع {amount}",
+  "modalDescription": "املأ بياناتك لمتابعة الدفع بمبلغ {amount}",
   "firstName": "الاسم الأول *",
   "lastName": "اسم العائلة *",
   "email": "عنوان البريد الإلكتروني *",
   "phone": "رقم الهاتف *",
-  "firstNamePlaceholder": "أحمد",
-  "lastNamePlaceholder": "محمد",
-  "emailPlaceholder": "ahmed.mohamed@example.com",
-  "phonePlaceholder": "+995 555 123 456",
+  "firstNamePlaceholder": "محمد",
+  "lastNamePlaceholder": "أحمد",
+  "emailPlaceholder": "example@mail.com",
+  "phonePlaceholder": "+966 555 123 456",
   "firstNameRequired": "الاسم الأول مطلوب",
   "lastNameRequired": "اسم العائلة مطلوب",
   "emailRequired": "يرجى إدخال عنوان بريد إلكتروني صحيح",
@@ -19,9 +19,23 @@
   "creatingPayment": "جارٍ إنشاء الدفع...",
   "redirectingToPayment": "جارٍ التوجيه إلى الدفع...",
   "paymentCreatedSuccessfully": "تم إنشاء الدفع بنجاح!",
-  "noBookingData": "لا تتوفر بيانات الحجز",
+  "noBookingData": "بيانات الحجز غير متوفرة",
   "httpError": "خطأ HTTP! الحالة: {status}",
   "paymentCreationFailed": "فشل إنشاء الدفع",
-  "defaultTourName": "حجز الجولة",
-  "orderId": "معرف الطلب"
+  "defaultTourName": "حجز جولة",
+  "orderId": "معرف الطلب",
+  "statusCompleted": "نجح",
+  "pageTitle": "الدفع",
+  "unitPrice": "سعر الوحدة",
+  "quantity": "الكمية",
+  "totalAmount": "المبلغ الإجمالي",
+  "contactInfo": "معلومات الاتصال",
+  "fullName": "الاسم الكامل",
+  "fullNamePlaceholder": "مثال: محمد أحمد",
+  "fullNameRequired": "الاسم الكامل مطلوب",
+  "phoneInvalid": "يرجى إدخال رقم هاتف صحيح",
+  "optional": "اختياري",
+  "paymentError": "خطأ في بدء الدفع",
+  "securePayment": "🔒 دفع آمن عبر Bank of Georgia",
+  "returnNotice": "بعد الدفع سيتم توجيهك إلى صفحة التأكيد"
 }

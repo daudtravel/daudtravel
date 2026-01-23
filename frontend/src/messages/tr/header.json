@@ -4,10 +4,13 @@
   "transfers": "Transferler",
   "about": "Hakkımızda",
   "contact": "İletişim",
+  "products": "Ürünler",
   "signin": "Giriş Yap",
   "signup": "Kayıt Ol",
   "logout": "Çıkış Yap",
-  "daudTravel": "Daud seyahati",
+  "daudTravel": "Daud Travel",
   "groupTourType": "Grup turu",
-  "individualTourType": "Bireysel tur"
+  "individualTourType": "Bireysel tur",
+  "insurance": "Sigorta",
+  "services": "Hizmetler"
 }

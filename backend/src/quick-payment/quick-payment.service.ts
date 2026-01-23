@@ -92,11 +92,17 @@ export class QuickPaymentService {
     };
   }
 
-  async getQuickLink(slug: string, locale?: string) {
+  // Update the getQuickLink method in your quick-payment.service.ts (backend)
+
+  async getQuickLink(
+    slug: string,
+    locale?: string,
+    isAuthenticated: boolean = false,
+  ) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
       include: {
-        localizations: true,
+        localizations: true, // Always include all localizations
       },
     });
 
@@ -104,10 +110,33 @@ export class QuickPaymentService {
       throw new NotFoundException('Payment link not found');
     }
 
-    if (!link.isActive) {
+    // For non-authenticated public requests, check if active
+    if (!isAuthenticated && !link.isActive) {
       throw new BadRequestException('This payment link is no longer active');
     }
 
+    // If authenticated, return all localizations (for editing/management)
+    if (isAuthenticated) {
+      return {
+        success: true,
+        data: {
+          id: link.id,
+          slug: link.slug,
+          image: link.image,
+          price: Number(link.price),
+          isActive: link.isActive,
+          showOnWebsite: link.showOnWebsite,
+          localizations: link.localizations.map((loc) => ({
+            locale: loc.locale,
+            name: loc.name,
+            description: loc.description,
+          })),
+          createdAt: link.createdAt.toISOString(),
+        },
+      };
+    }
+
+    // For public requests, return single localization (for payment page)
     const requestedLocale = locale || this.getDefaultLocale();
     const localization = link.localizations.find(
       (l) => l.locale === requestedLocale,
@@ -133,7 +162,6 @@ export class QuickPaymentService {
       },
     };
   }
-
   async initiatePayment(slug: string, dto: InitiatePaymentDto) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },

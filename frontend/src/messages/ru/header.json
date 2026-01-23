@@ -4,10 +4,13 @@
   "transfers": "Трансферы",
   "about": "О нас",
   "contact": "Контакты",
+  "products": "Продукты",
   "signin": "Войти",
   "signup": "Регистрация",
   "logout": "Выйти",
   "daudTravel": "Дауд Тревел",
   "groupTourType": "Групповой тур",
-  "individualTourType": "Индивидуальный тур"
+  "individualTourType": "Индивидуальный тур",
+  "insurance": "Страхование",
+  "services": "Услуги"
 }

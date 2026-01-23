@@ -14,6 +14,10 @@ export const quickPaymentService = {
     return response.data;
   },
 
+  /**
+   * Get link for public users (single localization based on locale param)
+   * Falls back to Georgian if requested locale is not available
+   */
   getLink: async (slug: string, locale: string = "ka") => {
     const response = await axiosInstance.get(`/quick-payment/links/${slug}`, {
       params: { locale },
@@ -45,7 +49,16 @@ export const quickPaymentService = {
     return response.data;
   },
 
-  // ============ ADMIN METHODS ============
+  // ============ AUTHENTICATED METHODS ============
+
+  /**
+   * Get single link details for authenticated users (includes all localizations)
+   * Backend automatically detects authentication via token and returns all localizations
+   */
+  getAuthenticatedLink: async (slug: string) => {
+    const response = await axiosInstance.get(`/quick-payment/links/${slug}`);
+    return response.data;
+  },
 
   getAllLinks: async (
     page: number = 1,

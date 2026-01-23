@@ -17,9 +17,10 @@ import ConsentBanner from "@/src/components/shared/ConsentBanner";
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: Locale };
+  params: Promise<{ locale: Locale }>; // ✅ Changed to Promise
 }) {
-  const { locale } = params;
+  const resolvedParams = await params;
+  const { locale } = resolvedParams; // ✅ Now await params first
   const t = await getTranslations("meta");
   return {
     title: {
@@ -47,9 +48,9 @@ export default async function LocaleLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: Locale }>; // ✅ Already correct
 }) {
-  const { locale } = await params;
+  const { locale } = await params; // ✅ Already correct
 
   if (!routing.locales.includes(locale)) {
     notFound();

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Upload, X, ArrowLeft, Globe, Languages } from "lucide-react";
+import { Loader2, Upload, X, ArrowLeft, Languages, Plus } from "lucide-react";
 import Image from "next/image";
 import { useUpdateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 import { quickPaymentService } from "@/src/services/quick-payment.service";
@@ -21,7 +21,15 @@ interface Localization {
   description: string;
 }
 
-export const EditQuickLink = () => {
+const AVAILABLE_LOCALES = [
+  { code: "ka", label: "ქართული", flag: "🇬🇪", required: true },
+  { code: "en", label: "English", flag: "🇬🇧", required: false },
+  { code: "ru", label: "Русский", flag: "🇷🇺", required: false },
+  { code: "ar", label: "العربية", flag: "🇸🇦", required: false },
+  { code: "tr", label: "Türkçe", flag: "🇹🇷", required: false },
+];
+
+function EditQuickLinkContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("quickPayment");
@@ -35,45 +43,52 @@ export const EditQuickLink = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
   const [newImageBase64, setNewImageBase64] = useState<string>("");
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
   const updateLink = useUpdateQuickLink();
 
   useEffect(() => {
     if (slug && slug !== "create" && slug !== "orders" && slug !== "all") {
       loadLinkData();
+    } else {
+      setLoading(false);
     }
   }, [slug]);
 
   const loadLinkData = async () => {
     try {
       setLoading(true);
-      const response = await quickPaymentService.getLink(slug!);
+      const response = await quickPaymentService.getAuthenticatedLink(slug!);
       const link = response.data;
 
-      // Load existing localizations or create default
-      if (link.localizations && link.localizations.length > 0) {
+      if (
+        link.localizations &&
+        Array.isArray(link.localizations) &&
+        link.localizations.length > 0
+      ) {
         setLocalizations(link.localizations);
-      } else {
-        // Fallback for old data structure
+      } else if (link.name) {
         setLocalizations([
           {
-            locale: "ka",
-            name: link.name || "",
+            locale: link.locale || "ka",
+            name: link.name,
             description: link.description || "",
           },
         ]);
       }
 
-      setPrice(link.price.toString());
+      setPrice(link.price?.toString() || "");
       setShowOnWebsite(link.showOnWebsite || false);
 
       const imageUrl = getImageUrl(link.image);
       setExistingImage(imageUrl);
       setImagePreview(imageUrl);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading link:", error);
-      alert("შეცდომა მონაცემების ჩატვირთვისას");
-      router.back();
+      alert(
+        error?.response?.data?.message || "შეცდომა მონაცემების ჩატვირთვისას"
+      );
+      router.push("/admin?quickPayment=all");
     } finally {
       setLoading(false);
     }
@@ -97,11 +112,13 @@ export const EditQuickLink = () => {
       return;
     }
     setLocalizations([...localizations, { locale, name: "", description: "" }]);
+    setShowLanguageDropdown(false);
   };
 
   const removeLocalization = (locale: string) => {
-    if (locale === "ka") {
-      alert("ქართული ენა სავალდებულოა");
+    const localeConfig = AVAILABLE_LOCALES.find((l) => l.code === locale);
+    if (localeConfig?.required) {
+      alert(`${localeConfig.label} ენა სავალდებულოა`);
       return;
     }
     setLocalizations((prev) => prev.filter((loc) => loc.locale !== locale));
@@ -133,7 +150,6 @@ export const EditQuickLink = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate Georgian localization (required)
     const georgianLoc = localizations.find((loc) => loc.locale === "ka");
     if (!georgianLoc || !georgianLoc.name.trim()) {
       alert("ქართული სახელი სავალდებულოა");
@@ -149,7 +165,7 @@ export const EditQuickLink = () => {
     try {
       const submitData: any = {
         localizations: localizations
-          .filter((loc) => loc.name.trim()) // Only include localizations with names
+          .filter((loc) => loc.name.trim())
           .map((loc) => ({
             locale: loc.locale,
             name: loc.name.trim(),
@@ -176,14 +192,8 @@ export const EditQuickLink = () => {
     router.push("/admin?quickPayment=all");
   };
 
-  const availableLocales = [
-    { code: "ka", label: "ქართული", flag: "🇬🇪" },
-    { code: "en", label: "English", flag: "🇬🇧" },
-    { code: "ru", label: "Русский", flag: "🇷🇺" },
-  ];
-
   const addedLocales = localizations.map((loc) => loc.locale);
-  const availableToAdd = availableLocales.filter(
+  const availableToAdd = AVAILABLE_LOCALES.filter(
     (loc) => !addedLocales.includes(loc.code)
   );
 
@@ -196,9 +206,9 @@ export const EditQuickLink = () => {
   }
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-3xl">
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
+      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8">
+        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
@@ -206,7 +216,7 @@ export const EditQuickLink = () => {
             <ArrowLeft size={20} />
           </button>
           <div className="flex-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
               ლინკის რედაქტირება
             </h2>
             <p className="text-sm text-gray-500 mt-1">
@@ -218,114 +228,135 @@ export const EditQuickLink = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Localizations Section */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-blue-100">
               <div className="flex items-center gap-2">
                 <Languages className="w-5 h-5 text-blue-600" />
                 <h3 className="text-lg font-semibold text-gray-800">
-                  თარგმანები
+                  ენები და თარგმანები
                 </h3>
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                  {localizations.length}/{AVAILABLE_LOCALES.length}
+                </span>
               </div>
               {availableToAdd.length > 0 && (
-                <div className="relative group">
+                <div className="relative">
                   <button
                     type="button"
-                    className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                    onClick={() =>
+                      setShowLanguageDropdown(!showLanguageDropdown)
+                    }
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm text-sm font-medium"
                   >
-                    + ენის დამატება
+                    <Plus size={16} />
+                    <span>ენის დამატება</span>
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border hidden group-hover:block z-10">
-                    {availableToAdd.map((locale) => (
-                      <button
-                        key={locale.code}
-                        type="button"
-                        onClick={() => addLocalization(locale.code)}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
-                      >
-                        <span>{locale.flag}</span>
-                        <span>{locale.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                  {showLanguageDropdown && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setShowLanguageDropdown(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden">
+                        {availableToAdd.map((locale) => (
+                          <button
+                            key={locale.code}
+                            type="button"
+                            onClick={() => addLocalization(locale.code)}
+                            className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 text-sm transition-colors border-b border-gray-100 last:border-b-0"
+                          >
+                            <span className="text-2xl">{locale.flag}</span>
+                            <span className="font-medium text-gray-700">
+                              {locale.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
 
-            {localizations.map((loc) => {
-              const localeInfo = availableLocales.find(
-                (l) => l.code === loc.locale
-              );
-              return (
-                <div
-                  key={loc.locale}
-                  className="border border-gray-200 rounded-lg p-4 space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{localeInfo?.flag}</span>
-                      <span className="font-medium text-gray-700">
-                        {localeInfo?.label}
-                      </span>
-                      {loc.locale === "ka" && (
-                        <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full">
-                          სავალდებულო
-                        </span>
+            <div className="space-y-4">
+              {localizations.map((loc, index) => {
+                const localeInfo = AVAILABLE_LOCALES.find(
+                  (l) => l.code === loc.locale
+                );
+                return (
+                  <div
+                    key={loc.locale}
+                    className="border-2 border-gray-200 rounded-xl p-4 sm:p-5 space-y-4 hover:border-blue-200 transition-colors bg-gradient-to-br from-gray-50 to-white"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{localeInfo?.flag}</span>
+                        <div>
+                          <span className="font-semibold text-gray-800 text-lg">
+                            {localeInfo?.label}
+                          </span>
+                          {localeInfo?.required && (
+                            <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+                              სავალდებულო
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {!localeInfo?.required && (
+                        <button
+                          type="button"
+                          onClick={() => removeLocalization(loc.locale)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <X size={20} />
+                        </button>
                       )}
                     </div>
-                    {loc.locale !== "ka" && (
-                      <button
-                        type="button"
-                        onClick={() => removeLocalization(loc.locale)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X size={18} />
-                      </button>
-                    )}
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      სახელი{" "}
-                      {loc.locale === "ka" && (
-                        <span className="text-red-500">*</span>
-                      )}
-                    </label>
-                    <input
-                      type="text"
-                      value={loc.name}
-                      onChange={(e) =>
-                        handleLocalizationChange(
-                          loc.locale,
-                          "name",
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-                      placeholder={`პროდუქტის სახელი ${localeInfo?.label}-ად`}
-                      required={loc.locale === "ka"}
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        პროდუქტის სახელი{" "}
+                        {localeInfo?.required && (
+                          <span className="text-red-500">*</span>
+                        )}
+                      </label>
+                      <input
+                        type="text"
+                        value={loc.name}
+                        onChange={(e) =>
+                          handleLocalizationChange(
+                            loc.locale,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base"
+                        placeholder={`პროდუქტის სახელი ${localeInfo?.label}-ად`}
+                        required={localeInfo?.required}
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      აღწერა
-                    </label>
-                    <textarea
-                      value={loc.description}
-                      onChange={(e) =>
-                        handleLocalizationChange(
-                          loc.locale,
-                          "description",
-                          e.target.value
-                        )
-                      }
-                      rows={3}
-                      className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
-                      placeholder={`პროდუქტის აღწერა ${localeInfo?.label}-ად`}
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        აღწერა (არასავალდებულო)
+                      </label>
+                      <textarea
+                        value={loc.description}
+                        onChange={(e) =>
+                          handleLocalizationChange(
+                            loc.locale,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        rows={3}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all text-sm sm:text-base"
+                        placeholder={`პროდუქტის აღწერა ${localeInfo?.label}-ად`}
+                      />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* Price */}
@@ -339,7 +370,7 @@ export const EditQuickLink = () => {
               min="0.01"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base"
               placeholder="0.00"
               required
             />
@@ -353,8 +384,8 @@ export const EditQuickLink = () => {
 
             {imagePreview ? (
               <div className="space-y-3">
-                <div className="relative inline-block w-full sm:w-auto">
-                  <div className="relative w-full sm:w-48 h-48 rounded-lg overflow-hidden border bg-gray-100">
+                <div className="relative inline-block w-full sm:w-64">
+                  <div className="relative w-full sm:w-64 h-64 rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-100">
                     <Image
                       src={imagePreview}
                       alt="Preview"
@@ -367,14 +398,14 @@ export const EditQuickLink = () => {
                     <button
                       type="button"
                       onClick={removeImage}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 shadow-lg"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg transition-colors"
                     >
                       <X size={18} />
                     </button>
                   )}
                 </div>
                 <div>
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
                     <Upload size={16} />
                     <span>სურათის შეცვლა</span>
                     <input
@@ -387,10 +418,13 @@ export const EditQuickLink = () => {
                 </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-40 sm:h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mb-2" />
-                <span className="text-xs sm:text-sm text-gray-500">
-                  ატვირთეთ სურათი (არასავალდებულო)
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                <span className="text-sm text-gray-500 font-medium">
+                  ატვირთეთ სურათი
+                </span>
+                <span className="text-xs text-gray-400 mt-1">
+                  მაქსიმალური ზომა: 5MB
                 </span>
                 <input
                   type="file"
@@ -400,56 +434,46 @@ export const EditQuickLink = () => {
                 />
               </label>
             )}
-            <p className="text-xs text-gray-500 mt-2">
-              მაქსიმალური ზომა: 5MB. PNG, JPG ან WebP
-            </p>
           </div>
 
           {/* Show on Website Toggle */}
-          <div className="flex items-start sm:items-center gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl">
             <input
               type="checkbox"
               id="showOnWebsite"
               checked={showOnWebsite}
               onChange={(e) => setShowOnWebsite(e.target.checked)}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5 sm:mt-0 flex-shrink-0"
+              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
             <label
               htmlFor="showOnWebsite"
-              className="flex items-start sm:items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 cursor-pointer"
+              className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
             >
-              <Globe
-                size={16}
-                className="sm:w-[18px] sm:h-[18px] text-blue-600 flex-shrink-0 mt-0.5 sm:mt-0"
-              />
-              <span>გამოჩნდეს ვებსაიტზე (საჯარო პროდუქტი)</span>
+              გამოჩნდეს ვებსაიტზე (საჯარო პროდუქტი)
             </label>
           </div>
-          <p className="text-xs text-gray-500 -mt-4 ml-1">
-            თუ გამორთულია, პროდუქტი ხელმისაწვდომი იქნება მხოლოდ პირდაპირი ლინკით
-          </p>
 
           {/* Submit Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t">
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t-2">
             <button
               type="submit"
               disabled={updateLink.isPending}
-              className="flex-1 bg-blue-600 text-white py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-semibold shadow-md"
             >
               {updateLink.isPending ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  <span>მიმდინარეობს განახლება...</span>
+                  <span>მიმდინარეობს...</span>
                 </>
               ) : (
-                <span>ლინკის განახლება</span>
+                <span>განახლება</span>
               )}
             </button>
             <button
               type="button"
               onClick={handleCancel}
               disabled={updateLink.isPending}
-              className="flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-medium text-sm sm:text-base"
+              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-semibold"
             >
               გაუქმება
             </button>
@@ -457,5 +481,19 @@ export const EditQuickLink = () => {
         </form>
       </div>
     </div>
+  );
+}
+
+export const EditQuickLink = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          <Loader2 className="animate-spin" size={40} />
+        </div>
+      }
+    >
+      <EditQuickLinkContent />
+    </Suspense>
   );
 };

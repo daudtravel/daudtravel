@@ -42,10 +42,18 @@ export class QuickPaymentController {
   }
 
   @Get('links/:slug')
-  @ApiOperation({ summary: 'Get payment link details (Public)' })
+  @ApiOperation({
+    summary: 'Get payment link details (Public or Authenticated)',
+  })
   @ApiQuery({ name: 'locale', required: false, example: 'ka' })
-  async getLink(@Param('slug') slug: string, @Query('locale') locale?: string) {
-    return this.service.getQuickLink(slug, locale);
+  async getLink(
+    @Param('slug') slug: string,
+    @Query('locale') locale?: string,
+    @Headers('authorization') authHeader?: string,
+  ) {
+    // Check if request is authenticated (has Bearer token)
+    const isAuthenticated = !!(authHeader && authHeader.startsWith('Bearer '));
+    return this.service.getQuickLink(slug, locale, isAuthenticated);
   }
 
   @Post('links/:slug/pay')

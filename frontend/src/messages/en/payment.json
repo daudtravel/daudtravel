@@ -24,5 +24,19 @@
   "paymentCreationFailed": "Payment creation failed",
   "defaultTourName": "Tour Booking",
   "orderId": "Order ID",
-  "statusCompleted": "Success"
+  "statusCompleted": "Success",
+
+  "pageTitle": "Payment",
+  "unitPrice": "Unit Price",
+  "quantity": "Quantity",
+  "totalAmount": "Total Amount",
+  "contactInfo": "Contact Information",
+  "fullName": "Full Name",
+  "fullNamePlaceholder": "e.g: John Smith",
+  "fullNameRequired": "Full name is required",
+  "phoneInvalid": "Please enter a valid phone number",
+  "optional": "optional",
+  "paymentError": "Payment initialization error",
+  "securePayment": "🔒 Secure payment via Bank of Georgia",
+  "returnNotice": "After payment you will be redirected to the confirmation page"
 }

@@ -1,16 +1,16 @@
 {
-  "main": "მთავარი ",
-  "insurance": "დაზღვევა",
+  "main": "მთავარი",
   "tours": "ტურები",
   "transfers": "ტრანსფერები",
-  "about": "ჩვენს შესახებ",
+  "about": "ჩვენ შესახებ",
   "contact": "კონტაქტი",
   "products": "პროდუქტები",
-  "signin": "ავტორიზაცია",
+  "signin": "შესვლა",
   "signup": "რეგისტრაცია",
-  "logout": "გამოსვლა",
-  "daudTravel": "დაუდ თრეველ",
+  "logout": "გასვლა",
+  "daudTravel": "დაუდ თრაველი",
   "groupTourType": "ჯგუფური ტური",
   "individualTourType": "ინდივიდუალური ტური",
+  "insurance": "დაზღვევა",
   "services": "სერვისები"
 }
