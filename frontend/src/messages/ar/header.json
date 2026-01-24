@@ -1,5 +1,5 @@
 {
-  "main": "الرئيسية",
+  "main": "الصفحة الرئيسية",
   "tours": "الجولات",
   "transfers": "النقل",
   "about": "من نحن",
@@ -8,7 +8,7 @@
   "signin": "تسجيل الدخول",
   "signup": "إنشاء حساب",
   "logout": "تسجيل الخروج",
-  "daudTravel": "داود ترافل",
+  "daudTravel": "داود للسفر والسياحة",
   "groupTourType": "جولة جماعية",
   "individualTourType": "جولة فردية",
   "insurance": "التأمين",

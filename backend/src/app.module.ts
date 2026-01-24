@@ -13,7 +13,7 @@ import { TransferPaymentsModule } from './transfer-payment/transfer-payment.modu
 import { DriversModule } from './drivers/drivers.module';
 import { FaqModule } from './faq/faq.module';
 import { VideosModule } from './videos/videos.module';
-import { QuickPaymentModule } from './quick-payment/quick-payment.moduel';
+import { QuickPaymentModule } from './quick-payment/quick-payment.module';
 import { InsuranceModule } from './insurance/insurance.module';
 
 @Module({

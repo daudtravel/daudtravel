@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   User,
   Package,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
@@ -21,16 +22,66 @@ export const QuickPaymentOrders = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
   );
+  const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
 
-  const { data: ordersData, isLoading } = useQuickPaymentOrders(
-    undefined,
-    statusFilter,
-    page,
-    50
-  );
+  const {
+    data: ordersData,
+    isLoading,
+    refetch,
+  } = useQuickPaymentOrders(undefined, statusFilter, page, 50);
 
   const orders = ordersData?.data || [];
   const pagination = ordersData?.pagination;
+
+  const handleDeleteOrder = async (orderId: string, orderStatus: string) => {
+    // Confirm deletion
+    const confirmMessage =
+      orderStatus === "PAID"
+        ? "გადახდილი შეკვეთების წაშლა შეუძლებელია!"
+        : "დარწმუნებული ხართ, რომ გსურთ შეკვეთის წაშლა?";
+
+    if (orderStatus === "PAID") {
+      alert(confirmMessage);
+      return;
+    }
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setDeletingOrderId(orderId);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/quick-payment/orders/${orderId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "წაშლა ვერ მოხერხდა");
+      }
+
+      // Refresh the orders list
+      await refetch();
+
+      // If we deleted the last item on a page > 1, go to previous page
+      if (orders.length === 1 && page > 1) {
+        setPage(page - 1);
+      }
+    } catch (error: any) {
+      alert(`შეცდომა: ${error.message}`);
+    } finally {
+      setDeletingOrderId(null);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -138,6 +189,9 @@ export const QuickPaymentOrders = () => {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
                       თარიღი
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                      მოქმედება
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -188,8 +242,10 @@ export const QuickPaymentOrders = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-lg font-semibold text-gray-900">
-                          ₾{order.productPrice.toFixed(2)}
+                        <span className="text-base font-semibold text-gray-900">
+                          {order.productTotalPrice != null
+                            ? `₾${Number(order.productTotalPrice).toFixed(2)}`
+                            : "—"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -230,6 +286,33 @@ export const QuickPaymentOrders = () => {
                           </div>
                         )}
                       </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() =>
+                            handleDeleteOrder(order.id, order.status)
+                          }
+                          disabled={
+                            deletingOrderId === order.id ||
+                            order.status === "PAID"
+                          }
+                          className={`p-2 rounded-lg transition-colors ${
+                            order.status === "PAID"
+                              ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
+                              : "hover:bg-red-50 text-red-600"
+                          }`}
+                          title={
+                            order.status === "PAID"
+                              ? "გადახდილი შეკვეთების წაშლა შეუძლებელია"
+                              : "შეკვეთის წაშლა"
+                          }
+                        >
+                          {deletingOrderId === order.id ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-5 h-5" />
+                          )}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -247,7 +330,34 @@ export const QuickPaymentOrders = () => {
                         {order.customerFullName}
                       </span>
                     </div>
-                    {getStatusBadge(order.status)}
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(order.status)}
+                      <button
+                        onClick={() =>
+                          handleDeleteOrder(order.id, order.status)
+                        }
+                        disabled={
+                          deletingOrderId === order.id ||
+                          order.status === "PAID"
+                        }
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          order.status === "PAID"
+                            ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
+                            : "hover:bg-red-50 text-red-600"
+                        }`}
+                        title={
+                          order.status === "PAID"
+                            ? "გადახდილი შეკვეთების წაშლა შეუძლებელია"
+                            : "შეკვეთის წაშლა"
+                        }
+                      >
+                        {deletingOrderId === order.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b">
@@ -286,7 +396,9 @@ export const QuickPaymentOrders = () => {
                     <div>
                       <p className="text-xs text-gray-500 mb-1">თანხა</p>
                       <span className="text-base font-semibold text-gray-900">
-                        ₾{order.productPrice.toFixed(2)}
+                        {order.productTotalPrice != null
+                          ? `₾${Number(order.productTotalPrice).toFixed(2)}`
+                          : "—"}
                       </span>
                     </div>
                     <div>

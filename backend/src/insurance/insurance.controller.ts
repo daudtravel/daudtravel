@@ -29,8 +29,6 @@ import { PaymentStatus } from '@prisma/client';
 export class InsuranceController {
   constructor(private readonly service: InsuranceService) {}
 
-  // ============ PUBLIC ENDPOINTS ============
-
   @Get('settings')
   @ApiOperation({ summary: 'Get insurance settings (Public)' })
   async getSettings() {
@@ -83,8 +81,6 @@ export class InsuranceController {
     );
   }
 
-  // ============ ADMIN ENDPOINTS ============
-
   @Put('settings')
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update insurance settings (Admin)' })
@@ -118,45 +114,5 @@ export class InsuranceController {
   @ApiOperation({ summary: 'Delete insurance submission (Admin)' })
   async deleteSubmission(@Param('submissionId') submissionId: string) {
     return this.service.deleteSubmission(submissionId);
-  }
-
-  @Post('maintenance/cleanup-old')
-  @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Delete old paid submissions (Admin)' })
-  @ApiQuery({
-    name: 'monthsOld',
-    required: false,
-    description: 'Delete submissions older than X months (default: 6)',
-  })
-  async cleanupOldSubmissions(@Query('monthsOld') monthsOld?: number) {
-    return this.service.cleanupOldPaidSubmissions(monthsOld);
-  }
-
-  @Post('maintenance/cleanup-abandoned')
-  @UseGuards(AuthGuard)
-  @ApiOperation({
-    summary: 'Delete abandoned pending/failed submissions (Admin)',
-  })
-  @ApiQuery({
-    name: 'daysOld',
-    required: false,
-    description: 'Delete submissions older than X days (default: 30)',
-  })
-  async cleanupAbandonedSubmissions(@Query('daysOld') daysOld?: number) {
-    return this.service.cleanupAbandonedSubmissions(daysOld);
-  }
-
-  @Post('maintenance/bulk-delete')
-  @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Bulk delete submissions by IDs (Admin)' })
-  async bulkDeleteSubmissions(@Body() body: { submissionIds: string[] }) {
-    return this.service.bulkDeleteSubmissions(body.submissionIds);
-  }
-
-  @Get('maintenance/stats')
-  @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Get storage statistics (Admin)' })
-  async getStorageStats() {
-    return this.service.getStorageStats();
   }
 }

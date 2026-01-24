@@ -21,7 +21,7 @@ export const useUpdateInsuranceSettings = () => {
   });
 };
 
-// Submissions
+ 
 export const useInsuranceSubmissions = (
   status?: string,
   page: number = 1,

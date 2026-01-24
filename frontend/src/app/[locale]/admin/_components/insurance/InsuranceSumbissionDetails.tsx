@@ -14,13 +14,32 @@ import {
   User,
   Phone,
   ImageIcon,
+  Calendar,
+  DollarSign,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useInsuranceSubmission } from "@/src/hooks/insurance/useInsurance";
 import Image from "next/image";
+import { PaymentStatus } from "@/src/types/insurance.types";
 
-export const InsuranceSubmissionDetails = () => {
+// Define the Person type based on your API response
+interface InsurancePerson {
+  id: string;
+  fullName: string;
+  phoneNumber: string;
+  passportPhoto: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  pricePerDay: number;
+  baseAmount: number;
+  discount: number;
+  finalAmount: number;
+  createdAt: string;
+}
+
+export const InsuranceSubmissionDetails: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,23 +51,23 @@ export const InsuranceSubmissionDetails = () => {
 
   const submission = submissionData?.data;
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: PaymentStatus) => {
     switch (status) {
-      case "PAID":
+      case PaymentStatus.PAID:
         return (
           <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-green-100 text-green-800">
             <CheckCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
             გადახდილი
           </span>
         );
-      case "PENDING":
+      case PaymentStatus.PENDING:
         return (
           <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-yellow-100 text-yellow-800">
             <Clock size={16} className="sm:w-[18px] sm:h-[18px]" />
             მიმდინარე
           </span>
         );
-      case "FAILED":
+      case PaymentStatus.FAILED:
         return (
           <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-red-100 text-red-800">
             <XCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -130,18 +149,21 @@ export const InsuranceSubmissionDetails = () => {
             </div>
             <div>
               <label className="text-xs sm:text-sm text-gray-600">
-                ფასი თითო ადამიანზე
+                სულ დღეები
               </label>
-              <p className="font-semibold text-base sm:text-lg text-gray-900 mt-1">
-                ₾{submission.pricePerPerson}
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <p className="font-medium text-gray-900 text-sm sm:text-base">
+                  {submission.totalDays} დღე
+                </p>
+              </div>
             </div>
             <div>
               <label className="text-xs sm:text-sm text-gray-600">
                 სულ თანხა
               </label>
               <p className="font-semibold text-xl sm:text-2xl text-green-600 mt-1">
-                ₾{submission.totalAmount}
+                ₾{Number(submission.totalAmount).toFixed(2)}
               </p>
             </div>
             {submission.transactionId && (
@@ -179,12 +201,14 @@ export const InsuranceSubmissionDetails = () => {
                 <p className="font-medium text-green-900 text-sm sm:text-base">
                   ელ.ფოსტა გაგზავნილია
                 </p>
-                <p className="text-xs sm:text-sm text-green-700 break-all">
-                  {format(
-                    new Date(submission.emailSentAt!),
-                    "dd MMMM yyyy, HH:mm"
-                  )}
-                </p>
+                {submission.emailSentAt && (
+                  <p className="text-xs sm:text-sm text-green-700 break-all">
+                    {format(
+                      new Date(submission.emailSentAt),
+                      "dd MMMM yyyy, HH:mm"
+                    )}
+                  </p>
+                )}
               </div>
             </div>
           ) : (
@@ -197,13 +221,12 @@ export const InsuranceSubmissionDetails = () => {
           )}
         </div>
 
-        {/* People Details */}
         <div className="p-4 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">
             დაზღვეული პირები ({submission.people.length})
           </h3>
           <div className="space-y-3 sm:space-y-4">
-            {submission.people.map((person: any, index: number) => (
+            {submission.people.map((person: InsurancePerson, index: number) => (
               <div
                 key={person.id}
                 className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
@@ -245,18 +268,83 @@ export const InsuranceSubmissionDetails = () => {
                   </div>
                 </div>
 
+                {/* Date Range */}
+                <div className="mb-3 sm:mb-4">
+                  <label className="text-xs sm:text-sm text-gray-600 flex items-center gap-2 mb-2">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                    დაზღვევის პერიოდი
+                  </label>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>
+                        {format(new Date(person.startDate), "dd/MM/yyyy")}
+                      </span>
+                      <span className="text-gray-400">→</span>
+                      <span>
+                        {format(new Date(person.endDate), "dd/MM/yyyy")}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {person.totalDays} დღე
+                    </p>
+                  </div>
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="mb-3 sm:mb-4">
+                  <label className="text-xs sm:text-sm text-gray-600 flex items-center gap-2 mb-2">
+                    <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
+                    ფასის დეტალები
+                  </label>
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">ფასი თითო დღეზე:</span>
+                      <span className="font-medium">
+                        ₾{Number(person.pricePerDay).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">ბაზისური თანხა:</span>
+                      <span className="font-medium">
+                        ₾{Number(person.baseAmount).toFixed(2)}
+                      </span>
+                    </div>
+                    {person.discount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>ფასდაკლება ({person.discount}%):</span>
+                        <span className="font-medium">
+                          -₾
+                          {(
+                            (Number(person.baseAmount) * person.discount) /
+                            100
+                          ).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between pt-2 border-t border-gray-200">
+                      <span className="font-semibold text-gray-900">
+                        საბოლოო თანხა:
+                      </span>
+                      <span className="font-bold text-green-600 text-lg">
+                        ₾{Number(person.finalAmount).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Passport Photo */}
                 <div>
                   <label className="text-xs sm:text-sm text-gray-600 flex items-center gap-2 mb-2">
                     <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                     პასპორტის ფოტო
                   </label>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                    <div className="relative w-full sm:w-32 h-32 rounded-lg overflow-hidden border border-gray-200">
+                    <div className="relative w-full sm:w-40 h-40 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                       <Image
                         src={`${process.env.NEXT_PUBLIC_BASE_URL}${person.passportPhoto}`}
                         alt={`${person.fullName} - პასპორტი`}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                         unoptimized
                       />
                     </div>

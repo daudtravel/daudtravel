@@ -33,7 +33,6 @@ export class InsuranceService {
     personId: string,
   ): string {
     const secret = process.env.JWT_SECRET || 'your-secret-key';
-
     const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
     const payload = `${submissionId}:${personId}:${expiresAt}`;
 
@@ -42,6 +41,44 @@ export class InsuranceService {
     const signature = hmac.digest('hex');
 
     return `${Buffer.from(payload).toString('base64')}.${signature}`;
+  }
+
+  private calculateDaysBetween(startDate: Date, endDate: Date): number {
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }
+
+  private getApplicableDiscount(days: number, settings: any): number {
+    if (days >= 90 && settings.discount90Days > 0) {
+      return Number(settings.discount90Days);
+    } else if (days >= 30 && settings.discount30Days > 0) {
+      return Number(settings.discount30Days);
+    }
+    return 0;
+  }
+
+  private calculatePersonPrice(
+    days: number,
+    pricePerDay: number,
+    discount30Days: number,
+    discount90Days: number,
+  ) {
+    const baseAmount = days * pricePerDay;
+    const discountPercent = this.getApplicableDiscount(days, {
+      discount30Days,
+      discount90Days,
+    });
+    const discountAmount = (baseAmount * discountPercent) / 100;
+    const finalAmount = baseAmount - discountAmount;
+
+    return {
+      days,
+      pricePerDay,
+      baseAmount,
+      discount: discountPercent,
+      finalAmount,
+    };
   }
 
   async viewSecurePassportPhoto(
@@ -105,7 +142,9 @@ export class InsuranceService {
     if (!settings) {
       settings = await this.prisma.insuranceSettings.create({
         data: {
-          pricePerPerson: 1.0,
+          pricePerDay: 1.0,
+          discount30Days: 0,
+          discount90Days: 0,
           adminEmail: process.env.ADMIN_EMAIL || 'admin@daudtravel.com',
           isActive: true,
         },
@@ -116,7 +155,9 @@ export class InsuranceService {
       success: true,
       data: {
         id: settings.id,
-        pricePerPerson: Number(settings.pricePerPerson),
+        pricePerDay: Number(settings.pricePerDay),
+        discount30Days: Number(settings.discount30Days),
+        discount90Days: Number(settings.discount90Days),
         adminEmail: settings.adminEmail,
         isActive: settings.isActive,
       },
@@ -133,7 +174,9 @@ export class InsuranceService {
     const updated = await this.prisma.insuranceSettings.update({
       where: { id: settings.id },
       data: {
-        pricePerPerson: dto.pricePerPerson,
+        pricePerDay: dto.pricePerDay,
+        discount30Days: dto.discount30Days,
+        discount90Days: dto.discount90Days,
         adminEmail: dto.adminEmail,
         isActive: dto.isActive,
       },
@@ -143,7 +186,9 @@ export class InsuranceService {
       success: true,
       data: {
         id: updated.id,
-        pricePerPerson: Number(updated.pricePerPerson),
+        pricePerDay: Number(updated.pricePerDay),
+        discount30Days: Number(updated.discount30Days),
+        discount90Days: Number(updated.discount90Days),
         adminEmail: updated.adminEmail,
         isActive: updated.isActive,
       },
@@ -168,12 +213,38 @@ export class InsuranceService {
       throw new BadRequestException('At least one person is required');
     }
 
-    const peopleCount = dto.people.length;
-    const pricePerPerson = Number(settings.pricePerPerson);
-    const totalAmount = peopleCount * pricePerPerson;
+    const pricePerDay = Number(settings.pricePerDay);
+    const discount30Days = Number(settings.discount30Days);
+    const discount90Days = Number(settings.discount90Days);
 
-    const uploadedPeople = await Promise.all(
+    // Calculate pricing for each person
+    const peopleWithPricing = await Promise.all(
       dto.people.map(async (person) => {
+        const startDate = new Date(person.startDate);
+        const endDate = new Date(person.endDate);
+
+        // Validate dates
+        if (startDate >= endDate) {
+          throw new BadRequestException(
+            `Invalid date range for ${person.fullName}: start date must be before end date`,
+          );
+        }
+
+        const days = this.calculateDaysBetween(startDate, endDate);
+
+        if (days < 1) {
+          throw new BadRequestException(
+            `Invalid date range for ${person.fullName}: minimum 1 day required`,
+          );
+        }
+
+        const pricing = this.calculatePersonPrice(
+          days,
+          pricePerDay,
+          discount30Days,
+          discount90Days,
+        );
+
         const uploaded = await this.fileUpload.uploadBase64Image(
           person.passportPhoto,
           'insurance-passports',
@@ -183,9 +254,27 @@ export class InsuranceService {
           fullName: person.fullName,
           phoneNumber: person.phoneNumber,
           passportPhoto: uploaded.url,
+          startDate,
+          endDate,
+          totalDays: pricing.days,
+          pricePerDay: pricing.pricePerDay,
+          baseAmount: pricing.baseAmount,
+          discount: pricing.discount,
+          finalAmount: pricing.finalAmount,
         };
       }),
     );
+
+    // Calculate total amount and total days
+    const totalAmount = peopleWithPricing.reduce(
+      (sum, p) => sum + p.finalAmount,
+      0,
+    );
+    const totalDays = peopleWithPricing.reduce(
+      (sum, p) => sum + p.totalDays,
+      0,
+    );
+    const peopleCount = dto.people.length;
 
     const external_order_id = `INS_${uuidv4()}`;
     const accessToken = await getBOGAccessToken();
@@ -203,15 +292,13 @@ export class InsuranceService {
       purchase_units: {
         currency: 'GEL',
         total_amount: totalAmount,
-        basket: [
-          {
-            product_id: 'insurance',
-            description: `Travel Insurance for ${peopleCount} person(s)`,
-            quantity: peopleCount,
-            unit_price: pricePerPerson,
-            total_price: totalAmount,
-          },
-        ],
+        basket: peopleWithPricing.map((person, index) => ({
+          product_id: `insurance_${index + 1}`,
+          description: `Travel Insurance - ${person.fullName} (${person.totalDays} days)`,
+          quantity: person.totalDays,
+          unit_price: person.pricePerDay,
+          total_price: person.finalAmount,
+        })),
       },
       redirect_urls: {
         success: `${frontendUrl}/payment/success?order_id=${external_order_id}`,
@@ -236,7 +323,9 @@ export class InsuranceService {
       console.error('❌ BOG API Error:', errorText);
 
       await Promise.all(
-        uploadedPeople.map((p) => this.fileUpload.deleteFile(p.passportPhoto)),
+        peopleWithPricing.map((p) =>
+          this.fileUpload.deleteFile(p.passportPhoto),
+        ),
       );
 
       throw new InternalServerErrorException('Failed to create payment');
@@ -251,12 +340,12 @@ export class InsuranceService {
         bogOrderId: bogOrderData.id,
         paymentUrl: bogOrderData._links.redirect.href,
         totalAmount,
+        totalDays,
         peopleCount,
-        pricePerPerson,
         status: PaymentStatus.PENDING,
         expiresAt: new Date(Date.now() + 30 * 60 * 1000),
         people: {
-          create: uploadedPeople,
+          create: peopleWithPricing,
         },
       },
       include: {
@@ -271,8 +360,18 @@ export class InsuranceService {
         externalOrderId: submission.externalOrderId,
         paymentUrl: submission.paymentUrl,
         totalAmount: Number(submission.totalAmount),
+        totalDays: submission.totalDays,
         peopleCount: submission.peopleCount,
-        pricePerPerson: Number(submission.pricePerPerson),
+        people: submission.people.map((p) => ({
+          fullName: p.fullName,
+          days: p.totalDays,
+          pricePerDay: Number(p.pricePerDay),
+          baseAmount: Number(p.baseAmount),
+          discount: Number(p.discount),
+          finalAmount: Number(p.finalAmount),
+          startDate: p.startDate.toISOString(),
+          endDate: p.endDate.toISOString(),
+        })),
       },
     };
   }
@@ -347,6 +446,13 @@ export class InsuranceService {
           select: {
             fullName: true,
             phoneNumber: true,
+            startDate: true,
+            endDate: true,
+            totalDays: true,
+            pricePerDay: true,
+            baseAmount: true,
+            discount: true,
+            finalAmount: true,
           },
         },
       },
@@ -365,8 +471,18 @@ export class InsuranceService {
         submitterEmail: submission.submitterEmail,
         peopleCount: submission.peopleCount,
         totalAmount: Number(submission.totalAmount),
-        pricePerPerson: Number(submission.pricePerPerson),
-        people: submission.people,
+        totalDays: submission.totalDays,
+        people: submission.people.map((p) => ({
+          fullName: p.fullName,
+          phoneNumber: p.phoneNumber,
+          startDate: p.startDate.toISOString(),
+          endDate: p.endDate.toISOString(),
+          days: p.totalDays,
+          pricePerDay: Number(p.pricePerDay),
+          baseAmount: Number(p.baseAmount),
+          discount: Number(p.discount),
+          finalAmount: Number(p.finalAmount),
+        })),
         paidAt: submission.paidAt?.toISOString(),
         createdAt: submission.createdAt.toISOString(),
       },
@@ -403,7 +519,7 @@ export class InsuranceService {
         submitterEmail: sub.submitterEmail,
         peopleCount: sub.peopleCount,
         totalAmount: Number(sub.totalAmount),
-        pricePerPerson: Number(sub.pricePerPerson),
+        totalDays: sub.totalDays,
         status: sub.status,
         transactionId: sub.transactionId,
         paymentMethod: sub.paymentMethod,
@@ -417,6 +533,13 @@ export class InsuranceService {
           fullName: p.fullName,
           phoneNumber: p.phoneNumber,
           passportPhoto: p.passportPhoto,
+          startDate: p.startDate.toISOString(),
+          endDate: p.endDate.toISOString(),
+          totalDays: p.totalDays,
+          pricePerDay: Number(p.pricePerDay),
+          baseAmount: Number(p.baseAmount),
+          discount: Number(p.discount),
+          finalAmount: Number(p.finalAmount),
         })),
       })),
       pagination: {
@@ -449,7 +572,7 @@ export class InsuranceService {
         submitterEmail: submission.submitterEmail,
         peopleCount: submission.peopleCount,
         totalAmount: Number(submission.totalAmount),
-        pricePerPerson: Number(submission.pricePerPerson),
+        totalDays: submission.totalDays,
         status: submission.status,
         transactionId: submission.transactionId,
         paymentMethod: submission.paymentMethod,
@@ -467,6 +590,13 @@ export class InsuranceService {
           fullName: p.fullName,
           phoneNumber: p.phoneNumber,
           passportPhoto: p.passportPhoto,
+          startDate: p.startDate.toISOString(),
+          endDate: p.endDate.toISOString(),
+          totalDays: p.totalDays,
+          pricePerDay: Number(p.pricePerDay),
+          baseAmount: Number(p.baseAmount),
+          discount: Number(p.discount),
+          finalAmount: Number(p.finalAmount),
           createdAt: p.createdAt.toISOString(),
         })),
       },
@@ -507,95 +637,6 @@ export class InsuranceService {
     };
   }
 
-  async cleanupOldPaidSubmissions(monthsOld: number = 6) {
-    const cutoffDate = new Date();
-    cutoffDate.setMonth(cutoffDate.getMonth() - monthsOld);
-
-    const oldSubmissions = await this.prisma.insuranceSubmission.findMany({
-      where: {
-        status: PaymentStatus.PAID,
-        paidAt: { lt: cutoffDate },
-      },
-      include: { people: true },
-    });
-
-    let deletedCount = 0;
-    let failedCount = 0;
-
-    for (const submission of oldSubmissions) {
-      try {
-        await this.deleteSubmission(submission.id);
-        deletedCount++;
-      } catch (error) {
-        console.error(`Failed to delete submission ${submission.id}:`, error);
-        failedCount++;
-      }
-    }
-
-    return {
-      success: true,
-      deletedCount,
-      failedCount,
-      cutoffDate: cutoffDate.toISOString(),
-    };
-  }
-
-  async cleanupAbandonedSubmissions(daysOld: number = 30) {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysOld);
-
-    const abandonedSubmissions = await this.prisma.insuranceSubmission.findMany(
-      {
-        where: {
-          status: { in: [PaymentStatus.PENDING, PaymentStatus.FAILED] },
-          createdAt: { lt: cutoffDate },
-        },
-        include: { people: true },
-      },
-    );
-
-    let deletedCount = 0;
-    let failedCount = 0;
-
-    for (const submission of abandonedSubmissions) {
-      try {
-        await this.deleteSubmission(submission.id);
-        deletedCount++;
-      } catch (error) {
-        console.error(`Failed to delete submission ${submission.id}:`, error);
-        failedCount++;
-      }
-    }
-
-    return {
-      success: true,
-      deletedCount,
-      failedCount,
-      cutoffDate: cutoffDate.toISOString(),
-    };
-  }
-
-  async bulkDeleteSubmissions(submissionIds: string[]) {
-    const results = {
-      success: true,
-      deletedCount: 0,
-      failedCount: 0,
-      errors: [] as string[],
-    };
-
-    for (const id of submissionIds) {
-      try {
-        await this.deleteSubmission(id);
-        results.deletedCount++;
-      } catch (error) {
-        results.failedCount++;
-        results.errors.push(`${id}: ${error.message}`);
-      }
-    }
-
-    return results;
-  }
-
   private async sendAdminNotification(submissionId: string) {
     const submission = await this.prisma.insuranceSubmission.findUnique({
       where: { id: submissionId },
@@ -616,16 +657,16 @@ export class InsuranceService {
           externalOrderId: submission.externalOrderId,
           submitterEmail: submission.submitterEmail,
           peopleCount: submission.peopleCount,
-          pricePerPerson: Number(submission.pricePerPerson),
-          totalAmount: Number(submission.totalAmount),
-          transactionId: submission.transactionId ?? undefined,
-          paymentMethod: submission.paymentMethod ?? undefined,
+          totalDays: submission.totalDays,
           paidAt: submission.paidAt ?? undefined,
         },
         people: submission.people.map((p) => ({
           id: p.id,
           fullName: p.fullName,
           phoneNumber: p.phoneNumber,
+          startDate: p.startDate,
+          endDate: p.endDate,
+          totalDays: p.totalDays,
         })),
         adminEmail: settings.adminEmail,
         baseUrl,
@@ -639,8 +680,6 @@ export class InsuranceService {
           emailSentAt: new Date(),
         },
       });
-
-      console.log(`✅ Admin notification sent for submission: ${submissionId}`);
     } catch (error) {
       console.error('❌ Failed to send admin notification:', error);
     }
@@ -660,9 +699,17 @@ export class InsuranceService {
         externalOrderId: submission.externalOrderId,
         peopleCount: submission.peopleCount,
         totalAmount: Number(submission.totalAmount),
+        totalDays: submission.totalDays,
         people: submission.people.map((p) => ({
           fullName: p.fullName,
           phoneNumber: p.phoneNumber,
+          startDate: p.startDate.toISOString(),
+          endDate: p.endDate.toISOString(),
+          days: p.totalDays,
+          pricePerDay: Number(p.pricePerDay),
+          baseAmount: Number(p.baseAmount),
+          discount: Number(p.discount),
+          finalAmount: Number(p.finalAmount),
         })),
       });
     } catch (error) {

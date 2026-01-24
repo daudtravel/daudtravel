@@ -361,12 +361,11 @@ model QuickPaymentOrder {
   customerEmail     String
   customerPhone     String?
   
-  // Keep these for historical record
   productName       String
   productDescription String? @db.Text
-  productUnitPrice  Decimal @db.Decimal(10, 2) @map("product_unit_price") // ✅ Price per unit
-  productQuantity   Int     @default(1) @map("product_quantity") // ✅ Quantity purchased
-  productTotalPrice Decimal @db.Decimal(10, 2) @map("product_total_price") // ✅ Total amount paid
+  productUnitPrice  Decimal @db.Decimal(10, 2) @map("product_unit_price")
+  productQuantity   Int     @default(1) @map("product_quantity")
+  productTotalPrice Decimal @db.Decimal(10, 2) @map("product_total_price")
   productLocale     String  @default("ka") @map("product_locale")
   
   externalOrderId   String   @unique
@@ -377,6 +376,10 @@ model QuickPaymentOrder {
   transactionId     String?
   paymentMethod     String?
   callbackData      Json?
+  
+  // ✅ ADD THESE TWO FIELDS:
+  emailSent         Boolean  @default(false) @map("email_sent")
+  emailSentAt       DateTime? @map("email_sent_at")
   
   expiresAt         DateTime
   paidAt            DateTime?
@@ -393,8 +396,11 @@ model QuickPaymentOrder {
 }
 
 model InsuranceSettings {
-  id                String   @id @default(cuid()) // ✅ Changed
-  pricePerPerson    Decimal  @db.Decimal(10, 2)
+  id                String   @id @default(cuid())
+  pricePerDay Decimal @default(0) @db.Decimal(10,2) @map("price_per_day")
+
+  discount30Days    Decimal  @default(0) @db.Decimal(5, 2) @map("discount_30_days") // Percentage discount for 30+ days
+  discount90Days    Decimal  @default(0) @db.Decimal(5, 2) @map("discount_90_days") // Percentage discount for 90+ days
   adminEmail        String
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
@@ -404,7 +410,7 @@ model InsuranceSettings {
 }
 
 model InsuranceSubmission {
-  id              String        @id @default(cuid()) // ✅ Changed
+  id              String        @id @default(cuid())
   
   submitterEmail  String        @map("submitter_email")
   
@@ -413,8 +419,8 @@ model InsuranceSubmission {
   paymentUrl      String?       @map("payment_url")
   
   totalAmount     Decimal       @db.Decimal(10, 2) @map("total_amount")
+  totalDays       Int           @map("total_days") // Total days across all people
   peopleCount     Int           @map("people_count")
-  pricePerPerson  Decimal       @db.Decimal(10, 2) @map("price_per_person")
   
   status          PaymentStatus @default(PENDING)
   transactionId   String?       @map("transaction_id")
@@ -439,12 +445,23 @@ model InsuranceSubmission {
 }
 
 model InsurancePerson {
-  id           String              @id @default(cuid()) // ✅ Changed
+  id           String              @id @default(cuid())
   submissionId String              @map("submission_id")
   
   fullName     String              @map("full_name")
   phoneNumber  String              @map("phone_number")
   passportPhoto String             @map("passport_photo")
+  
+  // New fields for date ranges
+  startDate    DateTime            @map("start_date") // Insurance start date
+  endDate      DateTime            @map("end_date")   // Insurance end date
+  totalDays    Int                 @map("total_days") // Number of days for this person
+  
+  // Pricing details for this person
+  pricePerDay  Decimal             @db.Decimal(10, 2) @map("price_per_day")
+  baseAmount   Decimal             @db.Decimal(10, 2) @map("base_amount") // Days * pricePerDay
+  discount     Decimal             @default(0) @db.Decimal(5, 2) // Applied discount percentage
+  finalAmount  Decimal             @db.Decimal(10, 2) @map("final_amount") // After discount
   
   createdAt    DateTime            @default(now()) @map("created_at")
   

@@ -35,11 +35,9 @@ import { QuickLinksList } from "./quick-payment/QuickPaymentList";
 import { CreateQuickLink } from "./quick-payment/CreateQuickPaymentLink";
 import { QuickPaymentOrders } from "./quick-payment/QuicPaymentOrders";
 import { EditQuickLink } from "./quick-payment/EditQuickPaymentLink";
-import { InsuranceSubmissionsList } from "./insurance/InsuranceSubmissionList";
-import { InsuranceSettings } from "./insurance/InsuranceSettings";
 import { InsuranceSubmissionDetails } from "./insurance/InsuranceSumbissionDetails";
-import { InsuranceStats } from "./insurance/InsuranceStats";
-import { InsuranceCleanup } from "./insurance/InsuranceCleanUp";
+import InsuranceSubmissionsList from "./insurance/InsuranceSubmissionList";
+import InsuranceSettings from "./insurance/InsuranceSettings";
 
 const SIDEBAR_ITEMS = [
   { key: "tours", label: "ტურები", icon: UserCheck, query: "?tours=all" },
@@ -146,8 +144,6 @@ export const ClientWrapper = () => {
 
     if (insurance === "all") return <InsuranceSubmissionsList />;
     if (insurance === "settings") return <InsuranceSettings />;
-    if (insurance === "stats") return <InsuranceStats />;
-    if (insurance === "cleanup") return <InsuranceCleanup />;
     if (insurance) return <InsuranceSubmissionDetails />;
 
     if (faqs === "all") return <FaqList />;

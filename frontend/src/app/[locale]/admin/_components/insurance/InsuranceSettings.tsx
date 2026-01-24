@@ -1,8 +1,6 @@
-// src/components/admin/insurance/InsuranceSettings.tsx
-
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import {
   ArrowLeft,
   Loader2,
@@ -11,6 +9,8 @@ import {
   Mail,
   ToggleLeft,
   ToggleRight,
+  Calendar,
+  Percent,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -18,15 +18,32 @@ import {
   useUpdateInsuranceSettings,
 } from "@/src/hooks/insurance/useInsurance";
 
-export const InsuranceSettings = () => {
+interface FormData {
+  pricePerDay: string;
+  discount30Days: string;
+  discount90Days: string;
+  adminEmail: string;
+  isActive: boolean;
+}
+
+interface PriceExample {
+  baseAmount: string;
+  discountPercent: number;
+  discountAmount: string;
+  finalAmount: string;
+}
+
+export default function InsuranceSettings() {
   const router = useRouter();
   const pathname = usePathname();
 
   const { data: settingsData, isLoading } = useInsuranceSettings();
   const updateSettings = useUpdateInsuranceSettings();
 
-  const [formData, setFormData] = useState({
-    pricePerPerson: "",
+  const [formData, setFormData] = useState<FormData>({
+    pricePerDay: "",
+    discount30Days: "",
+    discount90Days: "",
     adminEmail: "",
     isActive: true,
   });
@@ -34,33 +51,109 @@ export const InsuranceSettings = () => {
   useEffect(() => {
     if (settingsData?.data) {
       setFormData({
-        pricePerPerson: settingsData.data.pricePerPerson.toString(),
+        pricePerDay: settingsData.data.pricePerDay.toString(),
+        discount30Days: settingsData.data.discount30Days.toString(),
+        discount90Days: settingsData.data.discount90Days.toString(),
         adminEmail: settingsData.data.adminEmail,
         isActive: settingsData.data.isActive,
       });
     }
   }, [settingsData]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const price = parseFloat(formData.pricePerPerson);
-    if (isNaN(price) || price <= 0) {
-      alert("გთხოვთ შეიყვანოთ სწორი ფასი");
+    const pricePerDay = parseFloat(formData.pricePerDay);
+    const discount30 = parseFloat(formData.discount30Days);
+    const discount90 = parseFloat(formData.discount90Days);
+
+    if (isNaN(pricePerDay) || pricePerDay <= 0) {
+      alert("გთხოვთ შეიყვანოთ სწორი ფასი დღეში");
+      return;
+    }
+
+    if (isNaN(discount30) || discount30 < 0 || discount30 > 100) {
+      alert("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
+      return;
+    }
+
+    if (isNaN(discount90) || discount90 < 0 || discount90 > 100) {
+      alert("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
       return;
     }
 
     try {
-      await updateSettings.mutateAsync({
-        pricePerPerson: price,
-        adminEmail: formData.adminEmail,
-        isActive: formData.isActive,
-      });
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/insurance/settings`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            pricePerDay,
+            discount30Days: discount30,
+            discount90Days: discount90,
+            adminEmail: formData.adminEmail,
+            isActive: formData.isActive,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "განახლება ვერ მოხერხდა");
+      }
+
       alert("პარამეტრები წარმატებით განახლდა");
-    } catch (error) {
+
+      // Optionally refetch the settings
+      if (updateSettings.reset) {
+        updateSettings.reset();
+      }
+    } catch (error: any) {
       console.error("Error updating settings:", error);
-      alert("შეცდომა პარამეტრების განახლებისას");
+      alert(`შეცდომა: ${error.message}`);
     }
+  };
+
+  const calculateExample = (days: number): PriceExample => {
+    const price = parseFloat(formData.pricePerDay) || 0;
+    const discount30 = parseFloat(formData.discount30Days) || 0;
+    const discount90 = parseFloat(formData.discount90Days) || 0;
+
+    const baseAmount = days * price;
+    let discountPercent = 0;
+
+    if (days >= 90 && discount90 > 0) {
+      discountPercent = discount90;
+    } else if (days >= 30 && discount30 > 0) {
+      discountPercent = discount30;
+    }
+
+    const discountAmount = (baseAmount * discountPercent) / 100;
+    const finalAmount = baseAmount - discountAmount;
+
+    return {
+      baseAmount: baseAmount.toFixed(2),
+      discountPercent,
+      discountAmount: discountAmount.toFixed(2),
+      finalAmount: finalAmount.toFixed(2),
+    };
+  };
+
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   if (isLoading) {
@@ -72,7 +165,7 @@ export const InsuranceSettings = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 py-6">
       <div className="bg-white rounded-lg shadow-md">
         <div className="p-4 sm:p-6 border-b">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -87,7 +180,7 @@ export const InsuranceSettings = () => {
                 დაზღვევის პარამეტრები
               </h2>
               <p className="text-gray-600 text-xs sm:text-sm mt-1">
-                მართეთ დაზღვევის სისტემის პარამეტრები
+                მართეთ დაზღვევის სისტემის პარამეტრები და ფასდაკლებები
               </p>
             </div>
           </div>
@@ -97,27 +190,78 @@ export const InsuranceSettings = () => {
           onSubmit={handleSubmit}
           className="p-4 sm:p-6 space-y-4 sm:space-y-6"
         >
-          {/* Price Per Person */}
+          {/* Price Per Day */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
               <DollarSign className="w-4 h-4" />
-              ფასი თითო ადამიანზე (₾)
+              ფასი დღეში (₾)
             </label>
             <input
               type="number"
+              name="pricePerDay"
               step="0.01"
               min="0.01"
-              value={formData.pricePerPerson}
-              onChange={(e) =>
-                setFormData({ ...formData, pricePerPerson: e.target.value })
-              }
+              value={formData.pricePerDay}
+              onChange={handleInputChange}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
-              placeholder="1.00"
+              placeholder="1.50"
               required
             />
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              ეს ფასი გამოყენებული იქნება თითო ადამიანზე გაანგარიშებისთვის
+              ეს ფასი გამრავლდება დღეების რაოდენობაზე თითო ადამიანისთვის
             </p>
+          </div>
+
+          {/* Discount Settings */}
+          <div className="space-y-4 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Percent className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800">ფასდაკლებები</h3>
+            </div>
+
+            {/* 30+ Days Discount */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <Calendar className="w-4 h-4" />
+                ფასდაკლება 30+ დღისთვის (%)
+              </label>
+              <input
+                type="number"
+                name="discount30Days"
+                step="0.01"
+                min="0"
+                max="100"
+                value={formData.discount30Days}
+                onChange={handleInputChange}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="10"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                ეს ფასდაკლება გამოიყენება თუ პერიოდი 30 დღე ან მეტია
+              </p>
+            </div>
+
+            {/* 90+ Days Discount */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <Calendar className="w-4 h-4" />
+                ფასდაკლება 90+ დღისთვის (%)
+              </label>
+              <input
+                type="number"
+                name="discount90Days"
+                step="0.01"
+                min="0"
+                max="100"
+                value={formData.discount90Days}
+                onChange={handleInputChange}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="20"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                ეს ფასდაკლება გამოიყენება თუ პერიოდი 90 დღე ან მეტია
+              </p>
+            </div>
           </div>
 
           {/* Admin Email */}
@@ -128,10 +272,9 @@ export const InsuranceSettings = () => {
             </label>
             <input
               type="email"
+              name="adminEmail"
               value={formData.adminEmail}
-              onChange={(e) =>
-                setFormData({ ...formData, adminEmail: e.target.value })
-              }
+              onChange={handleInputChange}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
               placeholder="admin@daudtravel.com"
               required
@@ -158,7 +301,7 @@ export const InsuranceSettings = () => {
               <button
                 type="button"
                 onClick={() =>
-                  setFormData({ ...formData, isActive: !formData.isActive })
+                  setFormData((prev) => ({ ...prev, isActive: !prev.isActive }))
                 }
                 className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors w-full sm:w-auto ${
                   formData.isActive
@@ -181,29 +324,76 @@ export const InsuranceSettings = () => {
             </div>
           </div>
 
-          {/* Current Settings Preview */}
+          {/* Pricing Examples */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-            <h3 className="font-semibold text-blue-900 mb-2 sm:mb-3 text-sm sm:text-base">
-              მიმდინარე პარამეტრები
+            <h3 className="font-semibold text-blue-900 mb-3 text-sm sm:text-base">
+              ფასების მაგალითები
             </h3>
-            <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-              <div className="flex justify-between">
-                <span className="text-blue-700">ფასი 1 ადამიანზე:</span>
-                <span className="font-semibold text-blue-900">
-                  ₾{formData.pricePerPerson}
-                </span>
+            <div className="space-y-3 text-xs sm:text-sm">
+              {/* 10 days example */}
+              <div className="bg-white rounded p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium text-gray-700">10 დღე:</span>
+                  <span className="text-gray-500">ფასდაკლების გარეშე</span>
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ბაზისური:</span>
+                    <span>₾{calculateExample(10).baseAmount}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-blue-900">
+                    <span>საბოლოო:</span>
+                    <span>₾{calculateExample(10).finalAmount}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-blue-700">ფასი 3 ადამიანზე:</span>
-                <span className="font-semibold text-blue-900">
-                  ₾{(parseFloat(formData.pricePerPerson) * 3).toFixed(2)}
-                </span>
+
+              {/* 45 days example */}
+              <div className="bg-white rounded p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium text-gray-700">45 დღე:</span>
+                  <span className="text-green-600 font-medium">
+                    -{calculateExample(45).discountPercent}% ფასდაკლება
+                  </span>
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ბაზისური:</span>
+                    <span>₾{calculateExample(45).baseAmount}</span>
+                  </div>
+                  <div className="flex justify-between text-green-600">
+                    <span>ფასდაკლება:</span>
+                    <span>-₾{calculateExample(45).discountAmount}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-blue-900">
+                    <span>საბოლოო:</span>
+                    <span>₾{calculateExample(45).finalAmount}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-blue-700">ფასი 5 ადამიანზე:</span>
-                <span className="font-semibold text-blue-900">
-                  ₾{(parseFloat(formData.pricePerPerson) * 5).toFixed(2)}
-                </span>
+
+              {/* 120 days example */}
+              <div className="bg-white rounded p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium text-gray-700">120 დღე:</span>
+                  <span className="text-green-600 font-medium">
+                    -{calculateExample(120).discountPercent}% ფასდაკლება
+                  </span>
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ბაზისური:</span>
+                    <span>₾{calculateExample(120).baseAmount}</span>
+                  </div>
+                  <div className="flex justify-between text-green-600">
+                    <span>ფასდაკლება:</span>
+                    <span>-₾{calculateExample(120).discountAmount}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-blue-900">
+                    <span>საბოლოო:</span>
+                    <span>₾{calculateExample(120).finalAmount}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -240,4 +430,4 @@ export const InsuranceSettings = () => {
       </div>
     </div>
   );
-};
+}

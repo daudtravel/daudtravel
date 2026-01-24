@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   CheckCircle,
   XCircle,
@@ -11,6 +11,9 @@ import {
   Trash2,
   Settings,
   Eye,
+  Calendar,
+  DollarSign,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
@@ -19,13 +22,22 @@ import {
   useDeleteInsuranceSubmission,
 } from "@/src/hooks/insurance/useInsurance";
 
-export const InsuranceSubmissionsList = () => {
+import Image from "next/image";
+import {
+  InsurancePerson,
+  InsuranceSubmission,
+  PaymentStatus,
+} from "@/src/types/insurance.types";
+
+export default function InsuranceSubmissionsList() {
   const router = useRouter();
   const pathname = usePathname();
-  const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+  const [page, setPage] = useState<number>(1);
+  const [statusFilter, setStatusFilter] = useState<PaymentStatus | undefined>(
     undefined
   );
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<InsuranceSubmission | null>(null);
 
   const { data: submissionsData, isLoading } = useInsuranceSubmissions(
     statusFilter,
@@ -37,23 +49,23 @@ export const InsuranceSubmissionsList = () => {
   const submissions = submissionsData?.data || [];
   const pagination = submissionsData?.pagination;
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: PaymentStatus) => {
     switch (status) {
-      case "PAID":
+      case PaymentStatus.PAID:
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
             <CheckCircle size={14} />
             <span className="hidden sm:inline">გადახდილი</span>
           </span>
         );
-      case "PENDING":
+      case PaymentStatus.PENDING:
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             <Clock size={14} />
             <span className="hidden sm:inline">მიმდინარე</span>
           </span>
         );
-      case "FAILED":
+      case PaymentStatus.FAILED:
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle size={14} />
@@ -85,9 +97,170 @@ export const InsuranceSubmissionsList = () => {
     }
   };
 
-  const handleViewDetails = (submissionId: string) => {
-    router.push(`${pathname}?insurance=${submissionId}`);
-  };
+  const SubmissionDetails = ({
+    submission,
+  }: {
+    submission: InsuranceSubmission;
+  }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full my-8">
+        <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex justify-between items-center rounded-t-lg">
+          <div>
+            <h3 className="text-xl font-bold">შეკვეთის დეტალები</h3>
+            <code className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mt-1 inline-block">
+              {submission.externalOrderId}
+            </code>
+          </div>
+          <button
+            onClick={() => setSelectedSubmission(null)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+          {/* Summary */}
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              <div>
+                <p className="text-gray-600 mb-1">სტატუსი</p>
+                {getStatusBadge(submission.status)}
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">ადამიანები</p>
+                <p className="font-semibold">{submission.peopleCount}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">სულ დღეები</p>
+                <p className="font-semibold">{submission.totalDays}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">სულ თანხა</p>
+                <p className="font-semibold text-green-600 text-lg">
+                  ₾{Number(submission.totalAmount).toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* People Details */}
+          <div>
+            <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <Users size={20} />
+              ადამიანების დეტალები
+            </h4>
+            <div className="space-y-4">
+              {submission.people.map(
+                (person: InsurancePerson, index: number) => (
+                  <div
+                    key={person.id}
+                    className="border border-gray-200 rounded-lg p-4"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h5 className="font-semibold text-gray-900">
+                          {person.fullName}
+                        </h5>
+                        <p className="text-sm text-gray-600">
+                          {person.phoneNumber}
+                        </p>
+                      </div>
+                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                        #{index + 1}
+                      </span>
+                    </div>
+
+                    {/* Passport Photo */}
+                    <div className="mb-4">
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_BASE_URL}${person.passportPhoto}`}
+                          alt={`${person.fullName} - პასპორტი`}
+                          fill
+                          className="object-contain"
+                          unoptimized
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div className="bg-gray-50 p-3 rounded">
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <Calendar size={14} />
+                          <span>პერიოდი</span>
+                        </div>
+                        <p className="font-medium">
+                          {format(new Date(person.startDate), "dd/MM/yyyy")} -{" "}
+                          {format(new Date(person.endDate), "dd/MM/yyyy")}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {person.totalDays} დღე
+                        </p>
+                      </div>
+
+                      <div className="bg-gray-50 p-3 rounded">
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <DollarSign size={14} />
+                          <span>ფასი</span>
+                        </div>
+                        <p className="font-medium">
+                          ₾{Number(person.pricePerDay).toFixed(2)} / დღე
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          ბაზისური: ₾{Number(person.baseAmount).toFixed(2)}
+                        </p>
+                      </div>
+
+                      {person.discount > 0 && (
+                        <div className="bg-green-50 p-3 rounded">
+                          <div className="text-green-700 mb-1">ფასდაკლება</div>
+                          <p className="font-medium text-green-800">
+                            -{person.discount}%
+                          </p>
+                          <p className="text-xs text-green-600 mt-1">
+                            -₾
+                            {(
+                              (Number(person.baseAmount) *
+                                Number(person.discount)) /
+                              100
+                            ).toFixed(2)}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="bg-blue-50 p-3 rounded">
+                        <div className="text-blue-700 mb-1">საბოლოო თანხა</div>
+                        <p className="font-bold text-blue-900 text-lg">
+                          ₾{Number(person.finalAmount).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* Contact Info */}
+          <div className="border-t pt-4">
+            <h4 className="font-semibold mb-2">კონტაქტი</h4>
+            <div className="flex items-center gap-2 text-gray-700">
+              <Mail size={16} />
+              <span>{submission.submitterEmail}</span>
+            </div>
+            {submission.emailSent && submission.emailSentAt && (
+              <p className="text-xs text-green-600 mt-2">
+                <CheckCircle size={12} className="inline mr-1" />
+                ელ.ფოსტა გაგზავნილია:{" "}
+                {format(new Date(submission.emailSentAt), "dd/MM/yyyy HH:mm")}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -126,15 +299,15 @@ export const InsuranceSubmissionsList = () => {
             <select
               value={statusFilter || ""}
               onChange={(e) => {
-                setStatusFilter(e.target.value || undefined);
+                setStatusFilter((e.target.value as PaymentStatus) || undefined);
                 setPage(1);
               }}
               className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
             >
               <option value="">ყველა სტატუსი</option>
-              <option value="PAID">გადახდილი</option>
-              <option value="PENDING">მიმდინარე</option>
-              <option value="FAILED">წარუმატებელი</option>
+              <option value={PaymentStatus.PAID}>გადახდილი</option>
+              <option value={PaymentStatus.PENDING}>მიმდინარე</option>
+              <option value={PaymentStatus.FAILED}>წარუმატებელი</option>
             </select>
           </div>
         </div>
@@ -154,19 +327,19 @@ export const InsuranceSubmissionsList = () => {
                       გამომგზავნი
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      ადამიანების რაოდენობა
+                      ადამიანები
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      ფასი/ადამიანი
+                      სულ დღეები
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      სულ
+                      თანხა
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
                       სტატუსი
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      ელ.ფოსტა გაგზავნილია
+                      ელ.ფოსტა
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
                       თარიღი
@@ -177,7 +350,7 @@ export const InsuranceSubmissionsList = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {submissions.map((submission: any) => (
+                  {submissions.map((submission: InsuranceSubmission) => (
                     <tr key={submission.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -201,13 +374,16 @@ export const InsuranceSubmissionsList = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-gray-700">
-                          ₾{submission.pricePerPerson}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-5 h-5 text-purple-500" />
+                          <span className="font-semibold text-gray-900">
+                            {submission.totalDays}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-lg font-semibold text-green-600">
-                          ₾{submission.totalAmount}
+                          ₾{Number(submission.totalAmount).toFixed(2)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -278,7 +454,7 @@ export const InsuranceSubmissionsList = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleViewDetails(submission.id)}
+                            onClick={() => setSelectedSubmission(submission)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="დეტალები"
                           >
@@ -307,7 +483,7 @@ export const InsuranceSubmissionsList = () => {
 
             {/* Mobile Card View */}
             <div className="lg:hidden divide-y divide-gray-200">
-              {submissions.map((submission: any) => (
+              {submissions.map((submission: InsuranceSubmission) => (
                 <div key={submission.id} className="p-4 hover:bg-gray-50">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0">
@@ -335,17 +511,18 @@ export const InsuranceSubmissionsList = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">
-                        ფასი/ადამიანი
-                      </p>
-                      <span className="text-sm text-gray-700">
-                        ₾{submission.pricePerPerson}
-                      </span>
+                      <p className="text-xs text-gray-500 mb-1">სულ დღეები</p>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4 text-purple-500" />
+                        <span className="font-semibold text-gray-900">
+                          {submission.totalDays}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">სულ</p>
+                    <div className="col-span-2">
+                      <p className="text-xs text-gray-500 mb-1">სულ თანხა</p>
                       <span className="text-lg font-semibold text-green-600">
-                        ₾{submission.totalAmount}
+                        ₾{Number(submission.totalAmount).toFixed(2)}
                       </span>
                     </div>
                     <div>
@@ -392,7 +569,7 @@ export const InsuranceSubmissionsList = () => {
 
                   <div className="flex gap-2 pt-2 border-t">
                     <button
-                      onClick={() => handleViewDetails(submission.id)}
+                      onClick={() => setSelectedSubmission(submission)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
                     >
                       <Eye size={16} />
@@ -437,6 +614,10 @@ export const InsuranceSubmissionsList = () => {
           </>
         )}
       </div>
+
+      {selectedSubmission && (
+        <SubmissionDetails submission={selectedSubmission} />
+      )}
     </div>
   );
-};
+}

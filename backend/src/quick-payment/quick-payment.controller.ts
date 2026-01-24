@@ -156,4 +156,11 @@ export class QuickPaymentController {
   async getOrderById(@Param('orderId') orderId: string) {
     return this.service.getOrderById(orderId);
   }
+
+  @Delete('orders/:orderId')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Delete order by ID (Admin)' })
+  async deleteOrder(@Param('orderId') orderId: string) {
+    return this.service.deleteOrder(orderId);
+  }
 }

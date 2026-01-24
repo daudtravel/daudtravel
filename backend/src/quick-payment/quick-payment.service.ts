@@ -16,12 +16,14 @@ import {
 } from './dto/quick-payment.dto';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
+import { MailService } from '@/mail/mail.service';
 
 @Injectable()
 export class QuickPaymentService {
   constructor(
     private prisma: PrismaService,
     private fileUpload: FileUploadService,
+    private mailService: MailService,
   ) {}
 
   private generateSlug(): string {
@@ -321,10 +323,69 @@ export class QuickPaymentService {
       data: updateData,
     });
 
+    if (finalStatus === PaymentStatus.PAID && !order.emailSent) {
+      await this.sendEmailNotifications(order.id);
+    }
+
     return {
       success: true,
       status: finalStatus,
     };
+  }
+
+  // ✅ ADD THIS PRIVATE METHOD
+  private async sendEmailNotifications(orderId: string) {
+    try {
+      const order = await this.prisma.quickPaymentOrder.findUnique({
+        where: { id: orderId },
+      });
+
+      if (!order) return;
+
+      // Send customer confirmation
+      if (order.customerEmail) {
+        await this.mailService.sendQuickPaymentCustomerConfirmation({
+          email: order.customerEmail,
+          customerFullName: order.customerFullName,
+          externalOrderId: order.externalOrderId,
+          productName: order.productName,
+          productDescription: order.productDescription ?? undefined,
+          quantity: order.productQuantity,
+          totalAmount: Number(order.productTotalPrice),
+        });
+      }
+
+      // Send admin notification
+      const adminEmail = process.env.ADMIN_EMAIL || 'traveldaud@gmail.com';
+      await this.mailService.sendQuickPaymentAdminNotification({
+        order: {
+          id: order.id,
+          externalOrderId: order.externalOrderId,
+          customerFullName: order.customerFullName,
+          customerEmail: order.customerEmail ?? undefined,
+          customerPhone: order.customerPhone ?? undefined,
+          productName: order.productName,
+          productDescription: order.productDescription ?? undefined,
+          quantity: order.productQuantity,
+          totalAmount: Number(order.productTotalPrice),
+          transactionId: order.transactionId ?? undefined,
+          paymentMethod: order.paymentMethod ?? undefined,
+          paidAt: order.paidAt ?? undefined,
+        },
+        adminEmail,
+      });
+
+      // Mark email as sent
+      await this.prisma.quickPaymentOrder.update({
+        where: { id: orderId },
+        data: {
+          emailSent: true,
+          emailSentAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error('❌ Failed to send email notifications:', error);
+    }
   }
 
   async getPublicLinks(locale?: string, page: number = 1, limit: number = 20) {
@@ -684,6 +745,29 @@ export class QuickPaymentService {
         createdAt: order.createdAt.toISOString(),
         updatedAt: order.updatedAt.toISOString(),
       },
+    };
+  }
+
+  async deleteOrder(orderId: string) {
+    const order = await this.prisma.quickPaymentOrder.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (order.status === PaymentStatus.PAID) {
+      throw new BadRequestException('Cannot delete paid orders');
+    }
+
+    await this.prisma.quickPaymentOrder.delete({
+      where: { id: orderId },
+    });
+
+    return {
+      success: true,
+      message: 'Order deleted successfully',
     };
   }
 }
