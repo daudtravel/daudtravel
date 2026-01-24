@@ -280,12 +280,26 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
                     </p>
                   )}
                 </div>
+                {quickPaymentDetails.productQuantity &&
+                  quickPaymentDetails.productQuantity > 1 && (
+                    <div className="flex justify-between items-center pb-2">
+                      <span className="text-sm text-gray-600">Quantity:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {quickPaymentDetails.productQuantity}
+                      </span>
+                    </div>
+                  )}
                 <div className="flex justify-between items-center pt-3 border-t border-blue-200">
                   <span className="text-sm text-blue-900 font-medium">
                     Amount Paid:
                   </span>
                   <span className="text-lg font-bold text-blue-900">
-                    ₾{quickPaymentDetails.productPrice.toFixed(2)}
+                    ₾
+                    {(
+                      quickPaymentDetails.productTotalPrice ||
+                      quickPaymentDetails.productUnitPrice ||
+                      0
+                    ).toFixed(2)}
                   </span>
                 </div>
               </div>

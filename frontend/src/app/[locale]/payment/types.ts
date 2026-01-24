@@ -26,11 +26,14 @@ export interface PaymentStatusResponse {
 // Quick Payment Types
 export interface QuickPaymentDetails {
   id: string;
-  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  status: "PAID" | "PENDING" | "FAILED";
   customerFullName: string;
   productName: string;
   productDescription?: string;
-  productPrice: number;
+  productUnitPrice: number;
+  productQuantity: number;
+  productTotalPrice: number;
+  productLocale: string;
   paidAt?: string;
   createdAt: string;
 }
