@@ -306,22 +306,20 @@ Daud Travel Team
       id: string;
       fullName: string;
       phoneNumber: string;
+      passportPhotoUrl: string;
       startDate: Date;
       endDate: Date;
       totalDays: number;
     }>;
     adminEmail: string;
     baseUrl: string;
-    generateSecureViewToken: (submissionId: string, personId: string) => string;
   }): Promise<void> {
-    const { submission, people, adminEmail, baseUrl, generateSecureViewToken } =
-      emailData;
+    const { submission, people, adminEmail, baseUrl } = emailData;
 
     try {
       const peopleDetailsHtml = people
         .map((person, index) => {
-          const viewToken = generateSecureViewToken(submission.id, person.id);
-          const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}?token=${viewToken}`;
+          const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}`;
 
           return `
       <div style="background-color: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #2196F3;">
@@ -343,7 +341,7 @@ Daud Travel Team
             🔒 View Passport Photo
           </a>
           <span style="display: block; margin-top: 5px; font-size: 12px; color: #666;">
-            (Link expires in 7 days)
+            (Password required: davit / davit123)
           </span>
         </p>
       </div>
@@ -378,7 +376,7 @@ Daud Travel Team
 
         <div style="background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 4px;">
           <p style="color: #2e7d32; margin: 0; font-size: 13px;">
-            🔒 <strong>Security Note:</strong> Photo links are secured and expire after 7 days
+            🔒 <strong>Security Note:</strong> Photos require authentication (davit / davit123)
           </p>
         </div>
 
@@ -409,15 +407,14 @@ Submission Summary:
 Insured Individuals:
 ${people
   .map((person, index) => {
-    const viewToken = generateSecureViewToken(submission.id, person.id);
-    const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}?token=${viewToken}`;
+    const securePhotoUrl = `${baseUrl}/api/insurance/view-passport/${submission.id}/${person.id}`;
 
     return `
 Person ${index + 1}: ${person.fullName}
 - Phone: ${person.phoneNumber}
 - Coverage: ${person.startDate.toLocaleDateString()} to ${person.endDate.toLocaleDateString()}
 - Duration: ${person.totalDays} days
-- Passport Photo: ${securePhotoUrl} (expires in 7 days)
+- Passport Photo: ${securePhotoUrl} (password: davit / davit123)
 `;
   })
   .join('\n')}

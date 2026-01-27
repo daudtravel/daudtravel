@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,7 +12,6 @@ import { BOG_API_URL, verifyBOGSignature } from '@/common/utils/bog-payments';
 import { PaymentStatus } from '@prisma/client';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { Response } from 'express';
-import * as crypto from 'crypto';
 
 import {
   CreateInsuranceSubmissionDto,
@@ -27,21 +27,6 @@ export class InsuranceService {
     private fileUpload: FileUploadService,
     private mailService: MailService,
   ) {}
-
-  private generateSecureViewToken(
-    submissionId: string,
-    personId: string,
-  ): string {
-    const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
-    const payload = `${submissionId}:${personId}:${expiresAt}`;
-
-    const hmac = crypto.createHmac('sha256', secret);
-    hmac.update(payload);
-    const signature = hmac.digest('hex');
-
-    return `${Buffer.from(payload).toString('base64')}.${signature}`;
-  }
 
   private calculateDaysBetween(startDate: Date, endDate: Date): number {
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
@@ -84,56 +69,46 @@ export class InsuranceService {
   async viewSecurePassportPhoto(
     submissionId: string,
     personId: string,
-    token: string,
+    isAuthenticated: boolean,
+    basicAuthHeader: string | undefined,
     res: Response,
   ) {
-    const secret = process.env.JWT_SECRET || 'your-secret-key';
-
-    try {
-      const [encodedPayload, signature] = token.split('.');
-      if (!encodedPayload || !signature) {
-        throw new BadRequestException('Invalid token format');
+    // If user is authenticated via JWT, allow access
+    if (!isAuthenticated) {
+      // If not authenticated, require basic auth
+      if (!basicAuthHeader || !basicAuthHeader.startsWith('Basic ')) {
+        res.setHeader('WWW-Authenticate', 'Basic realm="Passport Photos"');
+        throw new UnauthorizedException('Authentication required');
       }
 
-      const payload = Buffer.from(encodedPayload, 'base64').toString('utf-8');
-      const [tokenSubmissionId, tokenPersonId, expiresAt] = payload.split(':');
+      // Decode and verify basic auth credentials
+      const base64Credentials = basicAuthHeader.split(' ')[1];
+      const credentials = Buffer.from(base64Credentials, 'base64').toString(
+        'utf-8',
+      );
+      const [username, password] = credentials.split(':');
 
-      const hmac = crypto.createHmac('sha256', secret);
-      hmac.update(payload);
-      const expectedSignature = hmac.digest('hex');
-
-      if (signature !== expectedSignature) {
-        throw new BadRequestException('Invalid token signature');
+      // Check against static credentials
+      if (username !== 'davit' || password !== 'davit123') {
+        res.setHeader('WWW-Authenticate', 'Basic realm="Passport Photos"');
+        throw new UnauthorizedException('Invalid credentials');
       }
-
-      if (Date.now() > parseInt(expiresAt)) {
-        throw new BadRequestException('Token expired');
-      }
-
-      if (tokenSubmissionId !== submissionId || tokenPersonId !== personId) {
-        throw new BadRequestException('Token mismatch');
-      }
-
-      const person = await this.prisma.insurancePerson.findUnique({
-        where: { id: personId },
-        include: { submission: true },
-      });
-
-      if (!person || person.submissionId !== submissionId) {
-        throw new NotFoundException('Photo not found');
-      }
-
-      const filePath = person.passportPhoto.replace('/uploads/', '');
-      return res.sendFile(filePath, { root: './uploads' });
-    } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
-        throw error;
-      }
-      throw new BadRequestException('Invalid or expired link');
     }
+
+    // Fetch the person record
+    const person = await this.prisma.insurancePerson.findUnique({
+      where: { id: personId },
+      include: { submission: true },
+    });
+
+    if (!person || person.submissionId !== submissionId) {
+      throw new NotFoundException('Photo not found');
+    }
+
+    // Extract file path from URL
+    // passportPhoto is stored as "/uploads/insurance-passports/xxx.avif"
+    const filePath = person.passportPhoto.replace('/uploads/', '');
+    return res.sendFile(filePath, { root: './uploads' });
   }
 
   async getSettings() {
@@ -664,13 +639,13 @@ export class InsuranceService {
           id: p.id,
           fullName: p.fullName,
           phoneNumber: p.phoneNumber,
+          passportPhotoUrl: `${baseUrl}${p.passportPhoto}`,
           startDate: p.startDate,
           endDate: p.endDate,
           totalDays: p.totalDays,
         })),
         adminEmail: settings.adminEmail,
         baseUrl,
-        generateSecureViewToken: this.generateSecureViewToken.bind(this),
       });
 
       await this.prisma.insuranceSubmission.update({

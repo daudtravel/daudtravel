@@ -66,17 +66,25 @@ export class InsuranceController {
   }
 
   @Get('view-passport/:submissionId/:personId')
-  @ApiOperation({ summary: 'View passport photo with secure token (Public)' })
+  @ApiOperation({
+    summary:
+      'View passport photo with optional auth (Public with basic auth or JWT)',
+  })
   async viewPassportPhoto(
     @Param('submissionId') submissionId: string,
     @Param('personId') personId: string,
-    @Query('token') token: string,
+    @Headers('authorization') authHeader: string,
+    @Req() req: any,
     @Res() res: Response,
   ) {
+    // Check if user is authenticated via JWT (req.user will be set by middleware if valid token)
+    const isAuthenticated = !!req.user;
+
     return this.service.viewSecurePassportPhoto(
       submissionId,
       personId,
-      token,
+      isAuthenticated,
+      authHeader,
       res,
     );
   }
