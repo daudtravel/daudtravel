@@ -105,10 +105,10 @@ export class InsuranceService {
       throw new NotFoundException('Photo not found');
     }
 
-    // Extract file path from URL
-    // passportPhoto is stored as "/uploads/insurance-passports/xxx.avif"
     const filePath = person.passportPhoto.replace('/uploads/', '');
-    return res.sendFile(filePath, { root: './uploads' });
+    const path = require('path');
+    const absolutePath = path.resolve('./uploads', filePath);
+    return res.sendFile(absolutePath);
   }
 
   async getSettings() {
