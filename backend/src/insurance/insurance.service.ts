@@ -31,7 +31,7 @@ export class InsuranceService {
   private calculateDaysBetween(startDate: Date, endDate: Date): number {
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return diffDays + 1; // Add 1 to include both start and end dates
   }
 
   private getApplicableDiscount(days: number, settings: any): number {
@@ -100,9 +100,16 @@ export class InsuranceService {
       throw new NotFoundException('Photo not found');
     }
 
-    const filePath = person.passportPhoto.replace('/uploads/', '');
+    // The passportPhoto field contains the full path like "/uploads/insurance-passports/xxx.avif"
+    // We need to remove the leading slash and resolve from the project root
     const path = require('path');
-    const absolutePath = path.resolve('./uploads', filePath);
+    const filePath = person.passportPhoto.startsWith('/')
+      ? person.passportPhoto.substring(1)
+      : person.passportPhoto;
+
+    // Resolve from project root (where uploads folder is located)
+    const absolutePath = path.resolve(process.cwd(), filePath);
+
     return res.sendFile(absolutePath);
   }
 
