@@ -34,67 +34,118 @@ export class QuickPaymentService {
     return 'ka';
   }
 
+  // ✅ FIXED: Added validation helper
+  private validateLocalizations(localizations: any[]) {
+    if (!localizations || localizations.length === 0) {
+      throw new BadRequestException('At least one localization is required');
+    }
+
+    // Check for Georgian (required)
+    const hasGeorgian = localizations.some((loc) => loc.locale === 'ka');
+    if (!hasGeorgian) {
+      throw new BadRequestException('Georgian (ka) localization is required');
+    }
+
+    // Validate each localization
+    localizations.forEach((loc) => {
+      if (!loc.name || !loc.name.trim()) {
+        throw new BadRequestException(
+          `Name is required for locale: ${loc.locale}`,
+        );
+      }
+      // Clean up description - convert empty string to null
+      if (loc.description !== undefined && !loc.description.trim()) {
+        loc.description = null;
+      }
+    });
+
+    // Check for duplicate locales
+    const locales = localizations.map((loc) => loc.locale);
+    const uniqueLocales = new Set(locales);
+    if (locales.length !== uniqueLocales.size) {
+      throw new BadRequestException('Duplicate locales are not allowed');
+    }
+
+    return true;
+  }
+
   async createQuickLink(dto: CreateQuickLinkDto) {
+    // ✅ FIXED: Validate localizations before processing
+    this.validateLocalizations(dto.localizations);
+
     let imageUrl: string | null = null;
 
     if (dto.image) {
-      const uploaded = await this.fileUpload.uploadBase64Image(
-        dto.image,
-        'quick-payments',
-      );
-      imageUrl = uploaded.url;
+      try {
+        const uploaded = await this.fileUpload.uploadBase64Image(
+          dto.image,
+          'quick-payments',
+        );
+        imageUrl = uploaded.url;
+      } catch (error) {
+        console.error('❌ Image upload failed:', error);
+        throw new BadRequestException('Failed to upload image');
+      }
     }
 
     const slug = this.generateSlug();
 
-    // Create link with localizations
-    const link = await this.prisma.quickPaymentLink.create({
-      data: {
-        slug,
-        image: imageUrl,
-        price: dto.price,
-        showOnWebsite: dto.showOnWebsite ?? false,
-        localizations: {
-          create: dto.localizations.map((loc) => ({
+    // ✅ FIXED: Use transaction to ensure atomicity
+    try {
+      const link = await this.prisma.$transaction(async (tx) => {
+        return await tx.quickPaymentLink.create({
+          data: {
+            slug,
+            image: imageUrl,
+            price: dto.price,
+            showOnWebsite: dto.showOnWebsite ?? false,
+            localizations: {
+              create: dto.localizations.map((loc) => ({
+                locale: loc.locale,
+                name: loc.name.trim(),
+                description: loc.description?.trim() || null,
+              })),
+            },
+          },
+          include: {
+            localizations: true,
+          },
+        });
+      });
+
+      const frontendUrl = getPrimaryFrontendUrl();
+      if (!frontendUrl) {
+        throw new InternalServerErrorException(
+          'FRONTEND_URL environment variable is not configured',
+        );
+      }
+
+      return {
+        success: true,
+        data: {
+          id: link.id,
+          slug: link.slug,
+          image: link.image,
+          price: Number(link.price),
+          paymentLink: `${frontendUrl}/pay/${link.slug}`,
+          isActive: link.isActive,
+          showOnWebsite: link.showOnWebsite,
+          localizations: link.localizations.map((loc) => ({
             locale: loc.locale,
             name: loc.name,
             description: loc.description,
           })),
+          createdAt: link.createdAt.toISOString(),
         },
-      },
-      include: {
-        localizations: true,
-      },
-    });
-
-    const frontendUrl = getPrimaryFrontendUrl();
-    if (!frontendUrl) {
-      throw new InternalServerErrorException(
-        'FRONTEND_URL environment variable is not configured',
-      );
+      };
+    } catch (error) {
+      // Clean up uploaded image if database operation fails
+      if (imageUrl) {
+        await this.fileUpload.deleteFile(imageUrl).catch(() => {});
+      }
+      throw error;
     }
-
-    return {
-      success: true,
-      data: {
-        id: link.id,
-        slug: link.slug,
-        image: link.image,
-        price: Number(link.price),
-        paymentLink: `${frontendUrl}/pay/${link.slug}`,
-        isActive: link.isActive,
-        showOnWebsite: link.showOnWebsite,
-        localizations: link.localizations.map((loc) => ({
-          locale: loc.locale,
-          name: loc.name,
-          description: loc.description,
-        })),
-        createdAt: link.createdAt.toISOString(),
-      },
-    };
   }
-
-  // Update the getQuickLink method in your quick-payment.service.ts (backend)
 
   async getQuickLink(
     slug: string,
@@ -104,7 +155,7 @@ export class QuickPaymentService {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
       include: {
-        localizations: true, // Always include all localizations
+        localizations: true,
       },
     });
 
@@ -112,12 +163,17 @@ export class QuickPaymentService {
       throw new NotFoundException('Payment link not found');
     }
 
-    // For non-authenticated public requests, check if active
     if (!isAuthenticated && !link.isActive) {
       throw new BadRequestException('This payment link is no longer active');
     }
 
-    // If authenticated, return all localizations (for editing/management)
+    // ✅ FIXED: Always check if localizations exist
+    if (!link.localizations || link.localizations.length === 0) {
+      throw new InternalServerErrorException(
+        'Payment link has no translations',
+      );
+    }
+
     if (isAuthenticated) {
       return {
         success: true,
@@ -138,17 +194,10 @@ export class QuickPaymentService {
       };
     }
 
-    // For public requests, return single localization (for payment page)
     const requestedLocale = locale || this.getDefaultLocale();
     const localization = link.localizations.find(
       (l) => l.locale === requestedLocale,
     );
-
-    if (!localization && link.localizations.length === 0) {
-      throw new NotFoundException('No translations available for this link');
-    }
-
-    // Fallback to first available locale if requested locale not found
     const selectedLoc = localization || link.localizations[0];
 
     return {
@@ -164,6 +213,7 @@ export class QuickPaymentService {
       },
     };
   }
+
   async initiatePayment(slug: string, dto: InitiatePaymentDto) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
@@ -190,7 +240,6 @@ export class QuickPaymentService {
       throw new NotFoundException('No translations available for this link');
     }
 
-    // ✅ Handle quantity (default: 1, min: 1, max: 100)
     const quantity = Math.max(1, Math.min(100, dto.quantity || 1));
     const unitPrice = Number(link.price);
     const totalAmount = unitPrice * quantity;
@@ -210,12 +259,12 @@ export class QuickPaymentService {
       external_order_id,
       purchase_units: {
         currency: 'GEL',
-        total_amount: totalAmount, // ✅ Total based on quantity
+        total_amount: totalAmount,
         basket: [
           {
             product_id: link.id,
             description: selectedLoc.name,
-            quantity: quantity, // ✅ Dynamic quantity
+            quantity: quantity,
             unit_price: unitPrice,
             total_price: totalAmount,
           },
@@ -255,9 +304,9 @@ export class QuickPaymentService {
         customerPhone: dto.customerPhone,
         productName: selectedLoc.name,
         productDescription: selectedLoc.description,
-        productUnitPrice: link.price, // ✅ Store unit price
-        productQuantity: quantity, // ✅ Store quantity
-        productTotalPrice: totalAmount, // ✅ Store total
+        productUnitPrice: link.price,
+        productQuantity: quantity,
+        productTotalPrice: totalAmount,
         productLocale: selectedLoc.locale,
         externalOrderId: external_order_id,
         bogOrderId: bogOrderData.id,
@@ -270,7 +319,7 @@ export class QuickPaymentService {
     return {
       success: true,
       paymentUrl: bogOrderData._links.redirect.href,
-      totalAmount: totalAmount, // ✅ Return total to frontend
+      totalAmount: totalAmount,
       quantity: quantity,
     };
   }
@@ -333,7 +382,6 @@ export class QuickPaymentService {
     };
   }
 
-  // ✅ ADD THIS PRIVATE METHOD
   private async sendEmailNotifications(orderId: string) {
     try {
       const order = await this.prisma.quickPaymentOrder.findUnique({
@@ -342,7 +390,6 @@ export class QuickPaymentService {
 
       if (!order) return;
 
-      // Send customer confirmation
       if (order.customerEmail) {
         await this.mailService.sendQuickPaymentCustomerConfirmation({
           email: order.customerEmail,
@@ -355,7 +402,6 @@ export class QuickPaymentService {
         });
       }
 
-      // Send admin notification
       const adminEmail = process.env.ADMIN_EMAIL || 'traveldaud@gmail.com';
       await this.mailService.sendQuickPaymentAdminNotification({
         order: {
@@ -375,7 +421,6 @@ export class QuickPaymentService {
         adminEmail,
       });
 
-      // Mark email as sent
       await this.prisma.quickPaymentOrder.update({
         where: { id: orderId },
         data: {
@@ -503,6 +548,7 @@ export class QuickPaymentService {
     };
   }
 
+  // ✅ FIXED: Completely rewritten update logic with proper transaction handling
   async updateLink(slug: string, dto: UpdateQuickLinkDto) {
     const link = await this.prisma.quickPaymentLink.findUnique({
       where: { slug },
@@ -513,61 +559,127 @@ export class QuickPaymentService {
       throw new NotFoundException('Payment link not found');
     }
 
-    let imageUrl = link.image;
-
-    if (dto.image) {
-      if (link.image) {
-        await this.fileUpload.deleteFile(link.image);
-      }
-      const uploaded = await this.fileUpload.uploadBase64Image(
-        dto.image,
-        'quick-payments',
-      );
-      imageUrl = uploaded.url;
-    }
-
-    const updateData: any = {
-      image: imageUrl,
-    };
-
-    if (dto.price !== undefined) updateData.price = dto.price;
-    if (dto.showOnWebsite !== undefined)
-      updateData.showOnWebsite = dto.showOnWebsite;
-
-    // Handle localizations update
+    // ✅ Validate localizations if provided
     if (dto.localizations && dto.localizations.length > 0) {
-      updateData.localizations = {
-        deleteMany: {},
-        create: dto.localizations.map((loc) => ({
-          locale: loc.locale,
-          name: loc.name,
-          description: loc.description,
-        })),
-      };
+      this.validateLocalizations(dto.localizations);
     }
 
-    const updated = await this.prisma.quickPaymentLink.update({
-      where: { slug },
-      data: updateData,
-      include: { localizations: true },
-    });
+    let imageUrl = link.image;
+    let oldImageToDelete: string | null = null;
 
-    return {
-      success: true,
-      data: {
-        id: updated.id,
-        slug: updated.slug,
-        image: updated.image,
-        price: Number(updated.price),
-        isActive: updated.isActive,
-        showOnWebsite: updated.showOnWebsite,
-        localizations: updated.localizations.map((loc) => ({
-          locale: loc.locale,
-          name: loc.name,
-          description: loc.description,
-        })),
-      },
-    };
+    // Handle image upload
+    if (dto.image) {
+      try {
+        const uploaded = await this.fileUpload.uploadBase64Image(
+          dto.image,
+          'quick-payments',
+        );
+        oldImageToDelete = link.image; // Mark old image for deletion
+        imageUrl = uploaded.url;
+      } catch (error) {
+        console.error('❌ Image upload failed:', error);
+        throw new BadRequestException('Failed to upload image');
+      }
+    }
+
+    // ✅ FIXED: Use transaction and proper update strategy
+    try {
+      const updated = await this.prisma.$transaction(async (tx) => {
+        const updateData: any = {
+          image: imageUrl,
+        };
+
+        if (dto.price !== undefined) updateData.price = dto.price;
+        if (dto.showOnWebsite !== undefined)
+          updateData.showOnWebsite = dto.showOnWebsite;
+
+        // ✅ FIXED: Update localizations without deleting all first
+        if (dto.localizations && dto.localizations.length > 0) {
+          // Get existing locale IDs
+          const existingLocaleIds = link.localizations.reduce(
+            (acc, loc) => {
+              acc[loc.locale] = loc.id;
+              return acc;
+            },
+            {} as Record<string, string>,
+          );
+
+          const newLocales = dto.localizations.map((loc) => loc.locale);
+          const localesToDelete = link.localizations
+            .filter((loc) => !newLocales.includes(loc.locale))
+            .map((loc) => loc.id);
+
+          // Delete removed localizations
+          if (localesToDelete.length > 0) {
+            await tx.quickPaymentLinkLocalization.deleteMany({
+              where: {
+                id: { in: localesToDelete },
+              },
+            });
+          }
+
+          // Update or create localizations
+          for (const loc of dto.localizations) {
+            const data = {
+              locale: loc.locale,
+              name: loc.name.trim(),
+              description: loc.description?.trim() || null,
+            };
+
+            if (existingLocaleIds[loc.locale]) {
+              // Update existing
+              await tx.quickPaymentLinkLocalization.update({
+                where: { id: existingLocaleIds[loc.locale] },
+                data,
+              });
+            } else {
+              // Create new
+              await tx.quickPaymentLinkLocalization.create({
+                data: {
+                  ...data,
+                  linkId: link.id,
+                },
+              });
+            }
+          }
+        }
+
+        // Update the main link
+        return await tx.quickPaymentLink.update({
+          where: { slug },
+          data: updateData,
+          include: { localizations: true },
+        });
+      });
+
+      // Clean up old image after successful update
+      if (oldImageToDelete) {
+        await this.fileUpload.deleteFile(oldImageToDelete).catch(() => {});
+      }
+
+      return {
+        success: true,
+        data: {
+          id: updated.id,
+          slug: updated.slug,
+          image: updated.image,
+          price: Number(updated.price),
+          isActive: updated.isActive,
+          showOnWebsite: updated.showOnWebsite,
+          localizations: updated.localizations.map((loc) => ({
+            locale: loc.locale,
+            name: loc.name,
+            description: loc.description,
+          })),
+        },
+      };
+    } catch (error) {
+      // Clean up newly uploaded image if update fails
+      if (dto.image && imageUrl && imageUrl !== link.image) {
+        await this.fileUpload.deleteFile(imageUrl).catch(() => {});
+      }
+      throw error;
+    }
   }
 
   async toggleLinkStatus(slug: string) {

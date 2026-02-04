@@ -24,6 +24,10 @@
   "groupTours": "جولات جماعية",
   "individualTours": "جولات فردية",
   "videoGallery": "معرض الفيديو",
-    "prev": "سابق",
-  "next": "التالي"
+  "prev": "سابق",
+  "next": "التالي",
+  "products": "منتجاتنا",
+  "travelInsurance": "تأمين السفر",
+  "wantTravelInsurance": "هل تريد تأمين السفر؟",
+  "getItHere": "احصل عليه هنا"
 }

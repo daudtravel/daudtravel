@@ -51,22 +51,39 @@ export const CreateQuickLink = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nameKa || !formData.price) return;
+
+    // ✅ FIXED: Better validation
+    if (!formData.nameKa || !formData.nameKa.trim()) {
+      alert("პროდუქტის სახელი სავალდებულოა");
+      return;
+    }
+
+    const priceValue = parseFloat(formData.price);
+    if (isNaN(priceValue) || priceValue <= 0) {
+      alert("გთხოვთ შეიყვანოთ სწორი ფასი");
+      return;
+    }
 
     try {
-      await createLink.mutateAsync({
+      const submitData = {
         localizations: [
           {
             locale: "ka",
-            name: formData.nameKa,
-            description: formData.descriptionKa || undefined,
+            name: formData.nameKa.trim(),
+            // ✅ FIXED: Send undefined instead of empty string
+            description: formData.descriptionKa.trim() || undefined,
           },
         ],
         image: imageBase64 || undefined,
-        price: parseFloat(formData.price),
+        price: priceValue,
         showOnWebsite: formData.showOnWebsite,
-      });
+      };
 
+      console.log("📤 Creating link with data:", submitData);
+
+      await createLink.mutateAsync(submitData);
+
+      // Reset form
       setFormData({
         nameKa: "",
         descriptionKa: "",
@@ -75,10 +92,16 @@ export const CreateQuickLink = () => {
       });
       setImagePreview(null);
       setImageBase64(null);
+
+      alert("ლინკი წარმატებით შეიქმნა");
       router.push(`${pathname}?quickPayment=all`);
-    } catch (error) {
-      console.error("Error creating link:", error);
-      alert("შეცდომა ლინკის შექმნისას");
+    } catch (error: any) {
+      console.error("❌ Error creating link:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "შეცდომა ლინკის შექმნისას";
+      alert(errorMessage);
     }
   };
 

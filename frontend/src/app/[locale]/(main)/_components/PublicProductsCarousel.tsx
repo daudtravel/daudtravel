@@ -5,17 +5,17 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/src/components/ui/carousel";
 import { useState, useEffect } from "react";
 import { usePublicQuickLinks } from "@/src/hooks/quick-payment/useQuickPayment";
 import { Loader2, ShoppingCart, Package } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function PublicProductsCarousel() {
   const [api, setApi] = useState<any>(null);
   const [current, setCurrent] = useState(0);
+  const t = useTranslations("main");
 
   const { data: productsData, isLoading } = usePublicQuickLinks(1, 10);
 
@@ -53,7 +53,6 @@ export default function PublicProductsCarousel() {
 
   const products = productsData?.data || [];
 
-  // Don't show section if no products
   if (!isLoading && products.length === 0) {
     return null;
   }
@@ -61,31 +60,31 @@ export default function PublicProductsCarousel() {
   return (
     <section className="w-full py-10 md:pt-12 lg:pt-20 pb-12 flex flex-col gap-8 md:gap-16 bg-[#f2f5ff]">
       <motion.div
-        className="w-full md:px-20 flex justify-between items-center px-4"
+        className="w-full md:px-20 px-4"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
       >
-        <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center mb-2">
           <motion.h1
             variants={headerVariants}
             className="text-xl md:text-3xl font-semibold text-start"
           >
-            ჩვენი პროდუქტები
+            {t("products")}
           </motion.h1>
 
-          <motion.div
-            variants={underlineVariants}
-            className="h-[2px] w-80 md:w-[600px] bg-mainGradient"
-          />
+          <Link
+            href="/products"
+            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-mainGradient text-white rounded-lg hover:bg-mainGradientHover transition-all hover:shadow-lg font-medium"
+          >
+            {t("viewMore")}
+          </Link>
         </div>
 
-        <Link
-          href="/products"
-          className="hidden md:flex items-center gap-2 px-6 py-2 bg-mainGradient text-white rounded-lg hover:bg-mainGradientHover transition-colors"
-        >
-          ყველას ნახვა
-        </Link>
+        <motion.div
+          variants={underlineVariants}
+          className="h-[2px] w-80 md:w-[600px] bg-mainGradient"
+        />
       </motion.div>
 
       {isLoading ? (
@@ -123,7 +122,6 @@ export default function PublicProductsCarousel() {
                   >
                     <Link href={`/pay/${product.slug}`}>
                       <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                        {/* Product Image */}
                         <div className="relative h-64 bg-gray-100">
                           {product.image ? (
                             <img
@@ -138,7 +136,6 @@ export default function PublicProductsCarousel() {
                           )}
                         </div>
 
-                        {/* Product Info */}
                         <div className="p-6 flex-1 flex flex-col justify-between">
                           <div>
                             <h3 className="text-xl font-bold text-gray-800 mb-2">
@@ -167,17 +164,6 @@ export default function PublicProductsCarousel() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-
-            <motion.div
-              className="-top-12 right-16 block absolute md:-top-32 lg:-top-28 md:right-36 z-30"
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <CarouselPrevious className="bg-mainGradient text-white w-8 h-8 lg:w-10 lg:h-10 border-white border hover:bg-mainGradientHover hover:text-white hover:shadow-lg rounded-md transition-all duration-300" />
-              <CarouselNext className="bg-mainGradient text-white w-8 h-8 lg:w-10 lg:h-10 border-white border hover:bg-mainGradientHover hover:text-white hover:shadow-lg rounded-md transition-all duration-300" />
-            </motion.div>
           </Carousel>
 
           <div className="flex justify-center gap-2 mt-2">
@@ -193,12 +179,11 @@ export default function PublicProductsCarousel() {
             ))}
           </div>
 
-          {/* Mobile "View All" Button */}
           <Link
             href="/products"
             className="md:hidden flex items-center gap-2 px-6 py-3 bg-mainGradient text-white rounded-lg hover:bg-mainGradientHover transition-colors"
           >
-            ყველას ნახვა
+            {t("viewMore")}
           </Link>
         </motion.div>
       )}

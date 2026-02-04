@@ -61,20 +61,34 @@ function EditQuickLinkContent() {
       const response = await quickPaymentService.getAuthenticatedLink(slug!);
       const link = response.data;
 
+      // ✅ FIXED: Better handling of localizations
       if (
         link.localizations &&
         Array.isArray(link.localizations) &&
         link.localizations.length > 0
       ) {
-        setLocalizations(link.localizations);
-      } else if (link.name) {
-        setLocalizations([
-          {
-            locale: link.locale || "ka",
-            name: link.name,
-            description: link.description || "",
-          },
-        ]);
+        // Ensure all localizations have valid data
+        const validLocalizations = link.localizations
+          .filter((loc: any) => loc.name && loc.name.trim())
+          .map((loc: any) => ({
+            locale: loc.locale,
+            name: loc.name,
+            description: loc.description || "", // ✅ Convert null to empty string
+          }));
+
+        if (validLocalizations.length > 0) {
+          setLocalizations(validLocalizations);
+        } else {
+          console.error("No valid localizations found");
+          alert("პროდუქტს არ აქვს ვალიდური თარგმანები");
+          router.push("/admin?quickPayment=all");
+          return;
+        }
+      } else {
+        console.error("Invalid localizations structure:", link.localizations);
+        alert("პროდუქტს არ აქვს თარგმანები");
+        router.push("/admin?quickPayment=all");
+        return;
       }
 
       setPrice(link.price?.toString() || "");
@@ -94,6 +108,7 @@ function EditQuickLinkContent() {
     }
   };
 
+  // ✅ FIXED: Better validation for localization changes
   const handleLocalizationChange = (
     locale: string,
     field: "name" | "description",
@@ -106,12 +121,20 @@ function EditQuickLinkContent() {
     );
   };
 
+  // ✅ FIXED: Better duplicate detection
   const addLocalization = (locale: string) => {
-    if (localizations.some((loc) => loc.locale === locale)) {
+    // Check if already exists
+    const exists = localizations.some((loc) => loc.locale === locale);
+    if (exists) {
       alert("ეს ენა უკვე დამატებულია");
       return;
     }
-    setLocalizations([...localizations, { locale, name: "", description: "" }]);
+
+    // Add new localization with empty values
+    setLocalizations((prev) => [
+      ...prev,
+      { locale, name: "", description: "" },
+    ]);
     setShowLanguageDropdown(false);
   };
 
@@ -121,6 +144,13 @@ function EditQuickLinkContent() {
       alert(`${localeConfig.label} ენა სავალდებულოა`);
       return;
     }
+
+    // ✅ FIXED: Don't allow removing if it's the only localization
+    if (localizations.length === 1) {
+      alert("მინიმუმ ერთი ენა უნდა იყოს დამატებული");
+      return;
+    }
+
     setLocalizations((prev) => prev.filter((loc) => loc.locale !== locale));
   };
 
@@ -147,44 +177,69 @@ function EditQuickLinkContent() {
     setImagePreview(existingImage);
   };
 
+  // ✅ FIXED: Better validation before submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate Georgian localization exists
     const georgianLoc = localizations.find((loc) => loc.locale === "ka");
     if (!georgianLoc || !georgianLoc.name.trim()) {
       alert("ქართული სახელი სავალდებულოა");
       return;
     }
 
+    // Validate price
     const priceValue = parseFloat(price);
     if (isNaN(priceValue) || priceValue <= 0) {
       alert("გთხოვთ შეიყვანოთ სწორი ფასი");
       return;
     }
 
+    // ✅ FIXED: Filter out localizations with empty names
+    const validLocalizations = localizations.filter((loc) => loc.name.trim());
+
+    if (validLocalizations.length === 0) {
+      alert("მინიმუმ ერთი ენა უნდა იყოს შევსებული");
+      return;
+    }
+
+    // Check for duplicate locales
+    const locales = validLocalizations.map((loc) => loc.locale);
+    const uniqueLocales = new Set(locales);
+    if (locales.length !== uniqueLocales.size) {
+      alert("ორი ერთნაირი ენა არ შეიძლება იყოს დამატებული");
+      return;
+    }
+
     try {
       const submitData: any = {
-        localizations: localizations
-          .filter((loc) => loc.name.trim())
-          .map((loc) => ({
-            locale: loc.locale,
-            name: loc.name.trim(),
-            description: loc.description.trim() || undefined,
-          })),
+        localizations: validLocalizations.map((loc) => ({
+          locale: loc.locale,
+          name: loc.name.trim(),
+          // ✅ FIXED: Send null instead of empty string if description is empty
+          description: loc.description.trim() || undefined,
+        })),
         price: priceValue,
         showOnWebsite,
       };
 
+      // Only include image if a new one was uploaded
       if (newImageBase64) {
         submitData.image = newImageBase64;
       }
+
+      console.log("📤 Submitting update:", submitData);
 
       await updateLink.mutateAsync({ slug: slug!, data: submitData });
       alert("ლინკი წარმატებით განახლდა");
       router.push("/admin?quickPayment=all");
     } catch (error: any) {
-      console.error("Error updating link:", error);
-      alert(error.response?.data?.message || "შეცდომა ლინკის განახლებისას");
+      console.error("❌ Error updating link:", error);
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "შეცდომა ლინკის განახლებისას";
+      alert(errorMessage);
     }
   };
 

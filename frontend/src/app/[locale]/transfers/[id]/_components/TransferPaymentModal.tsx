@@ -29,6 +29,7 @@ import {
   ArrowRight,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface TransferBookingData {
   transferId: string;
@@ -82,6 +83,8 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
   >("idle");
   const [message, setMessage] = useState("");
 
+
+  const t = useTranslations("transfers")
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;

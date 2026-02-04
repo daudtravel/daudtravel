@@ -157,8 +157,16 @@ export default function TransferDetailsPage() {
     return <IconComponent className="h-4 w-4 text-gray-700 mr-2" />;
   };
 
+  // ✅ FIXED: Use direct translation keys instead of vehicleType.${type}
   const getVehicleTypeName = (type: VehicleType) => {
-    return t(`vehicleType.${type}`) || type;
+    // Map VehicleType enum to translation keys (sedan, minivan, vito, sprinter, bus)
+    const typeKey = type.toLowerCase() as
+      | "sedan"
+      | "minivan"
+      | "vito"
+      | "sprinter"
+      | "bus";
+    return t(typeKey);
   };
 
   if (isLoading) {
@@ -190,9 +198,6 @@ export default function TransferDetailsPage() {
                 <ArrowRight className="h-5 w-5" />
                 <span className="font-bold">{endLocation}</span>
               </CardTitle>
-              <CardDescription className="mt-2">
-                {t("selectDateAndVehicle") || "Select your date and vehicle"}
-              </CardDescription>
             </div>
           </div>
         </CardHeader>

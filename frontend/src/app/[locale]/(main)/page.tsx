@@ -11,6 +11,7 @@ import ToursCarouselSection from "./_components/ToursCarouselSection";
 import { TourType } from "@/src/types/tours.type";
 import VideoCarousel from "./_components/VideoCarousel";
 import PublicProductsCarousel from "./_components/PublicProductsCarousel";
+import InsuranceSection from "./_components/InsuranceSection";
 
 export async function generateMetadata({
   params,
@@ -93,6 +94,7 @@ export default function Page() {
         titleKey="individualTours"
       />
       <ToursCarouselSection type={TourType.GROUP} titleKey="groupTours" />
+      <InsuranceSection />
       <PublicProductsCarousel />
       <WhyUsSection />
       <VideoCarousel startIndex={0} endIndex={10} showDescription={false} />

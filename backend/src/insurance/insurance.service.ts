@@ -73,29 +73,24 @@ export class InsuranceService {
     basicAuthHeader: string | undefined,
     res: Response,
   ) {
-    // If user is authenticated via JWT, allow access
     if (!isAuthenticated) {
-      // If not authenticated, require basic auth
       if (!basicAuthHeader || !basicAuthHeader.startsWith('Basic ')) {
         res.setHeader('WWW-Authenticate', 'Basic realm="Passport Photos"');
         throw new UnauthorizedException('Authentication required');
       }
 
-      // Decode and verify basic auth credentials
       const base64Credentials = basicAuthHeader.split(' ')[1];
       const credentials = Buffer.from(base64Credentials, 'base64').toString(
         'utf-8',
       );
       const [username, password] = credentials.split(':');
 
-      // Check against static credentials
       if (username !== 'davit' || password !== 'davit123') {
         res.setHeader('WWW-Authenticate', 'Basic realm="Passport Photos"');
         throw new UnauthorizedException('Invalid credentials');
       }
     }
 
-    // Fetch the person record
     const person = await this.prisma.insurancePerson.findUnique({
       where: { id: personId },
       include: { submission: true },
@@ -192,13 +187,11 @@ export class InsuranceService {
     const discount30Days = Number(settings.discount30Days);
     const discount90Days = Number(settings.discount90Days);
 
-    // Calculate pricing for each person
     const peopleWithPricing = await Promise.all(
       dto.people.map(async (person) => {
         const startDate = new Date(person.startDate);
         const endDate = new Date(person.endDate);
 
-        // Validate dates
         if (startDate >= endDate) {
           throw new BadRequestException(
             `Invalid date range for ${person.fullName}: start date must be before end date`,
@@ -240,7 +233,6 @@ export class InsuranceService {
       }),
     );
 
-    // Calculate total amount and total days
     const totalAmount = peopleWithPricing.reduce(
       (sum, p) => sum + p.finalAmount,
       0,
