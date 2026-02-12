@@ -100,15 +100,17 @@ export class InsuranceService {
       throw new NotFoundException('Photo not found');
     }
 
-    // The passportPhoto field contains the full path like "/uploads/insurance-passports/xxx.avif"
-    // We need to remove the leading slash and resolve from the project root
     const path = require('path');
+
+    // The passportPhoto field contains "/uploads/insurance-passports/xxx.avif"
+    // Files are actually stored in "public/uploads/insurance-passports/xxx.avif"
+    // So we need to add 'public' to the path
     const filePath = person.passportPhoto.startsWith('/')
-      ? person.passportPhoto.substring(1)
+      ? person.passportPhoto.substring(1) // Remove leading slash: "uploads/insurance-passports/xxx.avif"
       : person.passportPhoto;
 
-    // Resolve from project root (where uploads folder is located)
-    const absolutePath = path.resolve(process.cwd(), filePath);
+    // Resolve from project root, adding 'public' directory
+    const absolutePath = path.resolve(process.cwd(), 'public', filePath);
 
     return res.sendFile(absolutePath);
   }
