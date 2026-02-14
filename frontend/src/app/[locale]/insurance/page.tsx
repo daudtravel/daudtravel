@@ -61,7 +61,6 @@ export default function InsuranceSubmissionPage() {
   ]);
 
   const settings = settingsData?.data;
-  const pricePerDay = settings?.pricePerDay || 0;
   const discount30Days = settings?.discount30Days || 0;
   const discount90Days = settings?.discount90Days || 0;
 
@@ -90,7 +89,17 @@ export default function InsuranceSubmissionPage() {
     if (days === 0)
       return { days: 0, baseAmount: 0, discount: 0, finalAmount: 0 };
 
-    const baseAmount = days * pricePerDay;
+    // New pricing logic
+    let baseAmount: number;
+    if (days <= 7) {
+      // Fixed price for 1-7 days
+      baseAmount = 35;
+    } else {
+      // 35 GEL base + 5 GEL per day after day 7
+      const additionalDays = days - 7;
+      baseAmount = 35 + additionalDays * 5;
+    }
+
     const discountPercent = getDiscount(days);
     const discountAmount = (baseAmount * discountPercent) / 100;
     const finalAmount = baseAmount - discountAmount;
@@ -100,7 +109,7 @@ export default function InsuranceSubmissionPage() {
 
   const peoplePricing = useMemo(() => {
     return people.map((p) => calculatePersonPrice(p.startDate, p.endDate));
-  }, [people, pricePerDay, discount30Days, discount90Days]);
+  }, [people, discount30Days, discount90Days]);
 
   const totalDays = peoplePricing.reduce((sum, p) => sum + p.days, 0);
   const totalPrice = peoplePricing.reduce((sum, p) => sum + p.finalAmount, 0);
@@ -263,11 +272,7 @@ export default function InsuranceSubmissionPage() {
 
         {/* Price Info */}
         <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl shadow-md p-4 sm:p-5 mb-6 text-white">
-          <div className="grid grid-cols-4 gap-3 text-center">
-            <div>
-              <p className="text-orange-100 text-xs mb-1">{t("pricePerDay")}</p>
-              <p className="text-xl sm:text-2xl font-bold">₾{pricePerDay}</p>
-            </div>
+          <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <p className="text-orange-100 text-xs mb-1">{t("people")}</p>
               <p className="text-xl sm:text-2xl font-bold">{people.length}</p>
@@ -283,9 +288,13 @@ export default function InsuranceSubmissionPage() {
               </p>
             </div>
           </div>
-          {(discount30Days > 0 || discount90Days > 0) && (
-            <div className="mt-3 pt-3 border-t border-orange-400/50 text-center">
-              <p className="text-orange-100 text-xs">
+          <div className="mt-3 pt-3 border-t border-orange-400/50 text-center">
+            <p className="text-orange-100 text-xs">
+              {t("pricingInfo") ||
+                "1-7 days: ₾35 | 8+ days: ₾35 + ₾5 per additional day"}
+            </p>
+            {(discount30Days > 0 || discount90Days > 0) && (
+              <p className="text-orange-100 text-xs mt-1">
                 {t("discounts")}:{" "}
                 {discount30Days > 0 &&
                   `30+ ${t("daysPlus")}: ${discount30Days}%`}
@@ -293,8 +302,8 @@ export default function InsuranceSubmissionPage() {
                 {discount90Days > 0 &&
                   `90+ ${t("daysPlus")}: ${discount90Days}%`}
               </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -478,7 +487,10 @@ export default function InsuranceSubmissionPage() {
                   <div className="mb-3 p-2 bg-orange-50 rounded-lg border border-orange-100">
                     <div className="flex flex-wrap items-center justify-between text-xs text-orange-900">
                       <span>
-                        {peoplePricing[index].days} {t("days")} × ₾{pricePerDay}
+                        {peoplePricing[index].days} {t("days")}
+                        {peoplePricing[index].days <= 7
+                          ? " (Fixed ₾35)"
+                          : ` (₾35 + ${peoplePricing[index].days - 7} × ₾5)`}
                       </span>
                       {peoplePricing[index].discount > 0 && (
                         <span className="text-green-600 font-medium">
