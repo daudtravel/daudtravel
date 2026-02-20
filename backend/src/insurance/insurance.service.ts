@@ -95,7 +95,15 @@ export class InsuranceService {
       );
       const [username, password] = credentials.split(':');
 
-      if (username !== 'davit' || password !== 'davit123') {
+      const expectedUser = process.env.PASSPORT_VIEWER_USER;
+      const expectedPass = process.env.PASSPORT_VIEWER_PASSWORD;
+
+      if (
+        !expectedUser ||
+        !expectedPass ||
+        username !== expectedUser ||
+        password !== expectedPass
+      ) {
         res.setHeader('WWW-Authenticate', 'Basic realm="Passport Photos"');
         throw new UnauthorizedException('Invalid credentials');
       }
@@ -111,15 +119,10 @@ export class InsuranceService {
     }
 
     const path = require('path');
-
-    // The passportPhoto field contains "/uploads/insurance-passports/xxx.avif"
-    // Files are actually stored in "public/uploads/insurance-passports/xxx.avif"
-    // So we need to add 'public' to the path
     const filePath = person.passportPhoto.startsWith('/')
-      ? person.passportPhoto.substring(1) // Remove leading slash: "uploads/insurance-passports/xxx.avif"
+      ? person.passportPhoto.substring(1)
       : person.passportPhoto;
 
-    // Resolve from project root, adding 'public' directory
     const absolutePath = path.resolve(process.cwd(), 'public', filePath);
 
     return res.sendFile(absolutePath);

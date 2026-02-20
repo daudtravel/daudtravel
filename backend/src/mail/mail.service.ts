@@ -341,7 +341,7 @@ Daud Travel Team
             🔒 View Passport Photo
           </a>
           <span style="display: block; margin-top: 5px; font-size: 12px; color: #666;">
-            (Password required: davit / davit123)
+            (Password required!)
           </span>
         </p>
       </div>
@@ -376,7 +376,7 @@ Daud Travel Team
 
         <div style="background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 4px;">
           <p style="color: #2e7d32; margin: 0; font-size: 13px;">
-            🔒 <strong>Security Note:</strong> Photos require authentication (davit / davit123)
+            🔒 <strong>Security Note:</strong> Photos require authentication 
           </p>
         </div>
 
@@ -414,7 +414,7 @@ Person ${index + 1}: ${person.fullName}
 - Phone: ${person.phoneNumber}
 - Coverage: ${person.startDate.toLocaleDateString()} to ${person.endDate.toLocaleDateString()}
 - Duration: ${person.totalDays} days
-- Passport Photo: ${securePhotoUrl} (password: davit / davit123)
+- Passport Photo: ${securePhotoUrl} (password?!)
 `;
   })
   .join('\n')}
