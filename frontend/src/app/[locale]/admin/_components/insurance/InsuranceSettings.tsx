@@ -5,12 +5,12 @@ import {
   ArrowLeft,
   Loader2,
   Save,
-  DollarSign,
   Mail,
   ToggleLeft,
   ToggleRight,
   Calendar,
   Percent,
+  X,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -22,7 +22,7 @@ interface FormData {
   pricePerDay: string;
   discount30Days: string;
   discount90Days: string;
-  adminEmail: string | string[];
+  adminEmail: string;
   isActive: boolean;
 }
 
@@ -54,7 +54,9 @@ export default function InsuranceSettings() {
         pricePerDay: settingsData.data.pricePerDay.toString(),
         discount30Days: settingsData.data.discount30Days.toString(),
         discount90Days: settingsData.data.discount90Days.toString(),
-        adminEmail: settingsData.data.adminEmail,
+        adminEmail: Array.isArray(settingsData.data.adminEmail)
+          ? settingsData.data.adminEmail.join(", ")
+          : settingsData.data.adminEmail,
         isActive: settingsData.data.isActive,
       });
     }
@@ -63,14 +65,8 @@ export default function InsuranceSettings() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const pricePerDay = parseFloat(formData.pricePerDay);
     const discount30 = parseFloat(formData.discount30Days);
     const discount90 = parseFloat(formData.discount90Days);
-
-    if (isNaN(pricePerDay) || pricePerDay <= 0) {
-      alert("გთხოვთ შეიყვანოთ სწორი ფასი დღეში");
-      return;
-    }
 
     if (isNaN(discount30) || discount30 < 0 || discount30 > 100) {
       alert("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
@@ -79,6 +75,24 @@ export default function InsuranceSettings() {
 
     if (isNaN(discount90) || discount90 < 0 || discount90 > 100) {
       alert("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
+      return;
+    }
+
+    // Validate emails
+    const emails = formData.adminEmail
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    if (emails.length === 0) {
+      alert("გთხოვთ შეიყვანოთ მინიმუმ ერთი ელ.ფოსტა");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidEmail = emails.find((e) => !emailRegex.test(e));
+    if (invalidEmail) {
+      alert(`არასწორი ელ.ფოსტა: ${invalidEmail}`);
       return;
     }
 
@@ -94,7 +108,7 @@ export default function InsuranceSettings() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            pricePerDay,
+            pricePerDay: 5, // fixed backend value, kept for API compatibility
             discount30Days: discount30,
             discount90Days: discount90,
             adminEmail: formData.adminEmail,
@@ -111,7 +125,6 @@ export default function InsuranceSettings() {
 
       alert("პარამეტრები წარმატებით განახლდა");
 
-      // Optionally refetch the settings
       if (updateSettings.reset) {
         updateSettings.reset();
       }
@@ -122,13 +135,18 @@ export default function InsuranceSettings() {
   };
 
   const calculateExample = (days: number): PriceExample => {
-    const price = parseFloat(formData.pricePerDay) || 0;
     const discount30 = parseFloat(formData.discount30Days) || 0;
     const discount90 = parseFloat(formData.discount90Days) || 0;
 
-    const baseAmount = days * price;
-    let discountPercent = 0;
+    // Mirror backend logic exactly
+    let baseAmount: number;
+    if (days <= 7) {
+      baseAmount = 40;
+    } else {
+      baseAmount = 40 + (days - 7) * 5;
+    }
 
+    let discountPercent = 0;
     if (days >= 90 && discount90 > 0) {
       discountPercent = discount90;
     } else if (days >= 30 && discount30 > 0) {
@@ -155,6 +173,22 @@ export default function InsuranceSettings() {
       [name]: value,
     }));
   };
+
+  const removeEmail = (indexToRemove: number) => {
+    const emails = formData.adminEmail
+      .split(",")
+      .map((e) => e.trim())
+      .filter((_, i) => i !== indexToRemove);
+    setFormData((prev) => ({
+      ...prev,
+      adminEmail: emails.join(", "),
+    }));
+  };
+
+  const parsedEmails = formData.adminEmail
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
 
   if (isLoading) {
     return (
@@ -190,26 +224,19 @@ export default function InsuranceSettings() {
           onSubmit={handleSubmit}
           className="p-4 sm:p-6 space-y-4 sm:space-y-6"
         >
-          {/* Price Per Day */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-              <DollarSign className="w-4 h-4" />
-              ფასი დღეში (₾)
-            </label>
-            <input
-              type="number"
-              name="pricePerDay"
-              step="0.01"
-              min="0.01"
-              value={formData.pricePerDay}
-              onChange={handleInputChange}
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
-              placeholder="1.50"
-              required
-            />
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              ეს ფასი გამრავლდება დღეების რაოდენობაზე თითო ადამიანისთვის
-            </p>
+          {/* Pricing Info (read-only display) */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-800 mb-2 text-sm">
+              ფასების სტრუქტურა (ფიქსირებული)
+            </h3>
+            <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
+              <li>
+                • 1–7 დღე: <strong>40 ₾</strong> (ფიქსირებული)
+              </li>
+              <li>
+                • 8+ დღე: <strong>40 ₾ + 5 ₾</strong> თითო დამატებითი დღისთვის
+              </li>
+            </ul>
           </div>
 
           {/* Discount Settings */}
@@ -270,18 +297,43 @@ export default function InsuranceSettings() {
               <Mail className="w-4 h-4" />
               ადმინის ელ.ფოსტა
             </label>
+
+            {/* Email tags */}
+            {parsedEmails.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {parsedEmails.map((email, index) => (
+                  <span
+                    key={index}
+                    className="flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                  >
+                    {email}
+                    <button
+                      type="button"
+                      onClick={() => removeEmail(index)}
+                      className="ml-1 text-blue-500 hover:text-red-500 transition-colors"
+                      aria-label={`Remove ${email}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
             <input
-              type="email"
+              type="text"
               name="adminEmail"
               value={formData.adminEmail}
               onChange={handleInputChange}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
-              placeholder="admin@daudtravel.com"
+              placeholder="admin@daudtravel.com, manager@daudtravel.com"
               required
             />
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              ამ ელ.ფოსტაზე გაიგზავნება შეტყობინებები გადახდილი შეკვეთების
-              შესახებ
+              რამდენიმე ელ.ფოსტისთვის გამოიყენეთ მძიმე გამყოფად:{" "}
+              <span className="font-mono text-xs">
+                email1@x.com, email2@x.com
+              </span>
             </p>
           </div>
 
@@ -330,11 +382,29 @@ export default function InsuranceSettings() {
               ფასების მაგალითები
             </h3>
             <div className="space-y-3 text-xs sm:text-sm">
+              {/* 5 days example */}
+              <div className="bg-white rounded p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium text-gray-700">5 დღე:</span>
+                  <span className="text-gray-500">ფიქსირებული ფასი</span>
+                </div>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ბაზისური:</span>
+                    <span>₾{calculateExample(5).baseAmount}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-blue-900">
+                    <span>საბოლოო:</span>
+                    <span>₾{calculateExample(5).finalAmount}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* 10 days example */}
               <div className="bg-white rounded p-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium text-gray-700">10 დღე:</span>
-                  <span className="text-gray-500">ფასდაკლების გარეშე</span>
+                  <span className="text-gray-500">40 + (3 × 5) ₾</span>
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
@@ -353,7 +423,9 @@ export default function InsuranceSettings() {
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium text-gray-700">45 დღე:</span>
                   <span className="text-green-600 font-medium">
-                    -{calculateExample(45).discountPercent}% ფასდაკლება
+                    {calculateExample(45).discountPercent > 0
+                      ? `-${calculateExample(45).discountPercent}% ფასდაკლება`
+                      : "ფასდაკლების გარეშე"}
                   </span>
                 </div>
                 <div className="space-y-1 text-xs">
@@ -361,10 +433,12 @@ export default function InsuranceSettings() {
                     <span className="text-gray-600">ბაზისური:</span>
                     <span>₾{calculateExample(45).baseAmount}</span>
                   </div>
-                  <div className="flex justify-between text-green-600">
-                    <span>ფასდაკლება:</span>
-                    <span>-₾{calculateExample(45).discountAmount}</span>
-                  </div>
+                  {calculateExample(45).discountPercent > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>ფასდაკლება:</span>
+                      <span>-₾{calculateExample(45).discountAmount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-semibold text-blue-900">
                     <span>საბოლოო:</span>
                     <span>₾{calculateExample(45).finalAmount}</span>
@@ -377,7 +451,9 @@ export default function InsuranceSettings() {
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium text-gray-700">120 დღე:</span>
                   <span className="text-green-600 font-medium">
-                    -{calculateExample(120).discountPercent}% ფასდაკლება
+                    {calculateExample(120).discountPercent > 0
+                      ? `-${calculateExample(120).discountPercent}% ფასდაკლება`
+                      : "ფასდაკლების გარეშე"}
                   </span>
                 </div>
                 <div className="space-y-1 text-xs">
@@ -385,10 +461,12 @@ export default function InsuranceSettings() {
                     <span className="text-gray-600">ბაზისური:</span>
                     <span>₾{calculateExample(120).baseAmount}</span>
                   </div>
-                  <div className="flex justify-between text-green-600">
-                    <span>ფასდაკლება:</span>
-                    <span>-₾{calculateExample(120).discountAmount}</span>
-                  </div>
+                  {calculateExample(120).discountPercent > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>ფასდაკლება:</span>
+                      <span>-₾{calculateExample(120).discountAmount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-semibold text-blue-900">
                     <span>საბოლოო:</span>
                     <span>₾{calculateExample(120).finalAmount}</span>
