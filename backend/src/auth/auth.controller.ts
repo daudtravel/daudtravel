@@ -88,46 +88,46 @@ export class AuthController {
     }
   }
 
-  @Post('signup')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Sign up with verification',
-    description: 'Creates a new user account after verifying the email code',
-  })
-  @ApiBody({ type: SignUpDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'User created successfully',
-    type: SignUpResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid verification code or validation error',
-    schema: {
-      example: {
-        statusCode: 400,
-        message: 'INVALID_VERIFICATION_CODE',
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'Email already exists',
-    schema: {
-      example: {
-        statusCode: 409,
-        message: 'EMAIL_EXIST',
-      },
-    },
-  })
-  async signUp(@Body() dto: SignUpDto): Promise<SignUpResponseDto> {
-    const user = await this.authService.signUp(dto);
+  // @Post('signup')
+  // @HttpCode(HttpStatus.CREATED)
+  // @ApiOperation({
+  //   summary: 'Sign up with verification',
+  //   description: 'Creates a new user account after verifying the email code',
+  // })
+  // @ApiBody({ type: SignUpDto })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'User created successfully',
+  //   type: SignUpResponseDto,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.BAD_REQUEST,
+  //   description: 'Invalid verification code or validation error',
+  //   schema: {
+  //     example: {
+  //       statusCode: 400,
+  //       message: 'INVALID_VERIFICATION_CODE',
+  //     },
+  //   },
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.CONFLICT,
+  //   description: 'Email already exists',
+  //   schema: {
+  //     example: {
+  //       statusCode: 409,
+  //       message: 'EMAIL_EXIST',
+  //     },
+  //   },
+  // })
+  // async signUp(@Body() dto: SignUpDto): Promise<SignUpResponseDto> {
+  //   const user = await this.authService.signUp(dto);
 
-    return {
-      user,
-      message: 'USER_CREATED_SUCCESSFULLY',
-    };
-  }
+  //   return {
+  //     user,
+  //     message: 'USER_CREATED_SUCCESSFULLY',
+  //   };
+  // }
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
