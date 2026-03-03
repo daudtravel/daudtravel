@@ -89,15 +89,12 @@ export default function InsuranceSubmissionPage() {
     if (days === 0)
       return { days: 0, baseAmount: 0, discount: 0, finalAmount: 0 };
 
-    // New pricing logic
     let baseAmount: number;
     if (days <= 7) {
-      // Fixed price for 1-7 days
-      baseAmount = 35;
+      baseAmount = 40; // was 35
     } else {
-      // 35 GEL base + 5 GEL per day after day 7
       const additionalDays = days - 7;
-      baseAmount = 35 + additionalDays * 5;
+      baseAmount = 40 + additionalDays * 5; // was 35
     }
 
     const discountPercent = getDiscount(days);
@@ -291,7 +288,8 @@ export default function InsuranceSubmissionPage() {
           <div className="mt-3 pt-3 border-t border-orange-400/50 text-center">
             <p className="text-orange-100 text-xs">
               {t("pricingInfo") ||
-                "1-7 days: ₾35 | 8+ days: ₾35 + ₾5 per additional day"}
+                "1-7 days: ₾40 | 8+ days: ₾40 + ₾5 per additional day"}{" "}
+             
             </p>
             {(discount30Days > 0 || discount90Days > 0) && (
               <p className="text-orange-100 text-xs mt-1">
@@ -489,8 +487,9 @@ export default function InsuranceSubmissionPage() {
                       <span>
                         {peoplePricing[index].days} {t("days")}
                         {peoplePricing[index].days <= 7
-                          ? " (Fixed ₾35)"
-                          : ` (₾35 + ${peoplePricing[index].days - 7} × ₾5)`}
+                          ? " (Fixed ₾40)" // was ₾35
+                          : ` (₾40 + ${peoplePricing[index].days - 7} × ₾5)`}{" "}
+                        // was ₾35
                       </span>
                       {peoplePricing[index].discount > 0 && (
                         <span className="text-green-600 font-medium">
