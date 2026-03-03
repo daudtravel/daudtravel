@@ -22,7 +22,7 @@ interface FormData {
   pricePerDay: string;
   discount30Days: string;
   discount90Days: string;
-  adminEmail: string;
+  adminEmail: string | string[];
   isActive: boolean;
 }
 

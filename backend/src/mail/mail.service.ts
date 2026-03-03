@@ -311,7 +311,7 @@ Daud Travel Team
       endDate: Date;
       totalDays: number;
     }>;
-    adminEmail: string;
+    adminEmail: string | string[];
     baseUrl: string;
   }): Promise<void> {
     const { submission, people, adminEmail, baseUrl } = emailData;
@@ -426,7 +426,7 @@ Paid on ${submission.paidAt?.toLocaleString()}
 
       await this.resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@daudtravel.com',
-        to: [adminEmail],
+        to: Array.isArray(adminEmail) ? adminEmail : [adminEmail],
         replyTo: submission.submitterEmail,
         subject: `🆕 Insurance Submission - ${submission.externalOrderId} (${submission.peopleCount} ${submission.peopleCount === 1 ? 'person' : 'people'})`,
         html,
@@ -541,7 +541,7 @@ If you have any questions, please contact us with your Order ID.
       paymentMethod?: string;
       paidAt?: Date;
     };
-    adminEmail: string;
+    adminEmail: string | string[];
   }): Promise<void> {
     const { order, adminEmail } = emailData;
 
@@ -612,7 +612,7 @@ Paid on ${order.paidAt?.toLocaleString()}
 
       await this.resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@daudtravel.com',
-        to: [adminEmail],
+        to: Array.isArray(adminEmail) ? adminEmail : [adminEmail],
         replyTo: order.customerEmail,
         subject: `🆕 Quick Payment Order - ${order.externalOrderId}`,
         html,

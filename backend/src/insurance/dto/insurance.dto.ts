@@ -12,6 +12,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class InsurancePersonDto {
   @IsString()
@@ -62,8 +63,12 @@ export class UpdateInsuranceSettingsDto {
   @IsOptional()
   discount90Days?: number; // Percentage (e.g., 20 for 20%)
 
-  @IsEmail()
+  @IsString()
   @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Admin email(s), comma-separated for multiple',
+    example: 'admin@daudtravel.com, manager@daudtravel.com',
+  })
   adminEmail?: string;
 
   @IsBoolean()

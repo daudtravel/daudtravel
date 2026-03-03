@@ -48,7 +48,7 @@ export interface InsuranceSettings {
   pricePerDay: number;
   discount30Days: number;
   discount90Days: number;
-  adminEmail: string;
+  adminEmail: string | string[];
   isActive: boolean;
 }
 

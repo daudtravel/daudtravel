@@ -52,12 +52,10 @@ export class InsuranceService {
     let baseAmount: number;
 
     if (days <= 7) {
-      // Fixed price for 1-7 days
-      baseAmount = 35;
+      baseAmount = 40;
     } else {
-      // 35 GEL base + 5 GEL per day after day 7
       const additionalDays = days - 7;
-      baseAmount = 35 + additionalDays * 5;
+      baseAmount = 40 + additionalDays * 5;
     }
 
     const discountPercent = this.getApplicableDiscount(days, {
@@ -69,7 +67,7 @@ export class InsuranceService {
 
     return {
       days,
-      pricePerDay: days <= 7 ? 35 / days : 5, // For display purposes
+      pricePerDay: days <= 7 ? 40 / days : 5,
       baseAmount,
       discount: discountPercent,
       finalAmount,
@@ -658,7 +656,10 @@ export class InsuranceService {
           endDate: p.endDate,
           totalDays: p.totalDays,
         })),
-        adminEmail: settings.adminEmail,
+        adminEmail: settings.adminEmail
+          .split(',')
+          .map((e) => e.trim())
+          .filter(Boolean),
         baseUrl,
       });
 
