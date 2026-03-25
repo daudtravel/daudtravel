@@ -295,11 +295,6 @@ export default function TransferDetailsPage() {
               {selectedVehicle && selectedDateTime.time && (
                 <div className="mt-6 space-y-4">
                   <div className="rounded-md border overflow-hidden">
-                    <div className="bg-gray-50 p-3 border-b">
-                      <p className="font-medium">
-                        {t("bookingDetails") || "Booking Details"}
-                      </p>
-                    </div>
                     <div className="p-4 space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">
