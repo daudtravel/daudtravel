@@ -61,7 +61,7 @@ export async function generateMetadata({
 
   const ogImage = product?.image
     ? `${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`
-    : `${baseUrl}/images/MainOG.jpg`;ფ
+    : `${baseUrl}/images/MainOG.jpg`;
 
   const availableLocales = product?.availableLocales ?? [
     "ka",
