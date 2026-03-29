@@ -282,8 +282,8 @@ export class InsuranceService {
         basket: peopleWithPricing.map((person, index) => ({
           product_id: `insurance_${index + 1}`,
           description: `Travel Insurance - ${person.fullName} (${person.totalDays} days)`,
-          quantity: person.totalDays,
-          unit_price: person.pricePerDay,
+          quantity: 1,
+          unit_price: person.finalAmount,
           total_price: person.finalAmount,
         })),
       },
