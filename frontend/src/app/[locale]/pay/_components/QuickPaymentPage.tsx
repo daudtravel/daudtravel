@@ -17,6 +17,7 @@ import {
   Info,
   Globe,
   Phone,
+  AlertCircle,
 } from "lucide-react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
@@ -275,6 +276,12 @@ const FormContent: React.FC<FormContentProps> = ({
       <Info className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
       <p className="text-xs text-blue-700 leading-relaxed">
         {t("returnNotice")}
+      </p>
+    </div>
+    <div className="bg-amber-50 border border-amber-100 rounded-xl p-3.5 flex items-start gap-2.5">
+      <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+      <p className="text-xs text-amber-700 leading-relaxed">
+        {t("commissionNote")}
       </p>
     </div>
   </div>

@@ -25,6 +25,7 @@
   "defaultTourName": "Tour Booking",
   "orderId": "Order ID",
   "statusCompleted": "Success",
+  "commissionNote": "Note: Due to international card processing, a 1–3% bank commission may apply to your payment.",
 
   "pageTitle": "Payment",
   "unitPrice": "Unit Price",

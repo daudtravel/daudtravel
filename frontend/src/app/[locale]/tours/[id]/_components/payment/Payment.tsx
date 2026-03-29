@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover";
-import { CalendarIcon, Plus, Minus, CreditCard } from "lucide-react";
+import { CalendarIcon, Plus, Minus, CreditCard, AlertCircle } from "lucide-react";
 import { cn } from "@/src/utlis/cn";
 import PaymentModal from "./TourPaymentModal";
 import type { PaymentProps, BookingData, PriceData } from "./types";
@@ -358,7 +358,10 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
               </Button>
             </div>
           )}
-
+          <div className="mt-3 flex items-start gap-2 p-2.5 bg-amber-50 rounded-lg border border-amber-100">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700">{t("commissionNote")}</p>
+          </div>
           <div className="mt-4 border-t pt-4">
             <p className="text-center text-gray-600 mb-4">{t("orContactUs")}</p>
             <div className="flex flex-col gap-2">

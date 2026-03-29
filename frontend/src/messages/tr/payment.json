@@ -37,5 +37,6 @@
   "optional": "isteğe bağlı",
   "paymentError": "Ödeme başlatma hatası",
   "securePayment": "🔒 Bank of Georgia aracılığıyla güvenli ödeme",
-  "returnNotice": "Ödeme sonrası onay sayfasına yönlendirileceksiniz"
+  "returnNotice": "Ödeme sonrası onay sayfasına yönlendirileceksiniz",
+  "commissionNote": "Not: Uluslararası kart işlemleri nedeniyle ödemenize %1-3 oranında banka komisyonu uygulanabilir."
 }

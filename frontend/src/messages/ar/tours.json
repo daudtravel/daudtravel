@@ -68,5 +68,6 @@
   "partialPayment": "دفع جزئي",
   "paymentExpires": "تاريخ انتهاء الدفع",
   "completePayment": "إكمال الدفع",
-  "statusCompleted": "مدفوع"
+  "statusCompleted": "مدفوع",
+  "commissionNote": "ملاحظة: نظراً لمعالجة البطاقات الدولية، قد تُطبَّق عمولة بنكية بنسبة 1-3% على مدفوعاتك."
 }

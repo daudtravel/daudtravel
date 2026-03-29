@@ -68,5 +68,6 @@
   "partialPayment": "Kısmi Ödeme",
   "paymentExpires": "Ödeme Süresi Doluyor",
   "completePayment": "Ödemeyi Tamamla",
-  "statusCompleted": "paralı"
+  "statusCompleted": "paralı",
+  "commissionNote": "Not: Uluslararası kart işlemleri nedeniyle ödemenize %1-3 oranında banka komisyonu uygulanabilir."
 }

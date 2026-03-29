@@ -28,6 +28,7 @@ import {
   Bus as BusIcon,
   ArrowRight,
   X,
+  AlertCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -56,19 +57,13 @@ const vehicleIcons = {
   bus: BusIcon,
 };
 
-const vehicleNames = {
-  sedan: "Sedan",
-  minivan: "Minivan",
-  vito: "Mercedes Vito",
-  sprinter: "Mercedes Sprinter",
-  bus: "Bus",
-};
-
 const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
   isOpen,
   onClose,
   bookingData,
 }) => {
+  const t = useTranslations("transfers");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -83,8 +78,6 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
   >("idle");
   const [message, setMessage] = useState("");
 
-
-  const t = useTranslations("transfers")
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
@@ -99,29 +92,28 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
     const { firstName, lastName, email, phone } = formData;
 
     if (!firstName.trim()) {
-      setMessage("სახელი სავალდებულოა / First name is required");
+      setMessage(t("firstNameRequired"));
       return false;
     }
     if (!lastName.trim()) {
-      setMessage("გვარი სავალდებულოა / Last name is required");
+      setMessage(t("lastNameRequired"));
       return false;
     }
     if (!email.trim() || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
-      setMessage("სწორი ელ.ფოსტა სავალდებულოა / Valid email is required");
+      setMessage(t("emailRequired"));
       return false;
     }
     if (!phone.trim()) {
-      setMessage("ტელეფონის ნომერი სავალდებულოა / Phone number is required");
+      setMessage(t("phoneRequired"));
       return false;
     }
 
     setMessage("");
     return true;
-  }, [formData]);
+  }, [formData, t]);
 
   const createPayment = useCallback(async () => {
-    if (!bookingData)
-      throw new Error("არ არის ჯავშნის მონაცემები / No booking data available");
+    if (!bookingData) throw new Error(t("noBookingData"));
 
     const payload = {
       bookingData: {
@@ -157,14 +149,11 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
       } catch {
         errorData = {};
       }
-      throw new Error(
-        errorData.message ||
-          `გადახდის შექმნა ვერ მოხერხდა (სტატუსი ${response.status}) / Payment creation failed`
-      );
+      throw new Error(errorData.message || t("paymentCreationFailed"));
     }
 
     return response.json();
-  }, [bookingData, formData]);
+  }, [bookingData, formData, t]);
 
   const handleFormSubmit = useCallback(async () => {
     if (!validateForm()) {
@@ -174,38 +163,33 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
 
     setIsLoading(true);
     setPaymentStatus("processing");
-    setMessage("გადახდის სესიის შექმნა... / Creating payment session...");
+    setMessage(t("creatingPaymentSession"));
 
     try {
       const paymentResponse = await createPayment();
 
       if (!paymentResponse.success) {
-        throw new Error(
-          paymentResponse.message || "გადახდის სესიის შექმნა ვერ მოხერხდა"
-        );
+        throw new Error(paymentResponse.message || t("paymentSessionFailed"));
       }
 
       if (paymentResponse.paymentUrl) {
         window.location.href = paymentResponse.paymentUrl;
       } else {
         setPaymentStatus("success");
-        setMessage(
-          "გადახდა წარმატებით შეიქმნა! / Payment session created successfully!"
-        );
+        setMessage(t("paymentSessionCreated"));
       }
     } catch (error) {
       setPaymentStatus("failed");
       setMessage(
-        error instanceof Error ? error.message : "გადახდის შექმნა ვერ მოხერხდა"
+        error instanceof Error ? error.message : t("paymentCreationFailed")
       );
     } finally {
       setIsLoading(false);
     }
-  }, [validateForm, createPayment]);
+  }, [validateForm, createPayment, t]);
 
   const handleClose = useCallback(() => {
     if (isLoading) return;
-
     setFormData({
       firstName: "",
       lastName: "",
@@ -257,22 +241,20 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
     if (!bookingData) return null;
 
     return (
-      <Card className="mb-6 border-orange-200 bg-orange-50">
+      <Card className="mb-4 border-orange-200 bg-orange-50">
         <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-orange-800">
-              ტრანსფერის დეტალები / Transfer Details
-            </h3>
-          </div>
+          <h3 className="text-base font-semibold text-orange-800 mb-3">
+            {t("transferDetails")}
+          </h3>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-orange-600" />
-              <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-orange-600 shrink-0" />
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm text-orange-800 font-medium">
                   {bookingData.startLocation}
                 </span>
-                <ArrowRight className="h-4 w-4 text-orange-500" />
+                <ArrowRight className="h-4 w-4 text-orange-500 shrink-0" />
                 <span className="text-sm text-orange-800 font-medium">
                   {bookingData.endLocation}
                 </span>
@@ -280,14 +262,14 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
             </div>
 
             <div className="flex items-center gap-3">
-              <Calendar className="h-4 w-4 text-orange-600" />
+              <Calendar className="h-4 w-4 text-orange-600 shrink-0" />
               <span className="text-sm text-orange-800">
                 {bookingData.transferDate.toLocaleDateString()}
               </span>
             </div>
 
             <div className="flex items-center gap-3">
-              <Clock className="h-4 w-4 text-orange-600" />
+              <Clock className="h-4 w-4 text-orange-600 shrink-0" />
               <span className="text-sm text-orange-800">
                 {bookingData.transferTime.toLocaleTimeString([], {
                   hour: "2-digit",
@@ -302,12 +284,10 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-orange-800 font-medium">
-                  {vehicleNames[
-                    bookingData.vehicleType as keyof typeof vehicleNames
-                  ] || bookingData.vehicleType}
+                  {t(bookingData.vehicleType as any) || bookingData.vehicleType}
                 </span>
                 <span className="text-xs text-orange-600">
-                  ({bookingData.passengerCount} მგზავრი / passengers)
+                  ({bookingData.passengerCount} {t("passengers")})
                 </span>
               </div>
             </div>
@@ -316,7 +296,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
 
             <div className="flex justify-between items-center">
               <span className="font-semibold text-orange-800">
-                ჯამი / Total
+                {t("total")}
               </span>
               <span className="text-xl font-bold text-orange-600">
                 {formatAmount(bookingData.paymentAmount)}
@@ -334,7 +314,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold text-orange-800">
-              დაასრულეთ ჯავშანი / Complete Your Booking
+              {t("completeBooking")}
             </DialogTitle>
             <Button
               variant="ghost"
@@ -347,8 +327,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
             </Button>
           </div>
           <DialogDescription className="text-gray-600">
-            შეავსეთ თქვენი მონაცემები ტრანსფერის დასასრულებლად / Please fill in
-            your details to complete the transfer booking
+            {t("fillDetailsDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -358,7 +337,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-sm font-medium">
-                სახელი * / First Name *
+                {t("firstName")} <span className="text-red-400">*</span>
               </Label>
               <Input
                 id="firstName"
@@ -367,12 +346,12 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
                 onChange={handleInputChange}
                 disabled={isLoading}
                 className="focus:border-orange-500 focus:ring-orange-500"
-                placeholder="შეიყვანეთ სახელი"
+                placeholder={t("firstNamePlaceholder")}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-sm font-medium">
-                გვარი * / Last Name *
+                {t("lastName")} <span className="text-red-400">*</span>
               </Label>
               <Input
                 id="lastName"
@@ -381,14 +360,14 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
                 onChange={handleInputChange}
                 disabled={isLoading}
                 className="focus:border-orange-500 focus:ring-orange-500"
-                placeholder="შეიყვანეთ გვარი"
+                placeholder={t("lastNamePlaceholder")}
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
-              ელ.ფოსტა * / Email Address *
+              {t("email")} <span className="text-red-400">*</span>
             </Label>
             <Input
               id="email"
@@ -398,13 +377,13 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
               onChange={handleInputChange}
               disabled={isLoading}
               className="focus:border-orange-500 focus:ring-orange-500"
-              placeholder="შეიყვანეთ ელ.ფოსტა"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone" className="text-sm font-medium">
-              ტელეფონი * / Phone Number *
+              {t("phone")} <span className="text-red-400">*</span>
             </Label>
             <Input
               id="phone"
@@ -414,14 +393,16 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
               onChange={handleInputChange}
               disabled={isLoading}
               className="focus:border-orange-500 focus:ring-orange-500"
-              placeholder="შეიყვანეთ ტელეფონის ნომერი"
+              placeholder={t("phonePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="specialRequests" className="text-sm font-medium">
-              სპეციალური მოთხოვნები (არასავალდებულო) / Special Requests
-              (Optional)
+              {t("specialRequests")}{" "}
+              <span className="text-gray-400 text-xs font-normal">
+                ({t("optional")})
+              </span>
             </Label>
             <textarea
               id="specialRequests"
@@ -429,14 +410,20 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
               value={formData.specialRequests}
               onChange={handleInputChange}
               disabled={isLoading}
-              className="w-full min-h-[80px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-              placeholder="სპეციალური სურვილები ან შენიშვნები..."
+              className="w-full min-h-[80px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none text-sm"
+              placeholder={t("specialRequestsPlaceholder")}
             />
+          </div>
+
+          {/* Commission warning */}
+          <div className="flex items-start gap-2 p-2.5 bg-amber-50 rounded-lg border border-amber-100">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700">{t("commissionNote")}</p>
           </div>
 
           {message && (
             <div
-              className={`mt-4 px-4 py-3 rounded-md border text-sm ${
+              className={`px-4 py-3 rounded-md border text-sm ${
                 statusConfig?.className ||
                 "border-gray-200 bg-gray-50 text-gray-800"
               }`}
@@ -456,7 +443,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
             disabled={isLoading}
             className="flex-1 border-gray-300 hover:bg-gray-50"
           >
-            გაუქმება / Cancel
+            {t("cancel")}
           </Button>
           <Button
             onClick={handleFormSubmit}
@@ -466,12 +453,12 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                მუშაობს... / Processing...
+                {t("processing")}
               </>
             ) : (
               <>
                 <CreditCard className="mr-2 h-4 w-4" />
-                გადახდა{" "}
+                {t("pay")}{" "}
                 {bookingData
                   ? formatAmount(bookingData.paymentAmount)
                   : "₾0.00"}

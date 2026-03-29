@@ -68,5 +68,6 @@
   "partialPayment": "Частичная оплата",
   "paymentExpires": "Срок оплаты истекает",
   "completePayment": "Завершить оплату",
-  "statusCompleted": "оплачен"
+  "statusCompleted": "оплачен",
+  "commissionNote": "Примечание: при оплате международной картой банк может взять комиссию 1–3%."
 }

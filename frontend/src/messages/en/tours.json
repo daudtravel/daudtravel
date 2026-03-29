@@ -68,5 +68,6 @@
   "partialPayment": "Partial Payment",
   "paymentExpires": "Payment Expires",
   "completePayment": "Complete Payment",
-  "statusCompleted": "Completed"
+  "statusCompleted": "Completed",
+  "commissionNote": "Note: Due to international card processing, a 1–3% bank commission may apply to your payment."
 }
