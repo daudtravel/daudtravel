@@ -209,12 +209,20 @@ export class InsuranceService {
 
     const peopleWithPricing = await Promise.all(
       dto.people.map(async (person) => {
-        const startDate = new Date(person.startDate);
-        const endDate = new Date(person.endDate);
+        const startDate = new Date(
+          person.startDate.length === 10
+            ? person.startDate + 'T00:00:00.000Z'
+            : person.startDate,
+        );
+        const endDate = new Date(
+          person.endDate.length === 10
+            ? person.endDate + 'T00:00:00.000Z'
+            : person.endDate,
+        );
 
-        if (startDate >= endDate) {
+        if (startDate > endDate) {
           throw new BadRequestException(
-            `Invalid date range for ${person.fullName}: start date must be before end date`,
+            `Invalid date range for ${person.fullName}: start date must be before or equal to end date`,
           );
         }
 
