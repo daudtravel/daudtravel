@@ -44,7 +44,7 @@ interface PersonForm {
   endDate: Date | undefined;
 }
 
-const MIN_DAYS = 7;
+const MIN_DAYS = 5;
 
 export default function InsuranceSubmissionPage() {
   const { data: settingsData, isLoading: settingsLoading } =
@@ -235,8 +235,8 @@ export default function InsuranceSubmissionPage() {
           fullName: p.fullName,
           phoneNumber: p.phoneNumber,
           passportPhoto: p.passportPhoto!,
-          startDate: p.startDate!.toISOString(),
-          endDate: p.endDate!.toISOString(),
+          startDate: format(p.startDate!, "yyyy-MM-dd"),
+          endDate: format(p.endDate!, "yyyy-MM-dd"),
         })),
       });
 
