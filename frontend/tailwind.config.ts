@@ -23,11 +23,22 @@ const config: Config = {
     trans: "linear-gradient(to right, rgba(255, 107, 107, 1), rgba(255, 142, 83, 0.8), rgba(255, 164, 27, 0.8))",
   },
   colors: {
-    // Primary brand color
+    // Primary brand color (legacy)
     main: "#FF8C42",
-   
     // Subtle background with slight warmth
     mainBg: "#FAFBFF",
+    // ─── Daud Travel brand palette ───────────────────────────
+    brand: {
+      green:       "#1B5C35",
+      "green-dark":"#143D25",
+      "green-mid": "#2E7D52",
+      "green-50":  "#F0F7F3",
+      "green-100": "#D8EFE3",
+      yellow:      "#F5C418",
+      "yellow-dark":"#D4A815",
+      "yellow-light":"#FBE270",
+      cream:       "#F5F0E8",
+    },
     // Additional color palette
 
         background: "hsl(var(--background))",

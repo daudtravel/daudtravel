@@ -213,6 +213,7 @@ model TransferPaymentOrder {
   transferDate      DateTime      @map("transfer_date")
   transferTime      DateTime      @map("transfer_time")
   vehicleType       VehicleType   @map("vehicle_type")
+  driverId          String?       @map("driver_id")
   
   transferLocale         String   @default("ka") @map("transfer_locale")
   transferStartLocation  String   @map("transfer_start_location")
@@ -235,7 +236,8 @@ model TransferPaymentOrder {
   updatedAt         DateTime      @updatedAt @map("updated_at")
   
   transfer Transfer @relation(fields: [transferId], references: [id])
-  
+  driver   Driver?  @relation(fields: [driverId], references: [id], onDelete: SetNull)
+
   @@index([status, createdAt])
   @@index([transferLocale])
   @@map("transfer_payment_orders")
@@ -267,7 +269,7 @@ model EmailVerification {
 }
 
 model Driver {
-  id        String   @id @default(cuid()) // ✅ Changed
+  id        String   @id @default(cuid())
   firstName String   @map("first_name")
   lastName  String   @map("last_name")
   photo     String?
@@ -275,7 +277,25 @@ model Driver {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 
+  reviews       DriverReview[]
+  paymentOrders TransferPaymentOrder[]
+
   @@map("drivers")
+}
+
+model DriverReview {
+  id           String   @id @default(cuid())
+  driverId     String   @map("driver_id")
+  rating       Int
+  comment      String?  @db.Text
+  reviewerName String   @map("reviewer_name")
+
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  driver Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId])
+  @@map("driver_reviews")
 }
 
 model FAQ {

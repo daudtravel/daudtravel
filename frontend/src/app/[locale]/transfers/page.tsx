@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Locale } from "@/src/i18n/routing";
-import { Drivers } from "./_components/Drivers";
-import { TransferBooking } from "./_components/Transfers";
+import { TransfersList } from "./_components/sections/TransfersList";
+import { DriversSection } from "./_components/sections/DriversSection";
 
 export async function generateMetadata({
   params,
@@ -17,21 +17,19 @@ export async function generateMetadata({
       title: t("transfers"),
       description: t("descriptionTransfers"),
       type: "website",
-      locale: locale,
+      locale,
       url: "https://www.daudtravel.com/transfers",
       siteName: "Daud Travel",
     },
-    icons: {
-      icon: "/images/MainOG.jpg",
-    },
+    icons: { icon: "/images/MainOG.jpg" },
   };
 }
 
-export default function Page() {
+export default function TransfersPage() {
   return (
-    <section className="py-10 md:pb-20 ">
-      <TransferBooking />
-      <Drivers />
-    </section>
+    <main>
+      <TransfersList />
+      <DriversSection />
+    </main>
   );
 }

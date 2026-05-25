@@ -1,12 +1,5 @@
-import React, { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/components/ui/select";
-import { useTranslations } from "next-intl";
+import React from "react";
+import { Clock } from "lucide-react";
 
 interface TimePickerProps {
   value?: Date;
@@ -15,80 +8,28 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ value, onChange }: TimePickerProps) {
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    i.toString().padStart(2, "0")
-  );
-
-  const minutes = Array.from({ length: 60 }, (_, i) =>
-    i.toString().padStart(2, "0")
-  );
-
-  const [selectedHour, setSelectedHour] = useState(
-    value ? value.getHours().toString().padStart(2, "0") : ""
-  );
-  const [selectedMinute, setSelectedMinute] = useState(
-    value ? value.getMinutes().toString().padStart(2, "0") : ""
-  );
-
-  const handleTimeChange = (hour: string, minute: string) => {
-    const newDate = new Date();
-    newDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
-    onChange(newDate);
+  const toTimeString = (d?: Date) => {
+    if (!d) return "";
+    return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
   };
 
-  const t = useTranslations("transfers");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [h, m] = e.target.value.split(":").map(Number);
+    if (isNaN(h) || isNaN(m)) return;
+    const next = new Date();
+    next.setHours(h, m, 0, 0);
+    onChange(next);
+  };
 
   return (
-    <div className="flex items-center space-x-2">
-      <div className="flex-1">
-        <Select
-          onValueChange={(hour) => {
-            setSelectedHour(hour);
-            if (selectedMinute) {
-              handleTimeChange(hour, selectedMinute);
-            }
-          }}
-          value={selectedHour}
-        >
-          <SelectTrigger className="w-full bg-white">
-            <SelectValue placeholder={t("hour")}>
-              {selectedHour ? `${selectedHour}h` : t("hour")}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {hours.map((hour) => (
-              <SelectItem key={hour} value={hour}>
-                {hour}h
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex-1">
-        <Select
-          onValueChange={(minute) => {
-            setSelectedMinute(minute);
-            if (selectedHour) {
-              handleTimeChange(selectedHour, minute);
-            }
-          }}
-          value={selectedMinute}
-        >
-          <SelectTrigger className="w-full bg-white">
-            <SelectValue placeholder={t("minute")}>
-              {selectedMinute ? `${selectedMinute}m` : t("minute")}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {minutes.map((minute) => (
-              <SelectItem key={minute} value={minute}>
-                {minute}m
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="relative flex items-center">
+      <Clock className="absolute left-3 h-4 w-4 text-brand-green pointer-events-none" />
+      <input
+        type="time"
+        value={toTimeString(value)}
+        onChange={handleChange}
+        className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green transition-colors"
+      />
     </div>
   );
 }

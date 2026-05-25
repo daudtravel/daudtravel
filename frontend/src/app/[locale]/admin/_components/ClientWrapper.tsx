@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   Link,
   Shield,
+  ChevronDown,
 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ToursList } from "./tours/tour-list/ToursList";
@@ -39,45 +40,64 @@ import { InsuranceSubmissionDetails } from "./insurance/InsuranceSumbissionDetai
 import InsuranceSubmissionsList from "./insurance/InsuranceSubmissionList";
 import InsuranceSettings from "./insurance/InsuranceSettings";
 
-const SIDEBAR_ITEMS = [
-  { key: "tours", label: "ტურები", icon: UserCheck, query: "?tours=all" },
+interface SidebarItem {
+  key: string;
+  label: string;
+  query: string;
+}
+
+interface SidebarGroup {
+  key: string;
+  label: string;
+  icon: React.ElementType;
+  items: SidebarItem[];
+}
+
+const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
-    key: "transfers",
+    key: "toursGroup",
+    label: "ტურები",
+    icon: UserCheck,
+    items: [
+      { key: "tours", label: "ტურები", query: "?tours=all" },
+      { key: "orders", label: "შეკვეთები", query: "?orders=all" },
+    ],
+  },
+  {
+    key: "transfersGroup",
     label: "ტრანსფერები",
     icon: Truck,
-    query: "?transfers=all",
+    items: [
+      { key: "transfers", label: "ტრანსფერები", query: "?transfers=all" },
+      { key: "drivers", label: "მძღოლები", query: "?drivers=all" },
+      { key: "transferOrders", label: "შეკვეთები", query: "?transferOrders=all" },
+    ],
   },
-  { key: "drivers", label: "მძღოლები", icon: Users, query: "?drivers=all" },
   {
-    key: "quickPayment",
-    label: "გადახდის ლინკები",
+    key: "servicesGroup",
+    label: "სერვისები",
     icon: Link,
-    query: "?quickPayment=all",
+    items: [
+      { key: "quickPayment", label: "გადახდ. ლინკები", query: "?quickPayment=all" },
+      { key: "insurance", label: "დაზღვევა", query: "?insurance=all" },
+    ],
   },
   {
-    key: "insurance", // ✅ NEW
-    label: "დაზღვევა",
-    icon: Shield,
-    query: "?insurance=all",
+    key: "contentGroup",
+    label: "კონტენტი",
+    icon: ShieldQuestion,
+    items: [
+      { key: "faqs", label: "F.A.Q", query: "?faqs=all" },
+      { key: "videos", label: "ვიდეო", query: "?videos=all" },
+    ],
   },
-  {
-    key: "orders",
-    label: "შეკვეთები/ტურები",
-    icon: ShoppingCart,
-    query: "?orders=all",
-  },
-  {
-    key: "transferOrders",
-    label: "შეკვეთები/ტრანსფერები",
-    icon: ShoppingCart,
-    query: "?transferOrders=all",
-  },
-  { key: "faqs", label: "F.A.Q", icon: ShieldQuestion, query: "?faqs=all" },
-  { key: "videos", label: "ვიდეო", icon: Video, query: "?videos=all" },
-] as const;
+];
 
 export const ClientWrapper = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    new Set(SIDEBAR_GROUPS.map((g) => g.key))
+  );
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -102,13 +122,8 @@ export const ClientWrapper = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsSidebarOpen(true);
-      } else {
-        setIsSidebarOpen(false);
-      }
+      setIsSidebarOpen(window.innerWidth >= 1024);
     };
-
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -116,13 +131,21 @@ export const ClientWrapper = () => {
 
   const navigate = (query: string) => {
     router.push(`${pathname}${query}`);
-    if (window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
-    }
+    if (window.innerWidth < 1024) setIsSidebarOpen(false);
   };
 
-  const isActive = (key: string) => {
-    return searchParams.has(key);
+  const isActive = (key: string) => searchParams.has(key);
+
+  const isGroupActive = (group: SidebarGroup) =>
+    group.items.some((item) => isActive(item.key));
+
+  const toggleGroup = (key: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   };
 
   const renderContent = () => {
@@ -160,10 +183,11 @@ export const ClientWrapper = () => {
   };
 
   return (
-    <main className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative">
+    <main className="flex min-h-screen bg-gray-50 relative">
+      {/* Mobile overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -171,91 +195,129 @@ export const ClientWrapper = () => {
       <aside
         className={`
           fixed lg:sticky top-0 left-0 h-screen z-50 lg:z-0
-          bg-white shadow-2xl lg:shadow-lg
-          transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-          ${isSidebarOpen ? "w-72 lg:w-64" : "lg:w-20"}
-          flex flex-col
+          bg-white border-r border-gray-100 shadow-lg lg:shadow-sm
+          transition-all duration-300 ease-in-out flex flex-col
+          ${isSidebarOpen
+            ? "translate-x-0 w-64"
+            : "-translate-x-full lg:translate-x-0 lg:w-16"
+          }
         `}
       >
-        <div className="flex items-center justify-between p-4 lg:p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md">
-          <h1
-            className={`font-bold text-lg lg:text-base transition-opacity duration-200 ${
-              isSidebarOpen ? "opacity-100" : "lg:opacity-0"
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3.5 bg-brand-green text-white shrink-0">
+          <span
+            className={`font-bold text-sm tracking-wide transition-all duration-200 overflow-hidden ${
+              isSidebarOpen ? "opacity-100 max-w-full" : "lg:opacity-0 lg:max-w-0"
             }`}
           >
             Admin Panel
-          </h1>
+          </span>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="rounded-lg p-2 hover:bg-blue-500/30 transition-colors backdrop-blur-sm"
-            aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+            className="rounded-lg p-1.5 hover:bg-white/20 transition-colors shrink-0"
           >
-            {isSidebarOpen ? <X size={22} /> : <Menu size={22} />}
+            {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 px-2">
-          <div className="space-y-1">
-            {SIDEBAR_ITEMS.map(({ key, label, icon: Icon, query }) => (
-              <button
-                key={key}
-                onClick={() => navigate(query)}
-                className={`
-                  flex w-full items-center gap-3 px-4 py-3 rounded-lg
-                  transition-all duration-200 font-medium text-sm
-                  ${
-                    isActive(key)
-                      ? "bg-blue-50 text-blue-700 shadow-sm border-l-4 border-blue-600"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  }
-                `}
-              >
-                <Icon size={20} className="flex-shrink-0" />
-                <span
-                  className={`transition-opacity duration-200 whitespace-nowrap ${
-                    isSidebarOpen ? "opacity-100" : "lg:opacity-0 lg:w-0"
-                  }`}
-                >
-                  {label}
-                </span>
-              </button>
-            ))}
-          </div>
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-3 px-2">
+          {isSidebarOpen ? (
+            <div className="space-y-0.5">
+              {SIDEBAR_GROUPS.map((group) => {
+                const Icon = group.icon;
+                const isOpen = openGroups.has(group.key);
+                const groupActive = isGroupActive(group);
+
+                return (
+                  <div key={group.key}>
+                    {/* Group header */}
+                    <button
+                      onClick={() => toggleGroup(group.key)}
+                      className={`flex w-full items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors ${
+                        groupActive
+                          ? "text-brand-green"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
+                      <span>{group.label}</span>
+                      <ChevronDown
+                        className={`h-3 w-3 ml-auto shrink-0 transition-transform duration-200 ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Sub-items as column */}
+                    {isOpen && (
+                      <div className="ml-3 pl-3 border-l border-gray-100 flex flex-col mb-1">
+                        {group.items.map((item) => (
+                          <button
+                            key={item.key}
+                            onClick={() => navigate(item.query)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
+                              isActive(item.key)
+                                ? "bg-brand-green text-white font-semibold"
+                                : "text-gray-600 hover:bg-brand-green-50 hover:text-brand-green"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive(item.key) ? "bg-white" : "bg-gray-300"}`} />
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Collapsed — one icon per group */
+            <div className="flex flex-col items-center gap-1 pt-1">
+              {SIDEBAR_GROUPS.map((group) => {
+                const Icon = group.icon;
+                const groupActive = isGroupActive(group);
+
+                return (
+                  <button
+                    key={group.key}
+                    onClick={() => setIsSidebarOpen(true)}
+                    title={group.label}
+                    className={`p-3 rounded-xl transition-colors ${
+                      groupActive
+                        ? "bg-brand-green-50 text-brand-green"
+                        : "text-gray-400 hover:text-brand-green hover:bg-brand-green-50"
+                    }`}
+                  >
+                    <Icon size={19} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </nav>
 
-        <div className="border-t border-gray-200 p-2">
+        {/* Logout */}
+        <div className="border-t border-gray-100 p-2 shrink-0">
           <button
             onClick={logout}
-            className={`
-              flex w-full items-center gap-3 px-4 py-3 rounded-lg
-              text-red-600 hover:bg-red-50 transition-all duration-200
-              font-medium text-sm
-            `}
+            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-colors text-sm font-medium"
           >
-            <LogOut size={20} className="flex-shrink-0" />
-            <span
-              className={`transition-opacity duration-200 ${
-                isSidebarOpen ? "opacity-100" : "lg:opacity-0 lg:w-0"
-              }`}
-            >
-              გამოსვლა
-            </span>
+            <LogOut size={17} className="shrink-0" />
+            {isSidebarOpen && <span>გამოსვლა</span>}
           </button>
         </div>
       </aside>
 
+      {/* Mobile hamburger */}
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className={`
-          fixed top-4 left-4 z-30 lg:hidden
-          bg-blue-600 text-white p-3 rounded-lg shadow-lg
-          hover:bg-blue-700 transition-colors
-          ${isSidebarOpen ? "hidden" : "block"}
-        `}
-        aria-label="Open menu"
+        className={`fixed top-4 left-4 z-30 lg:hidden bg-brand-green text-white p-3 rounded-xl shadow-lg hover:bg-brand-green-dark transition-colors ${
+          isSidebarOpen ? "hidden" : "block"
+        }`}
       >
-        <Menu size={24} />
+        <Menu size={20} />
       </button>
 
       <div className="flex-1 overflow-auto">

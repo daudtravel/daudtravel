@@ -28,6 +28,7 @@ interface TransferBookingData {
   vehicleType: VehicleType;
   paymentAmount: number;
   locale?: string;
+  driverId?: string;
 }
 
 @Injectable()
@@ -90,6 +91,7 @@ export class TransferPaymentsService {
       transferTime,
       vehicleType,
       locale = 'ka',
+      driverId,
     } = bookingData;
 
     // Comprehensive validation
@@ -238,6 +240,7 @@ export class TransferPaymentsService {
         transferLocale: locale,
         transferStartLocation: localization.startLocation,
         transferEndLocation: localization.endLocation,
+        ...(driverId ? { driverId } : {}),
       },
     });
 
@@ -815,6 +818,7 @@ export class TransferPaymentsService {
               localizations: true,
             },
           },
+          driver: true,
         },
       }),
       this.prisma.transferPaymentOrder.count({ where: whereClause }),
@@ -851,6 +855,7 @@ export class TransferPaymentsService {
             vehicleTypes: true,
           },
         },
+        driver: true,
       },
     });
 
@@ -1052,6 +1057,14 @@ export class TransferPaymentsService {
         time: order.transferTime.toISOString(),
         vehicleType: order.vehicleType,
       },
+      driver: order.driver
+        ? {
+            id: order.driver.id,
+            firstName: order.driver.firstName,
+            lastName: order.driver.lastName,
+            photo: order.driver.photo ?? null,
+          }
+        : null,
     };
   }
 }

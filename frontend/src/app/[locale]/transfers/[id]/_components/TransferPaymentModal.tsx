@@ -29,6 +29,7 @@ import {
   ArrowRight,
   X,
   AlertCircle,
+  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -41,6 +42,8 @@ interface TransferBookingData {
   vehicleType: string;
   paymentAmount: number;
   passengerCount: number;
+  driverId?: string;
+  driverName?: string;
 }
 
 interface TransferPaymentModalProps {
@@ -49,7 +52,7 @@ interface TransferPaymentModalProps {
   bookingData: TransferBookingData | null;
 }
 
-const vehicleIcons = {
+const VEHICLE_ICONS = {
   sedan: Car,
   minivan: Car,
   vito: Car,
@@ -90,24 +93,12 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
 
   const validateForm = useCallback((): boolean => {
     const { firstName, lastName, email, phone } = formData;
-
-    if (!firstName.trim()) {
-      setMessage(t("firstNameRequired"));
-      return false;
-    }
-    if (!lastName.trim()) {
-      setMessage(t("lastNameRequired"));
-      return false;
-    }
+    if (!firstName.trim()) { setMessage(t("firstNameRequired")); return false; }
+    if (!lastName.trim()) { setMessage(t("lastNameRequired")); return false; }
     if (!email.trim() || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
-      setMessage(t("emailRequired"));
-      return false;
+      setMessage(t("emailRequired")); return false;
     }
-    if (!phone.trim()) {
-      setMessage(t("phoneRequired"));
-      return false;
-    }
-
+    if (!phone.trim()) { setMessage(t("phoneRequired")); return false; }
     setMessage("");
     return true;
   }, [formData, t]);
@@ -129,6 +120,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
         paymentAmount: bookingData.paymentAmount,
         startLocation: bookingData.startLocation,
         endLocation: bookingData.endLocation,
+        ...(bookingData.driverId ? { driverId: bookingData.driverId } : {}),
         specialRequests: formData.specialRequests.trim() || undefined,
       },
     };
@@ -143,12 +135,8 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
     );
 
     if (!response.ok) {
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch {
-        errorData = {};
-      }
+      let errorData: any = {};
+      try { errorData = await response.json(); } catch { /* empty */ }
       throw new Error(errorData.message || t("paymentCreationFailed"));
     }
 
@@ -180,9 +168,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
       }
     } catch (error) {
       setPaymentStatus("failed");
-      setMessage(
-        error instanceof Error ? error.message : t("paymentCreationFailed")
-      );
+      setMessage(error instanceof Error ? error.message : t("paymentCreationFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -190,51 +176,30 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
 
   const handleClose = useCallback(() => {
     if (isLoading) return;
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      specialRequests: "",
-    });
+    setFormData({ firstName: "", lastName: "", email: "", phone: "", specialRequests: "" });
     setPaymentStatus("idle");
     setMessage("");
     onClose();
   }, [isLoading, onClose]);
 
-  const formatAmount = useCallback(
-    (amount: number) => `₾${amount.toFixed(2)}`,
-    []
-  );
+  const formatAmount = useCallback((amount: number) => `₾${amount.toFixed(2)}`, []);
 
   const statusConfig = useMemo(() => {
     switch (paymentStatus) {
       case "success":
-        return {
-          icon: <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />,
-          className: "border-green-200 bg-green-50 text-green-800",
-        };
+        return { icon: <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />, className: "border-green-200 bg-green-50 text-green-800" };
       case "failed":
-        return {
-          icon: <XCircle className="h-4 w-4 text-red-600 mt-0.5" />,
-          className: "border-red-200 bg-red-50 text-red-800",
-        };
+        return { icon: <XCircle className="h-4 w-4 text-red-600 mt-0.5" />, className: "border-red-200 bg-red-50 text-red-800" };
       case "processing":
-        return {
-          icon: (
-            <Loader2 className="h-4 w-4 animate-spin text-blue-600 mt-0.5" />
-          ),
-          className: "border-blue-200 bg-blue-50 text-blue-800",
-        };
+        return { icon: <Loader2 className="h-4 w-4 animate-spin text-blue-600 mt-0.5" />, className: "border-blue-200 bg-blue-50 text-blue-800" };
       default:
         return null;
     }
   }, [paymentStatus]);
 
   const renderVehicleIcon = (vehicleType: string) => {
-    const IconComponent =
-      vehicleIcons[vehicleType as keyof typeof vehicleIcons] || Car;
-    return <IconComponent className="h-4 w-4 text-gray-500" />;
+    const Icon = VEHICLE_ICONS[vehicleType as keyof typeof VEHICLE_ICONS] || Car;
+    return <Icon className="h-4 w-4 text-gray-500" />;
   };
 
   const renderBookingSummary = () => {
@@ -246,42 +211,29 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
           <h3 className="text-base font-semibold text-orange-800 mb-3">
             {t("transferDetails")}
           </h3>
-
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-orange-600 shrink-0" />
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm text-orange-800 font-medium">
-                  {bookingData.startLocation}
-                </span>
+                <span className="text-sm text-orange-800 font-medium">{bookingData.startLocation}</span>
                 <ArrowRight className="h-4 w-4 text-orange-500 shrink-0" />
-                <span className="text-sm text-orange-800 font-medium">
-                  {bookingData.endLocation}
-                </span>
+                <span className="text-sm text-orange-800 font-medium">{bookingData.endLocation}</span>
               </div>
             </div>
-
             <div className="flex items-center gap-3">
               <Calendar className="h-4 w-4 text-orange-600 shrink-0" />
               <span className="text-sm text-orange-800">
                 {bookingData.transferDate.toLocaleDateString()}
               </span>
             </div>
-
             <div className="flex items-center gap-3">
               <Clock className="h-4 w-4 text-orange-600 shrink-0" />
               <span className="text-sm text-orange-800">
-                {bookingData.transferTime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {bookingData.transferTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>
             </div>
-
             <div className="flex items-center gap-3">
-              <div className="text-orange-600">
-                {renderVehicleIcon(bookingData.vehicleType)}
-              </div>
+              <div className="text-orange-600">{renderVehicleIcon(bookingData.vehicleType)}</div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-orange-800 font-medium">
                   {t(bookingData.vehicleType as any) || bookingData.vehicleType}
@@ -291,13 +243,17 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
                 </span>
               </div>
             </div>
-
+            {bookingData.driverName && (
+              <div className="flex items-center gap-3">
+                <User className="h-4 w-4 text-orange-600 shrink-0" />
+                <span className="text-sm text-orange-800 font-medium">
+                  {bookingData.driverName}
+                </span>
+              </div>
+            )}
             <Separator className="bg-orange-200" />
-
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-orange-800">
-                {t("total")}
-              </span>
+              <span className="font-semibold text-orange-800">{t("total")}</span>
               <span className="text-xl font-bold text-orange-600">
                 {formatAmount(bookingData.paymentAmount)}
               </span>
@@ -345,7 +301,6 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
                 value={formData.firstName}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="focus:border-orange-500 focus:ring-orange-500"
                 placeholder={t("firstNamePlaceholder")}
               />
             </div>
@@ -359,7 +314,6 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
                 value={formData.lastName}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                className="focus:border-orange-500 focus:ring-orange-500"
                 placeholder={t("lastNamePlaceholder")}
               />
             </div>
@@ -376,7 +330,6 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
               value={formData.email}
               onChange={handleInputChange}
               disabled={isLoading}
-              className="focus:border-orange-500 focus:ring-orange-500"
               placeholder={t("emailPlaceholder")}
             />
           </div>
@@ -392,7 +345,6 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
               value={formData.phone}
               onChange={handleInputChange}
               disabled={isLoading}
-              className="focus:border-orange-500 focus:ring-orange-500"
               placeholder={t("phonePlaceholder")}
             />
           </div>
@@ -400,9 +352,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
           <div className="space-y-2">
             <Label htmlFor="specialRequests" className="text-sm font-medium">
               {t("specialRequests")}{" "}
-              <span className="text-gray-400 text-xs font-normal">
-                ({t("optional")})
-              </span>
+              <span className="text-gray-400 text-xs font-normal">({t("optional")})</span>
             </Label>
             <textarea
               id="specialRequests"
@@ -415,7 +365,6 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
             />
           </div>
 
-          {/* Commission warning */}
           <div className="flex items-start gap-2 p-2.5 bg-amber-50 rounded-lg border border-amber-100">
             <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700">{t("commissionNote")}</p>
@@ -424,8 +373,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
           {message && (
             <div
               className={`px-4 py-3 rounded-md border text-sm ${
-                statusConfig?.className ||
-                "border-gray-200 bg-gray-50 text-gray-800"
+                statusConfig?.className || "border-gray-200 bg-gray-50 text-gray-800"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -447,7 +395,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
           </Button>
           <Button
             onClick={handleFormSubmit}
-            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold"
             disabled={isLoading || !bookingData}
           >
             {isLoading ? (
@@ -458,10 +406,7 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
             ) : (
               <>
                 <CreditCard className="mr-2 h-4 w-4" />
-                {t("pay")}{" "}
-                {bookingData
-                  ? formatAmount(bookingData.paymentAmount)
-                  : "₾0.00"}
+                {t("pay")} {bookingData ? formatAmount(bookingData.paymentAmount) : "₾0.00"}
               </>
             )}
           </Button>

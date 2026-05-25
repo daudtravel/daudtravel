@@ -10,38 +10,39 @@ import {
   FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
-import { Button } from "@/src/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   UpdateTransferFormData,
   useEditTransferValidator,
 } from "./EditTransferValidator";
 import { useLocale } from "next-intl";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/components/ui/select";
 import { Checkbox } from "@/src/components/ui/checkbox";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/src/components/ui/tabs";
 import { TRANSFER_MESSAGES } from "@/src/constants/transfers.constants";
 import { useTransferById } from "@/src/hooks/transfers/useTransfersById";
 import { useUpdateTransfer } from "@/src/hooks/transfers/useUpdateTransfer";
 import { VehicleType } from "@/src/types/transfers.types";
 import { SUPPORTED_LOCALES } from "../../tours/edit-tour/EditTourValidator";
 
+const VEHICLE_EMOJI: Record<string, string> = {
+  SEDAN: "🚗",
+  MINIVAN: "🚐",
+  VITO: "🚌",
+  SPRINTER: "🚌",
+  BUS: "🚍",
+};
+
 export function EditTransfer({ params }: { params: { id: string } }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
+  const locale = useLocale();
   const form = useEditTransferValidator();
 
   const { data: response, isLoading } = useTransferById(params.id);
@@ -50,22 +51,20 @@ export function EditTransfer({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (response?.data) {
       const transfer = response.data;
-
       const localizations = SUPPORTED_LOCALES.map((loc) => {
         const existing = transfer.localizations.find((l) => l.locale === loc);
-        return {
-          locale: loc,
-          startLocation: existing?.startLocation || "",
-          endLocation: existing?.endLocation || "",
-        };
+        return { locale: loc, startLocation: existing?.startLocation || "", endLocation: existing?.endLocation || "" };
       });
-
+      const allTypes = Object.values(VehicleType);
+      const vehicleMap = Object.fromEntries(
+        transfer.vehicleTypes.map((vt) => [vt.type, vt])
+      );
       form.reset({
         localizations,
-        vehicleTypes: transfer.vehicleTypes.map((vt) => ({
-          type: vt.type,
-          price: vt.price,
-          maxPersons: vt.maxPersons,
+        vehicleTypes: allTypes.map((type) => ({
+          type,
+          price: vehicleMap[type]?.price ?? 0,
+          maxPersons: vehicleMap[type]?.maxPersons ?? 4,
         })),
         isPublic: transfer.isPublic,
       });
@@ -73,145 +72,149 @@ export function EditTransfer({ params }: { params: { id: string } }) {
   }, [response, form]);
 
   const onSubmit = async (data: UpdateTransferFormData) => {
-    try {
-      setErrorMessage(null);
+    setErrorMessage(null);
+    const filteredLocalizations = data.localizations
+      ?.filter((loc) => loc.startLocation && loc.endLocation)
+      .map((loc) => ({
+        locale: loc.locale,
+        startLocation: loc.startLocation!,
+        endLocation: loc.endLocation!,
+      }));
 
-      const filteredLocalizations = data.localizations
-        ?.filter((loc) => loc.startLocation && loc.endLocation)
-        .map((loc) => ({
-          locale: loc.locale,
-          startLocation: loc.startLocation!,
-          endLocation: loc.endLocation!,
-        }));
-
-      updateTransfer(
-        {
-          id: params.id,
-          data: {
-            ...data,
-            localizations:
-              filteredLocalizations && filteredLocalizations.length > 0
-                ? filteredLocalizations
-                : undefined,
-          },
+    updateTransfer(
+      {
+        id: params.id,
+        data: {
+          ...data,
+          localizations: filteredLocalizations?.length ? filteredLocalizations : undefined,
         },
-        {
-          onSuccess: () => {
-            setSuccessMessage(TRANSFER_MESSAGES.UPDATE_SUCCESS);
-            setTimeout(() => router.push("?transfers=all"), 1500);
-          },
-          onError: (error: any) => {
-            const message =
-              error?.response?.data?.message || TRANSFER_MESSAGES.GENERIC_ERROR;
-            setErrorMessage(message);
-          },
-        }
-      );
-    } catch (error) {
-      setErrorMessage(TRANSFER_MESSAGES.GENERIC_ERROR);
-      console.error(error);
-    }
-  };
-
-  const addVehicleType = () => {
-    const current = form.getValues("vehicleTypes") || [];
-    form.setValue("vehicleTypes", [
-      ...current,
-      { type: VehicleType.SEDAN, price: 0, maxPersons: 4 },
-    ]);
-  };
-
-  const removeVehicleType = (index: number) => {
-    const current = form.getValues("vehicleTypes") || [];
-    form.setValue(
-      "vehicleTypes",
-      current.filter((_, i) => i !== index)
+      },
+      {
+        onSuccess: () => {
+          setSuccessMessage(TRANSFER_MESSAGES.UPDATE_SUCCESS);
+          setTimeout(() => router.push("?transfers=all"), 1500);
+        },
+        onError: (error: any) => {
+          setErrorMessage(error?.response?.data?.message || TRANSFER_MESSAGES.GENERIC_ERROR);
+        },
+      }
     );
   };
 
+  const vehicleTypes = Object.values(VehicleType);
+
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-7 w-7 animate-spin text-brand-green-mid" />
       </div>
     );
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>ტრანსფერის რედაქტირება</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {errorMessage && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-            {errorMessage}
-          </div>
-        )}
-        {successMessage && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-            {successMessage}
-          </div>
-        )}
+    <div className="w-full max-w-5xl mx-auto space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-xl font-extrabold text-gray-900">ტრანსფერის რედაქტირება</h2>
+        <p className="text-sm text-gray-400 mt-0.5">შეცვალეთ მარშრუტი, ენები ან ფასები</p>
+      </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      {errorMessage && (
+        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+          <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          {errorMessage}
+        </div>
+      )}
+      {successMessage && (
+        <div className="flex items-start gap-2 bg-brand-green-50 border border-brand-green-100 rounded-xl px-4 py-3 text-sm text-brand-green">
+          <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
+          {successMessage}
+        </div>
+      )}
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          {/* Public toggle */}
+          <div className="bg-brand-green-50 border border-brand-green-100 rounded-xl p-4">
             <FormField
               control={form.control}
               name="isPublic"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
+                <FormItem className="flex items-center gap-3">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       disabled={isPending}
+                      className="data-[state=checked]:bg-brand-green data-[state=checked]:border-brand-green"
                     />
                   </FormControl>
-                  <FormLabel className="!mt-0">საჯარო ტრანსფერი</FormLabel>
+                  <div>
+                    <FormLabel className="!mt-0 text-sm font-semibold text-gray-800 cursor-pointer">
+                      საჯარო ტრანსფერი
+                    </FormLabel>
+                    <p className="text-xs text-gray-500">ჩართვისას ტრანსფერი ხელმისაწვდომი იქნება საიტზე</p>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </div>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">თარგმანები</h3>
+          {/* Localizations + Vehicle types — side by side on large screens */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Localizations */}
+            <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">თარგმანები</h3>
+              <Tabs defaultValue={SUPPORTED_LOCALES[0]} className="w-full">
+                <TabsList
+                  className="grid w-full bg-brand-green-50 rounded-xl p-1"
+                  style={{ gridTemplateColumns: `repeat(${SUPPORTED_LOCALES.length}, 1fr)` }}
+                >
+                  {SUPPORTED_LOCALES.map((loc) => (
+                    <TabsTrigger
+                      key={loc}
+                      value={loc}
+                      className="text-xs rounded-lg uppercase data-[state=active]:bg-brand-green data-[state=active]:text-white"
+                    >
+                      {loc}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-              {SUPPORTED_LOCALES.map((loc, index) => (
-                <Card key={loc} className="p-4">
-                  <div className="space-y-4">
-                    <h4 className="font-medium uppercase">{loc} თარგმანი</h4>
-
+                {SUPPORTED_LOCALES.map((loc, index) => (
+                  <TabsContent key={loc} value={loc} className="mt-4">
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name={`localizations.${index}.startLocation`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>საწყისი ლოკაცია</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">საწყისი ლოკაცია</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="საწყისი ლოკაცია"
+                                placeholder="მაგ. თბილისი"
                                 {...field}
                                 disabled={isPending}
+                                className="border-gray-200 focus-visible:ring-brand-green text-sm"
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name={`localizations.${index}.endLocation`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>საბოლოო ლოკაცია</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">საბოლოო ლოკაცია</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="საბოლოო ლოკაცია"
+                                placeholder="მაგ. ბათუმი"
                                 {...field}
                                 disabled={isPending}
+                                className="border-gray-200 focus-visible:ring-brand-green text-sm"
                               />
                             </FormControl>
                             <FormMessage />
@@ -219,112 +222,70 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                         )}
                       />
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </TabsContent>
+                ))}
+              </Tabs>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">ავტომობილის ტიპები</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addVehicleType}
-                  disabled={isPending}
+            {/* Vehicle types */}
+            <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
+              <Tabs defaultValue={vehicleTypes[0]} className="w-full">
+                <TabsList
+                  className="grid w-full bg-brand-green-50 rounded-xl p-1"
+                  style={{ gridTemplateColumns: `repeat(${vehicleTypes.length}, 1fr)` }}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  დამატება
-                </Button>
-              </div>
+                  {vehicleTypes.map((type) => (
+                    <TabsTrigger
+                      key={type}
+                      value={type}
+                      className="text-xs rounded-lg data-[state=active]:bg-brand-green data-[state=active]:text-white"
+                    >
+                      {VEHICLE_EMOJI[type]} {type}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-              {form.watch("vehicleTypes")?.map((_, index) => (
-                <Card key={index} className="p-4">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-medium">ავტომობილი {index + 1}</h4>
-                      {(form.watch("vehicleTypes")?.length || 0) > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeVehicleType(index)}
-                          disabled={isPending}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      )}
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name={`vehicleTypes.${index}.type`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>ტიპი</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            disabled={isPending}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="აირჩიეთ ტიპი" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Object.values(VehicleType).map((type) => (
-                                <SelectItem key={type} value={type}>
-                                  {type}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
+                {vehicleTypes.map((type, index) => (
+                  <TabsContent key={type} value={type} className="mt-4">
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name={`vehicleTypes.${index}.price`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>ფასი</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">ფასი (₾)</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00"
                                 {...field}
-                                onChange={(e) =>
-                                  field.onChange(parseFloat(e.target.value))
-                                }
+                                value={field.value === null || field.value === undefined ? "" : field.value}
+                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
                                 disabled={isPending}
+                                className="border-gray-200 focus-visible:ring-brand-green text-sm"
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-
                       <FormField
                         control={form.control}
                         name={`vehicleTypes.${index}.maxPersons`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>მაქსიმალური პერსონები</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">მაქს. პასაჟირები</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 placeholder="4"
                                 {...field}
-                                onChange={(e) =>
-                                  field.onChange(parseInt(e.target.value))
-                                }
+                                value={field.value === null || field.value === undefined ? "" : field.value}
+                                onChange={(e) => field.onChange(e.target.value === "" ? 1 : parseInt(e.target.value))}
                                 disabled={isPending}
+                                className="border-gray-200 focus-visible:ring-brand-green text-sm"
                               />
                             </FormControl>
                             <FormMessage />
@@ -332,25 +293,26 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                         )}
                       />
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </TabsContent>
+                ))}
+              </Tabs>
             </div>
+          </div>
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  განახლება...
-                </>
-              ) : (
-                "განახლება"
-              )}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-semibold text-sm transition-colors disabled:opacity-60"
+          >
+            {isPending ? (
+              <><Loader2 className="h-4 w-4 animate-spin" />განახლება...</>
+            ) : (
+              "განახლება"
+            )}
+          </button>
+        </form>
+      </Form>
+    </div>
   );
 }
 

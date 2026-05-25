@@ -29,6 +29,12 @@ export interface TransferOrder {
   startLocation?: string;
   endLocation?: string;
   route?: string;
+  driver?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    photo?: string | null;
+  } | null;
 }
 
 const QUERY_KEY = ["admin", "transfer-orders"];
