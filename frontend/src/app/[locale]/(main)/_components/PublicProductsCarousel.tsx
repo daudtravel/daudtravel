@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 export default function PublicProductsCarousel() {
-  const [api, setApi] = useState<CarouselApi>(null);
+  const [api, setApi] = useState<CarouselApi>(undefined);
   const [current, setCurrent] = useState(0);
   const t = useTranslations("main");
 

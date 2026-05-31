@@ -29,7 +29,7 @@ export default function ToursCarouselSection({
   titleKey,
 }: ToursCarouselSectionProps) {
   const t = useTranslations("main");
-  const [api, setApi] = useState<CarouselApi>(null);
+  const [api, setApi] = useState<CarouselApi>(undefined);
   const [current, setCurrent] = useState(0);
 
   const { data: toursData, isLoading, isError } = useTours({ type });

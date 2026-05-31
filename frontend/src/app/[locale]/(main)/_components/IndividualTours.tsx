@@ -25,7 +25,7 @@ export default function IndividualToursSection() {
   const params = useParams();
   const locale = params.locale as string;
 
-  const [api, setApi] = useState<CarouselApi>(null);
+  const [api, setApi] = useState<CarouselApi>(undefined);
   const [current, setCurrent] = useState(0);
 
   const { data: toursData, isLoading, isError } = useQuery({
