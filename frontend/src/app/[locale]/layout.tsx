@@ -9,7 +9,6 @@ import "./globals.css";
 import SignInModal from "./(auth)/_signin/SigninModal";
 import QueryProvider from "@/src/reactQuery/queryProvider";
 import { AuthProvider } from "@/src/auth/authProvider";
-import SignupModalWrapper from "./(auth)/_signup/SignupModalWrapper";
 import { CHAT_CONFIG, initWhatsAppWidget } from "@/src/utlis/chats/OnlineChats";
 import { SocialSection } from "./(main)/_components/SocialSection";
 import ConsentBanner from "@/src/components/shared/ConsentBanner";
@@ -73,7 +72,6 @@ export default async function LocaleLayout({
           <QueryProvider>
             <NextIntlClientProvider messages={messages}>
               <Header />
-              <SignupModalWrapper />
               <SignInModal />
               {children}
               <Footer />

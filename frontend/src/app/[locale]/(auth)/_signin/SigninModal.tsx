@@ -85,20 +85,14 @@ export default function SignInModal() {
       login(response.data.token);
       modalCloseClickHandler();
       form.reset();
-    } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any;
+    } catch (error: unknown) {
       const errorMessage =
-        err.response?.data?.message || "Error signing in. Please try again!.";
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Error signing in. Please try again.";
       alert(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const authClickHandler = (name: string) => {
-    router.replace(`${pathname}?${name}`);
-    setIsOpen(false);
   };
 
   return (
@@ -190,17 +184,6 @@ export default function SignInModal() {
                 </Button>
               </form>
             </Form>
-          </div>
-          <div className="mt-6">
-            <p className="mt-4 text-center text-sm text-gray-500">
-              Don&apos;t have an account?{" "}
-              <button
-                onClick={() => authClickHandler("signup")}
-                className="font-medium text-gray-900 hover:underline"
-              >
-                Sign up
-              </button>
-            </p>
           </div>
         </div>
       </DialogContent>
