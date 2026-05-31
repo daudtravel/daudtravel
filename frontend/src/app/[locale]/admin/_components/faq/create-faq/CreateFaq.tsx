@@ -93,7 +93,6 @@ const CreateFaq = () => {
         router.push(`?faqs=all`);
       }, 1500);
     } catch (error) {
-      console.error("Error creating FAQ:", error);
       if (axios.isAxiosError(error) && error.response) {
         const errorMsg =
           error.response.data.message || "კითხვის შექმნა ვერ მოხერხდა";

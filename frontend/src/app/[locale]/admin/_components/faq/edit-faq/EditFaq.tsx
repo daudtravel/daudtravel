@@ -64,8 +64,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
         };
 
         form.reset(formData);
-      } catch (error) {
-        console.error("Error fetching FAQ:", error);
+      } catch {
         setErrorMessage("კითხვის დეტალების ჩატვირთვა ვერ მოხერხდა");
       } finally {
         setIsLoading(false);
@@ -102,7 +101,6 @@ export function EditFaq({ params }: { params: { id: string } }) {
         router.push("?faqs=all");
       }, 1000);
     } catch (error) {
-      console.error("Error updating FAQ:", error);
       if (axios.isAxiosError(error)) {
         setErrorMessage(
           error.response?.data?.message || "კითხვის განახლება ვერ მოხერხდა"

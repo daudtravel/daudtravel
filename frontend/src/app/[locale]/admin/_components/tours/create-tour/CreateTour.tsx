@@ -130,8 +130,7 @@ export default function CreateTour() {
           router.push("?tours=all");
         },
       });
-    } catch (error) {
-      console.error("Error converting images:", error);
+    } catch {
       form.setError("mainImage", {
         type: "manual",
         message: "Failed to process images. Please try again.",

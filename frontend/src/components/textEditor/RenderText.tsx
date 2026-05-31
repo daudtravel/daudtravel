@@ -60,8 +60,7 @@ const renderDescription = (rawContent: string | null) => {
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
     );
-  } catch (error) {
-    console.error("Error rendering description:", error);
+  } catch {
     return null;
   }
 };

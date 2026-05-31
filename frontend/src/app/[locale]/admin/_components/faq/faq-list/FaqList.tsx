@@ -34,8 +34,8 @@ export function FaqList() {
     try {
       await faqApi.delete(id);
       queryClient.invalidateQueries({ queryKey: ["faqs"] });
-    } catch (error) {
-      console.error("Failed to delete FAQ:", error);
+    } catch {
+      alert("FAQ-ის წაშლა ვერ მოხერხდა");
     }
   };
 

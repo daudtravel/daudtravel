@@ -96,7 +96,6 @@ const ContactCard: React.FC = () => {
       }
     } catch (error) {
       setResult("An error occurred. Please try again later.");
-      console.error("Form submission error:", error);
     } finally {
       setLoading(false);
     }

@@ -37,8 +37,7 @@ export function VideoList() {
     try {
       await videoApi.delete(id);
       queryClient.invalidateQueries({ queryKey: ["videos"] });
-    } catch (error) {
-      console.error("Failed to delete video:", error);
+    } catch {
       alert("ვიდეოს წაშლა ვერ მოხერხდა");
     }
   };

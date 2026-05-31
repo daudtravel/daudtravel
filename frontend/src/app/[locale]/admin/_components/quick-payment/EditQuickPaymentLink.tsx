@@ -79,13 +79,11 @@ function EditQuickLinkContent() {
         if (validLocalizations.length > 0) {
           setLocalizations(validLocalizations);
         } else {
-          console.error("No valid localizations found");
           alert("პროდუქტს არ აქვს ვალიდური თარგმანები");
           router.push("/admin?quickPayment=all");
           return;
         }
       } else {
-        console.error("Invalid localizations structure:", link.localizations);
         alert("პროდუქტს არ აქვს თარგმანები");
         router.push("/admin?quickPayment=all");
         return;
@@ -97,11 +95,10 @@ function EditQuickLinkContent() {
       const imageUrl = getImageUrl(link.image);
       setExistingImage(imageUrl);
       setImagePreview(imageUrl);
-    } catch (error: any) {
-      console.error("Error loading link:", error);
-      alert(
-        error?.response?.data?.message || "შეცდომა მონაცემების ჩატვირთვისას"
-      );
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message
+        || (error instanceof Error ? error.message : "შეცდომა მონაცემების ჩატვირთვისას");
+      alert(msg);
       router.push("/admin?quickPayment=all");
     } finally {
       setLoading(false);
@@ -228,17 +225,13 @@ function EditQuickLinkContent() {
         submitData.image = newImageBase64;
       }
 
-      console.log("📤 Submitting update:", submitData);
-
       await updateLink.mutateAsync({ slug: slug!, data: submitData });
       alert("ლინკი წარმატებით განახლდა");
       router.push("/admin?quickPayment=all");
-    } catch (error: any) {
-      console.error("❌ Error updating link:", error);
+    } catch (error: unknown) {
       const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "შეცდომა ლინკის განახლებისას";
+        (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
+        (error instanceof Error ? error.message : "შეცდომა ლინკის განახლებისას");
       alert(errorMessage);
     }
   };

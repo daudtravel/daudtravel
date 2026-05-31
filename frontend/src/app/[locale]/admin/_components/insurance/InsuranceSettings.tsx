@@ -128,9 +128,9 @@ export default function InsuranceSettings() {
       if (updateSettings.reset) {
         updateSettings.reset();
       }
-    } catch (error: any) {
-      console.error("Error updating settings:", error);
-      alert(`შეცდომა: ${error.message}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "შეცდომა";
+      alert(`შეცდომა: ${msg}`);
     }
   };
 

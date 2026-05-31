@@ -80,7 +80,6 @@ export default function CreateVideo() {
         router.push("?videos=all");
       }, 1500);
     } catch (error) {
-      console.error("Failed to create video:", error);
       if (axios.isAxiosError(error) && error.response) {
         setErrorMessage(
           error.response.data.message || "ვიდეოს დამატება ვერ მოხერხდა"

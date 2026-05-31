@@ -90,8 +90,7 @@ export default function InsuranceSubmissionsList() {
       try {
         await deleteSubmission.mutateAsync(submissionId);
         alert("წარმატებით წაიშალა");
-      } catch (error) {
-        console.error("Error deleting:", error);
+      } catch {
         alert("შეცდომა წაშლისას");
       }
     }

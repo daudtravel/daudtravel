@@ -73,23 +73,19 @@ export default function FaqSection() {
                 key={faq.id}
                 type="single"
                 collapsible
-                className="mt-6 w-full rounded-lg bg-gray-400"
+                className="mt-6 w-full rounded-lg"
+                onValueChange={(value) =>
+                  setOpenItems((prev) => ({ ...prev, [faq.id]: !!value }))
+                }
               >
                 <AccordionItem
                   value={faq.id}
                   style={{ backgroundColor: bgColor(faq.id) }}
-                  className="rounded-lg bg-slate-500 border-2 w-full"
+                  className="rounded-lg border w-full border-brand-green-100"
                 >
-                  <div
-                    onClick={() => handleClick(faq.id)}
-                    className="flex w-full flex-row items-center rounded-lg"
-                  >
-                    <div className="w-full">
-                      <AccordionTrigger className="items-start justify-between text-left flex w-full text-[14px] font-semibold px-4">
-                        {localization.question}
-                      </AccordionTrigger>
-                    </div>
-                  </div>
+                  <AccordionTrigger className="items-start justify-between text-left flex w-full text-[14px] font-semibold px-4">
+                    {localization.question}
+                  </AccordionTrigger>
                   <AccordionContent className="p-2 pt-0 text-left text-xs leading-5 md:pl-6">
                     {localization.answer}
                   </AccordionContent>

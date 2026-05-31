@@ -243,9 +243,9 @@ export default function InsuranceSubmissionPage() {
       if (result.data.paymentUrl) {
         window.location.href = result.data.paymentUrl;
       }
-    } catch (error: any) {
-      console.error("Error submitting:", error);
-      alert(error.response?.data?.message || t("submissionError"));
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : t("submissionError");
+      alert(msg);
     }
   };
 

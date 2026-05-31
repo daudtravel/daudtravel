@@ -50,9 +50,8 @@ export const QuickLinksList = () => {
     if (confirm("დარწმუნებული ხართ?")) {
       try {
         await toggleLink.mutateAsync(slug);
-      } catch (error) {
+      } catch {
         alert("შეცდომა სტატუსის შეცვლისას");
-        console.error(error);
       }
     }
   };
@@ -61,9 +60,8 @@ export const QuickLinksList = () => {
     if (confirm("დარწმუნებული ხართ რომ გსურთ წაშლა?")) {
       try {
         await deleteLink.mutateAsync(slug);
-      } catch (error) {
+      } catch {
         alert("შეცდომა წაშლისას");
-        console.error(error);
       }
     }
   };

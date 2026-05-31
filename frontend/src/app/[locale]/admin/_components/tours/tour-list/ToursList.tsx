@@ -58,8 +58,8 @@ export function ToursList() {
     try {
       await toursAPI.delete(id);
       queryClient.invalidateQueries({ queryKey: ["tours"] });
-    } catch (error) {
-      console.error("Failed to delete tour:", error);
+    } catch {
+      alert("ტურის წაშლა ვერ მოხერხდა");
     }
   };
 

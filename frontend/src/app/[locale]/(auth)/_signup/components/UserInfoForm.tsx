@@ -58,7 +58,10 @@ export default function UserInfoForm({
           setIsVerificationStep(true);
         }
       } else {
-        console.error("An unexpected error occurred:", error);
+        form.setError("email", {
+          type: "manual",
+          message: "An unexpected error occurred. Please try again.",
+        });
       }
     } finally {
       setIsSubmitting(false);

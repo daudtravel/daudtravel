@@ -232,7 +232,6 @@ const TransferDetails: React.FC = () => {
       pdf.save(`transfer-${transfer.id.slice(-8)}.pdf`);
     } catch (error) {
       alert("Error generating PDF. Please try again.");
-      console.log(error);
     } finally {
       setIsGeneratingPDF(false);
     }

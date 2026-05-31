@@ -79,8 +79,6 @@ export const CreateQuickLink = () => {
         showOnWebsite: formData.showOnWebsite,
       };
 
-      console.log("📤 Creating link with data:", submitData);
-
       await createLink.mutateAsync(submitData);
 
       // Reset form
@@ -95,12 +93,10 @@ export const CreateQuickLink = () => {
 
       alert("ლინკი წარმატებით შეიქმნა");
       router.push(`${pathname}?quickPayment=all`);
-    } catch (error: any) {
-      console.error("❌ Error creating link:", error);
+    } catch (error: unknown) {
       const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "შეცდომა ლინკის შექმნისას";
+        (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
+        (error instanceof Error ? error.message : "შეცდომა ლინკის შექმნისას");
       alert(errorMessage);
     }
   };

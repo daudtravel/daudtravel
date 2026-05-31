@@ -34,8 +34,7 @@ async function getProduct(
 
     const result = await response.json();
     return result.success ? result.data : null;
-  } catch (error) {
-    console.error("Failed to fetch product:", error);
+  } catch {
     return null;
   }
 }
