@@ -80,7 +80,7 @@ export class AuthController {
       if (err.response?.timeRemaining !== undefined) {
         return {
           statusCode: HttpStatus.TOO_MANY_REQUESTS,
-          message: err.message,
+          message: err.message ?? 'Too many requests',
           email: dto.email,
           timeRemaining: err.response.timeRemaining,
         };
