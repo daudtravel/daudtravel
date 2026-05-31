@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { getBOGAccessToken } from '@/common/utils/bog-auth';
 import { BOG_API_URL, verifyBOGSignature } from '@/common/utils/bog-payments';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, Prisma } from '@prisma/client';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { Response } from 'express';
 
@@ -34,7 +34,7 @@ export class InsuranceService {
     return diffDays + 1; // Add 1 to include both start and end dates
   }
 
-  private getApplicableDiscount(days: number, settings: any): number {
+  private getApplicableDiscount(days: number, settings: { discount30Days: number; discount90Days: number }): number {
     if (days >= 90 && settings.discount90Days > 0) {
       return Number(settings.discount90Days);
     } else if (days >= 30 && settings.discount30Days > 0) {
@@ -45,7 +45,6 @@ export class InsuranceService {
 
   private calculatePersonPrice(
     days: number,
-    pricePerDay: number,
     discount30Days: number,
     discount90Days: number,
   ) {
@@ -236,7 +235,6 @@ export class InsuranceService {
 
         const pricing = this.calculatePersonPrice(
           days,
-          pricePerDay,
           discount30Days,
           discount90Days,
         );
@@ -314,8 +312,7 @@ export class InsuranceService {
     });
 
     if (!bogResponse.ok) {
-      const errorText = await bogResponse.text();
-      console.error('❌ BOG API Error:', errorText);
+      await bogResponse.text();
 
       await Promise.all(
         peopleWithPricing.map((p) =>
@@ -392,7 +389,7 @@ export class InsuranceService {
       finalStatus = PaymentStatus.FAILED;
     }
 
-    const updateData: any = {
+    const updateData: Prisma.InsuranceSubmissionUpdateInput = {
       status: finalStatus,
       transactionId: orderData.transaction_id,
       paymentMethod: orderData.payment_method,
@@ -490,7 +487,7 @@ export class InsuranceService {
     limit: number = 50,
   ) {
     const skip = (page - 1) * limit;
-    const whereClause: any = {};
+    const whereClause: Prisma.InsuranceSubmissionWhereInput = {};
     if (status) whereClause.status = status;
 
     const [submissions, total] = await Promise.all([
@@ -612,11 +609,8 @@ export class InsuranceService {
       submission.people.map(async (person) => {
         try {
           await this.fileUpload.deleteFile(person.passportPhoto);
-        } catch (error) {
-          console.error(
-            `⚠️ Failed to delete passport photo: ${person.passportPhoto}`,
-            error,
-          );
+        } catch {
+          // Photo cleanup failure is non-critical; submission record is already deleted
         }
       }),
     );
@@ -678,8 +672,8 @@ export class InsuranceService {
           emailSentAt: new Date(),
         },
       });
-    } catch (error) {
-      console.error('❌ Failed to send admin notification:', error);
+    } catch {
+      // Email failure is non-critical; payment already confirmed
     }
   }
 
@@ -710,8 +704,8 @@ export class InsuranceService {
           finalAmount: Number(p.finalAmount),
         })),
       });
-    } catch (error) {
-      console.error('❌ Failed to send customer confirmation:', error);
+    } catch {
+      // Email failure is non-critical; payment already confirmed
     }
   }
 }

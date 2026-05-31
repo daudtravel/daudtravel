@@ -43,18 +43,4 @@ export interface QuickPaymentDetails {
 export type TransferPaymentStatusResponse = PaymentStatusResponse;
 
 // Insurance Payment Types
-export interface InsurancePaymentDetails {
-  id: string;
-  externalOrderId: string;
-  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
-  submitterEmail: string;
-  peopleCount: number;
-  totalAmount: number;
-  pricePerPerson: number;
-  people: Array<{
-    fullName: string;
-    phoneNumber: string;
-  }>;
-  paidAt?: string;
-  createdAt: string;
-}
+export type { InsurancePaymentDetails } from "@/src/hooks/insurance/useInsurancePaymentStatus";

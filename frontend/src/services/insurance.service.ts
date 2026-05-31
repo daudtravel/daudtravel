@@ -6,6 +6,8 @@ export interface InsurancePerson {
   fullName: string;
   phoneNumber: string;
   passportPhoto: string; // base64
+  startDate: string; // yyyy-MM-dd
+  endDate: string;   // yyyy-MM-dd
 }
 
 export interface CreateInsuranceSubmissionDto {
@@ -14,7 +16,8 @@ export interface CreateInsuranceSubmissionDto {
 }
 
 export interface UpdateInsuranceSettingsDto {
-  pricePerPerson?: number;
+  discount30Days?: number;
+  discount90Days?: number;
   adminEmail?: string;
   isActive?: boolean;
 }

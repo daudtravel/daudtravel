@@ -29,6 +29,182 @@ import {
   PaymentStatus,
 } from "@/src/types/insurance.types";
 
+const getStatusBadge = (status: PaymentStatus) => {
+  switch (status) {
+    case PaymentStatus.PAID:
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <CheckCircle size={14} />
+          <span className="hidden sm:inline">გადახდილი</span>
+        </span>
+      );
+    case PaymentStatus.PENDING:
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          <Clock size={14} />
+          <span className="hidden sm:inline">მიმდინარე</span>
+        </span>
+      );
+    case PaymentStatus.FAILED:
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <XCircle size={14} />
+          <span className="hidden sm:inline">წარუმატებელი</span>
+        </span>
+      );
+    default:
+      return (
+        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          {status}
+        </span>
+      );
+  }
+};
+
+const SubmissionDetails = ({
+  submission,
+  onClose,
+}: {
+  submission: InsuranceSubmission;
+  onClose: () => void;
+}) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div className="bg-white rounded-lg max-w-4xl w-full my-8">
+      <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex justify-between items-center rounded-t-lg">
+        <div>
+          <h3 className="text-xl font-bold">შეკვეთის დეტალები</h3>
+          <code className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mt-1 inline-block">
+            {submission.externalOrderId}
+          </code>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-gray-100 rounded-lg"
+          aria-label="Close"
+        >
+          <X size={24} />
+        </button>
+      </div>
+
+      <div className="p-4 sm:p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <div className="bg-blue-50 rounded-lg p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-gray-600 mb-1">სტატუსი</p>
+              {getStatusBadge(submission.status)}
+            </div>
+            <div>
+              <p className="text-gray-600 mb-1">ადამიანები</p>
+              <p className="font-semibold">{submission.peopleCount}</p>
+            </div>
+            <div>
+              <p className="text-gray-600 mb-1">სულ დღეები</p>
+              <p className="font-semibold">{submission.totalDays}</p>
+            </div>
+            <div>
+              <p className="text-gray-600 mb-1">სულ თანხა</p>
+              <p className="font-semibold text-green-600 text-lg">
+                ₾{Number(submission.totalAmount).toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+            <Users size={20} />
+            ადამიანების დეტალები
+          </h4>
+          <div className="space-y-4">
+            {submission.people.map((person: InsurancePerson, index: number) => (
+              <div key={person.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h5 className="font-semibold text-gray-900">{person.fullName}</h5>
+                    <p className="text-sm text-gray-600">{person.phoneNumber}</p>
+                  </div>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                    #{index + 1}
+                  </span>
+                </div>
+
+                <div className="mb-4">
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}${person.passportPhoto}`}
+                      alt={`${person.fullName} - პასპორტი`}
+                      fill
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div className="bg-gray-50 p-3 rounded">
+                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                      <Calendar size={14} />
+                      <span>პერიოდი</span>
+                    </div>
+                    <p className="font-medium">
+                      {format(new Date(person.startDate), "dd/MM/yyyy")} -{" "}
+                      {format(new Date(person.endDate), "dd/MM/yyyy")}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{person.totalDays} დღე</p>
+                  </div>
+
+                  <div className="bg-gray-50 p-3 rounded">
+                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                      <DollarSign size={14} />
+                      <span>ფასი</span>
+                    </div>
+                    <p className="font-medium">₾{Number(person.pricePerDay).toFixed(2)} / დღე</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      ბაზისური: ₾{Number(person.baseAmount).toFixed(2)}
+                    </p>
+                  </div>
+
+                  {person.discount > 0 && (
+                    <div className="bg-green-50 p-3 rounded">
+                      <div className="text-green-700 mb-1">ფასდაკლება</div>
+                      <p className="font-medium text-green-800">-{person.discount}%</p>
+                      <p className="text-xs text-green-600 mt-1">
+                        -₾{((Number(person.baseAmount) * Number(person.discount)) / 100).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="bg-blue-50 p-3 rounded">
+                    <div className="text-blue-700 mb-1">საბოლოო თანხა</div>
+                    <p className="font-bold text-blue-900 text-lg">
+                      ₾{Number(person.finalAmount).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <h4 className="font-semibold mb-2">კონტაქტი</h4>
+          <div className="flex items-center gap-2 text-gray-700">
+            <Mail size={16} />
+            <span>{submission.submitterEmail}</span>
+          </div>
+          {submission.emailSent && submission.emailSentAt && (
+            <p className="text-xs text-green-600 mt-2">
+              <CheckCircle size={12} className="inline mr-1" />
+              ელ.ფოსტა გაგზავნილია:{" "}
+              {format(new Date(submission.emailSentAt), "dd/MM/yyyy HH:mm")}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function InsuranceSubmissionsList() {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,38 +225,6 @@ export default function InsuranceSubmissionsList() {
   const submissions = submissionsData?.data || [];
   const pagination = submissionsData?.pagination;
 
-  const getStatusBadge = (status: PaymentStatus) => {
-    switch (status) {
-      case PaymentStatus.PAID:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            <CheckCircle size={14} />
-            <span className="hidden sm:inline">გადახდილი</span>
-          </span>
-        );
-      case PaymentStatus.PENDING:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            <Clock size={14} />
-            <span className="hidden sm:inline">მიმდინარე</span>
-          </span>
-        );
-      case PaymentStatus.FAILED:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            <XCircle size={14} />
-            <span className="hidden sm:inline">წარუმატებელი</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            {status}
-          </span>
-        );
-    }
-  };
-
   const handleDelete = async (submissionId: string, email: string) => {
     if (
       confirm(
@@ -96,171 +240,6 @@ export default function InsuranceSubmissionsList() {
     }
   };
 
-  const SubmissionDetails = ({
-    submission,
-  }: {
-    submission: InsuranceSubmission;
-  }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-4xl w-full my-8">
-        <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex justify-between items-center rounded-t-lg">
-          <div>
-            <h3 className="text-xl font-bold">შეკვეთის დეტალები</h3>
-            <code className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mt-1 inline-block">
-              {submission.externalOrderId}
-            </code>
-          </div>
-          <button
-            onClick={() => setSelectedSubmission(null)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="p-4 sm:p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
-          {/* Summary */}
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="text-gray-600 mb-1">სტატუსი</p>
-                {getStatusBadge(submission.status)}
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">ადამიანები</p>
-                <p className="font-semibold">{submission.peopleCount}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">სულ დღეები</p>
-                <p className="font-semibold">{submission.totalDays}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 mb-1">სულ თანხა</p>
-                <p className="font-semibold text-green-600 text-lg">
-                  ₾{Number(submission.totalAmount).toFixed(2)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* People Details */}
-          <div>
-            <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
-              <Users size={20} />
-              ადამიანების დეტალები
-            </h4>
-            <div className="space-y-4">
-              {submission.people.map(
-                (person: InsurancePerson, index: number) => (
-                  <div
-                    key={person.id}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h5 className="font-semibold text-gray-900">
-                          {person.fullName}
-                        </h5>
-                        <p className="text-sm text-gray-600">
-                          {person.phoneNumber}
-                        </p>
-                      </div>
-                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                        #{index + 1}
-                      </span>
-                    </div>
-
-                    {/* Passport Photo */}
-                    <div className="mb-4">
-                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_BASE_URL}${person.passportPhoto}`}
-                          alt={`${person.fullName} - პასპორტი`}
-                          fill
-                          className="object-contain"
-                          unoptimized
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                      <div className="bg-gray-50 p-3 rounded">
-                        <div className="flex items-center gap-2 text-gray-600 mb-1">
-                          <Calendar size={14} />
-                          <span>პერიოდი</span>
-                        </div>
-                        <p className="font-medium">
-                          {format(new Date(person.startDate), "dd/MM/yyyy")} -{" "}
-                          {format(new Date(person.endDate), "dd/MM/yyyy")}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {person.totalDays} დღე
-                        </p>
-                      </div>
-
-                      <div className="bg-gray-50 p-3 rounded">
-                        <div className="flex items-center gap-2 text-gray-600 mb-1">
-                          <DollarSign size={14} />
-                          <span>ფასი</span>
-                        </div>
-                        <p className="font-medium">
-                          ₾{Number(person.pricePerDay).toFixed(2)} / დღე
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          ბაზისური: ₾{Number(person.baseAmount).toFixed(2)}
-                        </p>
-                      </div>
-
-                      {person.discount > 0 && (
-                        <div className="bg-green-50 p-3 rounded">
-                          <div className="text-green-700 mb-1">ფასდაკლება</div>
-                          <p className="font-medium text-green-800">
-                            -{person.discount}%
-                          </p>
-                          <p className="text-xs text-green-600 mt-1">
-                            -₾
-                            {(
-                              (Number(person.baseAmount) *
-                                Number(person.discount)) /
-                              100
-                            ).toFixed(2)}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="bg-blue-50 p-3 rounded">
-                        <div className="text-blue-700 mb-1">საბოლოო თანხა</div>
-                        <p className="font-bold text-blue-900 text-lg">
-                          ₾{Number(person.finalAmount).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div className="border-t pt-4">
-            <h4 className="font-semibold mb-2">კონტაქტი</h4>
-            <div className="flex items-center gap-2 text-gray-700">
-              <Mail size={16} />
-              <span>{submission.submitterEmail}</span>
-            </div>
-            {submission.emailSent && submission.emailSentAt && (
-              <p className="text-xs text-green-600 mt-2">
-                <CheckCircle size={12} className="inline mr-1" />
-                ელ.ფოსტა გაგზავნილია:{" "}
-                {format(new Date(submission.emailSentAt), "dd/MM/yyyy HH:mm")}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -268,7 +247,6 @@ export default function InsuranceSubmissionsList() {
       </div>
     );
   }
-
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="bg-white rounded-lg shadow-md">
@@ -615,7 +593,10 @@ export default function InsuranceSubmissionsList() {
       </div>
 
       {selectedSubmission && (
-        <SubmissionDetails submission={selectedSubmission} />
+        <SubmissionDetails
+          submission={selectedSubmission}
+          onClose={() => setSelectedSubmission(null)}
+        />
       )}
     </div>
   );

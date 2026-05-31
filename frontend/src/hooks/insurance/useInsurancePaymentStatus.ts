@@ -3,14 +3,21 @@ import { useState, useEffect } from "react";
 export interface InsurancePaymentDetails {
   id: string;
   externalOrderId: string;
-  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  status: "PENDING" | "PAID" | "FAILED";
   submitterEmail: string;
   peopleCount: number;
   totalAmount: number;
-  pricePerPerson: number;
+  totalDays: number;
   people: Array<{
     fullName: string;
     phoneNumber: string;
+    startDate: string;
+    endDate: string;
+    days: number;
+    pricePerDay: number;
+    baseAmount: number;
+    discount: number;
+    finalAmount: number;
   }>;
   paidAt?: string;
   createdAt: string;
@@ -31,6 +38,7 @@ export function useInsurancePaymentStatus(externalOrderId: string | null) {
 
     let isMounted = true;
     let pollCount = 0;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     const MAX_POLLS = 20;
 
     const fetchStatus = async () => {
@@ -45,17 +53,16 @@ export function useInsurancePaymentStatus(externalOrderId: string | null) {
 
         const result = await response.json();
 
-        if (isMounted && result.success) {
+        if (!isMounted) return;
+
+        if (result.success) {
           setPaymentDetails(result.data);
 
-          if (
-            result.data.status === "PAID" ||
-            result.data.status === "FAILED"
-          ) {
+          if (result.data.status === "PAID" || result.data.status === "FAILED") {
             setIsLoading(false);
           } else if (pollCount < MAX_POLLS) {
             pollCount++;
-            setTimeout(fetchStatus, 1000);
+            timeoutId = setTimeout(fetchStatus, 3000);
           } else {
             setIsLoading(false);
           }
@@ -72,6 +79,7 @@ export function useInsurancePaymentStatus(externalOrderId: string | null) {
 
     return () => {
       isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [externalOrderId]);
 

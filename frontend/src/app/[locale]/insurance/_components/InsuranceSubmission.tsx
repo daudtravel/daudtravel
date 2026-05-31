@@ -18,7 +18,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { format, startOfDay, addDays } from "date-fns";
-import { ka } from "date-fns/locale";
+import { ka, enUS, ar, tr, ru } from "date-fns/locale";
+import { useLocale } from "next-intl";
 
 import {
   useInsuranceSettings,
@@ -44,6 +45,10 @@ interface PersonForm {
   endDate: Date | undefined;
 }
 
+type PersonFormField = keyof Omit<PersonForm, "id">;
+
+const localeMap = { ka, en: enUS, ar, tr, ru } as const;
+
 const MIN_DAYS = 5;
 
 export default function InsuranceSubmissionPage() {
@@ -51,6 +56,8 @@ export default function InsuranceSubmissionPage() {
     useInsuranceSettings();
   const submitInsurance = useSubmitInsurance();
   const t = useTranslations("insurance");
+  const currentLocale = useLocale() as keyof typeof localeMap;
+  const dateLocale = localeMap[currentLocale] ?? enUS;
 
   const [submitterEmail, setSubmitterEmail] = useState("");
   const [people, setPeople] = useState<PersonForm[]>([
@@ -140,13 +147,13 @@ export default function InsuranceSubmissionPage() {
     setPeople(people.filter((p) => p.id !== id));
   };
 
-  const updatePerson = (id: string, field: string, value: any) => {
+  const updatePerson = (id: string, field: PersonFormField, value: PersonForm[PersonFormField]) => {
     setPeople((prev) =>
       prev.map((p) => {
         if (p.id !== id) return p;
         const updated = { ...p, [field]: value };
 
-        if (field === "startDate" && value && updated.endDate) {
+        if (field === "startDate" && value instanceof Date && updated.endDate) {
           const days = calculateDays(value, updated.endDate);
           if (days < MIN_DAYS) {
             updated.endDate = undefined;
@@ -244,7 +251,9 @@ export default function InsuranceSubmissionPage() {
         window.location.href = result.data.paymentUrl;
       }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : t("submissionError");
+      const msg =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error instanceof Error ? error.message : t("submissionError"));
       alert(msg);
     }
   };
@@ -479,7 +488,7 @@ export default function InsuranceSubmissionPage() {
                           <CalendarIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                           {person.startDate ? (
                             format(person.startDate, "dd MMM yyyy", {
-                              locale: ka,
+                              locale: dateLocale,
                             })
                           ) : (
                             <span>{t("selectDate")}</span>
@@ -518,7 +527,7 @@ export default function InsuranceSubmissionPage() {
                           <CalendarIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
                           {person.endDate ? (
                             format(person.endDate, "dd MMM yyyy", {
-                              locale: ka,
+                              locale: dateLocale,
                             })
                           ) : (
                             <span>{t("selectDate")}</span>

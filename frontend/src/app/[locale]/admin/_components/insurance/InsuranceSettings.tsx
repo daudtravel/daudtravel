@@ -78,7 +78,6 @@ export default function InsuranceSettings() {
       return;
     }
 
-    // Validate emails
     const emails = formData.adminEmail
       .split(",")
       .map((e) => e.trim())
@@ -97,39 +96,17 @@ export default function InsuranceSettings() {
     }
 
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/insurance/settings`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            pricePerDay: 5, // fixed backend value, kept for API compatibility
-            discount30Days: discount30,
-            discount90Days: discount90,
-            adminEmail: formData.adminEmail,
-            isActive: formData.isActive,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "განახლება ვერ მოხერხდა");
-      }
-
+      await updateSettings.mutateAsync({
+        discount30Days: discount30,
+        discount90Days: discount90,
+        adminEmail: formData.adminEmail,
+        isActive: formData.isActive,
+      });
       alert("პარამეტრები წარმატებით განახლდა");
-
-      if (updateSettings.reset) {
-        updateSettings.reset();
-      }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "შეცდომა";
+      const msg =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error instanceof Error ? error.message : "შეცდომა");
       alert(`შეცდომა: ${msg}`);
     }
   };
