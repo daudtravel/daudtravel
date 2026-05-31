@@ -59,8 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsAuthenticated(false);
         localStorage.removeItem("token");
       }
-    } catch (error: any) {
-      console.error("Auth verification failed:", error.response?.data || error);
+    } catch {
       setUser(null);
       setIsAuthenticated(false);
       localStorage.removeItem("token");

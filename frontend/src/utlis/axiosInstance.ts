@@ -15,7 +15,6 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("❌ Request interceptor error:", error);
     return Promise.reject(error);
   }
 );
@@ -25,17 +24,13 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(
-      "❌ Response error:",
-      error.response?.status,
-      error.response?.data
-    );
-
     if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      if (typeof window !== "undefined" && !window.location.pathname.includes("/signin")) {
+        window.location.href = "/";
+      }
     }
 
     return Promise.reject(error);
   }
 );
-
- 

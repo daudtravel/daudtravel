@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 export function SigninValidator() {
   const formSchema = z.object({
-    email: z.string().min(6, { message: "email is required" }),
+    email: z.string().email({ message: "Invalid email address" }).min(1, { message: "Email is required" }),
     password: z.string().min(6, { message: "password is required" }),
   });
 
