@@ -28,7 +28,7 @@ export default function GroupToursSection() {
   const [api, setApi] = useState<CarouselApi>(null);
   const [current, setCurrent] = useState(0);
 
-  const { data: toursData, isLoading } = useQuery({
+  const { data: toursData, isLoading, isError } = useQuery({
     queryKey: ["tours", "individualList"],
     queryFn: async () => {
       const params = {
@@ -101,6 +101,10 @@ export default function GroupToursSection() {
       </motion.div>
       {isLoading ? (
         <PoPularToursLoader />
+      ) : isError ? (
+        <div className="flex justify-center items-center py-12 text-gray-500 text-sm">
+          {t("errorLoadingTours")}
+        </div>
       ) : (
         <motion.div
           className="flex flex-col justify-center items-center relative md:px-0 gap-6"

@@ -29,5 +29,6 @@
   "products": "منتجاتنا",
   "travelInsurance": "تأمين السفر",
   "wantTravelInsurance": "هل تريد تأمين السفر؟",
-  "getItHere": "احصل عليه هنا"
+  "getItHere": "احصل عليه هنا",
+  "errorLoadingTours": "تعذر تحميل الجولات. يرجى المحاولة مرة أخرى لاحقاً."
 }

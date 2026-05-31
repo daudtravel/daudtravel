@@ -29,5 +29,6 @@
   "products": "Our products",
   "travelInsurance": "Travel Insurance",
   "wantTravelInsurance": "Want Travel Insurance?",
-  "getItHere": "Get It Here"
+  "getItHere": "Get It Here",
+  "errorLoadingTours": "Could not load tours. Please try again later."
 }
