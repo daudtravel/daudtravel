@@ -256,11 +256,12 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
             disabled={personCount <= 1}
             variant="outline"
             size="sm"
+            aria-label={t("decrementPerson")}
             className="h-8 w-8 bg-transparent"
           >
             <Minus className="h-3 w-3" />
           </Button>
-          <span className="text-lg font-medium w-6 text-center">
+          <span className="text-lg font-medium w-6 text-center" aria-live="polite">
             {personCount}
           </span>
           <Button
@@ -268,6 +269,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
             disabled={personCount >= (data.maxPersons || 8)}
             variant="outline"
             size="sm"
+            aria-label={t("incrementPerson")}
             className="h-8 w-8"
           >
             <Plus className="h-3 w-3" />

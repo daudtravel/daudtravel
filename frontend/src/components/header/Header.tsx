@@ -80,6 +80,8 @@ export default function Header() {
             <button
               onClick={() => setIsServicesOpen(!isServicesOpen)}
               onMouseEnter={() => setIsServicesOpen(true)}
+              aria-expanded={isServicesOpen}
+              aria-haspopup="menu"
               className="relative tracking-widest text-base font-bold text-brand-green leading-none group cursor-pointer px-4 py-2 flex items-center gap-1"
             >
               {t("services") || "Services"}
