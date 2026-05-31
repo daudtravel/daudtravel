@@ -75,13 +75,14 @@ export class AuthController {
         message: 'CODE_SEND',
         email: dto.email,
       };
-    } catch (error: any) {
-      if (error.response?.timeRemaining !== undefined) {
+    } catch (error: unknown) {
+      const err = error as { response?: { timeRemaining?: number }; message?: string };
+      if (err.response?.timeRemaining !== undefined) {
         return {
           statusCode: HttpStatus.TOO_MANY_REQUESTS,
-          message: error.message,
+          message: err.message,
           email: dto.email,
-          timeRemaining: error.response.timeRemaining,
+          timeRemaining: err.response.timeRemaining,
         };
       }
       throw error;
@@ -194,7 +195,7 @@ export class AuthController {
       },
     },
   })
-  async checkAuthStatus(@Request() req: any): Promise<AuthStatusResponseDto> {
+  async checkAuthStatus(@Request() req: { user: AuthStatusResponseDto['user'] }): Promise<AuthStatusResponseDto> {
     return { user: req.user };
   }
 }

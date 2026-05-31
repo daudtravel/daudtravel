@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsInt, Min, Max, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, Min, Max, MaxLength, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDriverReviewDto {
@@ -9,6 +9,7 @@ export class CreateDriverReviewDto {
   rating: number;
 
   @IsString()
+  @MaxLength(1000)
   @IsOptional()
   comment?: string;
 

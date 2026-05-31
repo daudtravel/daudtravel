@@ -12,9 +12,9 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  BadRequestException,
 } from '@nestjs/common';
 import { TransferPaymentsService } from './transfer-payments.service';
+import { CreateTransferPaymentDto } from './dto/create-transfer-payment.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -31,11 +31,7 @@ export class TransferPaymentsController {
   @ApiOperation({ summary: 'Create BOG payment for transfer booking' })
   @ApiResponse({ status: 201, description: 'Payment created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid booking data' })
-  async createPayment(@Body() body: { bookingData: any }) {
-    if (!body.bookingData) {
-      throw new BadRequestException('Booking data is required');
-    }
-
+  async createPayment(@Body() body: CreateTransferPaymentDto) {
     return this.transferPaymentsService.createPayment(body.bookingData);
   }
 

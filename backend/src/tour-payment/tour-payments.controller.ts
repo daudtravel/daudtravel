@@ -12,9 +12,9 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  BadRequestException,
 } from '@nestjs/common';
 import { TourPaymentsService } from './tour-payments.service';
+import { CreateTourPaymentDto } from './dto/create-tour-payment.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -29,11 +29,7 @@ export class TourPaymentsController {
   @ApiOperation({ summary: 'Create BOG payment for tour booking' })
   @ApiResponse({ status: 201, description: 'Payment created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid booking data' })
-  async createPayment(@Body() body: { bookingData: any }) {
-    if (!body.bookingData) {
-      throw new BadRequestException('Booking data is required');
-    }
-
+  async createPayment(@Body() body: CreateTourPaymentDto) {
     return this.tourPaymentsService.createPayment(body.bookingData);
   }
 

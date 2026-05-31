@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsBoolean,
   IsArray,
+  IsEmail,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -78,7 +79,7 @@ export class InitiatePaymentDto {
   customerFullName: string;
 
   @ApiProperty({ example: 'john@example.com' })
-  @IsString()
+  @IsEmail()
   customerEmail: string;
 
   @ApiPropertyOptional({ example: '+995555123456' })
