@@ -20,6 +20,7 @@ import {
 import { format, startOfDay, addDays } from "date-fns";
 import { ka, enUS, ar, tr, ru } from "date-fns/locale";
 import { useLocale } from "next-intl";
+import { compressImage } from "@/src/utlis/image-compressor";
 
 import {
   useInsuranceSettings,
@@ -164,7 +165,7 @@ export default function InsuranceSubmissionPage() {
     );
   };
 
-  const handleImageUpload = (
+  const handleImageUpload = async (
     id: string,
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -176,14 +177,18 @@ export default function InsuranceSubmissionPage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       alert(t("imageTooLarge"));
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
+    try {
+      const base64 = await compressImage(file, {
+        maxWidth: 1200,
+        maxHeight: 1600,
+        quality: 0.8,
+        outputFormat: "image/jpeg",
+      });
       setPeople((prev) =>
         prev.map((p) =>
           p.id === id
@@ -191,8 +196,21 @@ export default function InsuranceSubmissionPage() {
             : p
         )
       );
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      // Fallback: read without compression
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        setPeople((prev) =>
+          prev.map((p) =>
+            p.id === id
+              ? { ...p, passportPhoto: base64, passportPreview: base64 }
+              : p
+          )
+        );
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const removeImage = (id: string) => {

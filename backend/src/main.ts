@@ -24,8 +24,8 @@ async function bootstrap() {
   app.use('/api/quick-payment/bog/callback', raw({ type: 'application/json' }));
   app.use('/api/insurance/bog/callback', raw({ type: 'application/json' }));
 
-  app.use(json({ limit: '10mb' }));
-  app.use(urlencoded({ extended: true, limit: '10mb' }));
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
   app.use(cookieParser());
   app.setGlobalPrefix('api');
   app.useStaticAssets(join(__dirname, '..', 'public'), {
