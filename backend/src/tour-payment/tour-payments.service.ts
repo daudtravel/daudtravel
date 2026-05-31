@@ -23,7 +23,7 @@ interface TourBookingData {
   email: string;
   phone: string;
   peopleAmount: number;
-  selectedDate: Date;
+  selectedDate: string | Date;
   tourDurationDays?: number;
   tourDurationNights?: number;
   paymentType: boolean;

@@ -23,8 +23,8 @@ interface TransferBookingData {
   email: string;
   phone: string;
   passengerCount: number;
-  transferDate: Date;
-  transferTime: Date;
+  transferDate: string | Date;
+  transferTime: string | Date;
   vehicleType: VehicleType;
   paymentAmount: number;
   locale?: string;
