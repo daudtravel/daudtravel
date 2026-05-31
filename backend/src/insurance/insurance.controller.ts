@@ -47,7 +47,7 @@ export class InsuranceController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'BOG payment callback' })
   async handleCallback(
-    @Req() req: any,
+    @Req() req: { body: Buffer | string | object },
     @Headers('callback-signature') signature: string,
   ) {
     const rawBody = Buffer.isBuffer(req.body)
@@ -74,7 +74,7 @@ export class InsuranceController {
     @Param('submissionId') submissionId: string,
     @Param('personId') personId: string,
     @Headers('authorization') authHeader: string,
-    @Req() req: any,
+    @Req() req: { user?: unknown },
     @Res() res: Response,
   ) {
     // Check if user is authenticated via JWT (req.user will be set by middleware if valid token)

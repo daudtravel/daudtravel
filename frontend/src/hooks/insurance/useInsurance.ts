@@ -53,48 +53,6 @@ export const useDeleteInsuranceSubmission = () => {
     mutationFn: insuranceService.deleteSubmission,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["insurance-submissions"] });
-      queryClient.invalidateQueries({ queryKey: ["insurance-stats"] });
     },
-  });
-};
-
-// Maintenance
-export const useCleanupOldSubmissions = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: insuranceService.cleanupOldSubmissions,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["insurance-submissions"] });
-      queryClient.invalidateQueries({ queryKey: ["insurance-stats"] });
-    },
-  });
-};
-
-export const useCleanupAbandonedSubmissions = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: insuranceService.cleanupAbandonedSubmissions,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["insurance-submissions"] });
-      queryClient.invalidateQueries({ queryKey: ["insurance-stats"] });
-    },
-  });
-};
-
-export const useBulkDeleteSubmissions = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: insuranceService.bulkDeleteSubmissions,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["insurance-submissions"] });
-      queryClient.invalidateQueries({ queryKey: ["insurance-stats"] });
-    },
-  });
-};
-
-export const useInsuranceStats = () => {
-  return useQuery({
-    queryKey: ["insurance-stats"],
-    queryFn: () => insuranceService.getStorageStats(),
   });
 };

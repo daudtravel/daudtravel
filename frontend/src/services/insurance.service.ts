@@ -74,35 +74,4 @@ export const insuranceService = {
     return data;
   },
 
-  // Maintenance endpoints
-  cleanupOldSubmissions: async (monthsOld?: number) => {
-    const params = monthsOld ? `?monthsOld=${monthsOld}` : "";
-    const { data } = await axiosInstance.post(
-      `/insurance/maintenance/cleanup-old${params}`
-    );
-    return data;
-  },
-
-  cleanupAbandonedSubmissions: async (daysOld?: number) => {
-    const params = daysOld ? `?daysOld=${daysOld}` : "";
-    const { data } = await axiosInstance.post(
-      `/insurance/maintenance/cleanup-abandoned${params}`
-    );
-    return data;
-  },
-
-  bulkDeleteSubmissions: async (submissionIds: string[]) => {
-    const { data } = await axiosInstance.post(
-      "/insurance/maintenance/bulk-delete",
-      {
-        submissionIds,
-      }
-    );
-    return data;
-  },
-
-  getStorageStats: async () => {
-    const { data } = await axiosInstance.get("/insurance/maintenance/stats");
-    return data;
-  },
 };
