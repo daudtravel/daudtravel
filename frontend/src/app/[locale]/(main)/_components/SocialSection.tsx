@@ -19,6 +19,7 @@ export const SocialSection = () => {
           href="https://snapchat.com/t/8hVjNvTK"
           className="hover:opacity-70 transition-opacity"
           aria-label="Snapchat"
+          rel="noopener noreferrer"
         >
           <Snapchat className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -27,6 +28,7 @@ export const SocialSection = () => {
           href="https://youtube.com/@daud_travel?si=FIOhdNS_KLMb_8Me"
           className="hover:opacity-70 transition-opacity"
           aria-label="Youtube"
+          rel="noopener noreferrer"
         >
           <Youtube className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -35,6 +37,7 @@ export const SocialSection = () => {
           href="https://www.tiktok.com/@daud_travel?_t=8qj9xNGY8dm&_r=1"
           className="hover:opacity-70 transition-opacity"
           aria-label="TikTok"
+          rel="noopener noreferrer"
         >
           <Tiktok className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -43,6 +46,7 @@ export const SocialSection = () => {
           href="https://www.instagram.com/daud_travel?igsh=dWlxZnYybGJwb2Rx&utm_source=qr"
           className="hover:opacity-70 transition-opacity"
           aria-label="Instagram"
+          rel="noopener noreferrer"
         >
           <Instagram className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -51,6 +55,7 @@ export const SocialSection = () => {
           href="https://www.facebook.com/share/mfSUtXxwN4HnpaQW/?mibextid=LQQJ4d1"
           className="hover:opacity-70 transition-opacity"
           aria-label="Facebook"
+          rel="noopener noreferrer"
         >
           <Facebook className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -59,6 +64,7 @@ export const SocialSection = () => {
           href="https://t.me/daud_travel"
           className="hover:opacity-70 transition-opacity"
           aria-label="Telegram"
+          rel="noopener noreferrer"
         >
           <Telegram className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -67,6 +73,7 @@ export const SocialSection = () => {
           href="https://wa.me/995557442212"
           className="hover:opacity-70 transition-opacity"
           aria-label="WhatsApp"
+          rel="noopener noreferrer"
         >
           <Whatsapp className="w-6 h-6 md:w-7 md:h-7" />
         </a>
@@ -75,6 +82,7 @@ export const SocialSection = () => {
           href="https://twitter.com/daud_travel"
           className="hover:opacity-70 transition-opacity"
           aria-label="X"
+          rel="noopener noreferrer"
         >
           <X className="w-6 h-6 md:w-7 md:h-7" />
         </a>

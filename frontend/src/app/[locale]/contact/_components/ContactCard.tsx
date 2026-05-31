@@ -187,6 +187,7 @@ const ContactCard: React.FC = () => {
                   href="https://snapchat.com/t/8hVjNvTK"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="Snapchat"
+                  rel="noopener noreferrer"
                 >
                   <Snapchat className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -195,6 +196,7 @@ const ContactCard: React.FC = () => {
                   href="https://youtube.com/@daud_travel?si=FIOhdNS_KLMb_8Me"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="Youtube"
+                  rel="noopener noreferrer"
                 >
                   <Youtube className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -203,6 +205,7 @@ const ContactCard: React.FC = () => {
                   href="https://www.tiktok.com/@daud_travel?_t=8qj9xNGY8dm&_r=1"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="TikTok"
+                  rel="noopener noreferrer"
                 >
                   <Tiktok className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -211,6 +214,7 @@ const ContactCard: React.FC = () => {
                   href="https://www.instagram.com/daud_travel?igsh=dWlxZnYybGJwb2Rx&utm_source=qr"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="Instagram"
+                  rel="noopener noreferrer"
                 >
                   <Instagram className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -219,6 +223,7 @@ const ContactCard: React.FC = () => {
                   href="https://www.facebook.com/share/mfSUtXxwN4HnpaQW/?mibextid=LQQJ4d1"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="Facebook"
+                  rel="noopener noreferrer"
                 >
                   <Facebook className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -227,6 +232,7 @@ const ContactCard: React.FC = () => {
                   href="https://t.me/daud_travel"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="Telegram"
+                  rel="noopener noreferrer"
                 >
                   <Telegram className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -235,6 +241,7 @@ const ContactCard: React.FC = () => {
                   href="https://wa.me/995557442212"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="WhatsApp"
+                  rel="noopener noreferrer"
                 >
                   <Whatsapp className="w-7 h-7 fill-brand-cream" />
                 </a>
@@ -243,6 +250,7 @@ const ContactCard: React.FC = () => {
                   href="https://twitter.com/daud_travel"
                   className="hover:opacity-70 transition-opacity"
                   aria-label="X"
+                  rel="noopener noreferrer"
                 >
                   <X className="w-7 h-7 fill-brand-cream" />
                 </a>
