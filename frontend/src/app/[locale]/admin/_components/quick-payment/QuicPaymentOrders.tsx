@@ -76,8 +76,9 @@ export const QuickPaymentOrders = () => {
       if (orders.length === 1 && page > 1) {
         setPage(page - 1);
       }
-    } catch (error: any) {
-      alert(`შეცდომა: ${error.message}`);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "შეცდომა";
+      alert(`შეცდომა: ${msg}`);
     } finally {
       setDeletingOrderId(null);
     }

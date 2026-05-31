@@ -15,6 +15,9 @@ import { TourCard } from "../../tours/_components/TourCard";
 import { useState, useEffect } from "react";
 import { useTours } from "@/src/hooks/tours/useTours";
 import { TourType } from "../../admin/_components/tours/create-tour/CreateTourValidator";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
+
+type CarouselApi = UseEmblaCarouselType[1];
 
 interface ToursCarouselSectionProps {
   type: TourType;
@@ -26,7 +29,7 @@ export default function ToursCarouselSection({
   titleKey,
 }: ToursCarouselSectionProps) {
   const t = useTranslations("main");
-  const [api, setApi] = useState<any>(null);
+  const [api, setApi] = useState<CarouselApi>(null);
   const [current, setCurrent] = useState(0);
 
   const { data: toursData, isLoading } = useTours({ type });

@@ -7,13 +7,16 @@ import {
   CarouselItem,
 } from "@/src/components/ui/carousel";
 import { useState, useEffect } from "react";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
 import { usePublicQuickLinks } from "@/src/hooks/quick-payment/useQuickPayment";
+
+type CarouselApi = UseEmblaCarouselType[1];
 import { Loader2, ShoppingCart, Package } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 export default function PublicProductsCarousel() {
-  const [api, setApi] = useState<any>(null);
+  const [api, setApi] = useState<CarouselApi>(null);
   const [current, setCurrent] = useState(0);
   const t = useTranslations("main");
 

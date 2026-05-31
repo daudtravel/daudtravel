@@ -210,7 +210,7 @@ const TransferOrdersDashboard = () => {
       alert("წარუმატებელი შეკვეთები წაიშალა");
       queryClient.invalidateQueries({ queryKey: ["admin", "transfer-orders"] });
     },
-    onError: (err: any) => alert(`წაშლა ვერ მოხერხდა: ${err?.message || "უცნობი შეცდომა"}`),
+    onError: (err: Error) => alert(`წაშლა ვერ მოხერხდა: ${err?.message || "უცნობი შეცდომა"}`),
   });
 
   const paid    = orders.filter((o) => o.status?.toUpperCase() === "PAID").length;

@@ -50,8 +50,8 @@ export function TransfersList() {
     setDeleteError(null);
     deleteTransfer(id, {
       onSuccess: () => {},
-      onError: (error: any) => {
-        const msg = error?.response?.data?.message || TRANSFER_MESSAGES.DELETE_ERROR;
+      onError: (error: unknown) => {
+        const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || TRANSFER_MESSAGES.DELETE_ERROR;
         setDeleteError(msg);
       },
     });

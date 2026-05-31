@@ -94,8 +94,9 @@ export function EditTransfer({ params }: { params: { id: string } }) {
           setSuccessMessage(TRANSFER_MESSAGES.UPDATE_SUCCESS);
           setTimeout(() => router.push("?transfers=all"), 1500);
         },
-        onError: (error: any) => {
-          setErrorMessage(error?.response?.data?.message || TRANSFER_MESSAGES.GENERIC_ERROR);
+        onError: (error: unknown) => {
+          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          setErrorMessage(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
         },
       }
     );

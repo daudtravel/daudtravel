@@ -16,13 +16,16 @@ import PoPularToursLoader from "@/src/components/shared/loader/PoPularToursLoade
 import { useParams } from "next/navigation";
 import { TourCard } from "../../tours/_components/TourCard";
 import { useState, useEffect } from "react";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
+
+type CarouselApi = UseEmblaCarouselType[1];
 
 export default function IndividualToursSection() {
   const t = useTranslations("main");
   const params = useParams();
   const locale = params.locale as string;
 
-  const [api, setApi] = useState<any>(null);
+  const [api, setApi] = useState<CarouselApi>(null);
   const [current, setCurrent] = useState(0);
 
   const { data: toursData, isLoading } = useQuery({

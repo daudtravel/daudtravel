@@ -124,7 +124,7 @@ export function DriversList() {
   const { mutate: deleteDriver, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => driversAPI.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["drivers"] }),
-    onError: (err: any) => alert(err?.message || "წაშლა ვერ მოხერხდა"),
+    onError: (err: Error) => alert(err?.message || "წაშლა ვერ მოხერხდა"),
   });
 
   if (isLoading) {
