@@ -267,7 +267,7 @@ export function Drivers() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {drivers.map((driver: Driver) => (
-          <Card key={driver.id} className="overflow-hidden bg-[#f2f5ff] shadow-xl">
+          <Card key={driver.id} className="overflow-hidden bg-white border border-brand-green-100 shadow-xl">
             <CardHeader className="text-center pb-2">
               <Image
                 src={

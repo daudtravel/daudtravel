@@ -12,12 +12,12 @@ import { MapPin } from "lucide-react";
 
 export const SocialSection = () => {
   return (
-    <div className="border-t flex sticky border-t-slate-200 shadow-lg bottom-0 w-full z-50 justify-center items-center flex-col py-4 md:py-5 bg-[#f2f5ff]">
+    <div className="border-t flex sticky border-t-brand-green-100 shadow-lg bottom-0 w-full z-50 justify-center items-center flex-col py-4 md:py-5 bg-white">
       <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8">
         <a
           target="_blank"
           href="https://snapchat.com/t/8hVjNvTK"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="Snapchat"
         >
           <Snapchat className="w-6 h-6 md:w-7 md:h-7" />
@@ -25,7 +25,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://youtube.com/@daud_travel?si=FIOhdNS_KLMb_8Me"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="Youtube"
         >
           <Youtube className="w-6 h-6 md:w-7 md:h-7" />
@@ -33,7 +33,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://www.tiktok.com/@daud_travel?_t=8qj9xNGY8dm&_r=1"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="TikTok"
         >
           <Tiktok className="w-6 h-6 md:w-7 md:h-7" />
@@ -41,7 +41,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://www.instagram.com/daud_travel?igsh=dWlxZnYybGJwb2Rx&utm_source=qr"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="Instagram"
         >
           <Instagram className="w-6 h-6 md:w-7 md:h-7" />
@@ -49,7 +49,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://www.facebook.com/share/mfSUtXxwN4HnpaQW/?mibextid=LQQJ4d1"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="Facebook"
         >
           <Facebook className="w-6 h-6 md:w-7 md:h-7" />
@@ -57,7 +57,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://t.me/daud_travel"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="Telegram"
         >
           <Telegram className="w-6 h-6 md:w-7 md:h-7" />
@@ -65,7 +65,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://wa.me/995557442212"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="WhatsApp"
         >
           <Whatsapp className="w-6 h-6 md:w-7 md:h-7" />
@@ -73,7 +73,7 @@ export const SocialSection = () => {
         <a
           target="_blank"
           href="https://twitter.com/daud_travel"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
           aria-label="X"
         >
           <X className="w-6 h-6 md:w-7 md:h-7" />
@@ -83,9 +83,9 @@ export const SocialSection = () => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Address"
-          className="hover:fill-main"
+          className="hover:opacity-70 transition-opacity"
         >
-          <MapPin className="w-6 h-6 md:w-7 md:h-7 hover:text-main" />
+          <MapPin className="w-6 h-6 md:w-7 md:h-7" />
         </a>
       </div>
     </div>

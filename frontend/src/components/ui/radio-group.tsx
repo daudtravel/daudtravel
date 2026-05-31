@@ -34,7 +34,7 @@ const RadioGroupItem = React.forwardRef<
       {...props}
     >
       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-2 w-2 fill-current text-main" />
+        <Circle className="h-2 w-2 fill-current text-brand-green" />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );

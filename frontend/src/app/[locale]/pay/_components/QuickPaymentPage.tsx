@@ -52,7 +52,7 @@ const inputClass = (error?: string) =>
   `pl-10 h-11 rounded-xl border bg-white text-sm transition-colors duration-150 outline-none focus-visible:ring-0 ${
     error
       ? "border-red-400 focus-visible:border-red-400"
-      : "border-gray-200 focus-visible:border-main"
+      : "border-gray-200 focus-visible:border-brand-green"
   }`;
 
 interface LanguageSwitcherProps {
@@ -83,7 +83,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
               isActive
                 ? dark
                   ? "bg-white/20 text-white border border-white/30"
-                  : "bg-main text-white"
+                  : "bg-brand-green text-brand-cream"
                 : dark
                   ? "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20"
                   : "bg-white border border-gray-200 text-gray-600 hover:border-gray-400"
@@ -138,7 +138,7 @@ const FormContent: React.FC<FormContentProps> = ({
           type="button"
           onClick={() => setQuantity((q) => Math.max(1, q - 1))}
           disabled={quantity <= 1 || paying}
-          className="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center disabled:opacity-30 transition-colors hover:border-main hover:text-main"
+          className="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center disabled:opacity-30 transition-colors hover:border-brand-green hover:text-brand-green"
         >
           <Minus className="w-3.5 h-3.5" />
         </button>
@@ -149,7 +149,7 @@ const FormContent: React.FC<FormContentProps> = ({
           type="button"
           onClick={() => setQuantity((q) => Math.min(100, q + 1))}
           disabled={quantity >= 100 || paying}
-          className="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center disabled:opacity-30 transition-colors hover:border-main hover:text-main"
+          className="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center disabled:opacity-30 transition-colors hover:border-brand-green hover:text-brand-green"
         >
           <Plus className="w-3.5 h-3.5" />
         </button>
@@ -251,7 +251,7 @@ const FormContent: React.FC<FormContentProps> = ({
       <button
         onClick={handlePay}
         disabled={paying}
-        className="w-full flex items-center justify-center gap-2.5 bg-main text-white rounded-2xl text-base font-semibold active:scale-[0.98] disabled:opacity-60 transition-all duration-200 shadow-lg shadow-black/10 py-4"
+        className="w-full flex items-center justify-center gap-2.5 bg-brand-yellow text-brand-green rounded-2xl text-base font-bold active:scale-[0.98] disabled:opacity-60 transition-all duration-200 shadow-lg shadow-black/10 py-4"
       >
         {paying ? (
           <>
@@ -272,9 +272,9 @@ const FormContent: React.FC<FormContentProps> = ({
       </div>
     </div>
 
-    <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5 flex items-start gap-2.5">
-      <Info className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
-      <p className="text-xs text-blue-700 leading-relaxed">
+    <div className="bg-brand-green-50 border border-brand-green-100 rounded-xl p-3.5 flex items-start gap-2.5">
+      <Info className="w-4 h-4 text-brand-green-mid mt-0.5 shrink-0" />
+      <p className="text-xs text-brand-green leading-relaxed">
         {t("returnNotice")}
       </p>
     </div>
@@ -373,7 +373,7 @@ export const QuickPaymentPage: React.FC<Props> = ({
       <style>{`
         .phone-input-custom .PhoneInputCountry { margin-left: 2rem; }
         .phone-input-custom .PhoneInputInput { background: transparent; outline: none; font-size: 0.875rem; width: 100%; }
-        .phone-input-custom:focus-within { border-color: var(--color-main) !important; }
+        .phone-input-custom:focus-within { border-color: #1B5C35 !important; }
       `}</style>
 
       <div className="hidden md:flex min-h-screen bg-[#f8f6f1]">

@@ -102,7 +102,7 @@ const ReviewsSection = () => {
           {reviews.map((item, index) => (
             <CarouselItem
               key={index}
-              className="w-full rounded-xl border border-gray-300 bg-[#f2f5ff] md:basis-1/2 lg:basis-1/3"
+              className="w-full rounded-xl border border-brand-green-100 bg-brand-green-50 md:basis-1/2 lg:basis-1/3"
             >
               <div className="flex h-full flex-col justify-between p-6">
                 <div>
@@ -121,8 +121,8 @@ const ReviewsSection = () => {
           ))}
         </CarouselContent>
         <div className="hidden md:block md:absolute -top-20 md:right-20 lg:right-40">
-          <CarouselPrevious className="bg-mainGradient text-white w-10 h-10 border-white rounded-md border hover:bg-mainGradientHover hover:text-white" />
-          <CarouselNext className="bg-mainGradient text-white w-10 h-10 border-white rounded-md border hover:bg-mainGradientHover hover:text-white" />
+          <CarouselPrevious className="bg-brand-green text-brand-cream w-10 h-10 border-brand-green-mid rounded-md border hover:bg-brand-green-dark hover:text-brand-cream" />
+          <CarouselNext className="bg-brand-green text-brand-cream w-10 h-10 border-brand-green-mid rounded-md border hover:bg-brand-green-dark hover:text-brand-cream" />
         </div>
       </Carousel>
       <motion.div
@@ -140,7 +140,7 @@ const ReviewsSection = () => {
           whileTap="tap"
           variants={buttonVariants}
         >
-          <Button className="bg-mainGradient hover:bg-mainGradientHover text-white px-6 py-2 text-sm md:text-base rounded-md transition-all duration-300">
+          <Button className="bg-brand-green hover:bg-brand-green-dark text-brand-cream px-6 py-2 text-sm md:text-base rounded-md transition-all duration-300">
             {t("viewAllReviews")}
           </Button>
         </motion.a>

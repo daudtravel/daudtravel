@@ -75,7 +75,7 @@ export default function IndividualToursSection() {
   };
 
   return (
-    <section className="w-full py-10 md:pt-12 lg:pt-20 pb-12 flex flex-col gap-8 md:gap-16 bg-[#f2f5ff]">
+    <section className="w-full py-10 md:pt-12 lg:pt-20 pb-12 flex flex-col gap-8 md:gap-16 bg-brand-green-50">
       <motion.div
         className="w-full md:px-20 flex justify-between items-center px-4"
         initial="hidden"
@@ -92,7 +92,7 @@ export default function IndividualToursSection() {
 
           <motion.div
             variants={underlineVariants}
-            className="h-[2px] w-80 md:w-[600px] bg-mainGradient"
+            className="h-[2px] w-80 md:w-[600px] bg-brand-green"
           />
         </div>
       </motion.div>
@@ -140,8 +140,8 @@ export default function IndividualToursSection() {
               transition={{ duration: 0.6, delay: 0.6 }}
               viewport={{ once: true }}
             >
-              <CarouselPrevious className="bg-mainGradient text-white w-8 h-8 lg:w-10 lg:h-10 border-white border hover:bg-mainGradientHover hover:text-white hover:shadow-lg rounded-md transition-all duration-300" />
-              <CarouselNext className="bg-mainGradient text-white w-8 h-8 lg:w-10 lg:h-10 border-white border hover:bg-mainGradientHover hover:text-white hover:shadow-lg rounded-md transition-all duration-300" />
+              <CarouselPrevious className="bg-brand-green text-brand-cream w-8 h-8 lg:w-10 lg:h-10 border-brand-green-mid border hover:bg-brand-green-dark hover:text-brand-cream hover:shadow-lg rounded-md transition-all duration-300" />
+              <CarouselNext className="bg-brand-green text-brand-cream w-8 h-8 lg:w-10 lg:h-10 border-brand-green-mid border hover:bg-brand-green-dark hover:text-brand-cream hover:shadow-lg rounded-md transition-all duration-300" />
             </motion.div>
           </Carousel>
           <div className="flex justify-center gap-2 mt-2">
@@ -149,7 +149,7 @@ export default function IndividualToursSection() {
               <button
                 key={index}
                 className={`h-2 rounded-full transition-all ${
-                  current === index ? "w-4 bg-mainGradient" : "w-2 bg-gray-300"
+                  current === index ? "w-4 bg-brand-green" : "w-2 bg-gray-300"
                 }`}
                 onClick={() => api?.scrollTo(index)}
                 aria-label={`Go to slide ${index + 1}`}

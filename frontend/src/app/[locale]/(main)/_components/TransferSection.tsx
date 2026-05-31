@@ -11,19 +11,19 @@ const TransferSection = () => {
 
   const transferFeatures = [
     {
-      icon: <Car className="w-8 h-8 text-[orange] mb-4" />,
+      icon: <Car className="w-8 h-8 text-brand-green mb-4" />,
       title: t("modernCars"),
     },
     {
-      icon: <Clock className="w-8 h-8 text-[#ffa500] mb-4" />,
+      icon: <Clock className="w-8 h-8 text-brand-green mb-4" />,
       title: t("available"),
     },
     {
-      icon: <Shield className="w-8 h-8 text-[orange] mb-4" />,
+      icon: <Shield className="w-8 h-8 text-brand-green mb-4" />,
       title: t("licensedDrivers"),
     },
     {
-      icon: <MapPin className="w-8 h-8 text-[orange] mb-4" />,
+      icon: <MapPin className="w-8 h-8 text-brand-green mb-4" />,
       title: t("doorToDoor"),
     },
   ];
@@ -106,7 +106,7 @@ const TransferSection = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#f2f5ff] px-4 md:px-20 py-12">
+    <section className="relative overflow-hidden bg-brand-green-50 px-4 md:px-20 py-12">
       <div className="w-full relative z-10">
         <motion.h2
           className="text-2xl md:text-3xl mb-6 text-center font-semibold tracking-widest pb-4"

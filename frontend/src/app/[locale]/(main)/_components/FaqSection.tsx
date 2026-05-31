@@ -34,11 +34,11 @@ export default function FaqSection() {
     }));
   };
 
-  const bgColor = (value: string) => (openItems[value] ? "#DFE6FC" : "#f2f5ff");
+  const bgColor = (value: string) => (openItems[value] ? "#D8EFE3" : "#F0F7F3");
 
   if (isLoading) {
     return (
-      <section className="bg-[#f2f5ff] w-full px-6 py-12 sm:px-16 md:px-20">
+      <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
         <h1 className="text-xl">{t("faq")}</h1>
         <div className="mt-6 flex justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
@@ -49,7 +49,7 @@ export default function FaqSection() {
 
   if (error) {
     return (
-      <section className="bg-[#f2f5ff] w-full px-6 py-12 sm:px-16 md:px-20">
+      <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
         <h1 className="text-xl">{t("faq")}</h1>
         <div className="mt-6 text-red-500">
           {t("error_loading_faqs", { defaultValue: "Error loading FAQs" })}
@@ -59,7 +59,7 @@ export default function FaqSection() {
   }
 
   return (
-    <section className="bg-[#f2f5ff] w-full px-6 py-12 sm:px-16 md:px-20">
+    <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
       <h1 className="text-xl">{t("faq")}</h1>
       {faqs.length === 0
         ? null

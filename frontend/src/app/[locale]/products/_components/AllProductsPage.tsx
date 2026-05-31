@@ -79,7 +79,7 @@ export default function AllProductsPage() {
 
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-brand-green transition-colors">
                         {product.name}
                       </h3>
                       {product.description && (
@@ -93,7 +93,7 @@ export default function AllProductsPage() {
                       <div className="text-2xl font-bold text-green-600">
                         ₾{product.price}
                       </div>
-                      <div className="flex items-center gap-2 text-blue-600 group-hover:text-blue-800 transition-colors">
+                      <div className="flex items-center gap-2 text-brand-green-mid group-hover:text-brand-green transition-colors">
                         <ShoppingCart size={20} />
                         <span className="font-medium text-sm">შეძენა</span>
                       </div>
@@ -151,7 +151,7 @@ export default function AllProductsPage() {
                     onClick={() => setPage(pageNum)}
                     className={`w-10 h-10 rounded-lg transition-colors ${
                       page === pageNum
-                        ? " bg-main text-white"
+                        ? "bg-brand-green text-brand-cream"
                         : "bg-white border border-gray-300 hover:bg-gray-50"
                     }`}
                   >

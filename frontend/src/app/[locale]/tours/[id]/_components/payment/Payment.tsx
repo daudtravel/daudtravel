@@ -162,7 +162,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
             </div>
             <div className="flex justify-between text-sm font-medium">
               <span className="text-gray-600">{t("payNowReservation")}</span>
-              <span className="text-orange-500">
+              <span className="text-brand-green font-medium">
                 ₾ {prices.reservationPrice.toFixed(2)}
               </span>
             </div>
@@ -194,7 +194,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
             <div className="border-t pt-2 mt-2">
               <div className="flex justify-between items-center">
                 <span className="font-medium">{t("totalPayNow")}</span>
-                <span className="text-lg font-bold text-orange-500">
+                <span className="text-lg font-bold text-brand-green">
                   ₾{" "}
                   {(prices.discountedPrice > 0
                     ? prices.discountedPrice
@@ -323,7 +323,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
               <PriceDisplay isReservation={paymentType === "reservation"} />
               <PaymentTypeSelector prefix="individual-" />
               <Button
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                className="w-full bg-brand-yellow hover:bg-brand-yellow-dark text-brand-green font-bold"
                 onClick={handlePayment}
               >
                 <CreditCard className="mr-2 h-4 w-4" />
@@ -348,7 +348,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
               </div>
               <PriceDisplay isReservation={paymentType === "reservation"} />
               <Button
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                className="w-full bg-brand-yellow hover:bg-brand-yellow-dark text-brand-green font-bold"
                 onClick={handlePayment}
               >
                 <CreditCard className="mr-2 h-4 w-4" />
@@ -375,7 +375,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
               </Button>
               <Button
                 asChild
-                className="w-full bg-main hover:bg-mainHover text-white"
+                className="w-full bg-brand-green hover:bg-brand-green-dark text-brand-cream"
               >
                 <a href="/contact" target="_blank" rel="noopener noreferrer">
                   {t("seeAllContactMethods")}

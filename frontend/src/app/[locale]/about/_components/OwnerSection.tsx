@@ -14,7 +14,7 @@ const OwnerSection = () => {
         className={`flex flex-col lg:flex-row items-start gap-8 px-4 md:px-0 ${isRTL ? "lg:flex-row-reverse" : ""}`}
       >
         <div className="w-full lg:w-1/3">
-          <div className="relative h-[400px] w-full border-2 border-[#f2f5ff] rounded-lg overflow-hidden shadow-xl">
+          <div className="relative h-[400px] w-full border-2 border-brand-green-100 rounded-lg overflow-hidden shadow-xl">
             <Image
               src={img}
               alt="Davit Bolkvadze"
@@ -29,13 +29,13 @@ const OwnerSection = () => {
           className={`w-full lg:w-2/3 space-y-6 ${isRTL ? "lg:text-right" : ""}`}
         >
           <h2
-            className={`text-2xl sm:text-3xl h-12 font-bold text-center ${isRTL ? "lg:text-right" : "lg:text-left"} bg-clip-text text-transparent bg-mainGradient`}
+            className={`text-2xl sm:text-3xl h-12 font-bold text-center ${isRTL ? "lg:text-right" : "lg:text-left"} text-brand-green`}
           >
             {t("founder")}
           </h2>
 
           <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-white border border-brand-green-100 p-4 rounded-lg shadow-sm">
               <h3
                 className={`font-semibold text-lg text-gray-800 mb-2 ${isRTL ? "text-right" : ""}`}
               >
@@ -48,7 +48,7 @@ const OwnerSection = () => {
               </p>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-white border border-brand-green-100 p-4 rounded-lg shadow-sm">
               <h3
                 className={`font-semibold text-lg text-gray-800 mb-2 ${isRTL ? "text-right" : ""}`}
               >
@@ -61,7 +61,7 @@ const OwnerSection = () => {
               </p>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-white border border-brand-green-100 p-4 rounded-lg shadow-sm">
               <h3
                 className={`font-semibold text-lg text-gray-800 mb-2 ${isRTL ? "text-right" : ""}`}
               >

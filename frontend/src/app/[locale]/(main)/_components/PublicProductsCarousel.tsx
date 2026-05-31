@@ -58,7 +58,7 @@ export default function PublicProductsCarousel() {
   }
 
   return (
-    <section className="w-full py-10 md:pt-12 lg:pt-20 pb-12 flex flex-col gap-8 md:gap-16 bg-[#f2f5ff]">
+    <section className="w-full py-10 md:pt-12 lg:pt-20 pb-12 flex flex-col gap-8 md:gap-16 bg-brand-green-50">
       <motion.div
         className="w-full md:px-20 px-4"
         initial="hidden"
@@ -75,7 +75,7 @@ export default function PublicProductsCarousel() {
 
           <Link
             href="/products"
-            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-mainGradient text-white rounded-lg hover:bg-mainGradientHover transition-all hover:shadow-lg font-medium"
+            className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-brand-green text-brand-cream rounded-lg hover:bg-brand-green-dark transition-all hover:shadow-lg font-medium"
           >
             {t("viewMore")}
           </Link>
@@ -83,7 +83,7 @@ export default function PublicProductsCarousel() {
 
         <motion.div
           variants={underlineVariants}
-          className="h-[2px] w-80 md:w-[600px] bg-mainGradient"
+          className="h-[2px] w-80 md:w-[600px] bg-brand-green"
         />
       </motion.div>
 
@@ -171,7 +171,7 @@ export default function PublicProductsCarousel() {
               <button
                 key={index}
                 className={`h-2 rounded-full transition-all ${
-                  current === index ? "w-4 bg-mainGradient" : "w-2 bg-gray-300"
+                  current === index ? "w-4 bg-brand-green" : "w-2 bg-gray-300"
                 }`}
                 onClick={() => api?.scrollTo(index)}
                 aria-label={`Go to slide ${index + 1}`}
@@ -181,7 +181,7 @@ export default function PublicProductsCarousel() {
 
           <Link
             href="/products"
-            className="md:hidden flex items-center gap-2 px-6 py-3 bg-mainGradient text-white rounded-lg hover:bg-mainGradientHover transition-colors"
+            className="md:hidden flex items-center gap-2 px-6 py-3 bg-brand-green text-brand-cream rounded-lg hover:bg-brand-green-dark transition-colors"
           >
             {t("viewMore")}
           </Link>

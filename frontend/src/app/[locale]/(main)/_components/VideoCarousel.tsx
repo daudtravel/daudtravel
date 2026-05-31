@@ -128,8 +128,8 @@ export default function VideoCarousel({
           ))}
         </CarouselContent>
         <div className="hidden md:block md:absolute -top-20 md:right-20 lg:right-40">
-          <CarouselPrevious className="bg-mainGradient text-white w-8 h-8 md:w-10 md:h-10 border-white rounded-md border hover:bg-mainGradientHover hover:text-white" />
-          <CarouselNext className="bg-mainGradient text-white w-8 h-8 md:w-10 md:h-10 border-white rounded-md border hover:bg-mainGradientHover hover:text-white" />
+          <CarouselPrevious className="bg-brand-green text-brand-cream w-8 h-8 md:w-10 md:h-10 border-brand-green-mid rounded-md border hover:bg-brand-green-dark hover:text-brand-cream" />
+          <CarouselNext className="bg-brand-green text-brand-cream w-8 h-8 md:w-10 md:h-10 border-brand-green-mid rounded-md border hover:bg-brand-green-dark hover:text-brand-cream" />
         </div>
       </Carousel>
     </section>

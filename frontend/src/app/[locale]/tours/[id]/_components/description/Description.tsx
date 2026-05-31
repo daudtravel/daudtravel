@@ -119,7 +119,7 @@ const Description = React.memo<DescriptionProps>(({ data }) => {
     value: string | React.ReactNode;
   }) => (
     <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4 text-main" />
+      <Icon className="w-4 h-4 text-brand-green" />
       <span className="text-sm font-semibold">{label}:</span>
       <span className="text-sm">{value}</span>
     </div>

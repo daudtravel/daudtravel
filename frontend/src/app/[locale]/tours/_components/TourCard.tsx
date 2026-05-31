@@ -21,7 +21,7 @@ import { Button } from "@/src/components/ui/button";
 
 const LocationPin = ({ location }: { location: string }) => (
   <div className="flex flex-col items-center relative">
-    <MapPin className="w-5 h-5 text-main" />
+    <MapPin className="w-5 h-5 text-brand-green" />
     <div className="h-10 text-center mt-2 w-20">
       <span className="text-xs font-medium block overflow-hidden text-ellipsis text-center">
         {location}
@@ -124,7 +124,7 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
   };
 
   return (
-    <div className="flex flex-col w-full bg-[#f2f5ff] border border-gray-300 rounded-xl shadow-xs overflow-hidden transition-all duration-300 hover:shadow-lg h-full">
+    <div className="flex flex-col w-full bg-white border border-brand-green-100 rounded-xl shadow-xs overflow-hidden transition-all duration-300 hover:shadow-lg h-full">
       <Link className="w-full h-full flex flex-col" href={`/tours/${tour.id}`}>
         <div className="relative w-full h-[200px] md:h-[230px] flex-shrink-0">
           {!imageLoaded && !imageError && (
@@ -134,9 +134,9 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             className={`absolute top-4 ${isRTL ? "left-4" : "right-4"} z-10`}
           >
             {isIndividual ? (
-              <User className="w-6 h-6 text-white bg-main rounded-full p-1" />
+              <User className="w-6 h-6 text-white bg-brand-green rounded-full p-1" />
             ) : (
-              <Users className="w-6 h-6 text-white bg-main rounded-full p-1" />
+              <Users className="w-6 h-6 text-white bg-brand-green rounded-full p-1" />
             )}
           </div>
           <Image
@@ -161,20 +161,20 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
           dir={isRTL ? "rtl" : "ltr"}
         >
           <div className="flex items-center gap-2">
-            <TextIcon className="w-4 h-4 text-main" />
+            <TextIcon className="w-4 h-4 text-brand-green" />
             <span className="text-sm line-clamp-1">{localization?.name}</span>
           </div>
 
           <div className="flex md:items-center gap-3 md:gap-0 flex-col md:flex-row md:justify-between">
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-main" />
+              <MapPin className="w-4 h-4 text-brand-green" />
               <span className="text-sm font-bold">{t("startLocation")}:</span>
               <span className="text-sm line-clamp-1">
                 {localization?.startLocation}
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <Calendar1 className="w-4 h-4 text-main" />
+              <Calendar1 className="w-4 h-4 text-brand-green" />
               <span className="text-sm">
                 {tour.days} {t("day")}
               </span>
@@ -189,20 +189,20 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
           <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:items-center md:justify-between">
             {isIndividual && tour.maxPersons && (
               <div className="flex items-center gap-2">
-                <PersonStanding className="w-4 h-4 text-main" />
+                <PersonStanding className="w-4 h-4 text-brand-green" />
                 <span className="text-sm font-bold">{t("numOfPersons")}:</span>
                 <span className="text-sm">{tour.maxPersons}</span>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <Wallet className="w-4 h-4 text-main" />
+              <Wallet className="w-4 h-4 text-brand-green" />
               <span className="text-sm font-bold">{t("price")}: </span>
               {renderPrice()}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <CalendarDays className="w-4 h-4 text-main" />
+            <CalendarDays className="w-4 h-4 text-brand-green" />
             <span className="text-sm font-bold">{t("startDate")}:</span>
             <span className="text-sm">
               {isIndividual || !tour.startDate
@@ -215,9 +215,9 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
 
           <div className="flex items-center gap-2">
             {isIndividual ? (
-              <User className="w-4 h-4 text-main" />
+              <User className="w-4 h-4 text-brand-green" />
             ) : (
-              <Users className="w-4 h-4 text-main" />
+              <Users className="w-4 h-4 text-brand-green" />
             )}
             <span className="text-sm font-bold">{t("tourType")}:</span>
             <span className="text-sm">
@@ -234,7 +234,7 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
                 <LocationPin location={display[0]} />
                 {hasMore && (
                   <div className="flex flex-col items-center relative px-2">
-                    <MoreHorizontal className="w-5 h-5 text-main z-10" />
+                    <MoreHorizontal className="w-5 h-5 text-brand-green z-10" />
                     <span className="text-xs font-medium text-gray-500 text-center mt-2">
                       +{moreCount} {t("stops")}
                     </span>

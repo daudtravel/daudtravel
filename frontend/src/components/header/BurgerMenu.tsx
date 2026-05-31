@@ -45,11 +45,8 @@ export default function BurgerMenu() {
       if (!pathname.startsWith(`/${locale}/tours`)) {
         return false;
       }
-
       const isGroupParam = new URLSearchParams(queryString).get("type");
-
       const currentIsGroup = searchParams.get("type");
-
       return isGroupParam === currentIsGroup;
     }
 
@@ -68,18 +65,17 @@ export default function BurgerMenu() {
             <Button
               variant="outline"
               size="icon"
-              className="lg:hidden relative overflow-hidden group border border-main h-9"
+              className="lg:hidden relative overflow-hidden group border border-brand-green-100 bg-white hover:bg-brand-green-50 h-9 text-brand-green hover:text-brand-green"
             >
-              <MenuIcon className="h-6 w-6 transition-transform duration-300 text-main group-hover:scale-110" />
-              <span className="absolute inset-0 bg-gray-100 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+              <MenuIcon className="h-6 w-6 transition-transform duration-300 text-brand-green group-hover:scale-110" />
             </Button>
           </SheetTrigger>
 
           <SheetContent
             side="right"
-            className="border-l border-gray-200 shadow-lg"
+            className="border-l border-brand-green-100 shadow-lg bg-brand-green"
           >
-            <SheetTitle className="text-lg font-semibold pb-3 border-b border-gray-200">
+            <SheetTitle className="text-lg font-semibold pb-3 border-b border-brand-green-mid text-brand-yellow">
               {t("daudTravel")}
             </SheetTitle>
 
@@ -92,8 +88,8 @@ export default function BurgerMenu() {
                       href={item.href}
                       className={`text-sm py-4 px-1 transition-all duration-300 hover:pl-3 relative group ${
                         active
-                          ? "font-bold text-main pl-3"
-                          : "font-medium hover:text-main"
+                          ? "font-bold text-brand-yellow pl-3"
+                          : "font-medium text-brand-cream hover:text-brand-yellow"
                       }`}
                       prefetch={false}
                       onClick={closeSheet}
@@ -102,7 +98,7 @@ export default function BurgerMenu() {
                     </Link>
 
                     {index < menuItems.length - 1 && (
-                      <div className="h-px w-full bg-gray-100"></div>
+                      <div className="h-px w-full bg-brand-green-mid/50"></div>
                     )}
                   </div>
                 );

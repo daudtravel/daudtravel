@@ -113,28 +113,29 @@ const ContactCard: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen py-10 relative md:px-10">
+    <div className="flex justify-center items-center min-h-screen py-10 relative md:px-10 bg-brand-green-50">
       <div className="w-full max-w-5xl flex flex-col h-full md:flex-row gap-6 px-4">
-        <Card className="w-full md:w-1/3 border border-gray-300 shadow-lg bg-[#f2f5ff]">
+        {/* Info card */}
+        <Card className="w-full md:w-1/3 border border-brand-green-100 shadow-lg bg-brand-green text-brand-cream">
           <CardHeader>
-            <CardTitle className="text-base md:text-xl font-bold text-center md:text-start">
+            <CardTitle className="text-base md:text-xl font-bold text-center md:text-start text-brand-yellow">
               {t("contactInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 mt-1" />
+                <MapPin className="w-5 h-5 mt-1 text-brand-yellow shrink-0" />
                 <div>
-                  <h3 className="text-sm md:text-base font-semibold">
+                  <h3 className="text-sm md:text-base font-semibold text-brand-cream">
                     {t("ourOffice")}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-brand-cream/70">
                     <a
                       href="https://maps.app.goo.gl/RHHMAjJzBT8hhVAp8"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:underline hover:text-main"
+                      className="hover:underline hover:text-brand-yellow"
                     >
                       {CONTACT_INFO.address}
                     </a>
@@ -143,15 +144,15 @@ const ContactCard: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5" />
+                <Phone className="w-5 h-5 text-brand-yellow shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-sm md:text-bas">
+                  <h3 className="font-semibold text-sm md:text-base text-brand-cream">
                     {t("phone")}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-brand-cream/70">
                     <a
                       href={`tel:${CONTACT_INFO.phone.replace(/[^0-9+]/g, "")}`}
-                      className="hover:underline hover:text-main"
+                      className="hover:underline hover:text-brand-yellow"
                     >
                       {CONTACT_INFO.phone}
                     </a>
@@ -160,15 +161,15 @@ const ContactCard: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5" />
+                <Mail className="w-5 h-5 text-brand-yellow shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-sm md:text-bas">
+                  <h3 className="font-semibold text-sm md:text-base text-brand-cream">
                     {t("email")}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-brand-cream/70">
                     <a
                       href={`mailto:${CONTACT_INFO.email}`}
-                      className="hover:underline hover:text-main"
+                      className="hover:underline hover:text-brand-yellow"
                     >
                       {CONTACT_INFO.email}
                     </a>
@@ -176,124 +177,128 @@ const ContactCard: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="pt-6 border-t">
-              <h3 className="font-semibold text-base md:text-lg mb-4 text-center md:text-start">
+
+            <div className="pt-6 border-t border-brand-green-mid">
+              <h3 className="font-semibold text-base md:text-lg mb-4 text-center md:text-start text-brand-yellow">
                 {t("followUs")}
               </h3>
               <div className="grid grid-cols-5 gap-y-4 items-center">
                 <a
                   target="_blank"
                   href="https://snapchat.com/t/8hVjNvTK"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="Snapchat"
                 >
-                  <Snapchat className="w-7 h-7" />
+                  <Snapchat className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://youtube.com/@daud_travel?si=FIOhdNS_KLMb_8Me"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="Youtube"
                 >
-                  <Youtube className="w-7 h-7" />
+                  <Youtube className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://www.tiktok.com/@daud_travel?_t=8qj9xNGY8dm&_r=1"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="TikTok"
                 >
-                  <Tiktok className="w-7 h-7" />
+                  <Tiktok className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://www.instagram.com/daud_travel?igsh=dWlxZnYybGJwb2Rx&utm_source=qr"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="Instagram"
                 >
-                  <Instagram className="w-7 h-7" />
+                  <Instagram className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://www.facebook.com/share/mfSUtXxwN4HnpaQW/?mibextid=LQQJ4d1"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="Facebook"
                 >
-                  <Facebook className="w-7 h-7" />
+                  <Facebook className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://t.me/daud_travel"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="Telegram"
                 >
-                  <Telegram className="w-7 h-7" />
+                  <Telegram className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://wa.me/995557442212"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="WhatsApp"
                 >
-                  <Whatsapp className="w-7 h-7" />
+                  <Whatsapp className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   target="_blank"
                   href="https://twitter.com/daud_travel"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                   aria-label="X"
                 >
-                  <X className="w-7 h-7" />
+                  <X className="w-7 h-7 fill-brand-cream" />
                 </a>
                 <a
                   href="https://www.google.com/maps/place/Daud+Travel/@41.6443898,41.6346718,696m/data=!3m2!1e3!4b1!4m6!3m5!1s0x406787f6f7466e93:0x69bea43bb941487c!8m2!3d41.6443898!4d41.6346718!16s%2Fg%2F11s2jbmn0l?entry=ttu&g_ep=EgoyMDI0MTAyOS4wIKXMDSoASAFQAw%3D%3D"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Address"
-                  className="hover:fill-main"
+                  className="hover:opacity-70 transition-opacity"
                 >
-                  <MapPin className="w-7 h-7 hover:text-main" />
+                  <MapPin className="w-7 h-7 text-brand-cream" />
                 </a>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="w-full md:w-2/3 border-gray-300 shadow-lg min-h-[32rem] bg-[#f2f5ff]">
+        {/* Form card */}
+        <Card className="w-full md:w-2/3 border border-brand-green-100 shadow-lg min-h-[32rem] bg-white">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base md:text-2xl font-bold text-center md:text-start">
+            <CardTitle className="text-base md:text-2xl font-bold text-center md:text-start text-brand-green">
               {t("sendUsMessage")}
             </CardTitle>
-            <CardDescription>{t("sendUsDescribe")}</CardDescription>
+            <CardDescription className="text-brand-green-mid">
+              {t("sendUsDescribe")}
+            </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit} className="flex flex-col h-full">
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">{t("firstName")}</Label>
+                  <Label htmlFor="firstName" className="text-brand-green font-medium">{t("firstName")}</Label>
                   <Input
                     id="firstName"
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
                     required
-                    className="h-10"
+                    className="h-10 border-brand-green-100 focus-visible:ring-brand-green"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">{t("lastName")}</Label>
+                  <Label htmlFor="lastName" className="text-brand-green font-medium">{t("lastName")}</Label>
                   <Input
                     id="lastName"
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
                     required
-                    className="h-10"
+                    className="h-10 border-brand-green-100 focus-visible:ring-brand-green"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">{t("email")}</Label>
+                <Label htmlFor="email" className="text-brand-green font-medium">{t("email")}</Label>
                 <Input
                   id="email"
                   name="email"
@@ -301,33 +306,35 @@ const ContactCard: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="h-10"
+                  className="h-10 border-brand-green-100 focus-visible:ring-brand-green"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="message">{t("message")}</Label>
+                <Label htmlFor="message" className="text-brand-green font-medium">{t("message")}</Label>
                 <Textarea
                   id="message"
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="h-32 resize-none"
+                  className="h-32 resize-none border-brand-green-100 focus-visible:ring-brand-green"
                 />
               </div>
               {result && (
                 <div
-                  className={`text-sm ${result.includes("Success") ? "text-green-600" : "text-red-600"}`}
+                  className={`text-sm ${result.includes("Success") ? "text-brand-green font-medium" : "text-red-600"}`}
                 >
                   {result}
                 </div>
               )}
-              <CardFooter className="mt-auto">
-                <Button type="submit" className="w-full" disabled={loading}>
+              <CardFooter className="mt-auto px-0">
+                <Button
+                  type="submit"
+                  className="w-full bg-brand-yellow hover:bg-brand-yellow-dark text-brand-green font-bold"
+                  disabled={loading}
+                >
                   {loading ? (
-                    <span className="flex items-center gap-2">
-                      {t("sending")}
-                    </span>
+                    <span className="flex items-center gap-2">{t("sending")}</span>
                   ) : (
                     <span className="flex items-center gap-2">
                       {t("sendMessage")}

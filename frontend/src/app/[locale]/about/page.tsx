@@ -119,7 +119,7 @@ function Page() {
   const isRTL = currentLocale === "ar";
 
   return (
-    <div className="min-h-screen w-full pb-8 md:px-20 lg:py-12">
+    <div className="min-h-screen w-full pb-8 md:px-20 lg:py-12 bg-brand-green-50">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -165,7 +165,7 @@ function Page() {
           className={`w-full lg:w-2/3 space-y-8 ${isRTL ? "lg:pl-4" : "lg:pr-4"}`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 w-full">
-            <div className="relative h-80 sm:h-[400px] w-full border-2 border-[#f2f5ff] lg:rounded-lg overflow-hidden md:shadow-xl">
+            <div className="relative h-80 sm:h-[400px] w-full border-2 border-brand-green-100 lg:rounded-lg overflow-hidden md:shadow-xl">
               <Image
                 src={About1}
                 alt="Daud Travel team providing premium tourism services in Georgia"
@@ -176,7 +176,7 @@ function Page() {
               />
             </div>
             <div
-              className={`relative hidden xl:flex ${isRTL ? "sm:left-10" : "sm:right-10"} sm:top-20 sm:z-10 border-2 border-[#f2f5ff] h-96 sm:h-[400px] w-full rounded-lg overflow-hidden shadow-xl`}
+              className={`relative hidden xl:flex ${isRTL ? "sm:left-10" : "sm:right-10"} sm:top-20 sm:z-10 border-2 border-brand-green-100 h-96 sm:h-[400px] w-full rounded-lg overflow-hidden shadow-xl`}
             >
               <Image
                 src={About2}
@@ -191,19 +191,19 @@ function Page() {
         <div
           className={`w-full lg:w-1/2 lg:mt-0 px-4 md:px-0 ${isRTL ? "lg:text-right" : ""}`}
         >
-          <h1 className="text-2xl sm:text-4xl h-16 font-bold text-center bg-clip-text text-transparent bg-mainGradient">
+          <h1 className="text-2xl sm:text-4xl h-16 font-bold text-center text-brand-green">
             {t("aboutUs")}
           </h1>
 
           <div className="space-y-4 w-full text-gray-700 mt-4 md:mt-8 lg:mt-10">
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-white border border-brand-green-100 p-4 rounded-lg shadow-sm">
               <p
                 className={`text-sm sm:text-base ${isRTL ? "text-right" : ""}`}
               >
                 {t("about1")}
               </p>
             </div>
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-white border border-brand-green-100 p-4 rounded-lg shadow-sm">
               <p
                 className={`text-sm sm:text-base ${isRTL ? "text-right" : ""}`}
               >

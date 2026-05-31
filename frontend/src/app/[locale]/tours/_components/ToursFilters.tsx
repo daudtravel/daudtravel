@@ -85,12 +85,12 @@ export default function ToursFilters({
 
   return (
     <div
-      className="bg-[#f2f5ff] border border-gray-300 rounded-xl shadow-xs p-6"
+      className="bg-brand-green-50 border border-brand-green-100 rounded-xl shadow-xs p-6"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl flex items-center text-main font-semibold">
-          <Filter className={`${isRTL ? "ml-2" : "mr-2"} w-5 h-5 text-main`} />
+        <h3 className="text-xl flex items-center text-brand-green font-semibold">
+          <Filter className={`${isRTL ? "ml-2" : "mr-2"} w-5 h-5 text-brand-green`} />
           {t("filter")}
         </h3>
       </div>
