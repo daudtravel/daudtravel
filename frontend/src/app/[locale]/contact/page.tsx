@@ -28,11 +28,11 @@ export async function generateMetadata({
     alternates: {
       canonical: currentUrl,
       languages: {
-        en: `${baseUrl}/en`,
-        ka: `${baseUrl}/ka`,
-        ru: `${baseUrl}/ru`,
-        tr: `${baseUrl}/tr`,
-        ar: `${baseUrl}/ar`,
+        en: `${baseUrl}/en/contact`,
+        ka: `${baseUrl}/ka/contact`,
+        ru: `${baseUrl}/ru/contact`,
+        tr: `${baseUrl}/tr/contact`,
+        ar: `${baseUrl}/ar/contact`,
       },
     },
 
@@ -94,20 +94,74 @@ export async function generateMetadata({
       ],
     },
 
-    // Additional structured data hints
-    other: {
-      "og:image:alt": t("contact"),
-      "og:locale:alternate": locale === "en" ? "ka_GE" : "en_US",
+    twitter: {
+      card: "summary_large_image",
+      site: "@daudtravel",
+      title: t("contact"),
+      description: t("descriptionContact"),
+      images: [`${baseUrl}/images/MainOG.jpg`],
     },
   };
 
   return metadata;
 }
 
-export default async function page() {
+export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const baseUrl = "https://www.daudtravel.com";
+
+  const contactJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "@id": `${baseUrl}/${locale}/contact`,
+    name: "Contact Daud Travel",
+    url: `${baseUrl}/${locale}/contact`,
+    mainEntity: {
+      "@type": "TravelAgency",
+      "@id": `${baseUrl}/#organization`,
+      name: "Daud Travel",
+      url: baseUrl,
+      telephone: "+995557442212",
+      email: "traveldaud@gmail.com",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "St.Chabua Amirejibi #4",
+        addressLocality: "Batumi",
+        addressCountry: "GE",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: "41.6443898",
+        longitude: "41.6346718",
+      },
+      sameAs: [
+        "https://www.facebook.com/share/mfSUtXxwN4HnpaQW/",
+        "https://www.instagram.com/daud_travel",
+        "https://youtube.com/@daud_travel",
+      ],
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${baseUrl}/${locale}` },
+      { "@type": "ListItem", position: 2, name: "Contact", item: `${baseUrl}/${locale}/contact` },
+    ],
+  };
+
   return (
-    <>
+    <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <ContactCard />
-    </>
+    </main>
   );
 }

@@ -27,11 +27,11 @@ export async function generateMetadata({
     alternates: {
       canonical: currentUrl,
       languages: {
-        en: `${baseUrl}/en`,
-        ka: `${baseUrl}/ka`,
-        ru: `${baseUrl}/ru`,
-        tr: `${baseUrl}/tr`,
-        ar: `${baseUrl}/ar`,
+        en: `${baseUrl}/en/products`,
+        ka: `${baseUrl}/ka/products`,
+        ru: `${baseUrl}/ru/products`,
+        tr: `${baseUrl}/tr/products`,
+        ar: `${baseUrl}/ar/products`,
       },
     },
 
@@ -53,9 +53,12 @@ export async function generateMetadata({
       ],
     },
 
-    other: {
-      "og:image:alt": t("products"),
-      "og:locale:alternate": locale === "en" ? "ka_GE" : "en_US",
+    twitter: {
+      card: "summary_large_image",
+      site: "@daudtravel",
+      title: t("products"),
+      description: t("descriptionProducts"),
+      images: [`${baseUrl}/images/MainOG.jpg`],
     },
   };
 }

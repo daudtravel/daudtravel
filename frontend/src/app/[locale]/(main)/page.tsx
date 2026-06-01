@@ -13,6 +13,9 @@ import VideoCarousel from "./_components/VideoCarousel";
 import PublicProductsCarousel from "./_components/PublicProductsCarousel";
 import InsuranceSection from "./_components/InsuranceSection";
 
+const BASE_URL = "https://www.daudtravel.com";
+const locales = ["ka", "en", "ru", "ar", "tr"] as const;
+
 export async function generateMetadata({
   params,
 }: {
@@ -20,9 +23,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations("meta");
-
-  const baseUrl = "https://www.daudtravel.com";
-  const currentUrl = `${baseUrl}/${locale}`;
+  const currentUrl = `${BASE_URL}/${locale}`;
 
   const metadata: Metadata = {
     title: t("main"),
@@ -31,34 +32,32 @@ export async function generateMetadata({
     authors: [{ name: "Daud Travel" }],
     creator: "Daud Travel",
     publisher: "Daud Travel",
+    category: "Travel",
 
     alternates: {
       canonical: currentUrl,
-      languages: {
-        en: `${baseUrl}/en`,
-        ka: `${baseUrl}/ka`,
-        ru: `${baseUrl}/ru`,
-        tr: `${baseUrl}/tr`,
-        ar: `${baseUrl}/ar`,
-      },
+      languages: Object.fromEntries(
+        locales.map((l) => [l, `${BASE_URL}/${l}`])
+      ),
     },
+
     openGraph: {
       title: t("main"),
       description: t("descriptionMain"),
       type: "website",
-      locale: locale,
+      locale,
       url: currentUrl,
       siteName: "Daud Travel",
       images: [
         {
-          url: `${baseUrl}/images/MainOG.jpg`,
+          url: `${BASE_URL}/images/MainOG.jpg`,
           width: 1200,
           height: 630,
           alt: t("main"),
-          type: "image/png",
+          type: "image/jpeg",
         },
         {
-          url: `${baseUrl}/images/MainOG-square.png`,
+          url: `${BASE_URL}/images/MainOG-square.png`,
           width: 1080,
           height: 1080,
           alt: t("main"),
@@ -67,7 +66,13 @@ export async function generateMetadata({
       ],
     },
 
-    category: "Travel",
+    twitter: {
+      card: "summary_large_image",
+      site: "@daudtravel",
+      title: t("main"),
+      description: t("descriptionMain"),
+      images: [`${BASE_URL}/images/MainOG.jpg`],
+    },
 
     robots: {
       index: true,
@@ -85,9 +90,37 @@ export async function generateMetadata({
   return metadata;
 }
 
+// Static WebSite + SearchAction JSON-LD for the home page
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${BASE_URL}/#website`,
+  name: "Daud Travel",
+  url: BASE_URL,
+  description:
+    "Leading travel agency in Georgia offering premium tours, transfers, and travel insurance.",
+  publisher: {
+    "@type": "TravelAgency",
+    "@id": `${BASE_URL}/#organization`,
+    name: "Daud Travel",
+  },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${BASE_URL}/en/tours?search={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function Page() {
   return (
     <main className="w-full relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
       <CoverSection />
       <ToursCarouselSection
         type={TourType.INDIVIDUAL}

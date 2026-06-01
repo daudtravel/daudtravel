@@ -31,11 +31,11 @@ export async function generateMetadata({
     alternates: {
       canonical: currentUrl,
       languages: {
-        en: `${baseUrl}/en`,
-        ka: `${baseUrl}/ka`,
-        ru: `${baseUrl}/ru`,
-        tr: `${baseUrl}/tr`,
-        ar: `${baseUrl}/ar`,
+        en: `${baseUrl}/en/about`,
+        ka: `${baseUrl}/ka/about`,
+        ru: `${baseUrl}/ru/about`,
+        tr: `${baseUrl}/tr/about`,
+        ar: `${baseUrl}/ar/about`,
       },
     },
 
@@ -102,11 +102,12 @@ export async function generateMetadata({
       ],
     },
 
-    other: {
-      "article:author": "Daud Travel",
-      "article:publisher": "Daud Travel",
-      "og:image:alt": t("about"),
-      "og:locale:alternate": locale === "en" ? "ka_GE" : "en_US",
+    twitter: {
+      card: "summary_large_image",
+      site: "@daudtravel",
+      title: t("about"),
+      description: t("descriptionAbout"),
+      images: [`${baseUrl}/images/About1.jpg`],
     },
   };
 
@@ -152,8 +153,31 @@ function Page() {
               "Nature Tours",
             ],
             priceRange: "$$",
-            telephone: "+995-XXX-XXX-XXX",
-            email: "info@daudtravel.com",
+            telephone: "+995557442212",
+            email: "traveldaud@gmail.com",
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: `https://www.daudtravel.com/${currentLocale}`,
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "About",
+                item: `https://www.daudtravel.com/${currentLocale}/about`,
+              },
+            ],
           }),
         }}
       />

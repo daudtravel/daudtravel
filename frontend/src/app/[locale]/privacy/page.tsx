@@ -1,4 +1,29 @@
 import React from "react";
+import type { Metadata } from "next";
+import { Locale } from "@/src/i18n/routing";
+
+const BASE_URL = "https://www.daudtravel.com";
+const locales = ["ka", "en", "ru", "ar", "tr"] as const;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Privacy Policy | Daud Travel",
+    description:
+      "Read the Daud Travel privacy policy to understand how we collect, use, and protect your personal information when you book tours and transfers in Georgia.",
+    alternates: {
+      canonical: `${BASE_URL}/${locale}/privacy`,
+      languages: Object.fromEntries(
+        locales.map((l) => [l, `${BASE_URL}/${l}/privacy`])
+      ),
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 const PrivacyPolicy = () => {
   const policyContent = [

@@ -106,9 +106,20 @@ export async function generateMetadata({
 
     twitter: {
       card: "summary_large_image",
+      site: "@daudtravel",
       title,
       description,
       images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
   };
 }

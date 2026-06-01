@@ -1,4 +1,29 @@
 import React from "react";
+import type { Metadata } from "next";
+import { Locale } from "@/src/i18n/routing";
+
+const BASE_URL = "https://www.daudtravel.com";
+const locales = ["ka", "en", "ru", "ar", "tr"] as const;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: "Terms & Conditions | Daud Travel",
+    description:
+      "Read the Daud Travel terms and conditions for booking tours, transfers, and travel services in Georgia. Understand our booking, payment, cancellation, and refund policies.",
+    alternates: {
+      canonical: `${BASE_URL}/${locale}/terms`,
+      languages: Object.fromEntries(
+        locales.map((l) => [l, `${BASE_URL}/${l}/terms`])
+      ),
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 const TermsAndConditions = () => {
   const termsContent = [

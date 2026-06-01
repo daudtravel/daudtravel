@@ -1,77 +1,175 @@
-"use client";
+import { Metadata } from "next";
+import TransferDetailsClient from "./_components/TransferDetailsClient";
 
-import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
-import { Loader2, AlertCircle } from "lucide-react";
-import { useTransferById } from "@/src/hooks/transfers/useTransfersById";
-import { BookingPanel, BookingData } from "../_components/booking/BookingPanel";
-import PaymentModal from "../_components/booking/PaymentModal";
-import { VehicleType } from "@/src/types/transfers.types";
+const BASE_URL = "https://www.daudtravel.com";
+const locales = ["ka", "en", "ru", "ar", "tr"] as const;
 
-export default function TransferDetailsPage() {
-  const t = useTranslations("transfers");
-  const locale = useLocale();
-  const params = useParams();
-  const transferId = params.id as string;
+interface PageProps {
+  params: Promise<{ id: string; locale: string }>;
+}
 
-  const [bookingData, setBookingData] = useState<BookingData | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+async function getTransfer(id: string, locale: string) {
+  const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/transfers/${id}?locale=${locale}`;
+  try {
+    const res = await fetch(url, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
 
-  const { data: response, isLoading, isError } = useTransferById(transferId, locale);
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { id, locale } = await params;
+  const response = await getTransfer(id, locale);
   const transfer = response?.data;
-  const localization = transfer?.localizations?.[0];
-  const startLocation = localization?.startLocation || "—";
-  const endLocation = localization?.endLocation || "—";
-  const vehicles = (transfer?.vehicleTypes || []).map((v) => ({
-    id: v.id!,
-    type: v.type as VehicleType,
-    price: v.price,
-    maxPersons: v.maxPersons,
-  }));
 
-  const handleBook = (data: BookingData) => {
-    setBookingData(data);
-    setModalOpen(true);
+  if (!transfer) {
+    return {
+      title: "Transfer Not Found",
+      description: "The requested transfer could not be found.",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const localization =
+    transfer.localizations?.find(
+      (l: { locale: string }) => l.locale === locale
+    ) ?? transfer.localizations?.[0];
+
+  const startLocation = localization?.startLocation ?? "Georgia";
+  const endLocation = localization?.endLocation ?? "destination";
+  const title = `Transfer: ${startLocation} → ${endLocation} | Daud Travel`;
+  const description = `Book a comfortable transfer from ${startLocation} to ${endLocation} with Daud Travel. Professional drivers, modern vehicles, competitive prices.`;
+  const currentUrl = `${BASE_URL}/${locale}/transfers/${id}`;
+
+  return {
+    title,
+    description,
+    keywords: `transfer ${startLocation} ${endLocation}, taxi Georgia, airport transfer, private transfer Georgia, Daud Travel transport`,
+    authors: [{ name: "Daud Travel" }],
+    creator: "Daud Travel",
+    publisher: "Daud Travel",
+    alternates: {
+      canonical: currentUrl,
+      languages: Object.fromEntries(
+        locales.map((l) => [l, `${BASE_URL}/${l}/transfers/${id}`])
+      ),
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      locale,
+      url: currentUrl,
+      siteName: "Daud Travel",
+      images: [
+        {
+          url: `${BASE_URL}/images/MainOG.jpg`,
+          width: 1200,
+          height: 630,
+          alt: title,
+          type: "image/jpeg",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@daudtravel",
+      title,
+      description,
+      images: [`${BASE_URL}/images/MainOG.jpg`],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
+
+export default async function TransferDetailsPage({ params }: PageProps) {
+  const { id, locale } = await params;
+  const response = await getTransfer(id, locale);
+  const transfer = response?.data;
+  const localization =
+    transfer?.localizations?.find(
+      (l: { locale: string }) => l.locale === locale
+    ) ?? transfer?.localizations?.[0];
+
+  const startLocation = localization?.startLocation ?? "";
+  const endLocation = localization?.endLocation ?? "";
+  const title = startLocation && endLocation
+    ? `Transfer: ${startLocation} → ${endLocation}`
+    : "Transfer Service";
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${BASE_URL}/${locale}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Transfers",
+        item: `${BASE_URL}/${locale}/transfers`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: title,
+        item: `${BASE_URL}/${locale}/transfers/${id}`,
+      },
+    ],
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-green-mid" />
-        <p className="text-sm text-gray-500">{t("loading") || "Loading…"}</p>
-      </div>
-    );
-  }
-
-  if (isError || !transfer) {
-    return (
-      <div className="max-w-xl mx-auto p-6 text-center">
-        <div className="inline-flex p-3 bg-red-50 rounded-full mb-4">
-          <AlertCircle className="h-6 w-6 text-red-500" />
-        </div>
-        <p className="text-red-600 font-medium">{t("errorLoadingTransfer")}</p>
-      </div>
-    );
-  }
+  const serviceJsonLd = transfer
+    ? {
+        "@context": "https://schema.org",
+        "@type": "TaxiService",
+        "@id": `${BASE_URL}/${locale}/transfers/${id}`,
+        name: title,
+        description: `Private transfer from ${startLocation} to ${endLocation} in Georgia`,
+        provider: {
+          "@type": "TravelAgency",
+          "@id": `${BASE_URL}/#organization`,
+          name: "Daud Travel",
+          url: BASE_URL,
+        },
+        areaServed: {
+          "@type": "Country",
+          name: "Georgia",
+        },
+        url: `${BASE_URL}/${locale}/transfers/${id}`,
+      }
+    : null;
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="w-full px-4 md:px-20 py-8">
-        <BookingPanel
-          transferId={transferId}
-          startLocation={startLocation}
-          endLocation={endLocation}
-          vehicles={vehicles}
-          onBook={handleBook}
-        />
-      </div>
-
-      <PaymentModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        bookingData={bookingData}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-    </main>
+      {serviceJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+        />
+      )}
+      <TransferDetailsClient />
+    </>
   );
 }
