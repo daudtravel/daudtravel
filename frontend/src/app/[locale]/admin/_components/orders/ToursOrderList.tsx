@@ -18,6 +18,18 @@ import {
   XCircle,
   AlertTriangle,
 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/components/ui/alert-dialog";
 import { useTourOrders } from "@/src/hooks/tours/useTourOrders";
 
 const TourOrdersList = () => {
@@ -205,7 +217,7 @@ const TourOrdersList = () => {
                   <Wallet className="w-4 h-4 text-gray-500" />
                   <span className="text-sm text-gray-600">სრული თანხა:</span>
                 </div>
-                <span className="text-sm font-bold text-gray-900">
+                <span className="text-sm font-medium text-gray-900">
                   ₾{data.totalTourPrice}
                 </span>
               </div>
@@ -215,7 +227,7 @@ const TourOrdersList = () => {
                   <Wallet className="w-4 h-4 text-green-600" />
                   <span className="text-sm text-gray-600">გადახდილი:</span>
                 </div>
-                <span className="text-sm font-bold text-green-600">
+                <span className="text-sm font-medium text-green-600">
                   ₾{data.amountPaid}
                 </span>
               </div>
@@ -226,7 +238,7 @@ const TourOrdersList = () => {
                     <Wallet className="w-4 h-4 text-orange-600" />
                     <span className="text-sm text-gray-600">დარჩენილი:</span>
                   </div>
-                  <span className="text-sm font-bold text-orange-600">
+                  <span className="text-sm font-medium text-orange-600">
                     ₾{amountRemaining}
                   </span>
                 </div>
@@ -253,7 +265,7 @@ const TourOrdersList = () => {
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900">
             ტურების შეკვეთები
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -272,14 +284,41 @@ const TourOrdersList = () => {
             />
             <span className="text-sm">განახლება</span>
           </Button>
-          <Button
-            onClick={handleDeleteFailed}
-            variant="outline"
-            className="flex-1 sm:flex-none hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-          >
-            <XCircle className="w-4 h-4 mr-2" />
-            <span className="text-sm">წაშლა</span>
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex-1 sm:flex-none hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                disabled={loading}
+              >
+                <XCircle className="w-4 h-4 mr-2" />
+                <span className="text-sm">წარუმ. წაშლა</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>წარუმატებელი შეკვეთების წაშლა</AlertDialogTitle>
+                <AlertDialogDescription>
+                  დარწმუნებული ხართ? ყველა წარუმატებელი სტატუსის შეკვეთა სამუდამოდ წაიშლება.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    handleDeleteFailed().then(() => {
+                      toast.success("წარუმატებელი შეკვეთები წაიშალა");
+                    }).catch(() => {
+                      toast.error("წაშლა ვერ მოხერხდა");
+                    });
+                  }}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  წაშლა
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

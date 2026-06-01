@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Plus,
@@ -26,33 +25,33 @@ import { TRANSFER_MESSAGES } from "@/src/constants/transfers.constants";
 import { useAdminTransfers } from "@/src/hooks/transfers/useAdminTransfers";
 import { useDeleteTransfer } from "@/src/hooks/transfers/useDeleteTransfer";
 import { Transfer } from "@/src/types/transfers.types";
+import { toast } from "sonner";
 
-const VEHICLE_EMOJI: Record<string, string> = {
-  SEDAN: "🚗",
-  MINIVAN: "🚐",
-  VITO: "🚌",
-  SPRINTER: "🚌",
-  BUS: "🚍",
+const VEHICLE_LABEL: Record<string, string> = {
+  SEDAN: "სედანი",
+  MINIVAN: "მინივენი",
+  VITO: "ვიტო",
+  SPRINTER: "სპრინტერი",
+  BUS: "ავტობუსი",
 };
 
 export function TransfersList() {
   const router = useRouter();
   const params = useParams();
   const locale = params.locale as string;
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
   const { data, isLoading, isError } = useAdminTransfers({ locale });
   const { mutate: deleteTransfer, isPending: isDeleting } = useDeleteTransfer();
 
   const transfers = data?.data || [];
 
   const handleDelete = (id: string) => {
-    setDeleteError(null);
     deleteTransfer(id, {
-      onSuccess: () => {},
+      onSuccess: () => {
+        toast.success("ტრანსფერი წარმატებით წაიშალა");
+      },
       onError: (error: unknown) => {
         const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || TRANSFER_MESSAGES.DELETE_ERROR;
-        setDeleteError(msg);
+        toast.error(msg);
       },
     });
   };
@@ -80,7 +79,7 @@ export function TransfersList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">ტრანსფერები</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">ტრანსფერები</h1>
           <p className="text-sm text-gray-400 mt-0.5">სულ: {transfers.length} ტრანსფერი</p>
         </div>
         <button
@@ -91,12 +90,6 @@ export function TransfersList() {
           ახალი ტრანსფერი
         </button>
       </div>
-
-      {deleteError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-sm">
-          {deleteError}
-        </div>
-      )}
 
       {transfers.length === 0 ? (
         <div className="border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center min-h-[320px] p-8 gap-4">
@@ -138,10 +131,10 @@ export function TransfersList() {
                           მარშრუტი
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm font-bold text-gray-900 flex-wrap">
+                      <div className="flex items-center gap-2 text-sm font-medium text-gray-900 flex-wrap">
                         <span>{loc?.startLocation || "N/A"}</span>
                         <ArrowRight className="h-4 w-4 text-gray-300 shrink-0" />
-                        <span className="text-gray-700">{loc?.endLocation || "N/A"}</span>
+                        <span className="text-gray-600">{loc?.endLocation || "N/A"}</span>
                       </div>
                     </div>
 
@@ -172,8 +165,8 @@ export function TransfersList() {
                           key={vt.id}
                           className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-green-50 border border-brand-green-100 rounded-lg text-xs font-medium text-brand-green"
                         >
-                          <span>{VEHICLE_EMOJI[vt.type] || "🚗"}</span>
-                          <span>{vt.type}</span>
+                            <Car className="h-3 w-3" />
+                          <span>{VEHICLE_LABEL[vt.type] || vt.type}</span>
                           <span className="text-brand-green-mid font-normal">₾{vt.price}</span>
                         </span>
                       ))}

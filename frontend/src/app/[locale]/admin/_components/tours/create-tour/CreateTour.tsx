@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { Loader2, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Form,
@@ -122,12 +123,16 @@ export default function CreateTour() {
 
       createMutation.mutate(payload, {
         onSuccess: () => {
+          toast.success("ტური წარმატებით შეიქმნა");
           form.reset();
           setMainImagePreview(null);
           setMainImageFile(null);
           setGalleryPreviews([]);
           setGalleryFiles([]);
           router.push("?tours=all");
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : "ტურის შექმნა ვერ მოხერხდა");
         },
       });
     } catch {
@@ -186,19 +191,6 @@ export default function CreateTour() {
         <CardTitle>ახალი ტურის შექმნა</CardTitle>
       </CardHeader>
       <CardContent>
-        {createMutation.isError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {createMutation.error instanceof Error
-              ? createMutation.error.message
-              : "შეცდომა მოხდა"}
-          </div>
-        )}
-        {createMutation.isSuccess && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            ტური წარმატებით შეიქმნა
-          </div>
-        )}
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

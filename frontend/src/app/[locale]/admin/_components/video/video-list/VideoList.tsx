@@ -18,6 +18,7 @@ import {
 } from "@/src/components/ui/alert-dialog";
 import { VideoListType } from "@/src/types/video.types";
 import { videoApi } from "@/src/services/videos.service";
+import { toast } from "sonner";
 
 export function VideoList() {
   const router = useRouter();
@@ -37,8 +38,9 @@ export function VideoList() {
     try {
       await videoApi.delete(id);
       queryClient.invalidateQueries({ queryKey: ["videos"] });
+      toast.success("ვიდეო წარმატებით წაიშალა");
     } catch {
-      alert("ვიდეოს წაშლა ვერ მოხერხდა");
+      toast.error("ვიდეოს წაშლა ვერ მოხერხდა");
     }
   };
 
@@ -65,7 +67,7 @@ export function VideoList() {
   return (
     <div className="container mx-auto px-4 space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">ვიდეოები</h1>
+        <h1 className="text-xl font-semibold">ვიდეოები</h1>
         <Button onClick={handleCreateVideo} className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
           <span>ვიდეოს დამატება</span>

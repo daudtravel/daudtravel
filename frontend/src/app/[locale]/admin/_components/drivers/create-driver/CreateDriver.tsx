@@ -26,6 +26,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { driversAPI } from "@/src/services/drivers.service";
 import Image from "next/image";
+import { toast } from "sonner";
 import { handleFileToBase64 } from "@/src/utlis/base64/mainImageUpload";
 
 const CreateDriver = () => {
@@ -63,8 +64,11 @@ const CreateDriver = () => {
       }
 
       await driversAPI.post(formData);
+      toast.success("მძღოლი წარმატებით დაემატა");
       await queryClient.invalidateQueries({ queryKey: ["drivers"] });
       router.push("?drivers=all");
+    } catch {
+      toast.error("მძღოლის დამატება ვერ მოხერხდა");
     } finally {
       setIsSubmitting(false);
     }

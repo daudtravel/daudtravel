@@ -1,6 +1,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { Plus, Loader2, Pencil, Trash } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -34,8 +35,9 @@ export function FaqList() {
     try {
       await faqApi.delete(id);
       queryClient.invalidateQueries({ queryKey: ["faqs"] });
+      toast.success("FAQ წარმატებით წაიშალა");
     } catch {
-      alert("FAQ-ის წაშლა ვერ მოხერხდა");
+      toast.error("FAQ-ის წაშლა ვერ მოხერხდა");
     }
   };
 
@@ -58,7 +60,7 @@ export function FaqList() {
   return (
     <div className="container mx-auto px-4 space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-bold">ხშირად დასმული კითხვები</h1>
+        <h1 className="text-xl font-semibold">ხშირად დასმული კითხვები</h1>
         <Button onClick={handleCreateFaq} className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
           <span>კითხვის დამატება</span>

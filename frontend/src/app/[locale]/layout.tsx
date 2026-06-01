@@ -12,6 +12,7 @@ import { AuthProvider } from "@/src/auth/authProvider";
 import { CHAT_CONFIG, initWhatsAppWidget } from "@/src/utlis/chats/OnlineChats";
 import { SocialSection } from "./(main)/_components/SocialSection";
 import ConsentBanner from "@/src/components/shared/ConsentBanner";
+import { Toaster } from "sonner";
 
 export async function generateMetadata({
   params,
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
         <AuthProvider>
           <QueryProvider>
             <NextIntlClientProvider messages={messages}>
+              <Toaster position="top-right" richColors closeButton />
               <Header />
               <SignInModal />
               {children}

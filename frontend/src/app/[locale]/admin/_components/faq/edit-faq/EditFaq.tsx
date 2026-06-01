@@ -21,6 +21,7 @@ import {
 } from "@/src/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { faqApi, FAQLocalization } from "@/src/services/faq.service";
@@ -33,8 +34,6 @@ import {
 export function EditFaq({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const form = useEditFaqValidator();
 
@@ -65,7 +64,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
 
         form.reset(formData);
       } catch {
-        setErrorMessage("კითხვის დეტალების ჩატვირთვა ვერ მოხერხდა");
+        toast.error("კითხვის დეტალების ჩატვირთვა ვერ მოხერხდა");
       } finally {
         setIsLoading(false);
       }
@@ -85,7 +84,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
       );
 
       if (filteredLocalizations.length === 0) {
-        setErrorMessage("მინიმუმ ერთი სრული თარგმანი აუცილებელია");
+        toast.error("მინიმუმ ერთი სრული თარგმანი აუცილებელია");
         return;
       }
 
@@ -94,19 +93,14 @@ export function EditFaq({ params }: { params: { id: string } }) {
         category: data.category,
       });
 
-      setSuccessMessage("კითხვა წარმატებით განახლდა");
+      toast.success("კითხვა წარმატებით განახლდა");
       await queryClient.invalidateQueries({ queryKey: ["faqs"] });
-
-      setTimeout(() => {
-        router.push("?faqs=all");
-      }, 1000);
+      router.push("?faqs=all");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.message || "კითხვის განახლება ვერ მოხერხდა"
-        );
+        toast.error(error.response?.data?.message || "კითხვის განახლება ვერ მოხერხდა");
       } else {
-        setErrorMessage("მოხდა მოულოდნელი შეცდომა");
+        toast.error("მოხდა მოულოდნელი შეცდომა");
       }
     } finally {
       setIsSubmitting(false);
@@ -127,16 +121,6 @@ export function EditFaq({ params }: { params: { id: string } }) {
         <CardTitle>კითხვის რედაქტირება</CardTitle>
       </CardHeader>
       <CardContent>
-        {errorMessage && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-            {errorMessage}
-          </div>
-        )}
-        {successMessage && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-            {successMessage}
-          </div>
-        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

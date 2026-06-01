@@ -106,7 +106,7 @@ export const InsuranceSubmissionDetails: React.FC = () => {
               <ArrowLeft size={20} />
             </button>
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
                 შეკვეთის დეტალები
               </h2>
               <p className="text-gray-600 text-xs sm:text-sm mt-1 truncate">
@@ -325,7 +325,7 @@ export const InsuranceSubmissionDetails: React.FC = () => {
                       <span className="font-semibold text-gray-900">
                         საბოლოო თანხა:
                       </span>
-                      <span className="font-bold text-green-600 text-lg">
+                      <span className="font-semibold text-green-600 text-lg">
                         ₾{Number(person.finalAmount).toFixed(2)}
                       </span>
                     </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Upload, X, ArrowLeft, Languages, Plus } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { useUpdateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 import { quickPaymentService } from "@/src/services/quick-payment.service";
 
@@ -79,12 +80,12 @@ function EditQuickLinkContent() {
         if (validLocalizations.length > 0) {
           setLocalizations(validLocalizations);
         } else {
-          alert("პროდუქტს არ აქვს ვალიდური თარგმანები");
+          toast.error("პროდუქტს არ აქვს ვალიდური თარგმანები");
           router.push("/admin?quickPayment=all");
           return;
         }
       } else {
-        alert("პროდუქტს არ აქვს თარგმანები");
+        toast.error("პროდუქტს არ აქვს თარგმანები");
         router.push("/admin?quickPayment=all");
         return;
       }
@@ -98,7 +99,7 @@ function EditQuickLinkContent() {
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message
         || (error instanceof Error ? error.message : "შეცდომა მონაცემების ჩატვირთვისას");
-      alert(msg);
+      toast.error(msg);
       router.push("/admin?quickPayment=all");
     } finally {
       setLoading(false);
@@ -123,7 +124,7 @@ function EditQuickLinkContent() {
     // Check if already exists
     const exists = localizations.some((loc) => loc.locale === locale);
     if (exists) {
-      alert("ეს ენა უკვე დამატებულია");
+      toast.error("ეს ენა უკვე დამატებულია");
       return;
     }
 
@@ -138,13 +139,13 @@ function EditQuickLinkContent() {
   const removeLocalization = (locale: string) => {
     const localeConfig = AVAILABLE_LOCALES.find((l) => l.code === locale);
     if (localeConfig?.required) {
-      alert(`${localeConfig.label} ენა სავალდებულოა`);
+      toast.error(`${localeConfig.label} ენა სავალდებულოა`);
       return;
     }
 
     // ✅ FIXED: Don't allow removing if it's the only localization
     if (localizations.length === 1) {
-      alert("მინიმუმ ერთი ენა უნდა იყოს დამატებული");
+      toast.error("მინიმუმ ერთი ენა უნდა იყოს დამატებული");
       return;
     }
 
@@ -156,7 +157,7 @@ function EditQuickLinkContent() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("ფაილის ზომა არ უნდა აღემატებოდეს 5MB-ს");
+      toast.error("ფაილის ზომა არ უნდა აღემატებოდეს 5MB-ს");
       return;
     }
 
@@ -181,14 +182,14 @@ function EditQuickLinkContent() {
     // Validate Georgian localization exists
     const georgianLoc = localizations.find((loc) => loc.locale === "ka");
     if (!georgianLoc || !georgianLoc.name.trim()) {
-      alert("ქართული სახელი სავალდებულოა");
+      toast.error("ქართული სახელი სავალდებულოა");
       return;
     }
 
     // Validate price
     const priceValue = parseFloat(price);
     if (isNaN(priceValue) || priceValue <= 0) {
-      alert("გთხოვთ შეიყვანოთ სწორი ფასი");
+      toast.error("გთხოვთ შეიყვანოთ სწორი ფასი");
       return;
     }
 
@@ -196,7 +197,7 @@ function EditQuickLinkContent() {
     const validLocalizations = localizations.filter((loc) => loc.name.trim());
 
     if (validLocalizations.length === 0) {
-      alert("მინიმუმ ერთი ენა უნდა იყოს შევსებული");
+      toast.error("მინიმუმ ერთი ენა უნდა იყოს შევსებული");
       return;
     }
 
@@ -204,7 +205,7 @@ function EditQuickLinkContent() {
     const locales = validLocalizations.map((loc) => loc.locale);
     const uniqueLocales = new Set(locales);
     if (locales.length !== uniqueLocales.size) {
-      alert("ორი ერთნაირი ენა არ შეიძლება იყოს დამატებული");
+      toast.error("ორი ერთნაირი ენა არ შეიძლება იყოს დამატებული");
       return;
     }
 
@@ -226,13 +227,13 @@ function EditQuickLinkContent() {
       }
 
       await updateLink.mutateAsync({ slug: slug!, data: submitData });
-      alert("ლინკი წარმატებით განახლდა");
+      toast.success("ლინკი წარმატებით განახლდა");
       router.push("/admin?quickPayment=all");
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
         (error instanceof Error ? error.message : "შეცდომა ლინკის განახლებისას");
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -264,7 +265,7 @@ function EditQuickLinkContent() {
             <ArrowLeft size={20} />
           </button>
           <div className="flex-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">
               ლინკის რედაქტირება
             </h2>
             <p className="text-sm text-gray-500 mt-1">

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { X, Loader2, Upload, XCircle, Globe } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
 import { useCreateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 
 export const CreateQuickLink = () => {
@@ -26,12 +27,12 @@ export const CreateQuickLink = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("გთხოვთ აირჩიოთ სურათი");
+      toast.error("გთხოვთ აირჩიოთ სურათი");
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("სურათი ძალიან დიდია (მაქსიმუმ 10MB)");
+      toast.error("სურათი ძალიან დიდია (მაქსიმუმ 10MB)");
       return;
     }
 
@@ -54,13 +55,13 @@ export const CreateQuickLink = () => {
 
     // ✅ FIXED: Better validation
     if (!formData.nameKa || !formData.nameKa.trim()) {
-      alert("პროდუქტის სახელი სავალდებულოა");
+      toast.error("პროდუქტის სახელი სავალდებულოა");
       return;
     }
 
     const priceValue = parseFloat(formData.price);
     if (isNaN(priceValue) || priceValue <= 0) {
-      alert("გთხოვთ შეიყვანოთ სწორი ფასი");
+      toast.error("გთხოვთ შეიყვანოთ სწორი ფასი");
       return;
     }
 
@@ -91,13 +92,13 @@ export const CreateQuickLink = () => {
       setImagePreview(null);
       setImageBase64(null);
 
-      alert("ლინკი წარმატებით შეიქმნა");
+      toast.success("ლინკი წარმატებით შეიქმნა");
       router.push(`${pathname}?quickPayment=all`);
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
         (error instanceof Error ? error.message : "შეცდომა ლინკის შექმნისას");
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -108,7 +109,7 @@ export const CreateQuickLink = () => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mx-2 sm:mx-0">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
           ახალი გადახდის ლინკი
         </h2>
         <button

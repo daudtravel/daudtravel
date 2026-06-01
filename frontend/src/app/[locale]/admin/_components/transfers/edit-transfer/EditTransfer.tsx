@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Form,
   FormControl,
@@ -10,7 +10,8 @@ import {
   FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
   UpdateTransferFormData,
@@ -30,17 +31,15 @@ import { useUpdateTransfer } from "@/src/hooks/transfers/useUpdateTransfer";
 import { VehicleType } from "@/src/types/transfers.types";
 import { SUPPORTED_LOCALES } from "../../tours/edit-tour/EditTourValidator";
 
-const VEHICLE_EMOJI: Record<string, string> = {
-  SEDAN: "🚗",
-  MINIVAN: "🚐",
-  VITO: "🚌",
-  SPRINTER: "🚌",
-  BUS: "🚍",
+const VEHICLE_LABEL: Record<string, string> = {
+  SEDAN: "სედანი",
+  MINIVAN: "მინივენი",
+  VITO: "ვიტო",
+  SPRINTER: "სპრინტერი",
+  BUS: "ავტობუსი",
 };
 
 export function EditTransfer({ params }: { params: { id: string } }) {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const locale = useLocale();
   const form = useEditTransferValidator();
@@ -72,7 +71,6 @@ export function EditTransfer({ params }: { params: { id: string } }) {
   }, [response, form]);
 
   const onSubmit = async (data: UpdateTransferFormData) => {
-    setErrorMessage(null);
     const filteredLocalizations = data.localizations
       ?.filter((loc) => loc.startLocation && loc.endLocation)
       .map((loc) => ({
@@ -91,12 +89,12 @@ export function EditTransfer({ params }: { params: { id: string } }) {
       },
       {
         onSuccess: () => {
-          setSuccessMessage(TRANSFER_MESSAGES.UPDATE_SUCCESS);
-          setTimeout(() => router.push("?transfers=all"), 1500);
+          toast.success(TRANSFER_MESSAGES.UPDATE_SUCCESS);
+          router.push("?transfers=all");
         },
         onError: (error: unknown) => {
           const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-          setErrorMessage(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
+          toast.error(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
         },
       }
     );
@@ -116,22 +114,9 @@ export function EditTransfer({ params }: { params: { id: string } }) {
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-extrabold text-gray-900">ტრანსფერის რედაქტირება</h2>
+        <h2 className="text-xl font-semibold text-gray-900">ტრანსფერის რედაქტირება</h2>
         <p className="text-sm text-gray-400 mt-0.5">შეცვალეთ მარშრუტი, ენები ან ფასები</p>
       </div>
-
-      {errorMessage && (
-        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-          <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          {errorMessage}
-        </div>
-      )}
-      {successMessage && (
-        <div className="flex items-start gap-2 bg-brand-green-50 border border-brand-green-100 rounded-xl px-4 py-3 text-sm text-brand-green">
-          <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          {successMessage}
-        </div>
-      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -166,7 +151,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Localizations */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">თარგმანები</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">თარგმანები</h3>
               <Tabs defaultValue={SUPPORTED_LOCALES[0]} className="w-full">
                 <TabsList
                   className="grid w-full bg-brand-green-50 rounded-xl p-1"
@@ -230,7 +215,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
 
             {/* Vehicle types */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
               <Tabs defaultValue={vehicleTypes[0]} className="w-full">
                 <TabsList
                   className="grid w-full bg-brand-green-50 rounded-xl p-1"
@@ -242,7 +227,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                       value={type}
                       className="text-xs rounded-lg data-[state=active]:bg-brand-green data-[state=active]:text-white"
                     >
-                      {VEHICLE_EMOJI[type]} {type}
+                      {VEHICLE_LABEL[type] || type}
                     </TabsTrigger>
                   ))}
                 </TabsList>

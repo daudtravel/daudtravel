@@ -21,6 +21,18 @@ import {
   Hash,
   ExternalLink,
 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/components/ui/alert-dialog";
 import { transferOrdersAPI } from "@/src/services/transfer-orders.service";
 import { TransferOrder, useTransferOrders } from "@/src/hooks/transfers/useTransferOrders";
 
@@ -207,10 +219,10 @@ const TransferOrdersDashboard = () => {
   const deleteFailedMutation = useMutation({
     mutationFn: () => transferOrdersAPI.deleteFailedOrders(),
     onSuccess: () => {
-      alert("წარუმატებელი შეკვეთები წაიშალა");
+      toast.success("წარუმატებელი შეკვეთები წაიშალა");
       queryClient.invalidateQueries({ queryKey: ["admin", "transfer-orders"] });
     },
-    onError: (err: Error) => alert(`წაშლა ვერ მოხერხდა: ${err?.message || "უცნობი შეცდომა"}`),
+    onError: (err: Error) => toast.error(`წაშლა ვერ მოხერხდა: ${err?.message || "უცნობი შეცდომა"}`),
   });
 
   const paid    = orders.filter((o) => o.status?.toUpperCase() === "PAID").length;
@@ -222,7 +234,7 @@ const TransferOrdersDashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">ტრანსფერების შეკვეთები</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">ტრანსფერების შეკვეთები</h1>
           <p className="text-sm text-gray-400 mt-0.5">სულ: {orders.length} შეკვეთა</p>
         </div>
         <div className="flex gap-2">
@@ -234,14 +246,34 @@ const TransferOrdersDashboard = () => {
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
             განახლება
           </button>
-          <button
-            onClick={() => { if (confirm("წაიშალოს ყველა წარუმატებელი შეკვეთა?")) deleteFailedMutation.mutate(); }}
-            disabled={isLoading || deleteFailedMutation.isPending || failed === 0}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors disabled:opacity-40"
-          >
-            <XCircle className="w-4 h-4" />
-            წარუმ. წაშლა ({failed})
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={isLoading || deleteFailedMutation.isPending || failed === 0}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors disabled:opacity-40"
+              >
+                <XCircle className="w-4 h-4" />
+                წარუმ. წაშლა ({failed})
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>წარუმატებელი შეკვეთების წაშლა</AlertDialogTitle>
+                <AlertDialogDescription>
+                  დარწმუნებული ხართ? ყველა წარუმატებელი შეკვეთა ({failed} ცალი) სამუდამოდ წაიშლება.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteFailedMutation.mutate()}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  წაშლა
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

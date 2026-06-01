@@ -22,6 +22,7 @@ import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/src/components/ui/textarea";
+import { toast } from "sonner";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,8 +45,6 @@ type CreateFaqForm = z.infer<typeof createFaqSchema>;
 
 const CreateFaq = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const queryClient = useQueryClient();
   const params = useParams();
@@ -73,7 +72,7 @@ const CreateFaq = () => {
       );
 
       if (filteredLocalizations.length === 0) {
-        setErrorMessage("მინიმუმ ერთი სრული თარგმანი აუცილებელია");
+        toast.error("მინიმუმ ერთი სრული თარგმანი აუცილებელია");
         setIsSubmitting(false);
         return;
       }
@@ -86,19 +85,16 @@ const CreateFaq = () => {
 
       await faqApi.post(submitData);
 
-      setSuccessMessage("კითხვა წარმატებით შეიქმნა");
+      toast.success("კითხვა წარმატებით შეიქმნა");
       await queryClient.invalidateQueries({ queryKey: ["faqs"] });
-
-      setTimeout(() => {
-        router.push(`?faqs=all`);
-      }, 1500);
+      router.push(`?faqs=all`);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         const errorMsg =
           error.response.data.message || "კითხვის შექმნა ვერ მოხერხდა";
-        setErrorMessage(errorMsg);
+        toast.error(errorMsg);
       } else {
-        setErrorMessage("მოულოდნელი შეცდომა. გთხოვთ სცადოთ თავიდან");
+        toast.error("მოულოდნელი შეცდომა. გთხოვთ სცადოთ თავიდან");
       }
     } finally {
       setIsSubmitting(false);
@@ -111,17 +107,6 @@ const CreateFaq = () => {
         <CardTitle>ახალი კითხვის დამატება</CardTitle>
       </CardHeader>
       <CardContent>
-        {errorMessage && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-            {errorMessage}
-          </div>
-        )}
-        {successMessage && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-            {successMessage}
-          </div>
-        )}
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

@@ -16,14 +16,13 @@ import { Input } from "@/src/components/ui/input";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Label } from "@/src/components/ui/label";
 import axios from "axios";
+import { toast } from "sonner";
 import { videoApi } from "@/src/services/videos.service";
 
 export default function CreateVideo() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,12 +43,10 @@ export default function CreateVideo() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
 
     try {
       if (!formData.url.trim()) {
-        setErrorMessage("URL სავალდებულოა");
+        toast.error("URL სავალდებულოა");
         setIsSubmitting(false);
         return;
       }
@@ -57,7 +54,7 @@ export default function CreateVideo() {
       try {
         new URL(formData.url);
       } catch {
-        setErrorMessage("გთხოვთ შეიყვანოთ სწორი URL");
+        toast.error("გთხოვთ შეიყვანოთ სწორი URL");
         setIsSubmitting(false);
         return;
       }
@@ -73,19 +70,14 @@ export default function CreateVideo() {
 
       await videoApi.post(submitData);
 
-      setSuccessMessage("ვიდეო წარმატებით დაემატა");
+      toast.success("ვიდეო წარმატებით დაემატა");
       await queryClient.invalidateQueries({ queryKey: ["videos"] });
-
-      setTimeout(() => {
-        router.push("?videos=all");
-      }, 1500);
+      router.push("?videos=all");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        setErrorMessage(
-          error.response.data.message || "ვიდეოს დამატება ვერ მოხერხდა"
-        );
+        toast.error(error.response.data.message || "ვიდეოს დამატება ვერ მოხერხდა");
       } else {
-        setErrorMessage("მოხდა მოულოდნელი შეცდომა");
+        toast.error("მოხდა მოულოდნელი შეცდომა");
       }
     } finally {
       setIsSubmitting(false);
@@ -100,20 +92,9 @@ export default function CreateVideo() {
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-bold">ვიდეოს დამატება</CardTitle>
+          <CardTitle className="text-xl font-semibold">ვიდეოს დამატება</CardTitle>
         </CardHeader>
         <CardContent>
-          {errorMessage && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-              {errorMessage}
-            </div>
-          )}
-          {successMessage && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-              {successMessage}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="url">

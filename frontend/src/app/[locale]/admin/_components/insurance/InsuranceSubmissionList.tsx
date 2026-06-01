@@ -21,6 +21,18 @@ import {
   useInsuranceSubmissions,
   useDeleteInsuranceSubmission,
 } from "@/src/hooks/insurance/useInsurance";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/components/ui/alert-dialog";
 
 import Image from "next/image";
 import {
@@ -72,7 +84,7 @@ const SubmissionDetails = ({
     <div className="bg-white rounded-lg max-w-4xl w-full my-8">
       <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex justify-between items-center rounded-t-lg">
         <div>
-          <h3 className="text-xl font-bold">შეკვეთის დეტალები</h3>
+          <h3 className="text-xl font-semibold">შეკვეთის დეტალები</h3>
           <code className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mt-1 inline-block">
             {submission.externalOrderId}
           </code>
@@ -176,7 +188,7 @@ const SubmissionDetails = ({
 
                   <div className="bg-blue-50 p-3 rounded">
                     <div className="text-blue-700 mb-1">საბოლოო თანხა</div>
-                    <p className="font-bold text-blue-900 text-lg">
+                    <p className="font-semibold text-blue-900 text-lg">
                       ₾{Number(person.finalAmount).toFixed(2)}
                     </p>
                   </div>
@@ -225,18 +237,12 @@ export default function InsuranceSubmissionsList() {
   const submissions = submissionsData?.data || [];
   const pagination = submissionsData?.pagination;
 
-  const handleDelete = async (submissionId: string, email: string) => {
-    if (
-      confirm(
-        `დარწმუნებული ხართ რომ გსურთ ${email}-ის შეკვეთის წაშლა?\n\nყველა პასპორტის ფოტო და მონაცემი წაიშლება!`
-      )
-    ) {
-      try {
-        await deleteSubmission.mutateAsync(submissionId);
-        alert("წარმატებით წაიშალა");
-      } catch {
-        alert("შეცდომა წაშლისას");
-      }
+  const handleDelete = async (submissionId: string) => {
+    try {
+      await deleteSubmission.mutateAsync(submissionId);
+      toast.success("შეკვეთა წარმატებით წაიშალა");
+    } catch {
+      toast.error("შეცდომა წაშლისას. სცადეთ თავიდან.");
     }
   };
 
@@ -253,7 +259,7 @@ export default function InsuranceSubmissionsList() {
         <div className="p-4 sm:p-6 border-b">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
                 დაზღვევის შეკვეთები
               </h2>
               <p className="text-gray-600 text-sm mt-1">
@@ -437,19 +443,34 @@ export default function InsuranceSubmissionsList() {
                           >
                             <Eye size={18} />
                           </button>
-                          <button
-                            onClick={() =>
-                              handleDelete(
-                                submission.id,
-                                submission.submitterEmail
-                              )
-                            }
-                            disabled={deleteSubmission.isPending}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                            title="წაშლა"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                disabled={deleteSubmission.isPending}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                                title="წაშლა"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  დარწმუნებული ხართ? {submission.submitterEmail}-ის შეკვეთა და ყველა პასპორტის ფოტო სამუდამოდ წაიშლება.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDelete(submission.id)}
+                                  className="bg-red-500 hover:bg-red-600"
+                                >
+                                  წაშლა
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </td>
                     </tr>
@@ -552,16 +573,34 @@ export default function InsuranceSubmissionsList() {
                       <Eye size={16} />
                       დეტალები
                     </button>
-                    <button
-                      onClick={() =>
-                        handleDelete(submission.id, submission.submitterEmail)
-                      }
-                      disabled={deleteSubmission.isPending}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 text-sm"
-                    >
-                      <Trash2 size={16} />
-                      წაშლა
-                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          disabled={deleteSubmission.isPending}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 text-sm"
+                        >
+                          <Trash2 size={16} />
+                          წაშლა
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            დარწმუნებული ხართ? {submission.submitterEmail}-ის შეკვეთა და ყველა პასპორტის ფოტო სამუდამოდ წაიშლება.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(submission.id)}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
+                            წაშლა
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}

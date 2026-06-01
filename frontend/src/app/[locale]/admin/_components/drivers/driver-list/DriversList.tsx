@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/src/components/ui/alert-dialog";
 import { driversAPI, Driver, DriverReview } from "@/src/services/drivers.service";
+import { toast } from "sonner";
 
 function StarRow({ rating }: { rating: number }) {
   return (
@@ -123,8 +124,11 @@ export function DriversList() {
 
   const { mutate: deleteDriver, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => driversAPI.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["drivers"] }),
-    onError: (err: Error) => alert(err?.message || "წაშლა ვერ მოხერხდა"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+      toast.success("მძღოლი წარმატებით წაიშალა");
+    },
+    onError: (err: Error) => toast.error(err?.message || "წაშლა ვერ მოხერხდა"),
   });
 
   if (isLoading) {
@@ -152,7 +156,7 @@ export function DriversList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">მძღოლები</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">მძღოლები</h1>
           <p className="text-sm text-gray-400 mt-0.5">სულ: {drivers.length} მძღოლი</p>
         </div>
         <button

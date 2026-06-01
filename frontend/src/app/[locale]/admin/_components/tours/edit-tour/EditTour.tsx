@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { Loader2, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Form,
@@ -93,9 +94,13 @@ export function EditTour() {
       return toursAPI.put(tourId, payload);
     },
     onSuccess: () => {
+      toast.success("ტური წარმატებით განახლდა");
       queryClient.invalidateQueries({ queryKey: ["tours"] });
       queryClient.invalidateQueries({ queryKey: ["tour", tourId] });
       router.push("?tours=all");
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "ტურის განახლება ვერ მოხერხდა");
     },
   });
 
@@ -305,12 +310,6 @@ export function EditTour() {
         <CardTitle>რედაქტირება</CardTitle>
       </CardHeader>
       <CardContent>
-        {updateMutation.isError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            შეცდომა მოხდა ტურის განახლებისას
-          </div>
-        )}
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField

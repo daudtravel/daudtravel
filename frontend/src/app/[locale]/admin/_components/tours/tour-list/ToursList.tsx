@@ -26,6 +26,7 @@ import {
 } from "@/src/components/ui/alert-dialog";
 import { Tour } from "@/src/types/tours.type";
 import { toursAPI } from "@/src/services/tours.service";
+import { toast } from "sonner";
 
 const getImageUrl = (imagePath: string | null): string | null => {
   if (!imagePath) return null;
@@ -58,8 +59,9 @@ export function ToursList() {
     try {
       await toursAPI.delete(id);
       queryClient.invalidateQueries({ queryKey: ["tours"] });
+      toast.success("ტური წარმატებით წაიშალა");
     } catch {
-      alert("ტურის წაშლა ვერ მოხერხდა");
+      toast.error("ტურის წაშლა ვერ მოხერხდა");
     }
   };
 
@@ -76,7 +78,7 @@ export function ToursList() {
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900">
           ტურები
         </h1>
         <Button

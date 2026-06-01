@@ -5,6 +5,7 @@ import { Input } from "@/src/components/ui/input";
 import { Separator } from "@/src/components/ui/separator";
 import Image from "next/image";
 import { LogIn } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -89,7 +90,7 @@ export default function SignInModal() {
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         "Error signing in. Please try again.";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

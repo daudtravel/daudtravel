@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
 import {
   useInsuranceSettings,
   useUpdateInsuranceSettings,
@@ -69,12 +70,12 @@ export default function InsuranceSettings() {
     const discount90 = parseFloat(formData.discount90Days);
 
     if (isNaN(discount30) || discount30 < 0 || discount30 > 100) {
-      alert("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
+      toast.error("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
       return;
     }
 
     if (isNaN(discount90) || discount90 < 0 || discount90 > 100) {
-      alert("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
+      toast.error("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
       return;
     }
 
@@ -84,14 +85,14 @@ export default function InsuranceSettings() {
       .filter(Boolean);
 
     if (emails.length === 0) {
-      alert("გთხოვთ შეიყვანოთ მინიმუმ ერთი ელ.ფოსტა");
+      toast.error("გთხოვთ შეიყვანოთ მინიმუმ ერთი ელ.ფოსტა");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const invalidEmail = emails.find((e) => !emailRegex.test(e));
     if (invalidEmail) {
-      alert(`არასწორი ელ.ფოსტა: ${invalidEmail}`);
+      toast.error(`არასწორი ელ.ფოსტა: ${invalidEmail}`);
       return;
     }
 
@@ -102,12 +103,12 @@ export default function InsuranceSettings() {
         adminEmail: formData.adminEmail,
         isActive: formData.isActive,
       });
-      alert("პარამეტრები წარმატებით განახლდა");
+      toast.success("პარამეტრები წარმატებით განახლდა");
     } catch (error: unknown) {
       const msg =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         (error instanceof Error ? error.message : "შეცდომა");
-      alert(`შეცდომა: ${msg}`);
+      toast.error(`შეცდომა: ${msg}`);
     }
   };
 
@@ -187,7 +188,7 @@ export default function InsuranceSettings() {
               <ArrowLeft size={20} />
             </button>
             <div className="min-w-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
                 დაზღვევის პარამეტრები
               </h2>
               <p className="text-gray-600 text-xs sm:text-sm mt-1">

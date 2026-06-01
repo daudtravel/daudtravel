@@ -16,6 +16,18 @@ import {
   GlobeLock,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/components/ui/alert-dialog";
 import {
   useDeleteQuickLink,
   useQuickLinks,
@@ -47,22 +59,20 @@ export const QuickLinksList = () => {
   };
 
   const handleToggle = async (slug: string) => {
-    if (confirm("დარწმუნებული ხართ?")) {
-      try {
-        await toggleLink.mutateAsync(slug);
-      } catch {
-        alert("შეცდომა სტატუსის შეცვლისას");
-      }
+    try {
+      await toggleLink.mutateAsync(slug);
+      toast.success("სტატუსი წარმატებით შეიცვალა");
+    } catch {
+      toast.error("შეცდომა სტატუსის შეცვლისას");
     }
   };
 
   const handleDelete = async (slug: string) => {
-    if (confirm("დარწმუნებული ხართ რომ გსურთ წაშლა?")) {
-      try {
-        await deleteLink.mutateAsync(slug);
-      } catch {
-        alert("შეცდომა წაშლისას");
-      }
+    try {
+      await deleteLink.mutateAsync(slug);
+      toast.success("ლინკი წარმატებით წაიშალა");
+    } catch {
+      toast.error("შეცდომა წაშლისას");
     }
   };
 
@@ -89,7 +99,7 @@ export const QuickLinksList = () => {
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mx-2 sm:mx-0">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
             გადახდის ლინკები
           </h2>
           <p className="text-gray-600 text-sm mt-1">
@@ -244,26 +254,63 @@ export const QuickLinksList = () => {
                         >
                           <ExternalLink size={18} />
                         </a>
-                        <button
-                          onClick={() => handleToggle(link.slug)}
-                          disabled={toggleLink.isPending}
-                          className={`p-2 rounded-lg transition-colors ${
-                            link.isActive
-                              ? "text-green-600 hover:bg-green-50"
-                              : "text-gray-600 hover:bg-gray-100"
-                          }`}
-                          title={link.isActive ? "გამორთვა" : "ჩართვა"}
-                        >
-                          <Power size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(link.slug)}
-                          disabled={deleteLink.isPending}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="წაშლა"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              disabled={toggleLink.isPending}
+                              className={`p-2 rounded-lg transition-colors ${
+                                link.isActive
+                                  ? "text-green-600 hover:bg-green-50"
+                                  : "text-gray-600 hover:bg-gray-100"
+                              }`}
+                              title={link.isActive ? "გამორთვა" : "ჩართვა"}
+                            >
+                              <Power size={18} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>სტატუსის შეცვლა</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {link.isActive ? "გამორთავთ" : "ჩართავთ"} ამ ლინკს?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleToggle(link.slug)}>
+                                დადასტურება
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              disabled={deleteLink.isPending}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="წაშლა"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>ლინკის წაშლა</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                დარწმუნებული ხართ? ეს ქმედება შეუქცევადია.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(link.slug)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                წაშლა
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         <button
                           onClick={() => handleEdit(link.slug)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -368,24 +415,61 @@ export const QuickLinksList = () => {
                   >
                     <ExternalLink size={18} />
                   </a>
-                  <button
-                    onClick={() => handleToggle(link.slug)}
-                    disabled={toggleLink.isPending}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
-                      link.isActive
-                        ? "text-green-600 hover:bg-green-50"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Power size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(link.slug)}
-                    disabled={deleteLink.isPending}
-                    className="flex items-center justify-center p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        disabled={toggleLink.isPending}
+                        className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
+                          link.isActive
+                            ? "text-green-600 hover:bg-green-50"
+                            : "text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Power size={18} />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>სტატუსის შეცვლა</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {link.isActive ? "გამორთავთ" : "ჩართავთ"} ამ ლინკს?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleToggle(link.slug)}>
+                          დადასტურება
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        disabled={deleteLink.isPending}
+                        className="flex items-center justify-center p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>ლინკის წაშლა</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          დარწმუნებული ხართ? ეს ქმედება შეუქცევადია.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(link.slug)}
+                          className="bg-red-500 hover:bg-red-600"
+                        >
+                          წაშლა
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <button
                     onClick={() => handleEdit(link.slug)}
                     className="flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

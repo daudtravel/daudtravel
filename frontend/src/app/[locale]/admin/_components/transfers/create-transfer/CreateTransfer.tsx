@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -10,7 +9,7 @@ import {
   FormMessage,
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   CreateTransferFormData,
@@ -26,26 +25,22 @@ import { Checkbox } from "@/src/components/ui/checkbox";
 import { TRANSFER_MESSAGES } from "@/src/constants/transfers.constants";
 import { VehicleType } from "@/src/types/transfers.types";
 import { useCreateTransfer } from "@/src/hooks/transfers/useCreateTransfer";
+import { toast } from "sonner";
 
-const VEHICLE_EMOJI: Record<string, string> = {
-  SEDAN: "🚗",
-  MINIVAN: "🚐",
-  VITO: "🚌",
-  SPRINTER: "🚌",
-  BUS: "🚍",
+const VEHICLE_LABEL: Record<string, string> = {
+  SEDAN: "სედანი",
+  MINIVAN: "მინივენი",
+  VITO: "ვიტო",
+  SPRINTER: "სპრინტერი",
+  BUS: "ავტობუსი",
 };
 
 const CreateTransfer = () => {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const form = useCreateTransferValidator();
   const { mutate: createTransfer, isPending } = useCreateTransfer();
 
   const onSubmit = async (data: CreateTransferFormData) => {
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
     const filteredLocalizations = data.localizations?.filter(
       (loc) => loc.startLocation && loc.endLocation
     );
@@ -60,13 +55,13 @@ const CreateTransfer = () => {
       },
       {
         onSuccess: () => {
-          setSuccessMessage(TRANSFER_MESSAGES.CREATE_SUCCESS);
+          toast.success(TRANSFER_MESSAGES.CREATE_SUCCESS);
           form.reset();
-          setTimeout(() => router.push("?transfers=all"), 1500);
+          router.push("?transfers=all");
         },
         onError: (error: unknown) => {
           const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-          setErrorMessage(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
+          toast.error(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
         },
       }
     );
@@ -78,22 +73,9 @@ const CreateTransfer = () => {
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-extrabold text-gray-900">ახალი ტრანსფერის შექმნა</h2>
+        <h2 className="text-xl font-semibold text-gray-900">ახალი ტრანსფერის შექმნა</h2>
         <p className="text-sm text-gray-400 mt-0.5">შეავსეთ მარშრუტი და ავტომობილის ტიპები</p>
       </div>
-
-      {errorMessage && (
-        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-          <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          {errorMessage}
-        </div>
-      )}
-      {successMessage && (
-        <div className="flex items-start gap-2 bg-brand-green-50 border border-brand-green-100 rounded-xl px-4 py-3 text-sm text-brand-green">
-          <CheckCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          {successMessage}
-        </div>
-      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -128,7 +110,7 @@ const CreateTransfer = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
             {/* Route */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-4 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">მარშრუტი</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">მარშრუტი</h3>
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -171,7 +153,7 @@ const CreateTransfer = () => {
 
             {/* Vehicle types */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
             <Tabs defaultValue={vehicleTypes[0]} className="w-full">
               <TabsList className="grid w-full bg-brand-green-50 rounded-xl p-1" style={{ gridTemplateColumns: `repeat(${vehicleTypes.length}, 1fr)` }}>
                 {vehicleTypes.map((type) => (
@@ -180,7 +162,7 @@ const CreateTransfer = () => {
                     value={type}
                     className="text-xs rounded-lg data-[state=active]:bg-brand-green data-[state=active]:text-white"
                   >
-                    {VEHICLE_EMOJI[type]} {type}
+                    {VEHICLE_LABEL[type] || type}
                   </TabsTrigger>
                 ))}
               </TabsList>

@@ -13,6 +13,18 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/src/components/ui/alert-dialog";
 import { useQuickPaymentOrders } from "@/src/hooks/quick-payment/useQuickPayment";
 
 export const QuickPaymentOrders = () => {
@@ -33,22 +45,7 @@ export const QuickPaymentOrders = () => {
   const orders = ordersData?.data || [];
   const pagination = ordersData?.pagination;
 
-  const handleDeleteOrder = async (orderId: string, orderStatus: string) => {
-    // Confirm deletion
-    const confirmMessage =
-      orderStatus === "PAID"
-        ? "გადახდილი შეკვეთების წაშლა შეუძლებელია!"
-        : "დარწმუნებული ხართ, რომ გსურთ შეკვეთის წაშლა?";
-
-    if (orderStatus === "PAID") {
-      alert(confirmMessage);
-      return;
-    }
-
-    if (!confirm(confirmMessage)) {
-      return;
-    }
-
+  const handleDeleteOrder = async (orderId: string) => {
     setDeletingOrderId(orderId);
 
     try {
@@ -69,16 +66,15 @@ export const QuickPaymentOrders = () => {
         throw new Error(result.message || "წაშლა ვერ მოხერხდა");
       }
 
-      // Refresh the orders list
+      toast.success("შეკვეთა წარმატებით წაიშალა");
       await refetch();
 
-      // If we deleted the last item on a page > 1, go to previous page
       if (orders.length === 1 && page > 1) {
         setPage(page - 1);
       }
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "შეცდომა";
-      alert(`შეცდომა: ${msg}`);
+      toast.error(`შეცდომა: ${msg}`);
     } finally {
       setDeletingOrderId(null);
     }
@@ -137,7 +133,7 @@ export const QuickPaymentOrders = () => {
                 <ArrowLeft size={20} />
               </button>
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
                   შეკვეთები
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
@@ -288,31 +284,48 @@ export const QuickPaymentOrders = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <button
-                          onClick={() =>
-                            handleDeleteOrder(order.id, order.status)
-                          }
-                          disabled={
-                            deletingOrderId === order.id ||
-                            order.status === "PAID"
-                          }
-                          className={`p-2 rounded-lg transition-colors ${
-                            order.status === "PAID"
-                              ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
-                              : "hover:bg-red-50 text-red-600"
-                          }`}
-                          title={
-                            order.status === "PAID"
-                              ? "გადახდილი შეკვეთების წაშლა შეუძლებელია"
-                              : "შეკვეთის წაშლა"
-                          }
-                        >
-                          {deletingOrderId === order.id ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : (
+                        {order.status === "PAID" ? (
+                          <button
+                            disabled
+                            className="p-2 rounded-lg opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
+                            title="გადახდილი შეკვეთების წაშლა შეუძლებელია"
+                          >
                             <Trash2 className="w-5 h-5" />
-                          )}
-                        </button>
+                          </button>
+                        ) : (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                disabled={deletingOrderId === order.id}
+                                className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50"
+                                title="შეკვეთის წაშლა"
+                              >
+                                {deletingOrderId === order.id ? (
+                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-5 h-5" />
+                                )}
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  დარწმუნებული ხართ, რომ გსურთ ამ შეკვეთის წაშლა?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteOrder(order.id)}
+                                  className="bg-red-500 hover:bg-red-600"
+                                >
+                                  წაშლა
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -333,31 +346,47 @@ export const QuickPaymentOrders = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(order.status)}
-                      <button
-                        onClick={() =>
-                          handleDeleteOrder(order.id, order.status)
-                        }
-                        disabled={
-                          deletingOrderId === order.id ||
-                          order.status === "PAID"
-                        }
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          order.status === "PAID"
-                            ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
-                            : "hover:bg-red-50 text-red-600"
-                        }`}
-                        title={
-                          order.status === "PAID"
-                            ? "გადახდილი შეკვეთების წაშლა შეუძლებელია"
-                            : "შეკვეთის წაშლა"
-                        }
-                      >
-                        {deletingOrderId === order.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
+                      {order.status === "PAID" ? (
+                        <button
+                          disabled
+                          className="p-1.5 rounded-lg opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
+                          title="გადახდილი შეკვეთების წაშლა შეუძლებელია"
+                        >
                           <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
+                        </button>
+                      ) : (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              disabled={deletingOrderId === order.id}
+                              className="p-1.5 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                            >
+                              {deletingOrderId === order.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                დარწმუნებული ხართ, რომ გსურთ ამ შეკვეთის წაშლა?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteOrder(order.id)}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                წაშლა
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
                     </div>
                   </div>
 
