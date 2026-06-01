@@ -28,7 +28,7 @@ const InsuranceSection = () => {
             <div className="text-center">
               <Shield className="w-12 h-12 md:w-16 md:h-16 text-brand-green mx-auto mb-4" />
 
-              <h2 className="text-2xl md:text-4xl font-bold text-black mb-3 md:mb-4">
+              <h2 className="text-2xl md:text-4xl font-semibold text-gray-900 mb-3 md:mb-4">
                 {t("travelInsurance") || "Travel Insurance"}
               </h2>
 

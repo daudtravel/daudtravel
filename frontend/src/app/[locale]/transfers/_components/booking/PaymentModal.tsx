@@ -22,7 +22,6 @@ import {
   Clock,
   Car,
   ArrowRight,
-  X,
   AlertCircle,
   User,
 } from "lucide-react";
@@ -146,18 +145,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, bookingDat
     <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold text-brand-green">
-              {t("completeBooking")}
-            </DialogTitle>
-            <button
-              onClick={close}
-              disabled={isLoading}
-              className="p-1.5 rounded-full hover:bg-brand-green-50 text-gray-400 hover:text-brand-green transition-colors disabled:opacity-40"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+          <DialogTitle className="text-xl font-semibold text-brand-green pr-6">
+            {t("completeBooking")}
+          </DialogTitle>
           <DialogDescription className="text-gray-500 text-sm">
             {t("fillDetailsDescription")}
           </DialogDescription>
@@ -166,7 +156,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, bookingDat
         {/* Booking summary */}
         {bookingData && (
           <div className="rounded-xl bg-brand-green-50 border border-brand-green-100 p-4 mb-1">
-            <p className="text-xs font-bold uppercase tracking-wide text-brand-green mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-green mb-3">
               {t("transferDetails")}
             </p>
             <div className="space-y-2">

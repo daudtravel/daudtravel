@@ -180,24 +180,24 @@ export function BookingPanel({
       <div className="border-t border-gray-100 px-5 py-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex-1 flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-600">
-            <span>
-              📅{" "}
+            <span className="flex items-center gap-1.5">
+              <CalendarDays className="h-3.5 w-3.5 text-brand-green shrink-0" />
               <span className="font-medium text-gray-800">
                 {date.toLocaleDateString()}{time ? ` ${time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}
               </span>
             </span>
             {selectedVehicle && (
-              <span>
-                🚗{" "}
+              <span className="flex items-center gap-1.5">
+                <Car className="h-3.5 w-3.5 text-brand-green shrink-0" />
                 <span className="font-medium text-gray-800">
                   {t(selectedVehicle.type.toLowerCase() as VehicleKey)}
                 </span>
-                <span className="text-brand-green font-bold ml-1">₾{selectedVehicle.price}</span>
+                <span className="text-brand-green font-semibold ml-0.5">₾{selectedVehicle.price}</span>
               </span>
             )}
             {selectedDriver && (
-              <span>
-                👤{" "}
+              <span className="flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-brand-green shrink-0" />
                 <span className="font-medium text-gray-800">
                   {selectedDriver.firstName} {selectedDriver.lastName}
                 </span>

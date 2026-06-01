@@ -36,7 +36,7 @@ export function DriversSection() {
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-green-mid mb-1">
           {t("professionalTeam") || "Professional Team"}
         </p>
-        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
+        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
           {t("ourDrivers")}
         </h2>
       </div>

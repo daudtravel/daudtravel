@@ -36,6 +36,7 @@ import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/utlis/cn";
 import { Calendar } from "@/src/components/ui/calendar";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 interface PersonForm {
   id: string;
@@ -129,7 +130,7 @@ export default function InsuranceSubmissionPage() {
     ]);
 
   const removePerson = (id: string) => {
-    if (people.length === 1) { alert(t("minOnePerson")); return; }
+    if (people.length === 1) { toast.warning(t("minOnePerson")); return; }
     setPeople(people.filter((p) => p.id !== id));
   };
 
@@ -149,8 +150,8 @@ export default function InsuranceSubmissionPage() {
   const handleImageUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { alert(t("pleaseSelectImage")); return; }
-    if (file.size > 10 * 1024 * 1024) { alert(t("imageTooLarge")); return; }
+    if (!file.type.startsWith("image/")) { toast.error(t("pleaseSelectImage")); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error(t("imageTooLarge")); return; }
 
     try {
       const base64 = await compressImage(file, { maxWidth: 1200, maxHeight: 1600, quality: 0.8, outputFormat: "image/jpeg" });
@@ -170,11 +171,11 @@ export default function InsuranceSubmissionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!submitterEmail) { alert(t("pleaseEnterEmail")); return; }
+    if (!submitterEmail) { toast.error(t("pleaseEnterEmail")); return; }
     const invalidPerson = people.find((p) => !p.fullName || !p.phoneNumber || !p.passportPhoto || !p.startDate || !p.endDate);
-    if (invalidPerson) { alert(t("fillAllFields")); return; }
+    if (invalidPerson) { toast.error(t("fillAllFields")); return; }
     const invalidDates = people.find((p) => p.startDate && p.endDate && p.startDate >= p.endDate);
-    if (invalidDates) { alert(t("startBeforeEnd")); return; }
+    if (invalidDates) { toast.error(t("startBeforeEnd")); return; }
 
     try {
       const result = await submitInsurance.mutateAsync({
@@ -192,7 +193,7 @@ export default function InsuranceSubmissionPage() {
       const msg =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         (error instanceof Error ? error.message : t("submissionError"));
-      alert(msg);
+      toast.error(msg);
     }
   };
 

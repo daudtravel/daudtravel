@@ -43,5 +43,11 @@
   "submissionError": "შეცდომა დაზღვევის განაცხადის გაგზავნისას",
   "days": "დღე",
   "required": "*",
-  "pricingInfo": "1–7 დღე: ფიქს. ₾40 · 8+ დღე: ₾40 + ₾5/დღე"
+  "pricingInfo": "1–7 დღე: ფიქს. ₾40 · 8+ დღე: ₾40 + ₾5/დღე",
+  "photoUploaded": "ფოტო ატვირთულია",
+  "changePhoto": "ფოტოს შეცვლა",
+  "fieldsCompleted": "ველი შევსებულია",
+  "minDaysNote": "მინიმუმ 5 დღე საჭიროა",
+  "requiredFieldsNote": "*-ით მონიშნული ველები სავალდებულოა",
+  "orderSummary": "შეკვეთის სარეზიუმე"
 }

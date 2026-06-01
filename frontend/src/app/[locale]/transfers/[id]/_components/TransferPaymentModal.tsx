@@ -268,20 +268,9 @@ const TransferPaymentModal: React.FC<TransferPaymentModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold text-orange-800">
-              {t("completeBooking")}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              disabled={isLoading}
-              className="h-8 w-8 rounded-full hover:bg-orange-100"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl font-semibold text-brand-green pr-6">
+            {t("completeBooking")}
+          </DialogTitle>
           <DialogDescription className="text-gray-600">
             {t("fillDetailsDescription")}
           </DialogDescription>

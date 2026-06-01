@@ -330,7 +330,7 @@ const UnifiedOrderDetailsClient: React.FC<UnifiedOrderDetailsProps> = ({
       className={`container mx-auto p-4 md:p-6 max-w-4xl ${isRTL ? "rtl" : "ltr"}`}
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 print:hidden">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+        <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
           {t.orderDetails}
         </h1>
         <div className="flex gap-2">

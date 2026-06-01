@@ -43,5 +43,11 @@
   "submissionError": "Sigorta talebi gönderilirken hata oluştu",
   "days": "gün",
   "required": "*",
-  "pricingInfo": "1-7 gün: sabit ₾40 · 8+ gün: ₾40 + ₾5/gün"
+  "pricingInfo": "1-7 gün: sabit ₾40 · 8+ gün: ₾40 + ₾5/gün",
+  "photoUploaded": "Fotoğraf yüklendi",
+  "changePhoto": "Fotoğrafı değiştir",
+  "fieldsCompleted": "alan dolduruldu",
+  "minDaysNote": "Minimum 5 gün gerekli",
+  "requiredFieldsNote": "* ile işaretli alanlar zorunludur",
+  "orderSummary": "Sipariş Özeti"
 }

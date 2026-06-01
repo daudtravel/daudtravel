@@ -2,18 +2,10 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { MapPin, ArrowRight, Users, ChevronRight } from "lucide-react";
+import { MapPin, ArrowRight, Users, ChevronRight, Car } from "lucide-react";
 import { Transfer } from "@/src/types/transfers.types";
 
 type VehicleKey = "sedan" | "minivan" | "vito" | "sprinter" | "bus";
-
-const VEHICLE_EMOJI: Record<string, string> = {
-  sedan: "🚗",
-  minivan: "🚐",
-  vito: "🚌",
-  sprinter: "🚌",
-  bus: "🚍",
-};
 
 interface TransferCardProps {
   transfer: Transfer;
@@ -57,7 +49,7 @@ export function TransferCard({ transfer }: TransferCardProps) {
         {/* Price badge */}
         {prices.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 bg-brand-yellow/15 text-brand-green font-bold px-3 py-1.5 rounded-full text-sm">
+            <span className="inline-flex items-center gap-1 bg-brand-yellow/15 text-brand-green font-semibold px-3 py-1.5 rounded-full text-sm">
               ₾{minPrice}
               {minPrice !== maxPrice && ` – ₾${maxPrice}`}
             </span>
@@ -73,7 +65,7 @@ export function TransferCard({ transfer }: TransferCardProps) {
                 key={vehicle.id}
                 className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-green-50 rounded-lg text-xs font-medium text-brand-green border border-brand-green-100"
               >
-                <span>{VEHICLE_EMOJI[vehicle.type.toLowerCase()] || "🚗"}</span>
+                <Car className="h-3 w-3 shrink-0" />
                 <span className="capitalize">
                   {t(vehicle.type.toLowerCase() as VehicleKey) || vehicle.type}
                 </span>

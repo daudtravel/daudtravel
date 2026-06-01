@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   CreditCard,
   Loader2,
@@ -345,7 +346,7 @@ export const QuickPaymentPage: React.FC<Props> = ({
         throw new Error("No payment URL");
       }
     } catch {
-      alert(t("paymentError"));
+      toast.error(t("paymentError"));
       setPaying(false);
     }
   };

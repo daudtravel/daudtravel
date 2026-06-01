@@ -141,7 +141,7 @@ export default function PublicProductsCarousel() {
 
                         <div className="p-6 flex-1 flex flex-col justify-between">
                           <div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-2">
                               {product.name}
                             </h3>
                             {product.description && (

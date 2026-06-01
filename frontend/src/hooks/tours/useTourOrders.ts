@@ -81,7 +81,6 @@ export const useTourOrders = (initialPage = 1) => {
   };
 
   const handleDeleteFailed = async () => {
-    if (!confirm("Are you sure you want to delete all failed orders?")) return;
     try {
       setLoading(true);
       await ordersAPI.deleteFailedOrders();

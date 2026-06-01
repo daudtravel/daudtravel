@@ -43,5 +43,11 @@
   "submissionError": "حدث خطأ أثناء تقديم طلب التأمين",
   "days": "أيام",
   "required": "*",
-  "pricingInfo": "1-7 أيام: ₾40 ثابتة · 8+ أيام: ₾40 + ₾5/يوم"
+  "pricingInfo": "1-7 أيام: ₾40 ثابتة · 8+ أيام: ₾40 + ₾5/يوم",
+  "photoUploaded": "تم رفع الصورة",
+  "changePhoto": "تغيير الصورة",
+  "fieldsCompleted": "حقول مكتملة",
+  "minDaysNote": "الحد الأدنى 5 أيام",
+  "requiredFieldsNote": "الحقول المُعلَّمة بـ * إلزامية",
+  "orderSummary": "ملخص الطلب"
 }

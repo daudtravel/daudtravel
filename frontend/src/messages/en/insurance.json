@@ -43,5 +43,11 @@
   "submissionError": "Error submitting insurance request",
   "days": "days",
   "required": "*",
-  "pricingInfo": "1–7 days: ₾40 fixed · 8+ days: ₾40 + ₾5/day"
+  "pricingInfo": "1–7 days: ₾40 fixed · 8+ days: ₾40 + ₾5/day",
+  "photoUploaded": "Photo uploaded",
+  "changePhoto": "Change photo",
+  "fieldsCompleted": "fields completed",
+  "minDaysNote": "Minimum 5 days required",
+  "requiredFieldsNote": "Fields marked with * are required",
+  "orderSummary": "Order Summary"
 }

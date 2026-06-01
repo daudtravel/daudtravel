@@ -38,7 +38,7 @@ const CardTitle = ({
 }: {
   children: React.ReactNode;
   className?: string;
-}) => <h2 className={`text-2xl font-bold ${className}`}>{children}</h2>;
+}) => <h2 className={`text-2xl font-semibold ${className}`}>{children}</h2>;
 
 const CardDescription = ({ children }: { children: React.ReactNode }) => (
   <p className="text-gray-600 mt-2">{children}</p>

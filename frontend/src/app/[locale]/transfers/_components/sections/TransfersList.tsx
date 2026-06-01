@@ -47,7 +47,7 @@ export function TransfersList() {
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-green-mid mb-1">
           {t("availableRoutes") || "Available Routes"}
         </p>
-        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">
+        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
           {t("chooseYourRoute") || "Choose Your Route"}
         </h2>
       </div>

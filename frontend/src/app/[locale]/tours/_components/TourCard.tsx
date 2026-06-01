@@ -109,7 +109,7 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
                 : "text-sm"
             }
           >
-            {tour.groupPricing.totalPrice || 0} $
+            {tour.groupPricing.totalPrice || 0} ₾
           </span>
           {tour.groupPricing.discountedPrice && (
             <span className="text-sm font-medium text-red-600">
@@ -168,7 +168,7 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
           <div className="flex md:items-center gap-3 md:gap-0 flex-col md:flex-row md:justify-between">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-brand-green" />
-              <span className="text-sm font-bold">{t("startLocation")}:</span>
+              <span className="text-sm text-gray-500">{t("startLocation")}:</span>
               <span className="text-sm line-clamp-1">
                 {localization?.startLocation}
               </span>
@@ -190,20 +190,20 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             {isIndividual && tour.maxPersons && (
               <div className="flex items-center gap-2">
                 <PersonStanding className="w-4 h-4 text-brand-green" />
-                <span className="text-sm font-bold">{t("numOfPersons")}:</span>
+                <span className="text-sm text-gray-500">{t("numOfPersons")}:</span>
                 <span className="text-sm">{tour.maxPersons}</span>
               </div>
             )}
             <div className="flex items-center gap-2">
               <Wallet className="w-4 h-4 text-brand-green" />
-              <span className="text-sm font-bold">{t("price")}: </span>
+              <span className="text-sm text-gray-500">{t("price")}: </span>
               {renderPrice()}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-brand-green" />
-            <span className="text-sm font-bold">{t("startDate")}:</span>
+            <span className="text-sm text-gray-500">{t("startDate")}:</span>
             <span className="text-sm">
               {isIndividual || !tour.startDate
                 ? t("agreement")
@@ -219,7 +219,7 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
             ) : (
               <Users className="w-4 h-4 text-brand-green" />
             )}
-            <span className="text-sm font-bold">{t("tourType")}:</span>
+            <span className="text-sm text-gray-500">{t("tourType")}:</span>
             <span className="text-sm">
               {isIndividual ? t("individualTourType") : t("groupTourType")}
             </span>

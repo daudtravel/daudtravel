@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { cn } from "@/src/utlis/cn";
+import { toast } from "sonner";
 
 interface TransferData {
   id: string;
@@ -231,7 +232,7 @@ const TransferDetails: React.FC = () => {
 
       pdf.save(`transfer-${transfer.id.slice(-8)}.pdf`);
     } catch (error) {
-      alert("Error generating PDF. Please try again.");
+      toast.error("Error generating PDF. Please try again.");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -273,7 +274,7 @@ const TransferDetails: React.FC = () => {
     <div className="container mx-auto p-4 md:p-6 max-w-4xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
             Transfer Details
           </h1>
         </div>

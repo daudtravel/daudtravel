@@ -133,7 +133,7 @@ export default function ToursList() {
 
       <div className="flex flex-col md:flex-row md:justify-between w-full gap-10 md:gap-5 xl:gap-16">
         <aside
-          className={`w-full lg:w-[500px] xl:w-[550px] ${
+          className={`w-full lg:w-[500px] xl:w-[550px] md:self-start md:sticky md:top-24 ${
             showFilters ? "block" : "hidden md:block"
           }`}
         >

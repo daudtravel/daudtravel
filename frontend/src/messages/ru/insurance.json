@@ -43,5 +43,11 @@
   "submissionError": "Ошибка при отправке заявки на страхование",
   "days": "дн.",
   "required": "*",
-  "pricingInfo": "1–7 дней: фикс. ₾40 · 8+ дней: ₾40 + ₾5/день"
+  "pricingInfo": "1–7 дней: фикс. ₾40 · 8+ дней: ₾40 + ₾5/день",
+  "photoUploaded": "Фото загружено",
+  "changePhoto": "Изменить фото",
+  "fieldsCompleted": "полей заполнено",
+  "minDaysNote": "Минимум 5 дней",
+  "requiredFieldsNote": "Поля со * обязательны",
+  "orderSummary": "Итог заказа"
 }

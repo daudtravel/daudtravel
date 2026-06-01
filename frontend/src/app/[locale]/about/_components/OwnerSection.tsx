@@ -29,7 +29,7 @@ const OwnerSection = () => {
           className={`w-full lg:w-2/3 space-y-6 ${isRTL ? "lg:text-right" : ""}`}
         >
           <h2
-            className={`text-2xl sm:text-3xl h-12 font-bold text-center ${isRTL ? "lg:text-right" : "lg:text-left"} text-brand-green`}
+            className={`text-2xl sm:text-3xl h-12 font-semibold text-center ${isRTL ? "lg:text-right" : "lg:text-left"} text-brand-green`}
           >
             {t("founder")}
           </h2>
