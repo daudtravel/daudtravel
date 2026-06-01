@@ -62,6 +62,24 @@ export class TransferBookingDataDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
+  @MaxLength(500)
+  startLocation?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  endLocation?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  specialRequests?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   locale?: string;
 
   @ApiPropertyOptional()

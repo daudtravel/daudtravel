@@ -15,5 +15,6 @@ export class CreateDriverReviewDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(200)
   reviewerName: string;
 }

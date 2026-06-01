@@ -9,6 +9,8 @@ import {
   IsBoolean,
   IsOptional,
   Min,
+  Max,
+  MaxLength,
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -17,10 +19,12 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 export class InsurancePersonDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(200)
   fullName: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(30)
   phoneNumber: string;
 
   @IsString()
@@ -55,11 +59,13 @@ export class UpdateInsuranceSettingsDto {
 
   @IsNumber()
   @Min(0)
+  @Max(100)
   @IsOptional()
   discount30Days?: number; // Percentage (e.g., 10 for 10%)
 
   @IsNumber()
   @Min(0)
+  @Max(100)
   @IsOptional()
   discount90Days?: number; // Percentage (e.g., 20 for 20%)
 

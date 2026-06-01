@@ -219,6 +219,15 @@ export class InsuranceService {
             : person.endDate,
         );
 
+        // Validate date range
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (startDate < today) {
+          throw new BadRequestException(
+            `Start date for ${person.fullName} cannot be in the past`,
+          );
+        }
+
         if (startDate > endDate) {
           throw new BadRequestException(
             `Invalid date range for ${person.fullName}: start date must be before or equal to end date`,

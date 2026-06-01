@@ -8,6 +8,9 @@ import {
   IsArray,
   IsEmail,
   ValidateNested,
+  MaxLength,
+  Min,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -15,15 +18,18 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 class QuickLinkLocalizationDto {
   @ApiProperty({ example: 'ka' })
   @IsString()
+  @MaxLength(10)
   locale: string;
 
   @ApiProperty({ example: 'გამომძიებლის მომსახურება' })
   @IsString()
+  @MaxLength(500)
   name: string;
 
   @ApiPropertyOptional({ example: 'სრული აღწერა ქართულად' })
   @IsString()
   @IsOptional()
+  @MaxLength(2000)
   description?: string;
 }
 
@@ -41,6 +47,7 @@ export class CreateQuickLinkDto {
 
   @ApiProperty({ example: 150.0 })
   @IsNumber()
+  @Min(0.01)
   price: number;
 
   @ApiPropertyOptional({ example: true })
@@ -76,6 +83,7 @@ export class UpdateQuickLinkDto {
 export class InitiatePaymentDto {
   @ApiProperty({ example: 'John Doe' })
   @IsString()
+  @MaxLength(200)
   customerFullName: string;
 
   @ApiProperty({ example: 'john@example.com' })
@@ -85,6 +93,7 @@ export class InitiatePaymentDto {
   @ApiPropertyOptional({ example: '+995555123456' })
   @IsString()
   @IsOptional()
+  @MaxLength(30)
   customerPhone?: string;
 
   @ApiPropertyOptional({
@@ -93,6 +102,7 @@ export class InitiatePaymentDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(10)
   locale?: string;
 
   @ApiPropertyOptional({
@@ -101,5 +111,7 @@ export class InitiatePaymentDto {
   })
   @IsNumber()
   @IsOptional()
-  quantity?: number; // ✅ NEW - user can select quantity from frontend
+  @Min(1)
+  @Max(100)
+  quantity?: number;
 }

@@ -11,6 +11,7 @@ import {
   IsInt,
   Max,
   IsIn,
+  MaxLength,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { VehicleType } from '@prisma/client';
@@ -18,14 +19,17 @@ import { VehicleType } from '@prisma/client';
 export class TransferLocalizationDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(10)
   locale: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(500)
   startLocation: string;
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(500)
   endLocation: string;
 }
 

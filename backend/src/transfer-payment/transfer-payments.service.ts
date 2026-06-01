@@ -27,6 +27,9 @@ interface TransferBookingData {
   transferTime: string | Date;
   vehicleType: VehicleType;
   paymentAmount: number;
+  startLocation?: string;
+  endLocation?: string;
+  specialRequests?: string;
   locale?: string;
   driverId?: string;
 }

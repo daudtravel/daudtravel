@@ -12,6 +12,7 @@ import {
   IsInt,
   Max,
   IsIn,
+  MaxLength,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
@@ -24,10 +25,12 @@ export enum TourType {
 export class TourLocalizationDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(10)
   locale: string = 'ka';
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(500)
   name: string;
 
   @IsString()
@@ -36,6 +39,7 @@ export class TourLocalizationDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(500)
   startLocation: string;
 
   @IsArray()

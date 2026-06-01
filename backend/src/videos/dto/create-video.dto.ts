@@ -1,5 +1,5 @@
 // src/videos/dto/create-video.dto.ts
-import { IsString, IsNotEmpty, IsUrl, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsUrl, IsOptional, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateVideoDto {
@@ -7,11 +7,13 @@ export class CreateVideoDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
+  @MaxLength(2048)
   url: string;
 
   @ApiProperty({ example: 'Travel Guide to Tbilisi', required: false })
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   title?: string;
 
   @ApiProperty({
@@ -20,10 +22,12 @@ export class CreateVideoDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   description?: string;
 
   @ApiProperty({ example: 'travel', required: false })
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   category?: string;
 }
