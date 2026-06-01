@@ -69,12 +69,12 @@ export default function PublicProductsCarousel() {
         viewport={{ once: true }}
       >
         <div className="flex justify-between items-center mb-2">
-          <motion.h1
+          <motion.h2
             variants={headerVariants}
             className="text-xl md:text-3xl font-semibold text-start"
           >
             {t("products")}
-          </motion.h1>
+          </motion.h2>
 
           <Link
             href="/products"
@@ -130,6 +130,7 @@ export default function PublicProductsCarousel() {
                             <img
                               src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
                               alt={product.name}
+                              loading="lazy"
                               className="w-full h-full object-cover"
                             />
                           ) : (

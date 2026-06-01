@@ -62,7 +62,7 @@ const TourDetails: React.FC = () => {
             <Description data={processedData.description} />
           </div>
           <div className="w-full md:w-1/2 flex flex-col gap-6">
-            <Gallery data={processedData.gallery} />
+            <Gallery data={processedData.gallery} tourName={processedData.description.name} />
             <Payment data={tour} />
           </div>
         </div>

@@ -88,9 +88,9 @@ export default function VideoCarousel({
 
   return (
     <section className="z-10 relative flex h-full w-full flex-col items-center pt-20 py-12 md:mt-12">
-      <h1 className="absolute top-2 text-lg pt-4 text-center md:text-2xl tracking-widest font-semibold">
+      <h2 className="absolute top-2 text-lg pt-4 text-center md:text-2xl tracking-widest font-semibold">
         {t("videoGallery")}
-      </h1>
+      </h2>
       <Carousel opts={{ loop: true }} className="mt-6 w-full">
         <CarouselContent className="w-full px-6 md:px-20">
           {displayVideos.map((video) => (

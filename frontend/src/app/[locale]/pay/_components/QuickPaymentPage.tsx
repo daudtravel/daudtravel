@@ -492,9 +492,9 @@ export const QuickPaymentPage: React.FC<Props> = ({
           </div>
 
           <div className="absolute bottom-5 left-5 right-5">
-            <h1 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-xl font-bold text-white mb-2">
               {product.name}
-            </h1>
+            </h2>
             <div className="inline-flex items-baseline gap-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-4 py-2">
               <span className="text-white/60 text-sm">₾</span>
               <span className="text-white text-2xl font-bold">

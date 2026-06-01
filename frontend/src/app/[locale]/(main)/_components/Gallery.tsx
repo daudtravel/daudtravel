@@ -19,18 +19,18 @@ import { useTranslations } from "next-intl";
 export default function Gallery() {
   const t = useTranslations("main");
   const data = [
-    { img: Carting, alt: "wineTour" },
-    { img: Piaza, alt: "wineTour" },
-    { img: Bicy, alt: "wineTour" },
-    { img: Family, alt: "wineTour" },
-    { img: Boat, alt: "wineTour" },
+    { img: Carting, alt: "Karting adventure activity in Georgia" },
+    { img: Piaza, alt: "Piazza and old town sights in Georgia" },
+    { img: Bicy, alt: "Cycling tour through Georgian landscapes" },
+    { img: Family, alt: "Family travel experience in Georgia with Daud Travel" },
+    { img: Boat, alt: "Boat trip on Georgian lakes and rivers" },
   ];
 
   return (
     <section className="z-10 relative flex h-full w-full flex-col items-center pt-20 py-12 md:mt-12">
-      <h1 className="absolute top-2 text-lg pt-4 text-center  md:text-2xl tracking-widest font-semibold">
+      <h2 className="absolute top-2 text-lg pt-4 text-center  md:text-2xl tracking-widest font-semibold">
         {t("imagineYourselfHere")}
-      </h1>
+      </h2>
       <Carousel opts={{ loop: true }} className="mt-6 w-full">
         <CarouselContent className="w-full">
           {data.map((item, index) => (

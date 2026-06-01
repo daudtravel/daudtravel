@@ -77,12 +77,12 @@ export default function ToursCarouselSection({
         viewport={{ once: true }}
       >
         <div className="flex flex-col gap-2">
-          <motion.h1
+          <motion.h2
             variants={headerVariants}
             className="text-xl md:text-3xl font-semibold text-start"
           >
             {t(titleKey)}
-          </motion.h1>
+          </motion.h2>
 
           <motion.div
             variants={underlineVariants}

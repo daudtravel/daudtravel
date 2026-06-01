@@ -113,9 +113,9 @@ export default function WhyUsSection() {
         <div
           className={`flex flex-col justify-center gap-6 lg:gap-8 lg:w-[470px] transition-all duration-1000 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
         >
-          <h1 className="text-2xl md:text-3xl md:text-center lg:text-4xl text-center font-semibold leading-tight">
+          <h2 className="text-2xl md:text-3xl md:text-center lg:text-4xl text-center font-semibold leading-tight">
             {t("whyUs")}
-          </h1>
+          </h2>
           <p className="text-slate-700 text-base text-center">
             {t("trustedPart")}
           </p>

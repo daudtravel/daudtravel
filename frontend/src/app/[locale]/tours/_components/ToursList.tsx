@@ -121,6 +121,7 @@ export default function ToursList() {
 
   return (
     <main className="w-full min-h-screen md:px-20 xl:pr-36 px-4 pt-6 md:pt-20 pb-20">
+      <h1 className="sr-only">Tours in Georgia</h1>
       <div className="md:hidden mb-4">
         <Button
           onClick={toggleFilters}

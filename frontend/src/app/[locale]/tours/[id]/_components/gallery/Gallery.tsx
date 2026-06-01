@@ -9,9 +9,10 @@ interface GalleryProps {
     images: string[];
     mainImageSrc: string;
   };
+  tourName?: string;
 }
 
-const Gallery = React.memo<GalleryProps>(({ data }) => {
+const Gallery = React.memo<GalleryProps>(({ data, tourName }) => {
   const { handleImageLoad, isImageLoaded } = useImageLoader();
 
   const galleryConfig = useMemo(() => {
@@ -48,7 +49,7 @@ const Gallery = React.memo<GalleryProps>(({ data }) => {
                 <div className="relative w-full h-full">
                   <Image
                     src={imageSrc}
-                    alt={`Gallery image ${index + 1}`}
+                    alt={tourName ? `${tourName} - photo ${index + 1}` : `Tour photo ${index + 1}`}
                     fill
                     loading="lazy"
                     className={`object-cover transition-all duration-300 group-hover:scale-105 ${

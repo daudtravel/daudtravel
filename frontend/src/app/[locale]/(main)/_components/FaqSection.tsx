@@ -39,7 +39,7 @@ export default function FaqSection() {
   if (isLoading) {
     return (
       <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
-        <h1 className="text-xl">{t("faq")}</h1>
+        <h2 className="text-xl">{t("faq")}</h2>
         <div className="mt-6 flex justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
         </div>
@@ -50,7 +50,7 @@ export default function FaqSection() {
   if (error) {
     return (
       <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
-        <h1 className="text-xl">{t("faq")}</h1>
+        <h2 className="text-xl">{t("faq")}</h2>
         <div className="mt-6 text-red-500">
           {t("error_loading_faqs", { defaultValue: "Error loading FAQs" })}
         </div>
@@ -60,7 +60,7 @@ export default function FaqSection() {
 
   return (
     <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
-      <h1 className="text-xl">{t("faq")}</h1>
+      <h2 className="text-xl">{t("faq")}</h2>
       {faqs.length === 0
         ? null
         : faqs.map((faq: getFAQ) => {

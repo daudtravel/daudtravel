@@ -83,7 +83,7 @@ const ReviewsSection = () => {
 
   return (
     <section className="md:pt-12 md:pb-20 pb-12 flex w-full flex-col items-center">
-      <motion.h1 
+      <motion.h2
         className="text-2xl md:text-3xl text-center mb-5 md:mb-10"
         initial="hidden"
         whileInView="visible"
@@ -91,7 +91,7 @@ const ReviewsSection = () => {
         variants={buttonVariants}
       >
         {t("guestReviews")}
-      </motion.h1>
+      </motion.h2>
       <Carousel
         opts={{
           align: "start",
