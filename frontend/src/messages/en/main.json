@@ -30,5 +30,15 @@
   "travelInsurance": "Travel Insurance",
   "wantTravelInsurance": "Want Travel Insurance?",
   "getItHere": "Get It Here",
-  "errorLoadingTours": "Could not load tours. Please try again later."
+  "errorLoadingTours": "Could not load tours. Please try again later.",
+  "ourServices": "Our Services",
+  "ourServicesDesc": "Tours, transfers, insurance and more — everything you need for your trip to Georgia.",
+  "serviceToursTitle": "Tours",
+  "serviceToursDesc": "Group and individual tours across Georgia",
+  "serviceTransfersTitle": "Transfers",
+  "serviceTransfersDesc": "Comfortable door-to-door rides",
+  "serviceInsuranceTitle": "Insurance",
+  "serviceInsuranceDesc": "Travel coverage for your journey",
+  "serviceProductsTitle": "Products",
+  "serviceProductsDesc": "Buy tours and services online"
 }

@@ -12,6 +12,7 @@ import { TourType } from "@/src/types/tours.type";
 import VideoCarousel from "./_components/VideoCarousel";
 import PublicProductsCarousel from "./_components/PublicProductsCarousel";
 import InsuranceSection from "./_components/InsuranceSection";
+import ServicesSection from "./_components/ServicesSection";
 
 const BASE_URL = "https://www.daudtravel.com";
 const locales = ["ka", "en", "ru", "ar", "tr"] as const;
@@ -36,9 +37,12 @@ export async function generateMetadata({
 
     alternates: {
       canonical: currentUrl,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}`])
+        ),
+        "x-default": `${BASE_URL}/en`,
+      },
     },
 
     openGraph: {
@@ -122,6 +126,7 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       <CoverSection />
+      <ServicesSection />
       <ToursCarouselSection
         type={TourType.INDIVIDUAL}
         titleKey="individualTours"

@@ -30,5 +30,15 @@
   "travelInsurance": "სამოგზაურო დაზღვევა",
   "wantTravelInsurance": "გსურთ სამოგზაურო დაზღვევა?",
   "getItHere": "მიიღეთ ჩვენი დახმარებით",
-  "errorLoadingTours": "ტურების ჩატვირთვა ვერ მოხერხდა. გთხოვთ სცადოთ მოგვიანებით."
+  "errorLoadingTours": "ტურების ჩატვირთვა ვერ მოხერხდა. გთხოვთ სცადოთ მოგვიანებით.",
+  "ourServices": "ჩვენი სერვისები",
+  "ourServicesDesc": "ტურები, ტრანსფერები, დაზღვევა და მეტი — ყველაფერი თქვენი მოგზაურობისთვის საქართველოში.",
+  "serviceToursTitle": "ტურები",
+  "serviceToursDesc": "ჯგუფური და ინდივიდუალური ტურები მთელ საქართველოში",
+  "serviceTransfersTitle": "ტრანსფერები",
+  "serviceTransfersDesc": "კომფორტული გადაყვანა სასურველ ლოკაციაზე",
+  "serviceInsuranceTitle": "დაზღვევა",
+  "serviceInsuranceDesc": "სამოგზაურო დაზღვევა თქვენი მოგზაურობისთვის",
+  "serviceProductsTitle": "პროდუქტები",
+  "serviceProductsDesc": "შეიძინეთ ტურები და სერვისები ონლაინ"
 }

@@ -30,5 +30,15 @@
   "travelInsurance": "تأمين السفر",
   "wantTravelInsurance": "هل تريد تأمين السفر؟",
   "getItHere": "احصل عليه هنا",
-  "errorLoadingTours": "تعذر تحميل الجولات. يرجى المحاولة مرة أخرى لاحقاً."
+  "errorLoadingTours": "تعذر تحميل الجولات. يرجى المحاولة مرة أخرى لاحقاً.",
+  "ourServices": "خدماتنا",
+  "ourServicesDesc": "جولات وتنقلات وتأمين والمزيد — كل ما تحتاجه لرحلتك إلى جورجيا.",
+  "serviceToursTitle": "الجولات",
+  "serviceToursDesc": "جولات جماعية وفردية في جميع أنحاء جورجيا",
+  "serviceTransfersTitle": "التنقلات",
+  "serviceTransfersDesc": "رحلات مريحة من الباب إلى الباب",
+  "serviceInsuranceTitle": "التأمين",
+  "serviceInsuranceDesc": "تأمين سفر لرحلتك",
+  "serviceProductsTitle": "المنتجات",
+  "serviceProductsDesc": "اشترِ الجولات والخدمات عبر الإنترنت"
 }

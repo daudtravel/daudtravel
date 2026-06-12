@@ -30,5 +30,15 @@
   "travelInsurance": "Seyahat Sigortası",
   "wantTravelInsurance": "Seyahat Sigortası İster misiniz?",
   "getItHere": "Buradan Alın",
-  "errorLoadingTours": "Turlar yüklenemedi. Lütfen daha sonra tekrar deneyin."
+  "errorLoadingTours": "Turlar yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+  "ourServices": "Hizmetlerimiz",
+  "ourServicesDesc": "Turlar, transferler, sigorta ve daha fazlası — Gürcistan seyahatiniz için her şey.",
+  "serviceToursTitle": "Turlar",
+  "serviceToursDesc": "Gürcistan genelinde grup ve bireysel turlar",
+  "serviceTransfersTitle": "Transferler",
+  "serviceTransfersDesc": "Kapıdan kapıya konforlu ulaşım",
+  "serviceInsuranceTitle": "Sigorta",
+  "serviceInsuranceDesc": "Seyahatiniz için seyahat sigortası",
+  "serviceProductsTitle": "Ürünler",
+  "serviceProductsDesc": "Tur ve hizmetleri online satın alın"
 }

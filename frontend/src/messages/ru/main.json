@@ -30,5 +30,15 @@
   "travelInsurance": "Туристическая страховка",
   "wantTravelInsurance": "Нужна туристическая страховка?",
   "getItHere": "Получить здесь",
-  "errorLoadingTours": "Не удалось загрузить туры. Пожалуйста, попробуйте позже."
+  "errorLoadingTours": "Не удалось загрузить туры. Пожалуйста, попробуйте позже.",
+  "ourServices": "Наши услуги",
+  "ourServicesDesc": "Туры, трансферы, страховка и многое другое — всё для вашей поездки в Грузию.",
+  "serviceToursTitle": "Туры",
+  "serviceToursDesc": "Групповые и индивидуальные туры по всей Грузии",
+  "serviceTransfersTitle": "Трансферы",
+  "serviceTransfersDesc": "Комфортные поездки от двери до двери",
+  "serviceInsuranceTitle": "Страховка",
+  "serviceInsuranceDesc": "Туристическая страховка для вашей поездки",
+  "serviceProductsTitle": "Продукты",
+  "serviceProductsDesc": "Покупайте туры и услуги онлайн"
 }
