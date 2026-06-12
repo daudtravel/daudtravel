@@ -16,6 +16,7 @@ import { VideosModule } from './videos/videos.module';
 import { QuickPaymentModule } from './quick-payment/quick-payment.module';
 import { InsuranceModule } from './insurance/insurance.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -38,5 +39,6 @@ import { AccommodationsModule } from './accommodations/accommodations.module';
     InsuranceModule,
     AccommodationsModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
