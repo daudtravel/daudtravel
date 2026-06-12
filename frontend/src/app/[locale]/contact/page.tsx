@@ -33,6 +33,7 @@ export async function generateMetadata({
         ru: `${baseUrl}/ru/contact`,
         tr: `${baseUrl}/tr/contact`,
         ar: `${baseUrl}/ar/contact`,
+        "x-default": `${baseUrl}/en/contact`,
       },
     },
 

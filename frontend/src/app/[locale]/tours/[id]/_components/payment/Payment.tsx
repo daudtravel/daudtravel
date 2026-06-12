@@ -16,6 +16,8 @@ import {
 } from "@/src/components/ui/popover";
 import { CalendarIcon, Plus, Minus, CreditCard, AlertCircle } from "lucide-react";
 import { cn } from "@/src/utlis/cn";
+import { Link } from "@/src/i18n/routing";
+import { CONTACT } from "@/src/constants/accommodations.constants";
 import PaymentModal from "./TourPaymentModal";
 import type { PaymentProps, BookingData, PriceData } from "./types";
 
@@ -69,7 +71,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
         discountedPrice: pricing.discounted,
         reservationPrice: pricing.reservation,
         remainingPrice: pricing.total - pricing.reservation,
-        savings: pricing.total - pricing.discounted,
+        savings: pricing.discounted > 0 ? pricing.total - pricing.discounted : 0,
       };
     }
 
@@ -85,7 +87,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
         discountedPrice,
         reservationPrice,
         remainingPrice: basePrice - reservationPrice,
-        savings: basePrice - discountedPrice,
+        savings: discountedPrice > 0 ? basePrice - discountedPrice : 0,
       };
     }
 
@@ -235,7 +237,11 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
               onSelect={handleDateSelect}
               initialFocus
               locale={dateLocale}
-              disabled={(date) => date < new Date()}
+              disabled={(date) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return date < today;
+              }}
             />
           </PopoverContent>
         </Popover>
@@ -371,7 +377,11 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
                 asChild
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
               >
-                <a href="#" target="_blank" rel="noopener noreferrer">
+                <a
+                  href={`https://wa.me/${CONTACT.WHATSAPP_NUMBER}?text=${encodeURIComponent(data.localizations?.[0]?.name || "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {t("contactOnWhatsapp")}
                 </a>
               </Button>
@@ -379,9 +389,7 @@ const Payment: React.FC<PaymentProps> = ({ data }) => {
                 asChild
                 className="w-full bg-brand-green hover:bg-brand-green-dark text-brand-cream"
               >
-                <a href="/contact" target="_blank" rel="noopener noreferrer">
-                  {t("seeAllContactMethods")}
-                </a>
+                <Link href="/contact">{t("seeAllContactMethods")}</Link>
               </Button>
             </div>
           </div>

@@ -30,6 +30,8 @@ import RichTextEditor from "@/src/components/textEditor/TextEditor";
 import {
   CreateTourFormData,
   createTourSchema,
+  isCompleteLocalization,
+  SUPPORTED_LOCALES,
   TourType,
 } from "./CreateTourValidator";
 import { useCreateTour } from "@/src/hooks/tours/useCreateTour";
@@ -48,15 +50,13 @@ export default function CreateTour() {
     resolver: zodResolver(createTourSchema),
     defaultValues: {
       type: TourType.GROUP,
-      localizations: [
-        {
-          locale: "ka",
-          name: "",
-          description: "",
-          startLocation: "",
-          locations: [],
-        },
-      ],
+      localizations: SUPPORTED_LOCALES.map((locale) => ({
+        locale,
+        name: "",
+        description: "",
+        startLocation: "",
+        locations: [],
+      })),
       days: 1,
       nights: 0,
       mainImage: "",
@@ -114,9 +114,10 @@ export default function CreateTour() {
         galleryBase64.push(...results);
       }
 
-      // Create the payload
+      // Create the payload — only send languages the admin actually filled in
       const payload = {
         ...data,
+        localizations: data.localizations.filter(isCompleteLocalization),
         mainImage: mainImageBase64,
         gallery: galleryBase64,
       };
@@ -214,115 +215,155 @@ export default function CreateTour() {
               )}
             />
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="localizations.0.name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ტურის დასახელება</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="შეიყვანეთ ტურის დასახელება"
-                          {...field}
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">
+                თარგმანები
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  (მინიმუმ ერთი აუცილებელია)
+                </span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {SUPPORTED_LOCALES.map((locale, idx) => {
+                  const hasContent = form.watch(`localizations.${idx}.name`);
+                  return (
+                    <div
+                      key={locale}
+                      className={`space-y-4 p-4 border rounded-lg transition-colors ${
+                        hasContent
+                          ? "border-brand-green bg-brand-green-50"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold uppercase">{locale}</h4>
+                        {hasContent && (
+                          <span className="text-xs bg-brand-green text-white px-2 py-1 rounded">
+                            შევსებულია
+                          </span>
+                        )}
+                      </div>
 
-                <FormField
-                  control={form.control}
-                  name="localizations.0.startLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>საწყისი ლოკაცია</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="შეიყვანეთ საწყისი ლოკაცია"
-                          {...field}
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="localizations.0.locations"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>შემდეგი ლოკაციები</FormLabel>
-                    <div className="space-y-2">
-                      {(field.value || []).map((location, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={location}
-                            onChange={(e) => {
-                              const newLocations = [...(field.value || [])];
-                              newLocations[index] = e.target.value;
-                              field.onChange(newLocations);
-                            }}
-                            disabled={isSubmitting}
-                            placeholder={`ლოკაცია ${index + 1}`}
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => {
-                              const newLocations = (field.value || []).filter(
-                                (_, i) => i !== index
-                              );
-                              field.onChange(newLocations);
-                            }}
-                            disabled={isSubmitting}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          field.onChange([...(field.value || []), ""])
-                        }
-                        disabled={isSubmitting}
-                        className="w-full"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        ლოკაციის დამატება
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="localizations.0.description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>აღწერა</FormLabel>
-                    <FormControl>
-                      <RichTextEditor
-                        value={field.value}
-                        onChange={field.onChange}
-                        disabled={isSubmitting}
-                        placeholder="შეიყვანეთ ტურის აღწერა"
+                      <FormField
+                        control={form.control}
+                        name={`localizations.${idx}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>ტურის დასახელება</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="შეიყვანეთ ტურის დასახელება"
+                                {...field}
+                                disabled={isSubmitting}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
+                      <FormField
+                        control={form.control}
+                        name={`localizations.${idx}.startLocation`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>საწყისი ლოკაცია</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="შეიყვანეთ საწყისი ლოკაცია"
+                                {...field}
+                                disabled={isSubmitting}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`localizations.${idx}.locations`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>შემდეგი ლოკაციები</FormLabel>
+                            <div className="space-y-2">
+                              {(field.value || []).map((location, index) => (
+                                <div key={index} className="flex gap-2">
+                                  <Input
+                                    value={location}
+                                    onChange={(e) => {
+                                      const newLocations = [
+                                        ...(field.value || []),
+                                      ];
+                                      newLocations[index] = e.target.value;
+                                      field.onChange(newLocations);
+                                    }}
+                                    disabled={isSubmitting}
+                                    placeholder={`ლოკაცია ${index + 1}`}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => {
+                                      const newLocations = (
+                                        field.value || []
+                                      ).filter((_, i) => i !== index);
+                                      field.onChange(newLocations);
+                                    }}
+                                    disabled={isSubmitting}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  field.onChange([...(field.value || []), ""])
+                                }
+                                disabled={isSubmitting}
+                                className="w-full"
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                ლოკაციის დამატება
+                              </Button>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`localizations.${idx}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>აღწერა</FormLabel>
+                            <FormControl>
+                              <RichTextEditor
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                                disabled={isSubmitting}
+                                placeholder="შეიყვანეთ ტურის აღწერა"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              {(form.formState.errors.localizations?.message ||
+                form.formState.errors.localizations?.root?.message) && (
+                <p className="text-sm font-medium text-destructive">
+                  {form.formState.errors.localizations.message ||
+                    form.formState.errors.localizations.root?.message}
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-3 gap-4">
               <FormField

@@ -12,5 +12,9 @@
   "groupTourType": "جولة جماعية",
   "individualTourType": "جولة فردية",
   "insurance": "التأمين",
-  "services": "الخدمات"
+  "accommodations": "الفنادق والشقق",
+  "services": "الخدمات",
+  "termsAndConditions": "الشروط والأحكام",
+  "privacyPolicy": "سياسة الخصوصية",
+  "allRightsReserved": "جميع الحقوق محفوظة"
 }

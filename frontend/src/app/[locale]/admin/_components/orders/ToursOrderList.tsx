@@ -92,25 +92,57 @@ const TourOrdersList = () => {
     return (
       <Card
         key={data.id}
-        className="hover:shadow-lg transition-all duration-200 border border-gray-200"
+        className="shadow-sm hover:shadow-lg transition-shadow duration-200 border border-gray-200"
       >
-        <CardContent className="p-4 sm:p-5 space-y-4">
-          <div className="space-y-3 pb-4 border-b border-gray-100">
+        <CardContent className="p-4 sm:p-5 space-y-3">
+          {/* Always-visible summary */}
+          <div className="space-y-2 pb-3 border-b border-gray-100">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2">
                 {data.tourName}
               </h3>
               <div
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium w-fit ${statusConfig.color}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium w-fit shrink-0 ${statusConfig.color}`}
               >
                 <StatusIcon className="w-3.5 h-3.5" />
                 <span>{statusConfig.text}</span>
               </div>
             </div>
-            <p className="text-xs text-gray-500">
-              შეკვეთის ID: #{data.id.slice(-8)}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-700">
+              <span className="flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-gray-400" />
+                {data.customerFirstName} {data.customerLastName}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="w-3.5 h-3.5 text-gray-400" />
+                {formattedDate}
+              </span>
+              <span className="flex items-center gap-1.5 font-medium text-green-700">
+                <Wallet className="w-3.5 h-3.5" />₾{data.amountPaid}
+                {amountRemaining > 0 && (
+                  <span className="text-orange-600 font-normal">
+                    (+₾{amountRemaining})
+                  </span>
+                )}
+              </span>
+            </div>
           </div>
+
+          {/* Collapsed details */}
+          <details className="group">
+            <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-brand-green select-none list-none [&::-webkit-details-marker]:hidden">
+              <span>დეტალები</span>
+              <span className="text-xs text-gray-400 group-open:hidden">
+                გახსნა ▾
+              </span>
+              <span className="text-xs text-gray-400 hidden group-open:inline">
+                დახურვა ▴
+              </span>
+            </summary>
+            <div className="mt-3 space-y-4">
+          <p className="text-xs text-gray-500">
+            შეკვეთის ID: #{data.id.slice(-8)}
+          </p>
 
           <div className="space-y-3">
             <h4 className="font-semibold text-xs uppercase tracking-wide text-gray-500">
@@ -119,22 +151,15 @@ const TourOrdersList = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-gray-50 rounded-lg">
-                  <User className="w-3.5 h-3.5 text-gray-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm text-gray-900 font-medium">
-                    {data.customerFirstName} {data.customerLastName}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-gray-50 rounded-lg">
                   <Mail className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm text-gray-700 truncate block">
+                  <a
+                    href={`mailto:${data.customerEmail}`}
+                    className="text-sm text-gray-700 truncate block hover:text-brand-green"
+                  >
                     {data.customerEmail}
-                  </span>
+                  </a>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -142,9 +167,12 @@ const TourOrdersList = () => {
                   <Phone className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm text-gray-700">
+                  <a
+                    href={`tel:${data.customerPhone}`}
+                    className="text-sm text-gray-700 hover:text-brand-green"
+                  >
                     {data.customerPhone}
-                  </span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -254,6 +282,8 @@ const TourOrdersList = () => {
               )}
             </div>
           </div>
+            </div>
+          </details>
         </CardContent>
       </Card>
     );

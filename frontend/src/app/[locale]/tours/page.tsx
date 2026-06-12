@@ -26,9 +26,12 @@ export async function generateMetadata({
     category: "Travel",
     alternates: {
       canonical: currentUrl,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}/tours`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/tours`])
+        ),
+        "x-default": `${BASE_URL}/en/tours`,
+      },
     },
     openGraph: {
       title: t("tours"),

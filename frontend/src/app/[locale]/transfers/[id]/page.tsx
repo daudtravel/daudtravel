@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import TransferDetailsClient from "./_components/TransferDetailsClient";
 
 const BASE_URL = "https://www.daudtravel.com";
@@ -34,6 +35,8 @@ export async function generateMetadata({
     };
   }
 
+  const t = await getTranslations("meta");
+
   const localization =
     transfer.localizations?.find(
       (l: { locale: string }) => l.locale === locale
@@ -41,9 +44,14 @@ export async function generateMetadata({
 
   const startLocation = localization?.startLocation ?? "Georgia";
   const endLocation = localization?.endLocation ?? "destination";
-  const title = `Transfer: ${startLocation} → ${endLocation} | Daud Travel`;
-  const description = `Book a comfortable transfer from ${startLocation} to ${endLocation} with Daud Travel. Professional drivers, modern vehicles, competitive prices.`;
+  const title = t("transferDetail", { start: startLocation, end: endLocation });
+  const description = t("descriptionTransferDetail", {
+    start: startLocation,
+    end: endLocation,
+  });
   const currentUrl = `${BASE_URL}/${locale}/transfers/${id}`;
+  // Transfers have no photos — share cards show the brand logo
+  const ogImage = `${BASE_URL}/images/Logo.png`;
 
   return {
     title,
@@ -54,9 +62,12 @@ export async function generateMetadata({
     publisher: "Daud Travel",
     alternates: {
       canonical: currentUrl,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}/transfers/${id}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/transfers/${id}`])
+        ),
+        "x-default": `${BASE_URL}/en/transfers/${id}`,
+      },
     },
     openGraph: {
       title,
@@ -67,20 +78,18 @@ export async function generateMetadata({
       siteName: "Daud Travel",
       images: [
         {
-          url: `${BASE_URL}/images/MainOG.jpg`,
-          width: 1200,
-          height: 630,
+          url: ogImage,
           alt: title,
-          type: "image/jpeg",
+          type: "image/png",
         },
       ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       site: "@daudtravel",
       title,
       description,
-      images: [`${BASE_URL}/images/MainOG.jpg`],
+      images: [ogImage],
     },
     robots: {
       index: true,

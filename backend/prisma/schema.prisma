@@ -21,6 +21,11 @@ enum VehicleType {
   BUS
 }
 
+enum AccommodationType {
+  HOTEL
+  APARTMENT
+}
+
 enum PaymentStatus {
   PENDING
   PAID
@@ -108,6 +113,57 @@ model IndividualPricing {
   tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
   
   @@map("individual_pricing")
+}
+
+// Accommodation Models (hotels & apartments — inquiry via WhatsApp, no payment)
+model Accommodation {
+  id        String            @id @default(cuid())
+  type      AccommodationType @default(HOTEL)
+  price     Decimal           @db.Decimal(10, 2) // per night
+  city      String
+  maxGuests Int               @default(1) @map("max_guests")
+  bedrooms  Int               @default(1)
+  bathrooms Int               @default(1)
+  amenities String[]          @default([])
+  mainImage String            @map("main_image")
+  isPublic  Boolean           @default(false) @map("is_public")
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  localizations AccommodationLocalization[]
+  images        AccommodationImage[]
+
+  @@index([type, isPublic])
+  @@index([city])
+  @@map("accommodations")
+}
+
+model AccommodationLocalization {
+  id              String @id @default(cuid())
+  accommodationId String @map("accommodation_id")
+  locale          String @default("ka")
+  name            String
+  description     String @db.Text
+  address         String @default("")
+
+  accommodation Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  @@unique([accommodationId, locale])
+  @@index([locale])
+  @@map("accommodation_localizations")
+}
+
+model AccommodationImage {
+  id              String   @id @default(cuid())
+  accommodationId String   @map("accommodation_id")
+  url             String
+  order           Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  accommodation Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+
+  @@index([accommodationId])
+  @@map("accommodation_images")
 }
 
 model Transfer {

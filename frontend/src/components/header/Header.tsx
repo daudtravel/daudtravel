@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/src/i18n/routing";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -29,8 +29,8 @@ export default function Header() {
   };
 
   const isServiceActive = () => {
-    return ["/tours", "/transfers", "/insurance", "/products"].some((path) =>
-      isActive(path)
+    return ["/tours", "/transfers", "/accommodations", "/insurance", "/products"].some(
+      (path) => isActive(path)
     );
   };
 
@@ -114,6 +114,7 @@ export default function Header() {
                 {[
                   { href: "/tours", label: t("tours") },
                   { href: "/transfers", label: t("transfers") },
+                  { href: "/accommodations", label: t("accommodations") },
                   { href: "/insurance", label: t("insurance") },
                   { href: "/products", label: t("products") },
                 ].map((item) => (

@@ -27,9 +27,12 @@ export async function generateMetadata({
 
     alternates: {
       canonical: currentUrl,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}/insurance`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/insurance`])
+        ),
+        "x-default": `${BASE_URL}/en/insurance`,
+      },
     },
 
     openGraph: {

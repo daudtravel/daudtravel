@@ -17,9 +17,12 @@ export async function generateMetadata({
       "Read the Daud Travel terms and conditions for booking tours, transfers, and travel services in Georgia. Understand our booking, payment, cancellation, and refund policies.",
     alternates: {
       canonical: `${BASE_URL}/${locale}/terms`,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}/terms`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/terms`])
+        ),
+        "x-default": `${BASE_URL}/en/terms`,
+      },
     },
     robots: { index: true, follow: true },
   };

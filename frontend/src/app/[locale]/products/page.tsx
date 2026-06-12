@@ -32,6 +32,7 @@ export async function generateMetadata({
         ru: `${baseUrl}/ru/products`,
         tr: `${baseUrl}/tr/products`,
         ar: `${baseUrl}/ar/products`,
+        "x-default": `${baseUrl}/en/products`,
       },
     },
 

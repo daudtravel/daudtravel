@@ -9,7 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/src/i18n/routing";
 import { useState } from "react";
 
 const cardVariants = {
@@ -50,8 +50,8 @@ export default function AllProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-12">
+      <div className="w-full px-4 md:px-20 py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product: any, index: number) => (
             <motion.div
               key={product.id}
@@ -62,39 +62,39 @@ export default function AllProductsPage() {
               variants={cardVariants}
             >
               <Link href={`/pay/${product.slug}`}>
-                <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col group">
-                  <div className="relative h-56 bg-gray-100 overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col group">
+                  <div className="relative h-44 bg-gray-100 overflow-hidden">
                     {product.image ? (
                       <img
                         src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Package className="w-16 h-16 text-gray-300" />
+                        <Package className="w-14 h-14 text-gray-300" />
                       </div>
                     )}
                   </div>
 
-                  <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-brand-green transition-colors">
+                      <h3 className="text-base font-semibold text-gray-800 mb-1.5 line-clamp-2 group-hover:text-brand-green transition-colors">
                         {product.name}
                       </h3>
                       {product.description && (
-                        <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                        <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                           {product.description}
                         </p>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                      <div className="text-lg font-bold text-brand-green">
                         ₾{product.price}
                       </div>
                       <div className="flex items-center gap-2 text-brand-green-mid group-hover:text-brand-green transition-colors">
-                        <ShoppingCart size={20} />
+                        <ShoppingCart size={18} />
                         <span className="font-medium text-sm">შეძენა</span>
                       </div>
                     </div>

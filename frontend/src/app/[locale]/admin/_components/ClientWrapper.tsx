@@ -14,6 +14,7 @@ import {
   Link,
   Shield,
   ChevronDown,
+  BedDouble,
 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ToursList } from "./tours/tour-list/ToursList";
@@ -39,6 +40,9 @@ import { EditQuickLink } from "./quick-payment/EditQuickPaymentLink";
 import { InsuranceSubmissionDetails } from "./insurance/InsuranceSumbissionDetails";
 import InsuranceSubmissionsList from "./insurance/InsuranceSubmissionList";
 import InsuranceSettings from "./insurance/InsuranceSettings";
+import { AccommodationsList } from "./accommodations/accommodation-list/AccommodationsList";
+import CreateAccommodation from "./accommodations/create-accommodation/CreateAccommodation";
+import EditAccommodation from "./accommodations/edit-accommodation/EditAccommodation";
 
 interface SidebarItem {
   key: string;
@@ -74,12 +78,22 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
     ],
   },
   {
+    key: "accommodationsGroup",
+    label: "საცხოვრებელი",
+    icon: BedDouble,
+    items: [
+      { key: "accommodations", label: "სასტუმრო/აპარტამენტი", query: "?accommodations=all" },
+    ],
+  },
+  {
     key: "servicesGroup",
     label: "სერვისები",
     icon: Link,
     items: [
       { key: "quickPayment", label: "გადახდ. ლინკები", query: "?quickPayment=all" },
+      { key: "quickPaymentOrders", label: "გადახდ. შეკვეთები", query: "?quickPayment=orders" },
       { key: "insurance", label: "დაზღვევა", query: "?insurance=all" },
+      { key: "insuranceSettings", label: "დაზღვ. პარამეტრები", query: "?insurance=settings" },
     ],
   },
   {
@@ -112,6 +126,7 @@ export const ClientWrapper = () => {
   const transferOrders = searchParams.get("transferOrders");
   const quickPayment = searchParams.get("quickPayment");
   const insurance = searchParams.get("insurance");
+  const accommodations = searchParams.get("accommodations");
 
   useEffect(() => {
     const hasParams = Array.from(searchParams.keys()).length > 0;
@@ -134,10 +149,19 @@ export const ClientWrapper = () => {
     if (window.innerWidth < 1024) setIsSidebarOpen(false);
   };
 
-  const isActive = (key: string) => searchParams.has(key);
+  const isItemActive = (item: SidebarItem) => {
+    const [param, value] = item.query.slice(1).split("=");
+    const current = searchParams.get(param);
+    if (current === null) return false;
+    if (current === value) return true;
+    // "all" entries also own create/edit sub-views, but not views that
+    // have their own sidebar entry (orders, settings)
+    if (value === "all") return current !== "orders" && current !== "settings";
+    return false;
+  };
 
   const isGroupActive = (group: SidebarGroup) =>
-    group.items.some((item) => isActive(item.key));
+    group.items.some((item) => isItemActive(item));
 
   const toggleGroup = (key: string) => {
     setOpenGroups((prev) => {
@@ -168,6 +192,10 @@ export const ClientWrapper = () => {
     if (insurance === "all") return <InsuranceSubmissionsList />;
     if (insurance === "settings") return <InsuranceSettings />;
     if (insurance) return <InsuranceSubmissionDetails />;
+
+    if (accommodations === "all") return <AccommodationsList />;
+    if (accommodations === "create") return <CreateAccommodation />;
+    if (accommodations) return <EditAccommodation />;
 
     if (faqs === "all") return <FaqList />;
     if (faqs === "createFaq") return <CreateFaq />;
@@ -257,12 +285,12 @@ export const ClientWrapper = () => {
                             key={item.key}
                             onClick={() => navigate(item.query)}
                             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
-                              isActive(item.key)
+                              isItemActive(item)
                                 ? "bg-brand-green text-white font-semibold"
                                 : "text-gray-600 hover:bg-brand-green-50 hover:text-brand-green"
                             }`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive(item.key) ? "bg-white" : "bg-gray-300"}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isItemActive(item) ? "bg-white" : "bg-gray-300"}`} />
                             {item.label}
                           </button>
                         ))}
@@ -320,8 +348,10 @@ export const ClientWrapper = () => {
         <Menu size={20} />
       </button>
 
-      <div className="flex-1 overflow-auto">
-        <div className="p-4 lg:p-8 max-w-full">{renderContent()}</div>
+      <div className="flex-1 overflow-auto min-w-0">
+        <div className="p-4 pt-16 lg:p-8 lg:pt-8 max-w-full">
+          {renderContent()}
+        </div>
       </div>
     </main>
   );

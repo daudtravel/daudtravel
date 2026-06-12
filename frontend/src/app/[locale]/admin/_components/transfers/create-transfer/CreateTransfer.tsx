@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   CreateTransferFormData,
+  SUPPORTED_LOCALES,
   useCreateTransferValidator,
 } from "./CreateTransferValidator";
 import {
@@ -41,8 +42,9 @@ const CreateTransfer = () => {
   const { mutate: createTransfer, isPending } = useCreateTransfer();
 
   const onSubmit = async (data: CreateTransferFormData) => {
+    // Only send languages the admin actually filled in
     const filteredLocalizations = data.localizations?.filter(
-      (loc) => loc.startLocation && loc.endLocation
+      (loc) => loc.startLocation?.trim() && loc.endLocation?.trim()
     );
 
     createTransfer(
@@ -108,47 +110,87 @@ const CreateTransfer = () => {
 
           {/* Route + Vehicle types — side by side on large screens */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-            {/* Route */}
+            {/* Route — fill one or more languages */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">მარშრუტი</h3>
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="localizations.0.startLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold text-gray-600">საწყისი ლოკაცია</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="მაგ. თბილისი"
-                          {...field}
-                          disabled={isPending}
-                          className="border-gray-200 focus-visible:ring-brand-green text-sm"
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                მარშრუტი
+                <span className="text-xs font-normal text-gray-400 normal-case ml-2">
+                  (მინიმუმ ერთი ენა)
+                </span>
+              </h3>
+              <div className="space-y-3">
+                {SUPPORTED_LOCALES.map((locale, idx) => {
+                  const hasContent = form.watch(
+                    `localizations.${idx}.startLocation`
+                  );
+                  return (
+                    <div
+                      key={locale}
+                      className={`p-3 border rounded-lg space-y-3 transition-colors ${
+                        hasContent
+                          ? "border-brand-green bg-brand-green-50"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase text-gray-600">
+                          {locale}
+                        </span>
+                        {hasContent && (
+                          <span className="text-[10px] bg-brand-green text-white px-1.5 py-0.5 rounded">
+                            შევსებულია
+                          </span>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField
+                          control={form.control}
+                          name={`localizations.${idx}.startLocation`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-semibold text-gray-600">საწყისი ლოკაცია</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="მაგ. თბილისი"
+                                  {...field}
+                                  disabled={isPending}
+                                  className="border-gray-200 focus-visible:ring-brand-green text-sm"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="localizations.0.endLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold text-gray-600">საბოლოო ლოკაცია</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="მაგ. ბათუმი"
-                          {...field}
-                          disabled={isPending}
-                          className="border-gray-200 focus-visible:ring-brand-green text-sm"
+                        <FormField
+                          control={form.control}
+                          name={`localizations.${idx}.endLocation`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-semibold text-gray-600">საბოლოო ლოკაცია</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="მაგ. ბათუმი"
+                                  {...field}
+                                  disabled={isPending}
+                                  className="border-gray-200 focus-visible:ring-brand-green text-sm"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+              {(form.formState.errors.localizations?.message ||
+                form.formState.errors.localizations?.root?.message) && (
+                <p className="text-sm font-medium text-destructive">
+                  {form.formState.errors.localizations.message ||
+                    form.formState.errors.localizations.root?.message}
+                </p>
+              )}
             </div>
 
             {/* Vehicle types */}

@@ -1,5 +1,6 @@
 import TourDetails from "./_components/TourDetails";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 const BASE_URL = "https://www.daudtravel.com";
 const locales = ["ka", "en", "ru", "ar", "tr"] as const;
@@ -25,6 +26,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id, locale } = await params;
   const tour = await getTour(id, locale);
+  const t = await getTranslations("meta");
 
   if (!tour) {
     return {
@@ -39,7 +41,7 @@ export async function generateMetadata({
 
   const title = localization?.name?.trim() ?? "Tour Details";
 
-  let description = "Explore this amazing tour with Daud Travel in Georgia.";
+  let description = t("descriptionTours");
   if (localization?.description) {
     try {
       const parsed = JSON.parse(localization.description);
@@ -54,10 +56,11 @@ export async function generateMetadata({
     }
   }
 
+  // Tour photo when available, brand logo otherwise
   const imagePath = tourData.mainImage ?? tourData.images?.[0];
   const image = imagePath
     ? `${process.env.NEXT_PUBLIC_BASE_URL}${imagePath}`
-    : `${BASE_URL}/images/MainOG.jpg`;
+    : `${BASE_URL}/images/Logo.png`;
 
   const currentUrl = `${BASE_URL}/${locale}/tours/${id}`;
   const startLocation = localization?.startLocation ?? "Georgia";
@@ -83,9 +86,12 @@ export async function generateMetadata({
     publisher: "Daud Travel",
     alternates: {
       canonical: currentUrl,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}/tours/${id}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/tours/${id}`])
+        ),
+        "x-default": `${BASE_URL}/en/tours/${id}`,
+      },
     },
     openGraph: {
       title,
@@ -120,11 +126,12 @@ export async function generateMetadata({
 export default async function Page({ params }: PageProps) {
   const { id, locale } = await params;
   const tour = await getTour(id, locale);
+  const t = await getTranslations("meta");
   const tourData = tour?.data ?? tour;
   const localization = tourData?.localizations?.[0];
   const title = localization?.name?.trim() ?? "Tour";
 
-  let description = "Explore this amazing tour with Daud Travel in Georgia.";
+  let description = t("descriptionTours");
   if (localization?.description) {
     try {
       const parsed = JSON.parse(localization.description);
@@ -142,7 +149,7 @@ export default async function Page({ params }: PageProps) {
   const imagePath = tourData?.mainImage ?? tourData?.images?.[0];
   const image = imagePath
     ? `${process.env.NEXT_PUBLIC_BASE_URL}${imagePath}`
-    : `${BASE_URL}/images/MainOG.jpg`;
+    : `${BASE_URL}/images/Logo.png`;
 
   const startLocation = localization?.startLocation ?? "Georgia";
   const locations: string[] = localization?.locations ?? [];

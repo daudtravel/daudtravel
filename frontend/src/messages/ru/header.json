@@ -12,5 +12,9 @@
   "groupTourType": "Групповой тур",
   "individualTourType": "Индивидуальный тур",
   "insurance": "Страхование",
-  "services": "Услуги"
+  "accommodations": "Отели и апартаменты",
+  "services": "Услуги",
+  "termsAndConditions": "Правила и условия",
+  "privacyPolicy": "Политика конфиденциальности",
+  "allRightsReserved": "Все права защищены"
 }

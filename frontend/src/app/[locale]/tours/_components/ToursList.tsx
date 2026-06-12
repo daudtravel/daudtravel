@@ -26,6 +26,7 @@ const isValidTourType = (value: string | undefined): value is TourType => {
 
 export default function ToursList() {
   const t = useTranslations("tours");
+  const tHeader = useTranslations("header");
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
@@ -120,8 +121,13 @@ export default function ToursList() {
   const hasResults = toursData?.data && toursData.data.length > 0;
 
   return (
-    <main className="w-full min-h-screen md:px-20 xl:pr-36 px-4 pt-6 md:pt-20 pb-20">
-      <h1 className="sr-only">Tours in Georgia</h1>
+    <main className="w-full min-h-screen md:px-20 xl:pr-36 px-4 pt-6 md:pt-12 pb-20">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          {tHeader("tours")}
+        </h1>
+        <div className="h-1 w-16 bg-brand-yellow rounded-full mt-2" />
+      </div>
       <div className="md:hidden mb-4">
         <Button
           onClick={toggleFilters}
@@ -153,7 +159,7 @@ export default function ToursList() {
         ) : (
           <div className="w-full">
             <div
-              className={`w-full grid lg:grid-cols-2 gap-10 md:gap-5 xl:gap-12 ${
+              className={`w-full grid grid-cols-1 gap-6 md:gap-6 xl:gap-8 ${
                 showFilters ? "hidden md:grid" : "grid"
               }`}
             >
@@ -162,7 +168,7 @@ export default function ToursList() {
                   <TourCard key={tour.id} tour={tour} />
                 ))
               ) : (
-                <div className="text-center col-span-2 py-10">
+                <div className="text-center col-span-full py-10">
                   <p className="text-gray-600">{t("noToursFound")}</p>
                   <Button
                     variant="outline"

@@ -36,9 +36,12 @@ export async function generateMetadata({
     metadataBase: new URL(BASE_URL),
     alternates: {
       canonical: `${BASE_URL}/${locale}`,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}`])
+        ),
+        "x-default": `${BASE_URL}/en`,
+      },
     },
     openGraph: {
       title: t("default"),
@@ -93,9 +96,7 @@ const organizationJsonLd = {
   url: "https://www.daudtravel.com",
   logo: {
     "@type": "ImageObject",
-    url: "https://www.daudtravel.com/images/MainOG.jpg",
-    width: 1200,
-    height: 630,
+    url: "https://www.daudtravel.com/images/Logo.png",
   },
   image: "https://www.daudtravel.com/images/MainOG.jpg",
   description:

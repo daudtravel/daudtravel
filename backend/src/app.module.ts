@@ -15,6 +15,7 @@ import { FaqModule } from './faq/faq.module';
 import { VideosModule } from './videos/videos.module';
 import { QuickPaymentModule } from './quick-payment/quick-payment.module';
 import { InsuranceModule } from './insurance/insurance.module';
+import { AccommodationsModule } from './accommodations/accommodations.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { InsuranceModule } from './insurance/insurance.module';
     VideosModule,
     QuickPaymentModule,
     InsuranceModule,
+    AccommodationsModule,
   ],
 })
 export class AppModule {}

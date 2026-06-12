@@ -117,14 +117,14 @@ export default function ToursCarouselSection({
               {tours.map((tour: Tour, index: number) => (
                 <CarouselItem
                   key={tour.id}
-                  className="lg:basis-1/2 md:basis-1/2 xl:basis-1/3 md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
+                  className="basis-full md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 * index }}
                     viewport={{ once: true }}
-                    className="h-full"
+                    className="h-full max-w-4xl mx-auto"
                   >
                     <TourCard tour={tour} />
                   </motion.div>

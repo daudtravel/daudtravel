@@ -17,9 +17,12 @@ export async function generateMetadata({
       "Read the Daud Travel privacy policy to understand how we collect, use, and protect your personal information when you book tours and transfers in Georgia.",
     alternates: {
       canonical: `${BASE_URL}/${locale}/privacy`,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${BASE_URL}/${l}/privacy`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/privacy`])
+        ),
+        "x-default": `${BASE_URL}/en/privacy`,
+      },
     },
     robots: { index: true, follow: true },
   };

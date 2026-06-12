@@ -12,5 +12,9 @@
   "groupTourType": "Group tour",
   "individualTourType": "Individual tour",
   "insurance": "Insurance",
-  "services": "Services"
+  "accommodations": "Hotels & Apartments",
+  "services": "Services",
+  "termsAndConditions": "Terms & Conditions",
+  "privacyPolicy": "Privacy Policy",
+  "allRightsReserved": "All rights reserved"
 }

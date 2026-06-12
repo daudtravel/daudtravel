@@ -12,5 +12,9 @@
   "groupTourType": "ჯგუფური ტური",
   "individualTourType": "ინდივიდუალური ტური",
   "insurance": "დაზღვევა",
-  "services": "სერვისები"
+  "accommodations": "სასტუმროები და აპარტამენტები",
+  "services": "სერვისები",
+  "termsAndConditions": "წესები და პირობები",
+  "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
+  "allRightsReserved": "ყველა უფლება დაცულია"
 }

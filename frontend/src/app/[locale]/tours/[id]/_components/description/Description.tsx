@@ -109,7 +109,7 @@ const Description = React.memo<DescriptionProps>(({ data }) => {
     ? [...data.allDestinations].reverse()
     : data.allDestinations;
 
-  const InfoRow = ({
+  const InfoItem = ({
     icon: Icon,
     label,
     value,
@@ -118,60 +118,58 @@ const Description = React.memo<DescriptionProps>(({ data }) => {
     label: string;
     value: string | React.ReactNode;
   }) => (
-    <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4 text-brand-green" />
-      <span className="text-sm font-semibold">{label}:</span>
-      <span className="text-sm">{value}</span>
+    <div className="flex items-center gap-3">
+      <div className="w-9 h-9 rounded-lg bg-brand-green-50 border border-brand-green-100 flex items-center justify-center shrink-0">
+        <Icon className="w-4 h-4 text-brand-green" />
+      </div>
+      <div className="min-w-0">
+        <span className="block text-xs text-gray-500">{label}</span>
+        <span className="block text-sm font-medium text-gray-900">{value}</span>
+      </div>
     </div>
   );
 
   return (
     <Card className="w-full" dir={isRTL ? "rtl" : "ltr"}>
       <CardContent className="p-4 md:p-6 flex flex-col gap-4 h-full">
-        <div className="flex flex-col gap-2">
-          {data.name && (
-            <InfoRow
-              icon={MapPin}
-              label={t("name")}
-              value={<span className="line-clamp-1">{data.name}</span>}
-            />
-          )}
-
-          <InfoRow
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <InfoItem
             icon={GroupIcon}
             label={t("tourType")}
             value={isIndividual ? t("individualTourType") : t("groupTourType")}
           />
 
           {data.startLocation && (
-            <InfoRow
+            <InfoItem
               icon={MapPin}
               label={t("startLocation")}
               value={<span className="line-clamp-1">{data.startLocation}</span>}
             />
           )}
 
-          <InfoRow
+          <InfoItem
             icon={CalendarDays}
             label={t("startDate")}
             value={formattedDate}
           />
 
-          <InfoRow
+          <InfoItem
             icon={Wallet}
             label={t("price")}
             value={
               <div className="flex items-center gap-2">
-                <span
-                  className={
-                    priceInfo.hasDiscount ? "line-through text-gray-500" : ""
-                  }
-                >
-                  {priceInfo.originalPrice} ₾
-                </span>
-                {priceInfo.hasDiscount && priceInfo.discountedPrice && (
-                  <span className="font-medium text-red-600">
-                    {priceInfo.discountedPrice} ₾
+                {priceInfo.hasDiscount && priceInfo.discountedPrice ? (
+                  <>
+                    <span className="font-semibold text-red-600">
+                      {priceInfo.discountedPrice} ₾
+                    </span>
+                    <span className="line-through text-gray-400 text-xs">
+                      {priceInfo.originalPrice} ₾
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-semibold text-brand-green">
+                    {priceInfo.originalPrice} ₾
                   </span>
                 )}
               </div>
@@ -179,14 +177,14 @@ const Description = React.memo<DescriptionProps>(({ data }) => {
           />
 
           {data.maxPersons && (
-            <InfoRow
+            <InfoItem
               icon={PersonStanding}
               label={t("numOfPersons")}
               value={data.maxPersons.toString()}
             />
           )}
 
-          <InfoRow
+          <InfoItem
             icon={Timer}
             label={t("duration")}
             value={
@@ -204,10 +202,10 @@ const Description = React.memo<DescriptionProps>(({ data }) => {
         </div>
 
         {data.allDestinations.length > 0 && (
-          <div className="p-3 bg-gray-50 rounded-md">
-            <h4 className="font-medium mb-2 text-sm">
-              {t("tourDestinations")}:
-            </h4>
+          <div className="p-3 bg-brand-green-50 border border-brand-green-100 rounded-lg">
+            <h2 className="font-semibold mb-2 text-sm text-brand-green">
+              {t("tourDestinations")}
+            </h2>
             <div
               className={cn(
                 "flex flex-wrap items-center gap-y-2",
@@ -216,13 +214,13 @@ const Description = React.memo<DescriptionProps>(({ data }) => {
             >
               {displayDestinations.map((location, index, array) => (
                 <div key={`destination-${index}`} className="flex items-center">
-                  <span className="text-sm bg-white px-2 py-1 rounded border">
+                  <span className="text-sm bg-white px-2.5 py-1 rounded-full border border-brand-green-100 text-gray-800 shadow-sm">
                     {location}
                   </span>
                   {index < array.length - 1 && (
                     <ChevronRight
                       className={cn(
-                        "mx-2 w-4 h-4 flex-shrink-0 text-gray-400",
+                        "mx-1.5 w-4 h-4 flex-shrink-0 text-brand-green",
                         isRTL && "rotate-180"
                       )}
                     />

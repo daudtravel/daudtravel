@@ -3,7 +3,7 @@
 import { Car, Clock, Shield, MapPin } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { Link } from "@/src/i18n/routing";
 import { useTranslations } from "next-intl";
 
 const TransferSection = () => {
@@ -127,18 +127,8 @@ const TransferSection = () => {
           {transferFeatures.map((feature, index) => (
             <motion.div
               key={index}
-              className="text-center p-3 md:p-6 rounded-lg bg-white shadow-md"
+              className="text-center p-3 md:p-6 rounded-lg bg-white shadow-md hover:shadow-xl transition-shadow duration-300"
               variants={featureVariants}
-              whileHover={{
-                y: -5,
-                scale: 1.02,
-                boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
-                transition: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 15,
-                },
-              }}
             >
               <motion.div
                 className="flex justify-center"
@@ -162,17 +152,11 @@ const TransferSection = () => {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <motion.div
-            whileHover="hover"
-            whileTap="tap"
-            variants={buttonVariants}
-          >
-            <Link href="/transfers">
-              <Button className="text-sm md:text-base px-4 py-2 md:px-7 h-9">
-                {t("bookTransfer")}
-              </Button>
-            </Link>
-          </motion.div>
+          <Link href="/transfers">
+            <Button className="text-sm md:text-base px-4 py-2 md:px-7 h-9 shadow-md hover:shadow-lg transition-shadow">
+              {t("bookTransfer")}
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>

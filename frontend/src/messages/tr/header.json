@@ -12,5 +12,9 @@
   "groupTourType": "Grup turu",
   "individualTourType": "Bireysel tur",
   "insurance": "Sigorta",
-  "services": "Hizmetler"
+  "accommodations": "Oteller ve Daireler",
+  "services": "Hizmetler",
+  "termsAndConditions": "Şartlar ve Koşullar",
+  "privacyPolicy": "Gizlilik Politikası",
+  "allRightsReserved": "Tüm hakları saklıdır"
 }

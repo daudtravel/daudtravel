@@ -23,6 +23,15 @@ interface TransfersApiResponse {
   data: Transfer[];
 }
 
+interface Accommodation {
+  id: string;
+  updatedAt: string;
+}
+
+interface AccommodationsApiResponse {
+  data: Accommodation[];
+}
+
 async function fetchAllTours(): Promise<Tour[]> {
   try {
     const res = await fetch(`${API_BASE}/tours?limit=500&locale=en`, {
@@ -49,6 +58,19 @@ async function fetchAllTransfers(): Promise<Transfer[]> {
   }
 }
 
+async function fetchAllAccommodations(): Promise<Accommodation[]> {
+  try {
+    const res = await fetch(`${API_BASE}/accommodations?limit=500&locale=en`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const json: AccommodationsApiResponse = await res.json();
+    return json.data ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
 
@@ -57,6 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "", priority: 1.0, changeFrequency: "weekly" as const },
     { path: "/tours", priority: 0.9, changeFrequency: "daily" as const },
     { path: "/transfers", priority: 0.9, changeFrequency: "daily" as const },
+    { path: "/accommodations", priority: 0.9, changeFrequency: "daily" as const },
     { path: "/insurance", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/about", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
@@ -72,9 +95,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency,
         priority,
         alternates: {
-          languages: Object.fromEntries(
-            locales.map((l) => [l, `${BASE_URL}/${l}${path}`])
-          ),
+          languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}${path}`])
+        ),
+        "x-default": `${BASE_URL}/en${path}`,
+      },
         },
       }))
   );
@@ -88,9 +114,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
       alternates: {
-        languages: Object.fromEntries(
+        languages: {
+        ...Object.fromEntries(
           locales.map((l) => [l, `${BASE_URL}/${l}/tours/${tour.id}`])
         ),
+        "x-default": `${BASE_URL}/en/tours/${tour.id}`,
+      },
       },
     }))
   );
@@ -104,12 +133,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.75,
       alternates: {
-        languages: Object.fromEntries(
+        languages: {
+        ...Object.fromEntries(
           locales.map((l) => [l, `${BASE_URL}/${l}/transfers/${transfer.id}`])
         ),
+        "x-default": `${BASE_URL}/en/transfers/${transfer.id}`,
+      },
       },
     }))
   );
 
-  return [...staticEntries, ...tourEntries, ...transferEntries];
+  // ── Accommodation detail pages ─────────────────────────────────────────────
+  const accommodations = await fetchAllAccommodations();
+  const accommodationEntries: MetadataRoute.Sitemap = accommodations.flatMap(
+    (item) =>
+      locales.map((locale) => ({
+        url: `${BASE_URL}/${locale}/accommodations/${item.id}`,
+        lastModified: item.updatedAt ?? now,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+        alternates: {
+          languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l, `${BASE_URL}/${l}/accommodations/${item.id}`])
+        ),
+        "x-default": `${BASE_URL}/en/accommodations/${item.id}`,
+      },
+        },
+      }))
+  );
+
+  return [
+    ...staticEntries,
+    ...tourEntries,
+    ...transferEntries,
+    ...accommodationEntries,
+  ];
 }

@@ -58,9 +58,10 @@ export async function generateMetadata({
       ? `${product.name} - ₾${product.price.toFixed(2)}`
       : t("descriptionMain");
 
+  // Product photo when available, brand logo otherwise
   const ogImage = product?.image
     ? `${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`
-    : `${baseUrl}/images/MainOG.jpg`;
+    : `${baseUrl}/images/Logo.png`;
 
   const availableLocales = product?.availableLocales ?? [
     "ka",

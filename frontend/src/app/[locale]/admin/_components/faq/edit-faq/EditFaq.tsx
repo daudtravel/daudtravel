@@ -76,7 +76,6 @@ export function EditFaq({ params }: { params: { id: string } }) {
   const onSubmit = async (data: EditFaqFormData) => {
     try {
       setIsSubmitting(true);
-      setErrorMessage(null);
 
       const filteredLocalizations = data.localizations.filter(
         (loc) =>

@@ -53,7 +53,8 @@ export const toursService = {
   },
 
   getFilterOptions: async (locale: string): Promise<GetToursResponse> => {
-    return toursService.getAll({ locale });
+    // High limit so the start-location filter covers every tour, not just page 1
+    return toursService.getAll({ locale, limit: 100 });
   },
 };
 

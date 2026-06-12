@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/src/i18n/routing";
 import {
   Sheet,
   SheetTrigger,
@@ -25,6 +25,7 @@ export default function BurgerMenu() {
     { href: "/tours?type=INDIVIDUAL", label: t("individualTourType") },
     { href: "/tours?type=GROUP", label: t("groupTourType") },
     { href: "/transfers", label: t("transfers") },
+    { href: "/accommodations", label: t("accommodations") },
     { href: "/insurance", label: t("insurance") },
     { href: "/products", label: t("products") },
     { href: "/about", label: t("about") },
@@ -67,7 +68,7 @@ export default function BurgerMenu() {
               size="icon"
               className="lg:hidden relative overflow-hidden group border border-brand-green-100 bg-white hover:bg-brand-green-50 h-9 text-brand-green hover:text-brand-green"
             >
-              <MenuIcon className="h-6 w-6 transition-transform duration-300 text-brand-green group-hover:scale-110" />
+              <MenuIcon className="h-6 w-6 text-brand-green" />
             </Button>
           </SheetTrigger>
 

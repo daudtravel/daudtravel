@@ -216,8 +216,11 @@ export function EditTour() {
   const onSubmit = (data: EditTourFormData) => {
     const payload: any = { ...data };
 
+    // Backend requires name + description + startLocation for each
+    // submitted translation, so only send complete ones
     payload.localizations = data.localizations.filter(
-      (loc) => loc.name && loc.name.trim().length > 0
+      (loc) =>
+        loc.name?.trim() && loc.description?.trim() && loc.startLocation?.trim()
     );
 
     if (!hasNewMainImage) {

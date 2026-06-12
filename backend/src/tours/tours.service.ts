@@ -15,6 +15,8 @@ import { FileUploadService } from '@/common/utils/file-upload.util';
 
 @Injectable()
 export class ToursService {
+  private readonly FALLBACK_LOCALES = ['en', 'ka', 'ru', 'tr', 'ar'];
+
   private readonly DEFAULT_INCLUDE = {
     localizations: true,
     images: { orderBy: { order: 'asc' as const } },
@@ -67,24 +69,27 @@ export class ToursService {
     const skip = (page - 1) * limit;
     const where = this.buildWhereClause({
       type,
-      locale,
       search,
       startLocation,
       publicOnly,
     });
-    const include = locale
-      ? this.getLocaleInclude(locale)
-      : this.DEFAULT_INCLUDE;
     const orderBy = this.buildOrderBy(sortBy, sortOrder);
 
     const [tours, total] = await Promise.all([
-      this.prisma.tour.findMany({ where, skip, take: limit, orderBy, include }),
+      this.prisma.tour.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        include: this.DEFAULT_INCLUDE,
+      }),
       this.prisma.tour.count({ where }),
     ]);
 
-    // Apply default English fallback for each tour
+    // Pick the requested locale with fallback so a tour is never hidden
+    // just because a translation is missing
     const processedTours = tours.map((tour) =>
-      this.applyDefaultLocale(tour, locale),
+      this.applyLocaleWithFallback(tour, locale),
     );
 
     return {
@@ -99,20 +104,16 @@ export class ToursService {
   }
 
   async findOne(id: string, locale?: string) {
-    const include = locale
-      ? this.getLocaleInclude(locale)
-      : this.DEFAULT_INCLUDE;
-
     const tour = await this.prisma.tour.findUnique({
       where: { id },
-      include,
+      include: this.DEFAULT_INCLUDE,
     });
 
     if (!tour) {
       throw new NotFoundException(`Tour with ID ${id} not found`);
     }
 
-    return this.applyDefaultLocale(tour, locale);
+    return this.applyLocaleWithFallback(tour, locale);
   }
 
   async update(id: string, dto: UpdateTourDto) {
@@ -365,12 +366,11 @@ export class ToursService {
 
   private buildWhereClause(params: {
     type?: TourType;
-    locale?: string;
     search?: string;
     startLocation?: string;
     publicOnly: boolean;
   }): Prisma.TourWhereInput {
-    const { type, locale, search, startLocation, publicOnly } = params;
+    const { type, search, startLocation, publicOnly } = params;
     const where: Prisma.TourWhereInput = {};
 
     if (publicOnly) {
@@ -381,10 +381,11 @@ export class ToursService {
       where.type = type;
     }
 
-    if (search || locale || startLocation) {
+    // Match against any localization so tours stay visible regardless of
+    // which languages the admin has filled in
+    if (search || startLocation) {
       where.localizations = {
         some: {
-          ...(locale && { locale }),
           ...(startLocation && { startLocation }),
           ...(search && {
             OR: [
@@ -405,61 +406,37 @@ export class ToursService {
     return { [orderByField]: sortOrder };
   }
 
-  private getLocaleInclude(locale: string) {
+  /**
+   * Return the tour with only the best-matching localization:
+   * requested locale → fallback locales → first available.
+   * Without a requested locale, all localizations are returned (admin).
+   */
+  private applyLocaleWithFallback(tour: any, locale?: string) {
+    if (!tour || !locale || !tour.localizations?.length) {
+      return tour;
+    }
+
+    let localization = tour.localizations.find(
+      (loc: any) => loc.locale === locale,
+    );
+
+    if (!localization) {
+      for (const fallbackLocale of this.FALLBACK_LOCALES) {
+        localization = tour.localizations.find(
+          (loc: any) => loc.locale === fallbackLocale,
+        );
+        if (localization) break;
+      }
+    }
+
+    if (!localization) {
+      localization = tour.localizations[0];
+    }
+
     return {
-      localizations: { where: { locale } },
-      images: { orderBy: { order: 'asc' as const } },
-      groupPricing: true,
-      individualPricing: true,
+      ...tour,
+      localizations: [localization],
     };
-  }
-
-  /**
-   * Apply default English locale if requested locale is not available
-   */
-  private applyDefaultLocale(tour: any, requestedLocale?: string) {
-    if (!tour || !tour.localizations) {
-      return tour;
-    }
-
-    // If no locale was requested, return tour as is
-    if (!requestedLocale) {
-      return tour;
-    }
-
-    // If requested locale exists, return tour as is
-    if (tour.localizations.length > 0) {
-      return tour;
-    }
-
-    // Requested locale not found, fetch English as default
-    // Re-fetch with English locale
-    return this.fetchTourWithFallbackLocale(tour.id);
-  }
-
-  /**
-   * Fetch tour with fallback to English locale
-   */
-  private async fetchTourWithFallbackLocale(tourId: string) {
-    const tourWithEnglish = await this.prisma.tour.findUnique({
-      where: { id: tourId },
-      include: {
-        localizations: { where: { locale: 'en' } },
-        images: { orderBy: { order: 'asc' as const } },
-        groupPricing: true,
-        individualPricing: true,
-      },
-    });
-
-    // If English is also not available, return all localizations
-    if (!tourWithEnglish || tourWithEnglish.localizations.length === 0) {
-      return this.prisma.tour.findUnique({
-        where: { id: tourId },
-        include: this.DEFAULT_INCLUDE,
-      });
-    }
-
-    return tourWithEnglish;
   }
 
   private validateTourData(dto: CreateTourDto | UpdateTourDto) {

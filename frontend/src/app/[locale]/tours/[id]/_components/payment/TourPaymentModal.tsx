@@ -334,7 +334,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           </Button>
           <Button
             onClick={handleFormSubmit}
-            className="flex-1 bg-orange-500 hover:bg-orange-600"
+            className="flex-1 bg-brand-green hover:bg-brand-green-dark text-white"
             disabled={isLoading}
           >
             {isLoading ? (

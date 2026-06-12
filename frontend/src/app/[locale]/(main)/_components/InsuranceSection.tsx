@@ -3,7 +3,7 @@
 import { Shield } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { Link } from "@/src/i18n/routing";
 import { useTranslations } from "next-intl";
 
 const InsuranceSection = () => {
@@ -14,16 +14,11 @@ const InsuranceSection = () => {
       <div className="w-full max-w-3xl mx-auto">
         <Link href="/insurance">
           <motion.div
-            className="bg-white rounded-2xl p-6 md:p-12 shadow-md cursor-pointer"
+            className="bg-white rounded-2xl p-6 md:p-12 shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            whileHover={{
-              scale: 1.02,
-              boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
-            }}
-            whileTap={{ scale: 0.98 }}
           >
             <div className="text-center">
               <Shield className="w-12 h-12 md:w-16 md:h-16 text-brand-green mx-auto mb-4" />

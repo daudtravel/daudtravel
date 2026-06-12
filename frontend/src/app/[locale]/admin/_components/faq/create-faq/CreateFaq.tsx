@@ -64,8 +64,6 @@ const CreateFaq = () => {
   const onSubmit = async (data: CreateFaqForm) => {
     try {
       setIsSubmitting(true);
-      setErrorMessage(null);
-      setSuccessMessage(null);
 
       const filteredLocalizations = data.localizations.filter(
         (loc) => loc.question.trim() !== "" && loc.answer.trim() !== ""

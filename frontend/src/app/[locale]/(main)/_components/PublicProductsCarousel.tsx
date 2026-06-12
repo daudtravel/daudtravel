@@ -12,7 +12,7 @@ import { usePublicQuickLinks } from "@/src/hooks/quick-payment/useQuickPayment";
 
 type CarouselApi = UseEmblaCarouselType[1];
 import { Loader2, ShoppingCart, Package } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/src/i18n/routing";
 import { useTranslations } from "next-intl";
 
 export default function PublicProductsCarousel() {
@@ -114,7 +114,7 @@ export default function PublicProductsCarousel() {
               {products.map((product: any, index: number) => (
                 <CarouselItem
                   key={product.id}
-                  className="lg:basis-1/2 md:basis-1/2 xl:basis-1/3 md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
+                  className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -124,8 +124,8 @@ export default function PublicProductsCarousel() {
                     className="h-full"
                   >
                     <Link href={`/pay/${product.slug}`}>
-                      <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                        <div className="relative h-64 bg-gray-100">
+                      <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+                        <div className="relative h-44 bg-gray-100">
                           {product.image ? (
                             <img
                               src={`${process.env.NEXT_PUBLIC_BASE_URL}${product.image}`}
@@ -135,30 +135,30 @@ export default function PublicProductsCarousel() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-20 h-20 text-gray-300" />
+                              <Package className="w-14 h-14 text-gray-300" />
                             </div>
                           )}
                         </div>
 
-                        <div className="p-6 flex-1 flex flex-col justify-between">
+                        <div className="p-4 flex-1 flex flex-col justify-between">
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                            <h3 className="text-base font-semibold text-gray-800 mb-1.5 line-clamp-1">
                               {product.name}
                             </h3>
                             {product.description && (
-                              <p className="text-gray-600 text-sm line-clamp-2 mb-4">
+                              <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                                 {product.description}
                               </p>
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="text-2xl font-bold text-green-600">
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                            <div className="text-lg font-bold text-brand-green">
                               ₾{product.price}
                             </div>
-                            <div className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors">
-                              <ShoppingCart size={20} />
-                              <span className="font-medium">შეძენა</span>
+                            <div className="flex items-center gap-2 text-brand-green-mid hover:text-brand-green transition-colors">
+                              <ShoppingCart size={18} />
+                              <span className="font-medium text-sm">შეძენა</span>
                             </div>
                           </div>
                         </div>

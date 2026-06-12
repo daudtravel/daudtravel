@@ -3,10 +3,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { VehicleType } from "@/src/types/transfers.types";
 
+export const SUPPORTED_LOCALES = ["en", "ka", "ru", "ar", "tr"] as const;
+
 const TransferLocalizationSchema = z.object({
   locale: z.string().min(1, "Locale is required"),
-  startLocation: z.string().min(1, "Start location is required"),
-  endLocation: z.string().min(1, "End location is required"),
+  startLocation: z.string().optional().default(""),
+  endLocation: z.string().optional().default(""),
 });
 
 const VehicleTypeSchema = z.object({
@@ -16,7 +18,13 @@ const VehicleTypeSchema = z.object({
 });
 
 const CreateTransferSchema = z.object({
-  localizations: z.array(TransferLocalizationSchema).optional(),
+  localizations: z
+    .array(TransferLocalizationSchema)
+    .refine(
+      (locs) =>
+        locs.some((l) => l.startLocation?.trim() && l.endLocation?.trim()),
+      { message: "მინიმუმ ერთი ენა შეავსეთ (საწყისი და საბოლოო ლოკაცია)" }
+    ),
   vehicleTypes: z
     .array(VehicleTypeSchema)
     .min(1, "At least one vehicle type is required"),
@@ -29,13 +37,11 @@ export const useCreateTransferValidator = () => {
   return useForm<CreateTransferFormData>({
     resolver: zodResolver(CreateTransferSchema),
     defaultValues: {
-      localizations: [
-        {
-          locale: "ka",
-          startLocation: "",
-          endLocation: "",
-        },
-      ],
+      localizations: SUPPORTED_LOCALES.map((locale) => ({
+        locale,
+        startLocation: "",
+        endLocation: "",
+      })),
       vehicleTypes: [
         {
           type: VehicleType.SEDAN,

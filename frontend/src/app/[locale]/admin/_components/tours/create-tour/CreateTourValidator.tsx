@@ -5,13 +5,23 @@ export enum TourType {
   INDIVIDUAL = "INDIVIDUAL",
 }
 
+export const SUPPORTED_LOCALES = ["en", "ka", "ru", "ar", "tr"] as const;
+
 const localizationSchema = z.object({
   locale: z.string().default("ka"),
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  startLocation: z.string().min(1, "Start location is required"),
+  name: z.string().optional().default(""),
+  description: z.string().optional().default(""),
+  startLocation: z.string().optional().default(""),
   locations: z.array(z.string()).default([]),
 });
+
+// A translation only counts if everything the backend requires is filled
+export const isCompleteLocalization = (loc: {
+  name?: string;
+  description?: string;
+  startLocation?: string;
+}): boolean =>
+  !!(loc.name?.trim() && loc.description?.trim() && loc.startLocation?.trim());
 
 const groupPricingSchema = z.object({
   totalPrice: z.coerce.number().min(0, "Total price must be positive"),
@@ -42,7 +52,10 @@ export const createTourSchema = z
 
     localizations: z
       .array(localizationSchema)
-      .min(1, "At least one localization required"),
+      .refine((locs) => locs.some(isCompleteLocalization), {
+        message:
+          "მინიმუმ ერთი სრული თარგმანი აუცილებელია (დასახელება, აღწერა, საწყისი ლოკაცია)",
+      }),
 
     days: z.coerce.number().min(1, "Days must be at least 1").default(1),
     nights: z.coerce.number().min(0, "Nights must be positive").default(0),
