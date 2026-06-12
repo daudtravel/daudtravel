@@ -14,7 +14,7 @@ const InsuranceSection = () => {
       <div className="w-full max-w-3xl mx-auto">
         <Link href="/insurance">
           <motion.div
-            className="bg-white rounded-2xl p-6 md:p-12 shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+            className="bg-white rounded-2xl p-6 md:p-12 shadow-md border border-gray-100 hover:border-brand-green transition-colors duration-300 cursor-pointer"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

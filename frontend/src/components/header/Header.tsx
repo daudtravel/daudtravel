@@ -55,9 +55,9 @@ export default function Header() {
           <Image
             src="/images/Logo.png"
             alt="Daud Travel"
-            width={200}
-            height={70}
-            className="object-contain h-16 w-auto"
+            width={220}
+            height={78}
+            className="object-contain h-[4.5rem] w-auto"
             priority
           />
         </Link>

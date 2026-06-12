@@ -124,7 +124,7 @@ export default function PublicProductsCarousel() {
                     className="h-full"
                   >
                     <Link href={`/pay/${product.slug}`}>
-                      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+                      <div className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden hover:border-brand-green transition-colors duration-300 h-full flex flex-col">
                         <div className="relative h-44 bg-gray-100">
                           {product.image ? (
                             <img

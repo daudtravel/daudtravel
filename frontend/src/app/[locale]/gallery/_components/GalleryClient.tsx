@@ -106,7 +106,7 @@ export default function GalleryClient() {
               key={photo.alt}
               type="button"
               onClick={() => setLightbox(photo)}
-              className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow group"
+              className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-md border-2 border-transparent hover:border-brand-green transition-colors group"
             >
               <Image
                 src={photo.img}

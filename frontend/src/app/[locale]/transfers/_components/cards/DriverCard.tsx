@@ -215,7 +215,7 @@ export function DriverCard({ driver }: DriverCardProps) {
   const [reviewOpen, setReviewOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-md hover:border-brand-green transition-colors overflow-hidden">
       <div className="h-1 bg-brand-yellow" />
 
       <div className="p-5 flex flex-col items-center text-center">

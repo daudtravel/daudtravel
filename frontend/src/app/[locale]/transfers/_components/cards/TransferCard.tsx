@@ -28,7 +28,7 @@ export function TransferCard({ transfer }: TransferCardProps) {
   const to = localization?.endLocation || "—";
 
   return (
-    <div className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
+    <div className="group bg-white rounded-2xl border border-gray-100 shadow-md hover:border-brand-green transition-colors duration-300 overflow-hidden flex flex-col">
       {/* Green top accent */}
       <div className="h-1 bg-brand-green" />
 

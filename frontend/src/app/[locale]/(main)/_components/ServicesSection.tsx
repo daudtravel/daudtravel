@@ -105,7 +105,7 @@ const ServicesSection = () => {
                 className="h-full"
               >
                 <Link href={service.href} className="block h-full">
-                  <div className="group h-full bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-shadow duration-300">
+                  <div className="group h-full bg-white rounded-2xl p-4 shadow-md border border-gray-100 hover:border-brand-green transition-colors duration-300">
                     <div className="relative">
                       <Image
                         src={service.image}

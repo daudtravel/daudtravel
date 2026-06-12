@@ -62,7 +62,7 @@ export default function AllProductsPage() {
               variants={cardVariants}
             >
               <Link href={`/pay/${product.slug}`}>
-                <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col group">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden hover:border-brand-green transition-colors duration-300 h-full flex flex-col group">
                   <div className="relative h-44 bg-gray-100 overflow-hidden">
                     {product.image ? (
                       <img

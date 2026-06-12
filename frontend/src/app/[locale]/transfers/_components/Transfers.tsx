@@ -60,7 +60,7 @@ export const TransferBooking = () => {
           return (
             <div
               key={transfer.id}
-              className="border rounded-lg p-4 flex flex-col gap-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow bg-white"
+              className="border border-gray-100 rounded-lg p-4 flex flex-col gap-4 sm:p-5 shadow-md hover:border-brand-green transition-colors bg-white"
             >
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <div className="flex flex-col gap-1">

@@ -19,7 +19,7 @@ export function VideoCard({
   const { title, description } = getVideoLocalization(video, locale);
 
   return (
-    <div className="h-full bg-white rounded-xl border border-gray-100 shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col">
+    <div className="h-full bg-white rounded-xl border border-gray-100 shadow-md hover:border-brand-green transition-colors duration-300 overflow-hidden flex flex-col">
       <div className="w-full aspect-video bg-gray-900">
         <ReactPlayer
           url={video.url}

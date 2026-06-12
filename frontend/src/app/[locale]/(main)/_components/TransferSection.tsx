@@ -127,7 +127,7 @@ const TransferSection = () => {
           {transferFeatures.map((feature, index) => (
             <motion.div
               key={index}
-              className="text-center p-3 md:p-6 rounded-lg bg-white shadow-md hover:shadow-xl transition-shadow duration-300"
+              className="text-center p-3 md:p-6 rounded-lg bg-white shadow-md border border-gray-100 hover:border-brand-green transition-colors duration-300"
               variants={featureVariants}
             >
               <motion.div

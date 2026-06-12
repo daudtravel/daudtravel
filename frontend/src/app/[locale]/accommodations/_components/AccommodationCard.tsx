@@ -33,7 +33,7 @@ export const AccommodationCard = ({ item }: { item: Accommodation }) => {
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="flex flex-col w-full bg-white border border-brand-green-100 rounded-xl shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl h-full">
+    <div className="flex flex-col w-full bg-white border border-gray-100 rounded-xl shadow-md overflow-hidden transition-colors duration-300 hover:border-brand-green h-full">
       <Link
         className="w-full h-full flex flex-col"
         href={`/accommodations/${item.id}`}
