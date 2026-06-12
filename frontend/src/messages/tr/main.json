@@ -40,5 +40,10 @@
   "serviceInsuranceTitle": "Sigorta",
   "serviceInsuranceDesc": "Seyahatiniz için seyahat sigortası",
   "serviceProductsTitle": "Ürünler",
-  "serviceProductsDesc": "Tur ve hizmetleri online satın alın"
+  "serviceProductsDesc": "Tur ve hizmetleri online satın alın",
+  "gallery": "Galeri",
+  "galleryDesc": "Gürcistan'daki turlarımızdan ve maceralarımızdan fotoğraflar ve videolar",
+  "photos": "Fotoğraflar",
+  "videos": "Videolar",
+  "noVideosAvailable": "Şu anda video bulunmamaktadır."
 }

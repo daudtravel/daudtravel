@@ -382,15 +382,29 @@ model FAQLocalization {
 }
 
 model Video {
-  id          String   @id @default(cuid()) // ✅ Changed
-  url         String
-  title       String?
-  description String?  @db.Text
-  category    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String              @id @default(cuid()) // ✅ Changed
+  url           String
+  title         String?
+  description   String?  @db.Text
+  category      String?
+  localizations VideoLocalization[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("videos")
+}
+
+model VideoLocalization {
+  id          String  @id @default(cuid())
+  videoId     String  @map("video_id")
+  locale      String
+  title       String
+  description String? @db.Text
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, locale])
+  @@map("video_localizations")
 }
 
 model QuickPaymentLink {

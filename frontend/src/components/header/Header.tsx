@@ -135,6 +135,7 @@ export default function Header() {
           </div>
 
           {[
+            { href: "/gallery", label: t("gallery") },
             { href: "/about", label: t("about") },
             { href: "/contact", label: t("contact") },
           ].map((item) => (

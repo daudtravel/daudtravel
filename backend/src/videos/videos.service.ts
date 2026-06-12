@@ -14,7 +14,17 @@ export class VideosService {
         title: createVideoDto.title,
         description: createVideoDto.description,
         category: createVideoDto.category,
+        ...(createVideoDto.localizations?.length && {
+          localizations: {
+            create: createVideoDto.localizations.map((loc) => ({
+              locale: loc.locale,
+              title: loc.title,
+              description: loc.description,
+            })),
+          },
+        }),
       },
+      include: { localizations: true },
     });
 
     return video;
@@ -32,6 +42,7 @@ export class VideosService {
       orderBy: {
         createdAt: 'desc',
       },
+      include: { localizations: true },
     });
 
     return videos;
@@ -40,6 +51,7 @@ export class VideosService {
   async findOne(id: string) {
     const video = await this.prisma.video.findUnique({
       where: { id },
+      include: { localizations: true },
     });
 
     if (!video) {
@@ -53,9 +65,24 @@ export class VideosService {
     // Check if video exists
     await this.findOne(id);
 
+    const { localizations, ...fields } = updateVideoDto;
+
     const updatedVideo = await this.prisma.video.update({
       where: { id },
-      data: updateVideoDto,
+      data: {
+        ...fields,
+        ...(localizations !== undefined && {
+          localizations: {
+            deleteMany: {},
+            create: localizations.map((loc) => ({
+              locale: loc.locale,
+              title: loc.title,
+              description: loc.description,
+            })),
+          },
+        }),
+      },
+      include: { localizations: true },
     });
 
     return updatedVideo;

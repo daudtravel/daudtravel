@@ -18,25 +18,38 @@ import { Label } from "@/src/components/ui/label";
 import axios from "axios";
 import { toast } from "sonner";
 import { videoApi } from "@/src/services/videos.service";
+import { VideoLocalizationInput } from "@/src/types/video.types";
+
+const LOCALES = [
+  { code: "ka", label: "ქართული" },
+  { code: "en", label: "English" },
+  { code: "ru", label: "Русский" },
+  { code: "tr", label: "Türkçe" },
+  { code: "ar", label: "العربية" },
+] as const;
+
+type LocaleFields = { title: string; description: string };
 
 export default function CreateVideo() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    url: "",
-    category: "",
-  });
+  const [url, setUrl] = useState("");
+  const [category, setCategory] = useState("");
+  const [locales, setLocales] = useState<Record<string, LocaleFields>>(
+    Object.fromEntries(
+      LOCALES.map((l) => [l.code, { title: "", description: "" }])
+    )
+  );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  const setLocaleField = (
+    code: string,
+    field: keyof LocaleFields,
+    value: string
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
+    setLocales((prev) => ({
       ...prev,
-      [name]: value,
+      [code]: { ...prev[code], [field]: value },
     }));
   };
 
@@ -45,27 +58,40 @@ export default function CreateVideo() {
     setIsSubmitting(true);
 
     try {
-      if (!formData.url.trim()) {
+      if (!url.trim()) {
         toast.error("URL სავალდებულოა");
         setIsSubmitting(false);
         return;
       }
 
       try {
-        new URL(formData.url);
+        new URL(url);
       } catch {
         toast.error("გთხოვთ შეიყვანოთ სწორი URL");
         setIsSubmitting(false);
         return;
       }
 
-      const submitData = {
-        url: formData.url.trim(),
-        ...(formData.title.trim() && { title: formData.title.trim() }),
-        ...(formData.description.trim() && {
-          description: formData.description.trim(),
+      const localizations: VideoLocalizationInput[] = LOCALES.filter(
+        (l) => locales[l.code].title.trim()
+      ).map((l) => ({
+        locale: l.code,
+        title: locales[l.code].title.trim(),
+        ...(locales[l.code].description.trim() && {
+          description: locales[l.code].description.trim(),
         }),
-        ...(formData.category.trim() && { category: formData.category.trim() }),
+      }));
+
+      // Legacy fallback fields: prefer Georgian, otherwise first filled locale
+      const fallback =
+        localizations.find((l) => l.locale === "ka") || localizations[0];
+
+      const submitData = {
+        url: url.trim(),
+        ...(fallback && { title: fallback.title }),
+        ...(fallback?.description && { description: fallback.description }),
+        ...(category.trim() && { category: category.trim() }),
+        ...(localizations.length > 0 && { localizations }),
       };
 
       await videoApi.post(submitData);
@@ -104,8 +130,8 @@ export default function CreateVideo() {
                 id="url"
                 name="url"
                 type="url"
-                value={formData.url}
-                onChange={handleChange}
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://www.youtube.com/watch?v=..."
                 required
                 disabled={isSubmitting}
@@ -116,40 +142,57 @@ export default function CreateVideo() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">სათაური</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="შეიყვანეთ ვიდეოს სათაური (არასავალდებულო)"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">აღწერა</Label>
-              <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="შეიყვანეთ ვიდეოს აღწერა (არასავალდებულო)"
-                rows={4}
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="category">კატეგორია</Label>
               <Input
                 id="category"
                 name="category"
-                value={formData.category}
-                onChange={handleChange}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 placeholder="მაგ: ტრანსფერები, ტურები, ზოგადი (არასავალდებულო)"
                 disabled={isSubmitting}
               />
+            </div>
+
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">
+                სათაური და აღწერა ენების მიხედვით{" "}
+                <span className="text-gray-400 text-xs font-normal">
+                  (არასავალდებულო)
+                </span>
+              </Label>
+
+              {LOCALES.map((l) => (
+                <div
+                  key={l.code}
+                  className="border border-gray-100 rounded-xl p-4 space-y-3 bg-gray-50/50"
+                >
+                  <p className="text-sm font-semibold text-brand-green">
+                    {l.label}{" "}
+                    <span className="text-gray-400 font-normal uppercase text-xs">
+                      ({l.code})
+                    </span>
+                  </p>
+                  <Input
+                    value={locales[l.code].title}
+                    onChange={(e) =>
+                      setLocaleField(l.code, "title", e.target.value)
+                    }
+                    placeholder="სათაური"
+                    disabled={isSubmitting}
+                    dir={l.code === "ar" ? "rtl" : "ltr"}
+                  />
+                  <Textarea
+                    value={locales[l.code].description}
+                    onChange={(e) =>
+                      setLocaleField(l.code, "description", e.target.value)
+                    }
+                    placeholder="აღწერა"
+                    rows={2}
+                    disabled={isSubmitting}
+                    dir={l.code === "ar" ? "rtl" : "ltr"}
+                  />
+                </div>
+              ))}
             </div>
 
             <div className="flex justify-end gap-4 pt-4">

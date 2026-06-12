@@ -63,13 +63,15 @@ export default function Footer() {
         {/* Brand + socials */}
         <div className="flex flex-col gap-4 items-center md:items-start text-center md:text-left">
           <Link href="/" className="inline-flex">
-            <Image
-              src="/images/Logo.png"
-              alt="Daud Travel"
-              width={160}
-              height={56}
-              className="object-contain h-12 w-auto brightness-0 invert"
-            />
+            <span className="inline-flex items-center justify-center bg-brand-cream rounded-2xl px-4 py-2 shadow-md">
+              <Image
+                src="/images/Logo.png"
+                alt="Daud Travel"
+                width={160}
+                height={56}
+                className="object-contain h-12 w-auto"
+              />
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             {socials.map(({ href, label, Icon }) => (

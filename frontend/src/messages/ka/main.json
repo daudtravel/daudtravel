@@ -40,5 +40,10 @@
   "serviceInsuranceTitle": "დაზღვევა",
   "serviceInsuranceDesc": "სამოგზაურო დაზღვევა თქვენი მოგზაურობისთვის",
   "serviceProductsTitle": "პროდუქტები",
-  "serviceProductsDesc": "შეიძინეთ ტურები და სერვისები ონლაინ"
+  "serviceProductsDesc": "შეიძინეთ ტურები და სერვისები ონლაინ",
+  "gallery": "გალერეა",
+  "galleryDesc": "ფოტოები და ვიდეოები ჩვენი ტურებიდან და თავგადასავლებიდან საქართველოში",
+  "photos": "ფოტოები",
+  "videos": "ვიდეოები",
+  "noVideosAvailable": "ვიდეოები ამჟამად მიუწვდომელია."
 }

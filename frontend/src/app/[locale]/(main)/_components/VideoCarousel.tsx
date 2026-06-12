@@ -1,7 +1,6 @@
 // src/components/videos/VideoCarousel.tsx
 "use client";
 
-import { CardContent } from "@/src/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -12,22 +11,12 @@ import {
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { Link } from "@/src/i18n/routing";
 
-import dynamic from "next/dynamic";
 import { videoApi } from "@/src/services/videos.service";
-
-const ReactPlayer = dynamic(() => import("react-player/lazy"), { ssr: false });
-
-type Video = {
-  id: string;
-  url: string;
-  title?: string;
-  description?: string;
-  category?: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { Video } from "@/src/types/video.types";
+import { VideoCard } from "@/src/components/shared/VideoCard";
 
 interface VideoCarouselProps {
   category?: string;
@@ -51,7 +40,7 @@ export default function VideoCarousel({
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["videos", locale, category],
+    queryKey: ["videos", category],
     queryFn: () => videoApi.get(category),
     staleTime: 5 * 60 * 1000,
   });
@@ -92,38 +81,17 @@ export default function VideoCarousel({
         {t("videoGallery")}
       </h2>
       <Carousel opts={{ loop: true }} className="mt-6 w-full">
-        <CarouselContent className="w-full px-6 md:px-20">
+        <CarouselContent className="w-full px-6 md:px-20 py-4">
           {displayVideos.map((video) => (
             <CarouselItem
               key={video.id}
-              className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 p-0"
+              className="basis-[88%] md:basis-1/2 lg:basis-1/3 xl:basis-1/4 px-2"
             >
-              <CardContent className="flex flex-col items-center justify-center px-4">
-                <div className="w-full aspect-video rounded-lg shadow-lg overflow-hidden">
-                  <ReactPlayer
-                    url={video.url}
-                    width="100%"
-                    height="100%"
-                    controls
-                    light={true}
-                    config={{
-                      youtube: {
-                        playerVars: { showinfo: 1 },
-                      },
-                    }}
-                  />
-                </div>
-                {video.title && (
-                  <p className="mt-2 text-sm font-medium text-center line-clamp-2">
-                    {video.title}
-                  </p>
-                )}
-                {showDescription && video.description && (
-                  <p className="mt-1 text-xs text-gray-500 text-center line-clamp-2">
-                    {video.description}
-                  </p>
-                )}
-              </CardContent>
+              <VideoCard
+                video={video}
+                locale={locale}
+                showDescription={showDescription}
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -132,6 +100,13 @@ export default function VideoCarousel({
           <CarouselNext className="bg-brand-green text-brand-cream w-8 h-8 md:w-10 md:h-10 border-brand-green-mid rounded-md border hover:bg-brand-green-dark hover:text-brand-cream" />
         </div>
       </Carousel>
+      <Link
+        href="/gallery"
+        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-green hover:text-brand-green-dark transition-colors"
+      >
+        {t("viewMore")}
+        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+      </Link>
     </section>
   );
 }

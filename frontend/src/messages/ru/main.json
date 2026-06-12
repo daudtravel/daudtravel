@@ -40,5 +40,10 @@
   "serviceInsuranceTitle": "Страховка",
   "serviceInsuranceDesc": "Туристическая страховка для вашей поездки",
   "serviceProductsTitle": "Продукты",
-  "serviceProductsDesc": "Покупайте туры и услуги онлайн"
+  "serviceProductsDesc": "Покупайте туры и услуги онлайн",
+  "gallery": "Галерея",
+  "galleryDesc": "Фото и видео из наших туров и приключений по Грузии",
+  "photos": "Фото",
+  "videos": "Видео",
+  "noVideosAvailable": "Видео в данный момент недоступны."
 }

@@ -28,6 +28,7 @@ export default function BurgerMenu() {
     { href: "/accommodations", label: t("accommodations") },
     { href: "/insurance", label: t("insurance") },
     { href: "/products", label: t("products") },
+    { href: "/gallery", label: t("gallery") },
     { href: "/about", label: t("about") },
     { href: "/contact", label: t("contact") },
   ];

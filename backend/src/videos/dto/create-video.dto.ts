@@ -1,6 +1,35 @@
 // src/videos/dto/create-video.dto.ts
-import { IsString, IsNotEmpty, IsUrl, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsUrl,
+  IsOptional,
+  MaxLength,
+  IsArray,
+  IsIn,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+
+export class VideoLocalizationDto {
+  @ApiProperty({ example: 'en' })
+  @IsString()
+  @IsIn(['ka', 'en', 'ru', 'ar', 'tr'])
+  locale: string;
+
+  @ApiProperty({ example: 'Travel Guide to Tbilisi' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  title: string;
+
+  @ApiProperty({ example: 'A comprehensive guide', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  description?: string;
+}
 
 export class CreateVideoDto {
   @ApiProperty({ example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' })
@@ -30,4 +59,11 @@ export class CreateVideoDto {
   @IsString()
   @MaxLength(100)
   category?: string;
+
+  @ApiProperty({ type: [VideoLocalizationDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => VideoLocalizationDto)
+  localizations?: VideoLocalizationDto[];
 }

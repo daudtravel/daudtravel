@@ -40,5 +40,10 @@
   "serviceInsuranceTitle": "Insurance",
   "serviceInsuranceDesc": "Travel coverage for your journey",
   "serviceProductsTitle": "Products",
-  "serviceProductsDesc": "Buy tours and services online"
+  "serviceProductsDesc": "Buy tours and services online",
+  "gallery": "Gallery",
+  "galleryDesc": "Photos and videos from our tours and adventures across Georgia",
+  "photos": "Photos",
+  "videos": "Videos",
+  "noVideosAvailable": "No videos are currently available."
 }

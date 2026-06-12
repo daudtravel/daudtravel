@@ -40,5 +40,10 @@
   "serviceInsuranceTitle": "التأمين",
   "serviceInsuranceDesc": "تأمين سفر لرحلتك",
   "serviceProductsTitle": "المنتجات",
-  "serviceProductsDesc": "اشترِ الجولات والخدمات عبر الإنترنت"
+  "serviceProductsDesc": "اشترِ الجولات والخدمات عبر الإنترنت",
+  "gallery": "المعرض",
+  "galleryDesc": "صور وفيديوهات من جولاتنا ومغامراتنا في جورجيا",
+  "photos": "الصور",
+  "videos": "الفيديوهات",
+  "noVideosAvailable": "لا توجد فيديوهات متاحة حالياً."
 }
