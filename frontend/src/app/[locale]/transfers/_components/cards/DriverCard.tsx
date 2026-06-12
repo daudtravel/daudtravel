@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Link } from "@/src/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
@@ -79,7 +80,7 @@ function ReviewsPanel({ driver }: { driver: Driver }) {
   );
 }
 
-function WriteReviewModal({
+export function WriteReviewModal({
   driver,
   isOpen,
   onClose,
@@ -105,6 +106,7 @@ function WriteReviewModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
       queryClient.invalidateQueries({ queryKey: ["driver-reviews", driver.id] });
+      queryClient.invalidateQueries({ queryKey: ["driver", driver.id] });
       setRating(0);
       setComment("");
       setReviewerName("");
@@ -217,29 +219,33 @@ export function DriverCard({ driver }: DriverCardProps) {
       <div className="h-1 bg-brand-yellow" />
 
       <div className="p-5 flex flex-col items-center text-center">
-        {/* Avatar */}
-        <div className="relative w-24 h-24 mb-3">
-          <Image
-            src={
-              driver.photo
-                ? `${process.env.NEXT_PUBLIC_BASE_URL}${driver.photo}`
-                : "/images/driver-placeholder.jpg"
-            }
-            alt={`${driver.firstName} ${driver.lastName}`}
-            fill
-            className="rounded-full object-cover ring-4 ring-brand-green-100"
-          />
-          {driver.averageRating !== null && driver.averageRating >= 4.5 && (
-            <span className="absolute -bottom-1 -right-1 bg-brand-yellow text-brand-green text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
-              TOP
-            </span>
-          )}
-        </div>
+        {/* Avatar + name → driver profile */}
+        <Link
+          href={`/drivers/${driver.id}`}
+          className="flex flex-col items-center group/profile"
+        >
+          <div className="relative w-24 h-24 mb-3">
+            <Image
+              src={
+                driver.photo
+                  ? `${process.env.NEXT_PUBLIC_BASE_URL}${driver.photo}`
+                  : "/images/driver-placeholder.jpg"
+              }
+              alt={`${driver.firstName} ${driver.lastName}`}
+              fill
+              className="rounded-full object-cover ring-4 ring-brand-green-100 group-hover/profile:ring-brand-green transition-all"
+            />
+            {driver.averageRating !== null && driver.averageRating >= 4.5 && (
+              <span className="absolute -bottom-1 -right-1 bg-brand-yellow text-brand-green text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                TOP
+              </span>
+            )}
+          </div>
 
-        {/* Name */}
-        <h3 className="font-bold text-gray-900 text-base">
-          {driver.firstName} {driver.lastName}
-        </h3>
+          <h3 className="font-bold text-gray-900 text-base group-hover/profile:text-brand-green transition-colors">
+            {driver.firstName} {driver.lastName}
+          </h3>
+        </Link>
 
         {/* Rating */}
         {driver.averageRating !== null ? (

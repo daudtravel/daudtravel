@@ -84,5 +84,11 @@
   "feature_luggage": "Bagaj yardımı",
   "feature_wifi": "Araçta ücretsiz Wi-Fi",
   "feature_tracking": "Gerçek zamanlı uçuş takibi",
-  "feature_noHidden": "Gizli ücret yok"
+  "feature_noHidden": "Gizli ücret yok",
+  "driverNotFound": "Sürücü bulunamadı",
+  "backToTransfers": "Transferlere geri dön",
+  "dailyCarRent": "Günlük araç kiralama",
+  "perDay": "gün",
+  "carPhotos": "Araç Fotoğrafları",
+  "reviews": "Yorumlar"
 }

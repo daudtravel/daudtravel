@@ -14,11 +14,26 @@ export interface Driver {
   firstName: string;
   lastName: string;
   photo?: string | null;
+  languages: string[];
+  dailyRentPrice: number | null;
+  carPhotos: string[];
   averageRating: number | null;
   totalReviews: number;
   recentReviews: DriverReview[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface DriverResponse {
+  message: string;
+  data: Driver;
+}
+
+export interface UpdateDriverPayload {
+  firstName?: string;
+  lastName?: string;
+  languages?: string[];
+  dailyRentPrice?: number | null;
 }
 
 export interface DriversResponse {
@@ -52,6 +67,32 @@ export const driversAPI = {
   post: async (data: FormData) => {
     const response = await axiosInstance.post(`/drivers/add_driver`, data, {
       headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
+  getById: async (id: string): Promise<DriverResponse> => {
+    const response = await axiosInstance.get(`/drivers/${id}`);
+    return response.data;
+  },
+
+  update: async (id: string, payload: UpdateDriverPayload): Promise<DriverResponse> => {
+    const response = await axiosInstance.patch(`/drivers/${id}`, payload);
+    return response.data;
+  },
+
+  uploadCarPhotos: async (id: string, files: File[]) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("photos", file));
+    const response = await axiosInstance.post(`/drivers/${id}/car-photos`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
+  deleteCarPhoto: async (id: string, url: string) => {
+    const response = await axiosInstance.delete(`/drivers/${id}/car-photos`, {
+      data: { url },
     });
     return response.data;
   },

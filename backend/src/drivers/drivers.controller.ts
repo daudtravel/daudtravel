@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Body,
   Get,
   Delete,
@@ -8,12 +9,14 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { DriversService } from './drivers.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { CreateDriverReviewDto } from './dto/create-driver-review.dto';
+import { UpdateDriverDto, RemoveCarPhotoDto } from './dto/update-driver.dto';
 
 @Controller('drivers')
 export class DriversController {
@@ -34,6 +37,45 @@ export class DriversController {
   async findAll() {
     const result = await this.driversService.findAll();
     return { message: 'Drivers retrieved successfully', count: result.count, data: result.drivers };
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const driver = await this.driversService.findOne(id);
+    return { message: 'Driver retrieved successfully', data: driver };
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('photo'))
+  async update(
+    @Param('id') id: string,
+    @Body() body: UpdateDriverDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const driver = await this.driversService.update(id, body, file);
+    return { message: 'Driver updated successfully', data: driver };
+  }
+
+  @Post(':id/car-photos')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FilesInterceptor('photos', 10))
+  async addCarPhotos(
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const carPhotos = await this.driversService.addCarPhotos(id, files);
+    return { message: 'Car photos uploaded successfully', data: carPhotos };
+  }
+
+  @Delete(':id/car-photos')
+  @UseGuards(AuthGuard)
+  async removeCarPhoto(
+    @Param('id') id: string,
+    @Body() dto: RemoveCarPhotoDto,
+  ) {
+    const carPhotos = await this.driversService.removeCarPhoto(id, dto.url);
+    return { message: 'Car photo removed successfully', data: carPhotos };
   }
 
   @Delete(':id')

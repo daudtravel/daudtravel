@@ -325,10 +325,13 @@ model EmailVerification {
 }
 
 model Driver {
-  id        String   @id @default(cuid())
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  photo     String?
+  id             String   @id @default(cuid())
+  firstName      String   @map("first_name")
+  lastName       String   @map("last_name")
+  photo          String?
+  languages      String[] @default([])
+  dailyRentPrice Decimal? @map("daily_rent_price") @db.Decimal(10, 2)
+  carPhotos      String[] @default([]) @map("car_photos")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")

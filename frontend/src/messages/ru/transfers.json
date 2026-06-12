@@ -84,5 +84,11 @@
   "feature_luggage": "Помощь с багажом",
   "feature_wifi": "Бесплатный Wi-Fi в машине",
   "feature_tracking": "Отслеживание рейса в реальном времени",
-  "feature_noHidden": "Никаких скрытых платежей"
+  "feature_noHidden": "Никаких скрытых платежей",
+  "driverNotFound": "Водитель не найден",
+  "backToTransfers": "Назад к трансферам",
+  "dailyCarRent": "Аренда машины в день",
+  "perDay": "день",
+  "carPhotos": "Фото машины",
+  "reviews": "Отзывы"
 }

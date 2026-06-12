@@ -12,6 +12,8 @@ import {
   ChevronDown,
   X,
   Users,
+  Pencil,
+  ImagePlus,
 } from "lucide-react";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -26,6 +28,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/src/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
+import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
 import { driversAPI, Driver, DriverReview } from "@/src/services/drivers.service";
 import { toast } from "sonner";
 
@@ -185,7 +196,7 @@ export function DriversList() {
       ) : (
         <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
           {/* Table header */}
-          <div className="hidden sm:grid grid-cols-[56px_1fr_160px_100px_48px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold uppercase tracking-wider text-gray-400">
+          <div className="hidden sm:grid grid-cols-[56px_1fr_160px_100px_88px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold uppercase tracking-wider text-gray-400">
             <span />
             <span>მძღოლი</span>
             <span>შეფასება</span>
@@ -209,6 +220,211 @@ export function DriversList() {
   );
 }
 
+function EditDriverModal({
+  driver,
+  isOpen,
+  onClose,
+}: {
+  driver: Driver;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [firstName, setFirstName] = useState(driver.firstName);
+  const [lastName, setLastName] = useState(driver.lastName);
+  const [languages, setLanguages] = useState(driver.languages.join(", "));
+  const [dailyRentPrice, setDailyRentPrice] = useState(
+    driver.dailyRentPrice !== null ? String(driver.dailyRentPrice) : ""
+  );
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    queryClient.invalidateQueries({ queryKey: ["driver", driver.id] });
+  };
+
+  const { mutate: saveDriver, isPending: isSaving } = useMutation({
+    mutationFn: () =>
+      driversAPI.update(driver.id, {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        languages: languages
+          .split(",")
+          .map((l) => l.trim())
+          .filter(Boolean),
+        dailyRentPrice: dailyRentPrice.trim() === "" ? null : Number(dailyRentPrice),
+      }),
+    onSuccess: () => {
+      invalidate();
+      toast.success("მძღოლი წარმატებით განახლდა");
+      onClose();
+    },
+    onError: () => toast.error("განახლება ვერ მოხერხდა"),
+  });
+
+  const { mutate: uploadPhotos, isPending: isUploading } = useMutation({
+    mutationFn: (files: File[]) => driversAPI.uploadCarPhotos(driver.id, files),
+    onSuccess: () => {
+      invalidate();
+      toast.success("ფოტოები აიტვირთა");
+    },
+    onError: () => toast.error("ფოტოების ატვირთვა ვერ მოხერხდა"),
+  });
+
+  const { mutate: removePhoto, isPending: isRemoving } = useMutation({
+    mutationFn: (url: string) => driversAPI.deleteCarPhoto(driver.id, url),
+    onSuccess: () => {
+      invalidate();
+      toast.success("ფოტო წაიშალა");
+    },
+    onError: () => toast.error("ფოტოს წაშლა ვერ მოხერხდა"),
+  });
+
+  const submit = () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error("სახელი და გვარი სავალდებულოა");
+      return;
+    }
+    if (dailyRentPrice.trim() !== "" && (isNaN(Number(dailyRentPrice)) || Number(dailyRentPrice) < 0)) {
+      toast.error("მიუთითეთ სწორი ფასი");
+      return;
+    }
+    saveDriver();
+  };
+
+  const busy = isSaving || isUploading || isRemoving;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !busy && onClose()}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-brand-green">
+            მძღოლის რედაქტირება — {driver.firstName} {driver.lastName}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4 pt-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-gray-700">სახელი</Label>
+              <Input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={busy}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-gray-700">გვარი</Label>
+              <Input
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={busy}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-gray-700">
+              ენები <span className="text-gray-400 text-xs font-normal">(მძიმით გამოყოფილი)</span>
+            </Label>
+            <Input
+              value={languages}
+              onChange={(e) => setLanguages(e.target.value)}
+              placeholder="ქართული, English, Русский"
+              disabled={busy}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-gray-700">
+              დღიური ქირაობის ფასი (₾){" "}
+              <span className="text-gray-400 text-xs font-normal">(ცარიელი = არ ქირაობს)</span>
+            </Label>
+            <Input
+              type="number"
+              min="0"
+              value={dailyRentPrice}
+              onChange={(e) => setDailyRentPrice(e.target.value)}
+              placeholder="150"
+              disabled={busy}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">მანქანის ფოტოები</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {driver.carPhotos.map((photo) => (
+                <div key={photo} className="relative aspect-[4/3] rounded-lg overflow-hidden group">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL}${photo}`}
+                    alt="car"
+                    fill
+                    className="object-cover"
+                  />
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => removePhoto(photo)}
+                    className="absolute top-1 right-1 h-6 w-6 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-red-500 transition-colors disabled:opacity-40"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+
+              <label
+                className={`aspect-[4/3] rounded-lg border-2 border-dashed border-gray-200 hover:border-brand-green flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors text-gray-400 hover:text-brand-green ${busy ? "pointer-events-none opacity-50" : ""}`}
+              >
+                {isUploading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <ImagePlus className="h-5 w-5" />
+                )}
+                <span className="text-[10px] font-medium">ატვირთვა</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  disabled={busy}
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length > 0) uploadPhotos(files);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 pt-2">
+          <button
+            onClick={onClose}
+            disabled={busy}
+            className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            დახურვა
+          </button>
+          <button
+            onClick={submit}
+            disabled={busy}
+            className="flex-1 px-4 py-2 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white text-sm font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                ინახება...
+              </>
+            ) : (
+              "შენახვა"
+            )}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function DriverRow({
   driver,
   isDeleting,
@@ -219,10 +435,11 @@ function DriverRow({
   onDelete: (id: string) => void;
 }) {
   const [showReviews, setShowReviews] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   return (
     <div>
-      <div className="grid grid-cols-[56px_1fr_auto] sm:grid-cols-[56px_1fr_160px_100px_48px] items-center gap-4 px-5 py-4">
+      <div className="grid grid-cols-[56px_1fr_auto] sm:grid-cols-[56px_1fr_160px_100px_88px] items-center gap-4 px-5 py-4">
         {/* Photo */}
         <div className="relative h-10 w-10 rounded-full overflow-hidden ring-2 ring-brand-green-100 shrink-0">
           {driver.photo ? (
@@ -277,8 +494,14 @@ function DriverRow({
           )}
         </div>
 
-        {/* Delete */}
-        <div className="flex justify-end">
+        {/* Edit + Delete */}
+        <div className="flex justify-end items-center gap-1">
+          <button
+            onClick={() => setEditOpen(true)}
+            className="h-8 w-8 flex items-center justify-center rounded-xl text-gray-300 hover:text-brand-green hover:bg-brand-green-50 transition-colors"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button
@@ -314,6 +537,14 @@ function DriverRow({
         <div className="px-5 pb-4">
           <ReviewsPanel driver={driver} />
         </div>
+      )}
+
+      {editOpen && (
+        <EditDriverModal
+          driver={driver}
+          isOpen={editOpen}
+          onClose={() => setEditOpen(false)}
+        />
       )}
     </div>
   );

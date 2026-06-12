@@ -84,5 +84,11 @@
   "feature_luggage": "Luggage assistance",
   "feature_wifi": "Free Wi-Fi on board",
   "feature_tracking": "Real-time flight tracking",
-  "feature_noHidden": "No hidden fees"
+  "feature_noHidden": "No hidden fees",
+  "driverNotFound": "Driver not found",
+  "backToTransfers": "Back to transfers",
+  "dailyCarRent": "Daily car rent",
+  "perDay": "day",
+  "carPhotos": "Car Photos",
+  "reviews": "Reviews"
 }

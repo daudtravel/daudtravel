@@ -84,5 +84,11 @@
   "feature_luggage": "ბარგის მომსახურება",
   "feature_wifi": "უფასო Wi-Fi",
   "feature_tracking": "ფრენის თვალყური",
-  "feature_noHidden": "დამალული გადასახადები არ არის"
+  "feature_noHidden": "დამალული გადასახადები არ არის",
+  "driverNotFound": "მძღოლი ვერ მოიძებნა",
+  "backToTransfers": "ტრანსფერებზე დაბრუნება",
+  "dailyCarRent": "მანქანის დღიური ქირაობა",
+  "perDay": "დღე",
+  "carPhotos": "მანქანის ფოტოები",
+  "reviews": "შეფასებები"
 }

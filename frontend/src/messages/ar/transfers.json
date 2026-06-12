@@ -84,5 +84,11 @@
   "feature_luggage": "مساعدة في الأمتعة",
   "feature_wifi": "واي فاي مجاني في السيارة",
   "feature_tracking": "تتبع الرحلة في الوقت الفعلي",
-  "feature_noHidden": "لا رسوم خفية"
+  "feature_noHidden": "لا رسوم خفية",
+  "driverNotFound": "لم يتم العثور على السائق",
+  "backToTransfers": "العودة إلى التنقلات",
+  "dailyCarRent": "إيجار السيارة اليومي",
+  "perDay": "يوم",
+  "carPhotos": "صور السيارة",
+  "reviews": "التقييمات"
 }
