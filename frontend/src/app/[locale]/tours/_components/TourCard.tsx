@@ -84,7 +84,7 @@ export const TourCard = ({ tour }: { tour: Tour }) => {
 
   return (
     <div
-      className="group/card w-full bg-white border border-brand-green-100 rounded-2xl shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl h-full"
+      className="group/card w-full bg-white border border-gray-100 rounded-xl shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl h-full"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <Link

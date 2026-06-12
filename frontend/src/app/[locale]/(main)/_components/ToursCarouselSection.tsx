@@ -113,7 +113,7 @@ export default function ToursCarouselSection({
             className="w-full md:px-20"
             setApi={setApi}
           >
-            <CarouselContent className="z-10">
+            <CarouselContent className="z-10 py-4">
               {tours.map((tour: Tour, index: number) => (
                 <CarouselItem
                   key={tour.id}

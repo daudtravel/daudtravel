@@ -110,7 +110,7 @@ export default function PublicProductsCarousel() {
             className="w-full md:px-20"
             setApi={setApi}
           >
-            <CarouselContent className="z-10">
+            <CarouselContent className="z-10 py-4">
               {products.map((product: any, index: number) => (
                 <CarouselItem
                   key={product.id}
@@ -124,7 +124,7 @@ export default function PublicProductsCarousel() {
                     className="h-full"
                   >
                     <Link href={`/pay/${product.slug}`}>
-                      <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+                      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
                         <div className="relative h-44 bg-gray-100">
                           {product.image ? (
                             <img

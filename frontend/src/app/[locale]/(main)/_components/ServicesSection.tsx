@@ -91,7 +91,7 @@ const ServicesSection = () => {
         </p>
       </motion.div>
       <Carousel opts={{ align: "start" }} className="w-full" setApi={setApi}>
-        <CarouselContent className="-ml-4 md:-ml-6">
+        <CarouselContent className="-ml-4 md:-ml-6 py-4">
           {services.map((service, index) => (
             <CarouselItem
               key={service.href}
