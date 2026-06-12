@@ -117,7 +117,7 @@ export default function ToursCarouselSection({
               {tours.map((tour: Tour, index: number) => (
                 <CarouselItem
                   key={tour.id}
-                  className="basis-full md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
+                  className="basis-[88%] md:basis-full lg:basis-1/2 md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}

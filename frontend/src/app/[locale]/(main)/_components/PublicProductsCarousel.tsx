@@ -114,7 +114,7 @@ export default function PublicProductsCarousel() {
               {products.map((product: any, index: number) => (
                 <CarouselItem
                   key={product.id}
-                  className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
+                  className="basis-[88%] md:basis-1/2 lg:basis-1/3 xl:basis-1/4 md:pr-7 md:pl-0 px-4 lg:pr-10 lg:pl-0 cursor-pointer hover:z-20"
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
