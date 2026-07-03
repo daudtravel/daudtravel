@@ -5,10 +5,13 @@ import {
   IsOptional,
   IsDateString,
   IsEnum,
+  IsDefined,
+  ValidateNested,
   Min,
   Max,
   MaxLength,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VehicleType } from '@prisma/client';
 
@@ -90,5 +93,8 @@ export class TransferBookingDataDto {
 
 export class CreateTransferPaymentDto {
   @ApiProperty({ type: TransferBookingDataDto })
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => TransferBookingDataDto)
   bookingData: TransferBookingDataDto;
 }

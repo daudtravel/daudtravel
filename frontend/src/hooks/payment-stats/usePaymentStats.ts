@@ -14,6 +14,8 @@ export interface StatsGroupedRow {
 
 export interface StatsFailureReason {
   reason: string;
+  type: PaymentType;
+  month: string;
   count: number;
   lastAt: string;
 }

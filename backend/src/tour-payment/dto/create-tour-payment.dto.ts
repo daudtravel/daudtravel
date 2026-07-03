@@ -6,10 +6,13 @@ import {
   IsOptional,
   IsArray,
   IsDateString,
+  IsDefined,
+  ValidateNested,
   Min,
   Max,
   MaxLength,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class TourBookingDataDto {
@@ -109,5 +112,8 @@ export class TourBookingDataDto {
 
 export class CreateTourPaymentDto {
   @ApiProperty({ type: TourBookingDataDto })
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => TourBookingDataDto)
   bookingData: TourBookingDataDto;
 }

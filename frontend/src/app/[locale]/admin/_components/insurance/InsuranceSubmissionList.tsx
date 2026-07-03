@@ -14,6 +14,7 @@ import {
   Calendar,
   DollarSign,
   X,
+  Info,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
@@ -373,13 +374,16 @@ export default function InsuranceSubmissionsList() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
                           {getStatusBadge(submission.status)}
                           {submission.status === "FAILED" &&
                             submission.failureReason && (
-                              <p className="text-xs text-red-600 max-w-[220px] leading-snug">
-                                {submission.failureReason}
-                              </p>
+                              <span className="group relative inline-flex">
+                                <Info className="w-4 h-4 text-red-400 cursor-help" />
+                                <span className="hidden group-hover:block absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-20 w-64 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-normal">
+                                  {submission.failureReason}
+                                </span>
+                              </span>
                             )}
                         </div>
                       </td>
@@ -514,9 +518,14 @@ export default function InsuranceSubmissionsList() {
 
                   {submission.status === "FAILED" &&
                     submission.failureReason && (
-                      <p className="text-xs text-red-600 leading-snug mb-3">
-                        {submission.failureReason}
-                      </p>
+                      <details className="mb-3">
+                        <summary className="text-xs text-red-500 font-medium cursor-pointer select-none">
+                          მიზეზის ნახვა
+                        </summary>
+                        <p className="text-xs text-red-600 leading-snug mt-1">
+                          {submission.failureReason}
+                        </p>
+                      </details>
                     )}
 
                   <div className="grid grid-cols-2 gap-3 mb-3">

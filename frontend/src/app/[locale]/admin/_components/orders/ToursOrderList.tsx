@@ -133,12 +133,6 @@ const TourOrdersList = () => {
                 )}
               </span>
             </div>
-            {["failed", "cancelled"].includes(data.status?.toLowerCase()) &&
-              data.rejectionReason && (
-                <p className="text-xs text-red-600 leading-snug">
-                  მიზეზი: {data.rejectionReason}
-                </p>
-              )}
           </div>
 
           {/* Collapsed details */}
@@ -156,6 +150,13 @@ const TourOrdersList = () => {
           <p className="text-xs text-gray-500">
             შეკვეთის ID: #{data.id.slice(-8)}
           </p>
+
+          {["failed", "cancelled"].includes(data.status?.toLowerCase()) &&
+            data.rejectionReason && (
+              <p className="text-xs text-red-600 leading-snug">
+                წარუმატებლობის მიზეზი: {data.rejectionReason}
+              </p>
+            )}
 
           <div className="space-y-3">
             <h4 className="font-semibold text-xs uppercase tracking-wide text-gray-500">

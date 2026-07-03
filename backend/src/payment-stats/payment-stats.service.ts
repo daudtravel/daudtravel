@@ -15,6 +15,8 @@ export interface GroupedRow {
 
 interface FailureReasonRow {
   reason: string;
+  type: PaymentType;
+  month: string;
   count: number;
   last_at: Date;
 }
@@ -95,30 +97,35 @@ export class PaymentStatsService {
   }
 
   private async getFailureReasons() {
+    // grouped by type and month as well, so the dashboard can filter
     const rows = await this.prisma.$queryRaw<FailureReasonRow[]>`
       SELECT
         COALESCE(reason, 'Unknown') AS reason,
+        type,
+        to_char(date_trunc('month', created_at), 'YYYY-MM') AS month,
         count(*)::int AS count,
         max(created_at) AS last_at
       FROM (
-        SELECT ${TOUR_REASON} AS reason, created_at
+        SELECT 'tours' AS type, ${TOUR_REASON} AS reason, created_at
         FROM tour_payment_orders WHERE status = 'FAILED'
         UNION ALL
-        SELECT ${TRANSFER_REASON}, created_at
+        SELECT 'transfers', ${TRANSFER_REASON}, created_at
         FROM transfer_payment_orders WHERE status = 'FAILED'
         UNION ALL
-        SELECT ${QUICK_REASON}, "createdAt"
+        SELECT 'quick', ${QUICK_REASON}, "createdAt"
         FROM quick_payment_orders WHERE status = 'FAILED'
         UNION ALL
-        SELECT ${INSURANCE_REASON}, created_at
+        SELECT 'insurance', ${INSURANCE_REASON}, created_at
         FROM insurance_submissions WHERE status = 'FAILED'
       ) failures
-      GROUP BY 1
-      ORDER BY 2 DESC
+      GROUP BY 1, 2, 3
+      ORDER BY 4 DESC
     `;
 
     return rows.map((row) => ({
       reason: humanizeBogRejectReason(row.reason) ?? 'Unknown',
+      type: row.type,
+      month: row.month,
       count: row.count,
       lastAt: row.last_at.toISOString(),
     }));

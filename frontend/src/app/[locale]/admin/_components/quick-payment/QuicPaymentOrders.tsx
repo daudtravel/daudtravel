@@ -10,6 +10,7 @@ import {
   User,
   Package,
   Trash2,
+  Info,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
@@ -251,12 +252,15 @@ export const QuickPaymentOrders = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
                           {getStatusBadge(order.status)}
                           {order.status === "FAILED" && order.failureReason && (
-                            <p className="text-xs text-red-600 max-w-[220px] leading-snug">
-                              {order.failureReason}
-                            </p>
+                            <span className="group relative inline-flex">
+                              <Info className="w-4 h-4 text-red-400 cursor-help" />
+                              <span className="hidden group-hover:block absolute left-1/2 -translate-x-1/2 top-full mt-1.5 z-20 w-64 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-normal">
+                                {order.failureReason}
+                              </span>
+                            </span>
                           )}
                         </div>
                       </td>
@@ -465,14 +469,14 @@ export const QuickPaymentOrders = () => {
                   </div>
 
                   {order.status === "FAILED" && order.failureReason && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">
-                        წარუმატებლობის მიზეზი
-                      </p>
-                      <p className="text-xs text-red-600 leading-snug">
+                    <details>
+                      <summary className="text-xs text-red-500 font-medium cursor-pointer select-none">
+                        მიზეზის ნახვა
+                      </summary>
+                      <p className="text-xs text-red-600 leading-snug mt-1">
                         {order.failureReason}
                       </p>
-                    </div>
+                    </details>
                   )}
                 </div>
               ))}

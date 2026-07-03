@@ -14,7 +14,6 @@ import {
 import {
   usePaymentStats,
   PaymentType,
-  StatsGroupedRow,
 } from "@/src/hooks/payment-stats/usePaymentStats";
 
 // Validated categorical palette (dataviz reference, light surface)
@@ -28,6 +27,21 @@ const TYPE_META: Record<PaymentType, { label: string; color: string }> = {
 const TYPE_ORDER: PaymentType[] = ["tours", "transfers", "quick", "insurance"];
 
 const MONTH_LABELS = [
+  "იანვარი",
+  "თებერვალი",
+  "მარტი",
+  "აპრილი",
+  "მაისი",
+  "ივნისი",
+  "ივლისი",
+  "აგვისტო",
+  "სექტემბერი",
+  "ოქტომბერი",
+  "ნოემბერი",
+  "დეკემბერი",
+];
+
+const MONTH_LABELS_SHORT = [
   "იან",
   "თებ",
   "მარ",
@@ -42,13 +56,8 @@ const MONTH_LABELS = [
   "დეკ",
 ];
 
-type RangeKey = "all" | "year" | "6m";
-
-const RANGES: { key: RangeKey; label: string }[] = [
-  { key: "all", label: "ყველა დრო" },
-  { key: "year", label: "მიმდინარე წელი" },
-  { key: "6m", label: "ბოლო 6 თვე" },
-];
+// period is a preset key or a specific "YYYY-MM" month
+type PeriodKey = "all" | "thisMonth" | "year" | "6m" | string;
 
 const formatMoney = (value: number) =>
   `₾${value.toLocaleString("en-US", {
@@ -56,9 +65,14 @@ const formatMoney = (value: number) =>
     maximumFractionDigits: 2,
   })}`;
 
-const formatMonth = (month: string) => {
+const formatMonthShort = (month: string) => {
   const [year, m] = month.split("-");
-  return `${MONTH_LABELS[Number(m) - 1]} ${year.slice(2)}`;
+  return `${MONTH_LABELS_SHORT[Number(m) - 1]} ${year.slice(2)}`;
+};
+
+const formatMonthLong = (month: string) => {
+  const [year, m] = month.split("-");
+  return `${MONTH_LABELS[Number(m) - 1]} ${year}`;
 };
 
 const formatDate = (iso: string) =>
@@ -68,29 +82,55 @@ const formatDate = (iso: string) =>
     day: "2-digit",
   });
 
-const rangeCutoff = (range: RangeKey): string | null => {
+const currentMonth = () => {
   const now = new Date();
-  if (range === "year") return `${now.getFullYear()}-01`;
-  if (range === "6m") {
-    const d = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-  }
-  return null;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 };
+
+// returns [fromMonth, toMonth] inclusive; null bound = unbounded
+const periodBounds = (period: PeriodKey): [string | null, string | null] => {
+  const now = new Date();
+  if (period === "all") return [null, null];
+  if (period === "thisMonth") return [currentMonth(), currentMonth()];
+  if (period === "year") return [`${now.getFullYear()}-01`, null];
+  if (period === "6m") {
+    const d = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    return [
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      null,
+    ];
+  }
+  // specific month "YYYY-MM"
+  return [period, period];
+};
+
+const inPeriod = (month: string, [from, to]: [string | null, string | null]) =>
+  (!from || month >= from) && (!to || month <= to);
 
 export const PaymentsDashboard = () => {
   const { data, isLoading, error, refetch, isRefetching } = usePaymentStats();
-  const [range, setRange] = useState<RangeKey>("all");
+  const [period, setPeriod] = useState<PeriodKey>("all");
+  const [typeFilter, setTypeFilter] = useState<PaymentType | "all">("all");
 
   const stats = data?.data;
 
+  // months that actually have data, newest first — for the period dropdown
+  const availableMonths = useMemo(() => {
+    if (!stats) return [];
+    const months = new Set(stats.grouped.map((row) => row.month));
+    return Array.from(months).sort().reverse();
+  }, [stats]);
+
+  const bounds = useMemo(() => periodBounds(period), [period]);
+
   const filtered = useMemo(() => {
     if (!stats) return [];
-    const cutoff = rangeCutoff(range);
-    return cutoff
-      ? stats.grouped.filter((row) => row.month >= cutoff)
-      : stats.grouped;
-  }, [stats, range]);
+    return stats.grouped.filter(
+      (row) =>
+        inPeriod(row.month, bounds) &&
+        (typeFilter === "all" || row.type === typeFilter)
+    );
+  }, [stats, bounds, typeFilter]);
 
   const totals = useMemo(() => {
     const acc = {
@@ -115,8 +155,16 @@ export const PaymentsDashboard = () => {
     };
   }, [filtered]);
 
+  const visibleTypes = useMemo(
+    () =>
+      typeFilter === "all"
+        ? TYPE_ORDER
+        : TYPE_ORDER.filter((type) => type === typeFilter),
+    [typeFilter]
+  );
+
   const byType = useMemo(() => {
-    return TYPE_ORDER.map((type) => {
+    return visibleTypes.map((type) => {
       const rows = filtered.filter((row) => row.type === type);
       const sum = (status: string, field: "count" | "amount") =>
         rows
@@ -131,7 +179,7 @@ export const PaymentsDashboard = () => {
         refunded: sum("REFUNDED", "count"),
       };
     });
-  }, [filtered]);
+  }, [filtered, visibleTypes]);
 
   const monthly = useMemo(() => {
     const paidRows = filtered.filter((row) => row.status === "PAID");
@@ -154,20 +202,53 @@ export const PaymentsDashboard = () => {
 
     return axis.map((month) => {
       const perType = {} as Record<PaymentType, number>;
-      TYPE_ORDER.forEach((type) => {
+      visibleTypes.forEach((type) => {
         perType[type] = paidRows
           .filter((row) => row.month === month && row.type === type)
           .reduce((s, row) => s + row.amount, 0);
       });
-      const total = TYPE_ORDER.reduce((s, type) => s + perType[type], 0);
+      const total = visibleTypes.reduce((s, type) => s + perType[type], 0);
       return { month, perType, total };
     });
-  }, [filtered]);
+  }, [filtered, visibleTypes]);
 
   const maxMonthTotal = useMemo(
     () => Math.max(1, ...monthly.map((m) => m.total)),
     [monthly]
   );
+
+  // aggregate failure reasons over the active filters
+  const failureReasons = useMemo(() => {
+    if (!stats) return [];
+    const map = new Map<string, { count: number; lastAt: string }>();
+    stats.failureReasons
+      .filter(
+        (row) =>
+          inPeriod(row.month, bounds) &&
+          (typeFilter === "all" || row.type === typeFilter)
+      )
+      .forEach((row) => {
+        const existing = map.get(row.reason);
+        if (existing) {
+          existing.count += row.count;
+          if (row.lastAt > existing.lastAt) existing.lastAt = row.lastAt;
+        } else {
+          map.set(row.reason, { count: row.count, lastAt: row.lastAt });
+        }
+      });
+    return Array.from(map, ([reason, v]) => ({ reason, ...v })).sort(
+      (a, b) => b.count - a.count
+    );
+  }, [stats, bounds, typeFilter]);
+
+  const recentFailures = useMemo(() => {
+    if (!stats) return [];
+    return stats.recentFailures.filter(
+      (f) =>
+        inPeriod(f.date.slice(0, 7), bounds) &&
+        (typeFilter === "all" || f.type === typeFilter)
+    );
+  }, [stats, bounds, typeFilter]);
 
   if (isLoading) {
     return (
@@ -217,41 +298,83 @@ export const PaymentsDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header + range filter */}
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
             გადახდების სტატისტიკა
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            ტურები · ტრანსფერები · სწრაფი გადახდები · დაზღვევა
+            {period === "all"
+              ? "ყველა დრო"
+              : period === "thisMonth"
+                ? formatMonthLong(currentMonth())
+                : period === "year"
+                  ? "მიმდინარე წელი"
+                  : period === "6m"
+                    ? "ბოლო 6 თვე"
+                    : formatMonthLong(period)}
+            {typeFilter !== "all" && ` · ${TYPE_META[typeFilter].label}`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-gray-200 bg-white p-1">
-            {RANGES.map((r) => (
-              <button
-                key={r.key}
-                onClick={() => setRange(r.key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  range === r.key
-                    ? "bg-brand-green text-white"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
+        <button
+          onClick={() => refetch()}
+          title="განახლება"
+          className="p-2 rounded-xl border border-gray-200 bg-white text-gray-400 hover:text-brand-green transition-colors"
+        >
+          <RefreshCw
+            className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
+          />
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <select
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+          className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-green/30"
+        >
+          <option value="all">ყველა დრო</option>
+          <option value="thisMonth">მიმდინარე თვე</option>
+          <option value="year">მიმდინარე წელი</option>
+          <option value="6m">ბოლო 6 თვე</option>
+          <option disabled>──────────</option>
+          {availableMonths.map((month) => (
+            <option key={month} value={month}>
+              {formatMonthLong(month)}
+            </option>
+          ))}
+        </select>
+
+        <div className="flex flex-wrap rounded-xl border border-gray-200 bg-white p-1 gap-0.5">
           <button
-            onClick={() => refetch()}
-            title="განახლება"
-            className="p-2 rounded-xl border border-gray-200 bg-white text-gray-400 hover:text-brand-green transition-colors"
+            onClick={() => setTypeFilter("all")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              typeFilter === "all"
+                ? "bg-brand-green text-white"
+                : "text-gray-500 hover:text-gray-800"
+            }`}
           >
-            <RefreshCw
-              className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-            />
+            ყველა
           </button>
+          {TYPE_ORDER.map((type) => (
+            <button
+              key={type}
+              onClick={() => setTypeFilter(type)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                typeFilter === type
+                  ? "bg-brand-green text-white"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <span
+                className="w-2 h-2 rounded-sm shrink-0"
+                style={{ backgroundColor: TYPE_META[type].color }}
+              />
+              {TYPE_META[type].label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -285,20 +408,22 @@ export const PaymentsDashboard = () => {
           <h2 className="text-sm font-bold text-gray-900">
             შემოსავალი თვეების მიხედვით
           </h2>
-          <div className="flex flex-wrap items-center gap-3">
-            {TYPE_ORDER.map((type) => (
-              <span
-                key={type}
-                className="flex items-center gap-1.5 text-xs text-gray-500"
-              >
+          {visibleTypes.length > 1 && (
+            <div className="flex flex-wrap items-center gap-3">
+              {visibleTypes.map((type) => (
                 <span
-                  className="w-2.5 h-2.5 rounded-sm shrink-0"
-                  style={{ backgroundColor: TYPE_META[type].color }}
-                />
-                {TYPE_META[type].label}
-              </span>
-            ))}
-          </div>
+                  key={type}
+                  className="flex items-center gap-1.5 text-xs text-gray-500"
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm shrink-0"
+                    style={{ backgroundColor: TYPE_META[type].color }}
+                  />
+                  {TYPE_META[type].label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {monthly.length === 0 ? (
@@ -314,13 +439,14 @@ export const PaymentsDashboard = () => {
               {monthly.map((m) => (
                 <div
                   key={m.month}
-                  className="group relative flex-1 flex flex-col justify-end h-full min-w-[36px]"
+                  className="group relative flex-1 flex flex-col justify-end h-full min-w-[36px] max-w-[120px]"
                 >
                   {/* tooltip */}
                   <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
-                    <p className="font-bold mb-1">{formatMonth(m.month)}</p>
-                    {TYPE_ORDER.filter((type) => m.perType[type] > 0).map(
-                      (type) => (
+                    <p className="font-bold mb-1">{formatMonthShort(m.month)}</p>
+                    {visibleTypes
+                      .filter((type) => m.perType[type] > 0)
+                      .map((type) => (
                         <p key={type} className="flex items-center gap-1.5">
                           <span
                             className="w-2 h-2 rounded-sm inline-block"
@@ -328,8 +454,7 @@ export const PaymentsDashboard = () => {
                           />
                           {TYPE_META[type].label}: {formatMoney(m.perType[type])}
                         </p>
-                      )
-                    )}
+                      ))}
                     <p className="border-t border-white/20 mt-1 pt-1 font-semibold">
                       სულ: {formatMoney(m.total)}
                     </p>
@@ -340,8 +465,9 @@ export const PaymentsDashboard = () => {
                     className="flex flex-col-reverse w-full"
                     style={{ height: `${(m.total / maxMonthTotal) * 180}px` }}
                   >
-                    {TYPE_ORDER.filter((type) => m.perType[type] > 0).map(
-                      (type, idx, visible) => (
+                    {visibleTypes
+                      .filter((type) => m.perType[type] > 0)
+                      .map((type, idx, visible) => (
                         <div
                           key={type}
                           style={{
@@ -355,11 +481,10 @@ export const PaymentsDashboard = () => {
                                 : undefined,
                           }}
                         />
-                      )
-                    )}
+                      ))}
                   </div>
                   <p className="text-[10px] text-gray-400 text-center mt-1.5 whitespace-nowrap">
-                    {formatMonth(m.month)}
+                    {formatMonthShort(m.month)}
                   </p>
                 </div>
               ))}
@@ -369,7 +494,11 @@ export const PaymentsDashboard = () => {
       </div>
 
       {/* Per-type breakdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${
+          visibleTypes.length > 2 ? "xl:grid-cols-4" : ""
+        }`}
+      >
         {byType.map((t) => (
           <div
             key={t.type}
@@ -418,13 +547,13 @@ export const PaymentsDashboard = () => {
               წარუმატებლობის მიზეზები (ბანკის პასუხი)
             </h2>
           </div>
-          {stats.failureReasons.length === 0 ? (
+          {failureReasons.length === 0 ? (
             <p className="text-sm text-gray-400 py-6 text-center">
               წარუმატებელი გადახდები არ არის
             </p>
           ) : (
             <div className="space-y-2">
-              {stats.failureReasons.map((r) => (
+              {failureReasons.map((r) => (
                 <div
                   key={r.reason}
                   className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-3.5 py-2.5"
@@ -453,13 +582,13 @@ export const PaymentsDashboard = () => {
               ბოლო წარუმატებელი გადახდები
             </h2>
           </div>
-          {stats.recentFailures.length === 0 ? (
+          {recentFailures.length === 0 ? (
             <p className="text-sm text-gray-400 py-6 text-center">
               წარუმატებელი გადახდები არ არის
             </p>
           ) : (
             <div className="space-y-2">
-              {stats.recentFailures.map((f, i) => (
+              {recentFailures.map((f, i) => (
                 <div
                   key={`${f.date}-${i}`}
                   className="bg-gray-50 rounded-xl px-3.5 py-2.5"
