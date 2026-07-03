@@ -46,18 +46,25 @@ const TourOrdersList = () => {
   } = useTourOrders();
 
   const getStatusConfig = (status: string) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "pending":
         return {
           color: "text-yellow-700 bg-yellow-50 border-yellow-200",
           icon: AlertTriangle,
           text: "მუშავდება",
         };
+      case "paid":
       case "confirmed":
         return {
           color: "text-green-700 bg-green-50 border-green-200",
           icon: CheckCircle,
-          text: "დადასტურებული",
+          text: "გადახდილი",
+        };
+      case "refunded":
+        return {
+          color: "text-blue-700 bg-blue-50 border-blue-200",
+          icon: AlertCircle,
+          text: "დაბრუნებული",
         };
       case "cancelled":
         return {
@@ -126,6 +133,12 @@ const TourOrdersList = () => {
                 )}
               </span>
             </div>
+            {["failed", "cancelled"].includes(data.status?.toLowerCase()) &&
+              data.rejectionReason && (
+                <p className="text-xs text-red-600 leading-snug">
+                  მიზეზი: {data.rejectionReason}
+                </p>
+              )}
           </div>
 
           {/* Collapsed details */}

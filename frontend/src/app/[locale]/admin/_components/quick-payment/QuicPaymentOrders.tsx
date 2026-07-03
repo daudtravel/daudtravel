@@ -181,9 +181,6 @@ export const QuickPaymentOrders = () => {
                       სტატუსი
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      შეკვეთის ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
                       თარიღი
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
@@ -197,9 +194,17 @@ export const QuickPaymentOrders = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <User className="w-5 h-5 text-gray-400" />
-                          <span className="font-medium text-gray-900">
-                            {order.customerFullName}
-                          </span>
+                          <div>
+                            <span className="font-medium text-gray-900">
+                              {order.customerFullName}
+                            </span>
+                            <p
+                              className="text-[10px] text-gray-400 font-mono"
+                              title={order.externalOrderId}
+                            >
+                              #{order.externalOrderId?.slice(-8)}
+                            </p>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -246,12 +251,14 @@ export const QuickPaymentOrders = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusBadge(order.status)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <code className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                          {order.externalOrderId}
-                        </code>
+                        <div className="space-y-1">
+                          {getStatusBadge(order.status)}
+                          {order.status === "FAILED" && order.failureReason && (
+                            <p className="text-xs text-red-600 max-w-[220px] leading-snug">
+                              {order.failureReason}
+                            </p>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {order.paidAt ? (
@@ -457,12 +464,16 @@ export const QuickPaymentOrders = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">შეკვეთის ID</p>
-                    <code className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded block w-fit">
-                      {order.externalOrderId}
-                    </code>
-                  </div>
+                  {order.status === "FAILED" && order.failureReason && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">
+                        წარუმატებლობის მიზეზი
+                      </p>
+                      <p className="text-xs text-red-600 leading-snug">
+                        {order.failureReason}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

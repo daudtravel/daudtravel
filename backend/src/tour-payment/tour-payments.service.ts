@@ -11,6 +11,7 @@ import {
   BOG_API_URL,
   getTourPaymentsCallbackUrl,
   verifyBOGSignature,
+  humanizeBogRejectReason,
 } from '@/common/utils/bog-payments';
 import { MailService } from '@/mail/mail.service';
 import { Prisma, PaymentStatus } from '@prisma/client';
@@ -989,7 +990,7 @@ export class TourPaymentsService {
       paymentUrl: order.paymentUrl,
       transactionId: order.transactionId,
       paymentMethod: order.paymentMethod,
-      rejectionReason: order.rejectionReason,
+      rejectionReason: humanizeBogRejectReason(order.rejectionReason),
       expiresAt: order.expiresAt?.toISOString(),
       paidAt: order.paidAt?.toISOString(),
       failedAt: order.failedAt?.toISOString(),

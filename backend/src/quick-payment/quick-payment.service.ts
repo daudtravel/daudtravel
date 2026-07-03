@@ -7,7 +7,11 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { getBOGAccessToken } from '@/common/utils/bog-auth';
-import { BOG_API_URL, verifyBOGSignature } from '@/common/utils/bog-payments';
+import {
+  BOG_API_URL,
+  verifyBOGSignature,
+  extractBogFailureReason,
+} from '@/common/utils/bog-payments';
 import { PaymentStatus } from '@prisma/client';
 import {
   CreateQuickLinkDto,
@@ -241,8 +245,10 @@ export class QuickPaymentService {
     }
 
     const quantity = Math.max(1, Math.min(100, dto.quantity || 1));
-    const unitPrice = Number(link.price);
-    const totalAmount = unitPrice * quantity;
+    // BOG rejects amounts with more than 2 decimal places, so round the
+    // float product (e.g. 10.7 * 3 = 32.099999999999994)
+    const unitPrice = Math.round(Number(link.price) * 100) / 100;
+    const totalAmount = Math.round(unitPrice * quantity * 100) / 100;
 
     const external_order_id = `QP_${uuidv4()}`;
     const accessToken = await getBOGAccessToken();
@@ -326,6 +332,10 @@ export class QuickPaymentService {
 
   async handleBOGCallback(rawBody: string, signature: string) {
     if (!signature || !verifyBOGSignature(rawBody, signature)) {
+      console.error(
+        '❌ Quick payment callback rejected: invalid signature. Body:',
+        rawBody?.substring(0, 500),
+      );
       throw new BadRequestException('Invalid signature');
     }
 
@@ -364,6 +374,12 @@ export class QuickPaymentService {
     });
 
     if (!order) {
+      console.error(
+        '❌ Quick payment callback: order not found. BOG order_id:',
+        orderData.order_id,
+        'external_order_id:',
+        orderData.external_order_id,
+      );
       throw new NotFoundException('Order not found');
     }
 
@@ -796,6 +812,10 @@ export class QuickPaymentService {
         productTotalPrice: Number(order.productTotalPrice),
         productLocale: order.productLocale,
         status: order.status,
+        failureReason:
+          order.status === PaymentStatus.FAILED
+            ? extractBogFailureReason(order.callbackData)
+            : null,
         linkSlug: order.link?.slug ?? null,
         linkImage: order.link?.image ?? null,
         transactionId: order.transactionId,
@@ -845,6 +865,10 @@ export class QuickPaymentService {
         productTotalPrice: Number(order.productTotalPrice),
         productLocale: order.productLocale,
         status: order.status,
+        failureReason:
+          order.status === PaymentStatus.FAILED
+            ? extractBogFailureReason(order.callbackData)
+            : null,
         linkSlug: order.link?.slug ?? null,
         linkImage: order.link?.image ?? null,
         transactionId: order.transactionId,

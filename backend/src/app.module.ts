@@ -16,6 +16,7 @@ import { VideosModule } from './videos/videos.module';
 import { QuickPaymentModule } from './quick-payment/quick-payment.module';
 import { InsuranceModule } from './insurance/insurance.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
+import { PaymentStatsModule } from './payment-stats/payment-stats.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -38,6 +39,7 @@ import { HealthController } from './health.controller';
     QuickPaymentModule,
     InsuranceModule,
     AccommodationsModule,
+    PaymentStatsModule,
   ],
   controllers: [HealthController],
 })

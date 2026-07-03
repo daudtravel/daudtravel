@@ -25,6 +25,7 @@ export interface OrderData {
   externalOrderId: string;
   bogOrderId: string;
   status: string;
+  rejectionReason?: string | null;
   paymentUrl?: string;
   expiresAt: string;
   createdAt: string;

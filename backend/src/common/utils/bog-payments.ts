@@ -29,3 +29,34 @@ export function verifyBOGSignature(body: string, signature: string): boolean {
     return false;
   }
 }
+
+/**
+ * Turn a BOG reject reason into a human-readable message.
+ * BOG sends "expiration" for abandoned sessions; other reasons
+ * (e.g. "Payment declined by the acquirer bank") are already readable.
+ */
+export function humanizeBogRejectReason(reason: string | null | undefined) {
+  if (!reason) return null;
+  if (reason === 'expiration') {
+    return 'Session expired — customer did not complete the payment';
+  }
+  return reason;
+}
+
+/**
+ * Extract the failure reason from a stored BOG callback payload,
+ * preferring the explicit rejection column where a module has one.
+ */
+export function extractBogFailureReason(
+  callbackData: unknown,
+  rejectionReason?: string | null,
+): string | null {
+  if (rejectionReason) return humanizeBogRejectReason(rejectionReason);
+  const cb = callbackData as {
+    reject_reason?: string;
+    payment_detail?: { code?: string; code_description?: string };
+  } | null;
+  return humanizeBogRejectReason(
+    cb?.payment_detail?.code_description || cb?.reject_reason,
+  );
+}

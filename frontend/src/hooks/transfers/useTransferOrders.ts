@@ -8,6 +8,7 @@ export interface TransferOrder {
   status: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
   paymentAmount: number;
   currency: string;
+  rejectionReason?: string | null;
   paymentUrl?: string;
   expiresAt?: string;
   createdAt: string;

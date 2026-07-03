@@ -342,9 +342,12 @@ export default function InsuranceSubmissionsList() {
                             <p className="font-medium text-gray-900">
                               {submission.submitterEmail}
                             </p>
-                            <code className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                              {submission.externalOrderId}
-                            </code>
+                            <p
+                              className="text-[10px] text-gray-400 font-mono"
+                              title={submission.externalOrderId}
+                            >
+                              #{submission.externalOrderId?.slice(-8)}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -370,7 +373,15 @@ export default function InsuranceSubmissionsList() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusBadge(submission.status)}
+                        <div className="space-y-1">
+                          {getStatusBadge(submission.status)}
+                          {submission.status === "FAILED" &&
+                            submission.failureReason && (
+                              <p className="text-xs text-red-600 max-w-[220px] leading-snug">
+                                {submission.failureReason}
+                              </p>
+                            )}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         {submission.emailSent ? (
@@ -491,12 +502,22 @@ export default function InsuranceSubmissionsList() {
                           {submission.submitterEmail}
                         </p>
                       </div>
-                      <code className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded block w-fit">
-                        {submission.externalOrderId}
-                      </code>
+                      <p
+                        className="text-[10px] text-gray-400 font-mono"
+                        title={submission.externalOrderId}
+                      >
+                        #{submission.externalOrderId?.slice(-8)}
+                      </p>
                     </div>
                     {getStatusBadge(submission.status)}
                   </div>
+
+                  {submission.status === "FAILED" &&
+                    submission.failureReason && (
+                      <p className="text-xs text-red-600 leading-snug mb-3">
+                        {submission.failureReason}
+                      </p>
+                    )}
 
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>

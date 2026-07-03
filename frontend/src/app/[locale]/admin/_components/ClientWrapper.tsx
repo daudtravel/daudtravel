@@ -15,6 +15,7 @@ import {
   Shield,
   ChevronDown,
   BedDouble,
+  BarChart3,
 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ToursList } from "./tours/tour-list/ToursList";
@@ -43,6 +44,7 @@ import InsuranceSettings from "./insurance/InsuranceSettings";
 import { AccommodationsList } from "./accommodations/accommodation-list/AccommodationsList";
 import CreateAccommodation from "./accommodations/create-accommodation/CreateAccommodation";
 import EditAccommodation from "./accommodations/edit-accommodation/EditAccommodation";
+import PaymentsDashboard from "./stats/PaymentsDashboard";
 
 interface SidebarItem {
   key: string;
@@ -58,6 +60,14 @@ interface SidebarGroup {
 }
 
 const SIDEBAR_GROUPS: SidebarGroup[] = [
+  {
+    key: "statsGroup",
+    label: "სტატისტიკა",
+    icon: BarChart3,
+    items: [
+      { key: "paymentStats", label: "გადახდები", query: "?stats=payments" },
+    ],
+  },
   {
     key: "toursGroup",
     label: "ტურები",
@@ -127,6 +137,7 @@ export const ClientWrapper = () => {
   const quickPayment = searchParams.get("quickPayment");
   const insurance = searchParams.get("insurance");
   const accommodations = searchParams.get("accommodations");
+  const stats = searchParams.get("stats");
 
   useEffect(() => {
     const hasParams = Array.from(searchParams.keys()).length > 0;
@@ -173,6 +184,8 @@ export const ClientWrapper = () => {
   };
 
   const renderContent = () => {
+    if (stats === "payments") return <PaymentsDashboard />;
+
     if (tours === "all") return <ToursList />;
     if (tours === "createTour") return <CreateTour />;
     if (tours) return <EditTour />;

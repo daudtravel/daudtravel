@@ -8,7 +8,11 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { getBOGAccessToken } from '@/common/utils/bog-auth';
-import { BOG_API_URL, verifyBOGSignature } from '@/common/utils/bog-payments';
+import {
+  BOG_API_URL,
+  verifyBOGSignature,
+  extractBogFailureReason,
+} from '@/common/utils/bog-payments';
 import { PaymentStatus, Prisma } from '@prisma/client';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { Response } from 'express';
@@ -62,7 +66,8 @@ export class InsuranceService {
       discount90Days,
     });
     const discountAmount = (baseAmount * discountPercent) / 100;
-    const finalAmount = baseAmount - discountAmount;
+    // Round to 2 decimals — BOG rejects amounts with longer fractions
+    const finalAmount = Math.round((baseAmount - discountAmount) * 100) / 100;
 
     return {
       days,
@@ -268,10 +273,10 @@ export class InsuranceService {
       }),
     );
 
-    const totalAmount = peopleWithPricing.reduce(
-      (sum, p) => sum + p.finalAmount,
-      0,
-    );
+    const totalAmount =
+      Math.round(
+        peopleWithPricing.reduce((sum, p) => sum + p.finalAmount, 0) * 100,
+      ) / 100;
     const totalDays = peopleWithPricing.reduce(
       (sum, p) => sum + p.totalDays,
       0,
@@ -522,6 +527,10 @@ export class InsuranceService {
         totalAmount: Number(sub.totalAmount),
         totalDays: sub.totalDays,
         status: sub.status,
+        failureReason:
+          sub.status === PaymentStatus.FAILED
+            ? extractBogFailureReason(sub.callbackData)
+            : null,
         transactionId: sub.transactionId,
         paymentMethod: sub.paymentMethod,
         emailSent: sub.emailSent,
@@ -575,6 +584,10 @@ export class InsuranceService {
         totalAmount: Number(submission.totalAmount),
         totalDays: submission.totalDays,
         status: submission.status,
+        failureReason:
+          submission.status === PaymentStatus.FAILED
+            ? extractBogFailureReason(submission.callbackData)
+            : null,
         transactionId: submission.transactionId,
         paymentMethod: submission.paymentMethod,
         paymentUrl: submission.paymentUrl,

@@ -204,6 +204,12 @@ function OrderRow({ order }: { order: TransferOrder }) {
                   ვადა: {new Date(order.expiresAt).toLocaleString("ka-GE")}
                 </p>
               )}
+              {order.status?.toUpperCase() === "FAILED" &&
+                order.rejectionReason && (
+                  <p className="text-xs text-red-600 leading-snug">
+                    მიზეზი: {order.rejectionReason}
+                  </p>
+                )}
             </div>
           </div>
         </div>

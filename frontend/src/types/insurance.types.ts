@@ -29,6 +29,7 @@ export interface InsuranceSubmission {
   totalAmount: number;
   totalDays: number;
   status: PaymentStatus;
+  failureReason?: string | null;
   transactionId?: string;
   paymentMethod?: string;
   paymentUrl?: string;
