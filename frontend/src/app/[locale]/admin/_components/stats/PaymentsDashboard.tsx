@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Loader2,
   Wallet,
   CheckCircle,
   XCircle,
   Percent,
-  Clock,
   AlertTriangle,
   RefreshCw,
+  List,
 } from "lucide-react";
 import {
   usePaymentStats,
@@ -108,6 +109,8 @@ const inPeriod = (month: string, [from, to]: [string | null, string | null]) =>
   (!from || month >= from) && (!to || month <= to);
 
 export const PaymentsDashboard = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { data, isLoading, error, refetch, isRefetching } = usePaymentStats();
   const [period, setPeriod] = useState<PeriodKey>("all");
   const [typeFilter, setTypeFilter] = useState<PaymentType | "all">("all");
@@ -238,15 +241,6 @@ export const PaymentsDashboard = () => {
       });
     return Array.from(map, ([reason, v]) => ({ reason, ...v })).sort(
       (a, b) => b.count - a.count
-    );
-  }, [stats, bounds, typeFilter]);
-
-  const recentFailures = useMemo(() => {
-    if (!stats) return [];
-    return stats.recentFailures.filter(
-      (f) =>
-        inPeriod(f.date.slice(0, 7), bounds) &&
-        (typeFilter === "all" || f.type === typeFilter)
     );
   }, [stats, bounds, typeFilter]);
 
@@ -538,91 +532,49 @@ export const PaymentsDashboard = () => {
         ))}
       </div>
 
-      {/* Failure reasons + recent failures */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <div className="flex items-center gap-2 mb-4">
+      {/* Failure reasons (aggregated) */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-red-500" />
             <h2 className="text-sm font-bold text-gray-900">
               წარუმატებლობის მიზეზები (ბანკის პასუხი)
             </h2>
           </div>
-          {failureReasons.length === 0 ? (
-            <p className="text-sm text-gray-400 py-6 text-center">
-              წარუმატებელი გადახდები არ არის
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {failureReasons.map((r) => (
-                <div
-                  key={r.reason}
-                  className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-3.5 py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm text-gray-800 leading-snug">
-                      {r.reason}
-                    </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      ბოლოს: {formatDate(r.lastAt)}
-                    </p>
-                  </div>
-                  <span className="shrink-0 min-w-[28px] text-center px-2 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-bold">
-                    {r.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <button
+            onClick={() => router.push(`${pathname}?stats=orders`)}
+            className="flex items-center gap-1.5 text-xs font-medium text-brand-green hover:underline"
+          >
+            <List className="w-3.5 h-3.5" />
+            ყველა გადახდის სია →
+          </button>
         </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <h2 className="text-sm font-bold text-gray-900">
-              ბოლო წარუმატებელი გადახდები
-            </h2>
+        {failureReasons.length === 0 ? (
+          <p className="text-sm text-gray-400 py-6 text-center">
+            წარუმატებელი გადახდები არ არის
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
+            {failureReasons.map((r) => (
+              <div
+                key={r.reason}
+                className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-3.5 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm text-gray-800 leading-snug">
+                    {r.reason}
+                  </p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    ბოლოს: {formatDate(r.lastAt)}
+                  </p>
+                </div>
+                <span className="shrink-0 min-w-[28px] text-center px-2 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-bold">
+                  {r.count}
+                </span>
+              </div>
+            ))}
           </div>
-          {recentFailures.length === 0 ? (
-            <p className="text-sm text-gray-400 py-6 text-center">
-              წარუმატებელი გადახდები არ არის
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {recentFailures.map((f, i) => (
-                <div
-                  key={`${f.date}-${i}`}
-                  className="bg-gray-50 rounded-xl px-3.5 py-2.5"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-gray-800 truncate">
-                      {f.customer}
-                    </p>
-                    <p className="text-sm font-bold text-gray-900 shrink-0">
-                      {formatMoney(f.amount)}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 mt-0.5">
-                    <p className="text-[11px] text-gray-500 truncate">
-                      {f.reason}
-                    </p>
-                    <span
-                      className="shrink-0 flex items-center gap-1 text-[11px] text-gray-400"
-                      title={TYPE_META[f.type]?.label}
-                    >
-                      <span
-                        className="w-2 h-2 rounded-sm inline-block"
-                        style={{
-                          backgroundColor: TYPE_META[f.type]?.color ?? "#999",
-                        }}
-                      />
-                      {formatDate(f.date)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

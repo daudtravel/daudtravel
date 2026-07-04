@@ -45,6 +45,7 @@ import { AccommodationsList } from "./accommodations/accommodation-list/Accommod
 import CreateAccommodation from "./accommodations/create-accommodation/CreateAccommodation";
 import EditAccommodation from "./accommodations/edit-accommodation/EditAccommodation";
 import PaymentsDashboard from "./stats/PaymentsDashboard";
+import PaymentOrdersList from "./stats/PaymentOrdersList";
 
 interface SidebarItem {
   key: string;
@@ -66,6 +67,11 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
     icon: BarChart3,
     items: [
       { key: "paymentStats", label: "გადახდები", query: "?stats=payments" },
+      {
+        key: "paymentOrders",
+        label: "გადახდების სტატუსები",
+        query: "?stats=orders",
+      },
     ],
   },
   {
@@ -185,6 +191,7 @@ export const ClientWrapper = () => {
 
   const renderContent = () => {
     if (stats === "payments") return <PaymentsDashboard />;
+    if (stats === "orders") return <PaymentOrdersList />;
 
     if (tours === "all") return <ToursList />;
     if (tours === "createTour") return <CreateTour />;

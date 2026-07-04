@@ -21,12 +21,15 @@ interface FailureReasonRow {
   last_at: Date;
 }
 
-interface RecentFailureRow {
+interface OrderRow {
   type: PaymentType;
   customer: string;
+  email: string | null;
   amount: number;
+  status: string;
   reason: string | null;
   method: string | null;
+  external_order_id: string;
   created_at: Date;
 }
 
@@ -48,10 +51,9 @@ export class PaymentStatsService {
   constructor(private prisma: PrismaService) {}
 
   async getStats() {
-    const [grouped, failureReasons, recentFailures] = await Promise.all([
+    const [grouped, failureReasons] = await Promise.all([
       this.getGroupedStats(),
       this.getFailureReasons(),
-      this.getRecentFailures(),
     ]);
 
     return {
@@ -59,7 +61,6 @@ export class PaymentStatsService {
       data: {
         grouped,
         failureReasons,
-        recentFailures,
       },
     };
   }
@@ -131,56 +132,114 @@ export class PaymentStatsService {
     }));
   }
 
-  private async getRecentFailures() {
-    const rows = await this.prisma.$queryRaw<RecentFailureRow[]>`
-      SELECT * FROM (
-        SELECT
-          'tours' AS type,
-          customer_first_name || ' ' || customer_last_name AS customer,
-          paid_amount::float8 AS amount,
-          ${TOUR_REASON} AS reason,
-          payment_method AS method,
-          created_at
-        FROM tour_payment_orders WHERE status = 'FAILED'
-        UNION ALL
-        SELECT
-          'transfers',
-          customer_first_name || ' ' || customer_last_name,
-          payment_amount::float8,
-          ${TRANSFER_REASON},
-          payment_method,
-          created_at
-        FROM transfer_payment_orders WHERE status = 'FAILED'
-        UNION ALL
-        SELECT
-          'quick',
-          "customerFullName",
-          product_total_price::float8,
-          ${QUICK_REASON},
-          "paymentMethod",
-          "createdAt"
-        FROM quick_payment_orders WHERE status = 'FAILED'
-        UNION ALL
-        SELECT
-          'insurance',
-          submitter_email,
-          total_amount::float8,
-          ${INSURANCE_REASON},
-          payment_method,
-          created_at
-        FROM insurance_submissions WHERE status = 'FAILED'
-      ) failures
-      ORDER BY created_at DESC
-      LIMIT 20
+  /**
+   * Unified, paginated list of payment orders across all four types,
+   * optionally filtered by type and/or status.
+   */
+  async getOrders(
+    type?: PaymentType,
+    status?: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.max(1, Math.min(100, Number(limit) || 20));
+    const offset = (safePage - 1) * safeLimit;
+
+    const conditions: Prisma.Sql[] = [];
+    if (type) conditions.push(Prisma.sql`type = ${type}`);
+    if (status) conditions.push(Prisma.sql`status = ${status}`);
+    const where = conditions.length
+      ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
+      : Prisma.empty;
+
+    const allOrders = Prisma.sql`
+      SELECT
+        'tours' AS type,
+        customer_first_name || ' ' || customer_last_name AS customer,
+        customer_email AS email,
+        paid_amount::float8 AS amount,
+        status::text AS status,
+        ${TOUR_REASON} AS reason,
+        payment_method AS method,
+        external_order_id,
+        created_at
+      FROM tour_payment_orders
+      UNION ALL
+      SELECT
+        'transfers',
+        customer_first_name || ' ' || customer_last_name,
+        customer_email,
+        payment_amount::float8,
+        status::text,
+        ${TRANSFER_REASON},
+        payment_method,
+        external_order_id,
+        created_at
+      FROM transfer_payment_orders
+      UNION ALL
+      SELECT
+        'quick',
+        "customerFullName",
+        "customerEmail",
+        product_total_price::float8,
+        status::text,
+        ${QUICK_REASON},
+        "paymentMethod",
+        "externalOrderId",
+        "createdAt"
+      FROM quick_payment_orders
+      UNION ALL
+      SELECT
+        'insurance',
+        submitter_email,
+        submitter_email,
+        total_amount::float8,
+        status::text,
+        ${INSURANCE_REASON},
+        payment_method,
+        external_order_id,
+        created_at
+      FROM insurance_submissions
     `;
 
-    return rows.map((row) => ({
-      type: row.type,
-      customer: row.customer,
-      amount: row.amount,
-      reason: humanizeBogRejectReason(row.reason) ?? 'Unknown',
-      method: row.method,
-      date: row.created_at.toISOString(),
-    }));
+    const [rows, countRows] = await Promise.all([
+      this.prisma.$queryRaw<OrderRow[]>`
+        SELECT * FROM (${allOrders}) orders
+        ${where}
+        ORDER BY created_at DESC
+        LIMIT ${safeLimit} OFFSET ${offset}
+      `,
+      this.prisma.$queryRaw<{ total: number }[]>`
+        SELECT count(*)::int AS total FROM (${allOrders}) orders
+        ${where}
+      `,
+    ]);
+
+    const total = countRows[0]?.total ?? 0;
+
+    return {
+      success: true,
+      data: rows.map((row) => ({
+        type: row.type,
+        customer: row.customer,
+        email: row.email,
+        amount: row.amount,
+        status: row.status,
+        reason:
+          row.status === 'FAILED'
+            ? (humanizeBogRejectReason(row.reason) ?? 'Unknown')
+            : null,
+        method: row.method,
+        externalOrderId: row.external_order_id,
+        date: row.created_at.toISOString(),
+      })),
+      pagination: {
+        page: safePage,
+        limit: safeLimit,
+        total,
+        totalPages: Math.ceil(total / safeLimit),
+      },
+    };
   }
 }
