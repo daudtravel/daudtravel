@@ -71,5 +71,8 @@
   "statusCompleted": "Completed",
   "commissionNote": "Note: Due to international card processing, a 1–3% bank commission may apply to your payment.",
   "decrementPerson": "Decrease number of people",
-  "incrementPerson": "Increase number of people"
+  "incrementPerson": "Increase number of people",
+  "photoN": "{name} - photo {n}",
+  "tourPhotoN": "Tour photo {n}",
+  "additionalImages": "Additional images"
 }

@@ -45,5 +45,15 @@
   "galleryDesc": "صور وفيديوهات من جولاتنا ومغامراتنا في جورجيا",
   "photos": "الصور",
   "videos": "الفيديوهات",
-  "noVideosAvailable": "لا توجد فيديوهات متاحة حالياً."
+  "noVideosAvailable": "لا توجد فيديوهات متاحة حالياً.",
+  "buy": "شراء",
+  "productNotFound": "لم يتم العثور على المنتج",
+  "productNotAvailable": "المنتج غير متوفر",
+  "previousSlide": "الشريحة السابقة",
+  "nextSlide": "الشريحة التالية",
+  "slideN": "الشريحة {n}",
+  "goToSlide": "الانتقال إلى الشريحة {n}",
+  "pagination": "التنقل بين الصفحات",
+  "pageN": "الصفحة {page}",
+  "error_loading_faqs": "حدث خطأ أثناء تحميل الأسئلة الشائعة"
 }

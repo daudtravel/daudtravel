@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 export interface QuickPaymentStatusResponse {
   success: boolean;
@@ -20,10 +21,13 @@ export function useQuickPaymentStatus(externalOrderId: string | null) {
     QuickPaymentStatusResponse["data"] | null
   >(null);
   const [error, setError] = useState("");
+  const t = useTranslations("payment.result");
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     if (!externalOrderId) {
-      setError("No order ID provided");
+      setError(tRef.current("noOrderId"));
       setIsLoading(false);
       return;
     }
@@ -39,7 +43,7 @@ export function useQuickPaymentStatus(externalOrderId: string | null) {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch payment status");
+          throw new Error(tRef.current("fetchStatusFailed"));
         }
 
         const result: QuickPaymentStatusResponse = await response.json();
@@ -64,7 +68,7 @@ export function useQuickPaymentStatus(externalOrderId: string | null) {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err instanceof Error ? err.message : "Unknown error");
+          setError(err instanceof Error ? err.message : tRef.current("unknownError"));
           setIsLoading(false);
         }
       }

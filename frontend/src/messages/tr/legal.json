@@ -1,0 +1,125 @@
+{
+  "terms": {
+    "title": "Şartlar ve Koşullar",
+    "intro": "Lütfen hizmetlerimizin kullanımına ilişkin şartları ve koşulları dikkatlice okuyun. Web sitemizi (<site>www.daudtravel.com</site> ve alt alan adları) ziyaret etmeniz, tur rezervasyonu yapmanız veya tur satın almanız, sizin (Müşteri) bu Şartları ve Koşulları tamamen kabul ettiğiniz anlamına gelir. Herhangi bir maddeyi kabul etmiyorsanız lütfen hizmetlerimizi kullanmayın.",
+    "general": {
+      "title": "Genel Hükümler",
+      "p1": "Web sitemizi (www.daudtravel.com ve alt alan adları) ziyaret ederek ve hizmetlerimizi kullanarak bu Şartları ve Koşulları kabul etmiş olursunuz. Lütfen bir tur satın almadan veya rezervasyon yapmadan önce bunları dikkatlice okuyun.",
+      "p2": "Bu Şartların ve Koşulların ihlali durumunda seyahat acentesi hizmeti sağlamayı reddetme veya rezervasyonu iptal etme hakkına sahiptir."
+    },
+    "booking": {
+      "title": "Rezervasyon ve Ödeme",
+      "intro": "Web sitemizde bir turu iki şekilde satın alabilirsiniz:",
+      "option1Title": "1. Tam ödeme",
+      "option1Text": "Tur bedelinin tamamının banka kartıyla veya mevcut başka bir ödeme yöntemiyle çevrimiçi olarak derhal ödenmesi.",
+      "option2Title": "2. Rezervasyon (ön ödeme)",
+      "option2Text": "Ön ödeme yapılarak turun rezerve edilmesi. Kalan tutar daha sonra nakit olarak veya çevrimiçi banka işlemiyle ödenebilir. Kalan tutarın ödeme süresi ve koşulları rezervasyon onayında belirtilir.",
+      "p1": "Tüm ödemeler güvenli ödeme sistemleri aracılığıyla gerçekleştirilir. Ödemeniz onaylandıktan sonra e-posta ile bir onay mesajı alırsınız.",
+      "p2": "Rezervasyon durumunda, kalan tutar tur başlamadan önce ödenmezse seyahat acentesi turu iptal etme hakkına sahiptir."
+    },
+    "tourDetails": {
+      "title": "Tur Açıklaması ve Detayları",
+      "intro": "Web sitesinde her tur için aşağıdakileri içeren ayrıntılı bilgiler sunulmaktadır:",
+      "item1": "Tur türü (bireysel veya grup)",
+      "item2": "Tur süresi",
+      "item3": "Katılımcı sayısı (minimum ve maksimum)",
+      "item4": "Güzergah ve lokasyonlar",
+      "item5": "Dahil olan hizmetler (ulaşım, rehber, yemek, konaklama vb.)",
+      "item6": "Fiyat (kişi başı veya tüm grup için)",
+      "item7": "Gerekli ekipman veya kişisel eşyalar",
+      "outro": "Lütfen bir tur satın almadan önce tüm detayları dikkatlice okuyun. Satın alma işleminden sonra turun açıklanan koşullarını kabul etmiş sayılırsınız."
+    },
+    "changes": {
+      "title": "Değişiklikler ve Düzenlemeler",
+      "p1": "Tur detaylarında herhangi bir değişiklik veya düzenleme ancak seyahat acentesiyle doğrudan iletişime geçildikten sonra mümkündür.",
+      "listIntro": "Değişiklikler şunları içerebilir:",
+      "item1": "Tarihin değiştirilmesi",
+      "item2": "Katılımcı sayısının değiştirilmesi",
+      "item3": "Ek hizmetlerin eklenmesi",
+      "item4": "Güzergahın düzenlenmesi",
+      "p2": "Tüm değişiklikler müsaitliğe bağlıdır ve ek ücrete yol açabilir. Değişiklikler ancak seyahat acentesinin yazılı onayından sonra yürürlüğe girer.",
+      "p3": "Seyahat acentesi, öngörülemeyen durumlarda (hava koşulları, güvenlik sorunları vb.) Müşterinin güvenliğini ve konforunu sağlamak amacıyla tur güzergahında veya hizmetlerde değişiklik yapma hakkını saklı tutar."
+    },
+    "cancellation": {
+      "title": "İptal ve İade",
+      "p1": "Kural olarak, tur satın alındıktan sonra ödenen tutar iade edilmez.",
+      "p2": "Ancak istisnai durumlarda seyahat acentesi iade konusunu bireysel olarak değerlendirebilir. İadenin mümkün olup olmadığı ve iade tutarı şunlara bağlıdır:",
+      "item1": "İptalin nedeni ve koşulları",
+      "item2": "İptal anında tura kalan süre",
+      "item3": "Turun organizasyonu için hâlihazırda yapılmış masraflar",
+      "item4": "Turun türü ve özellikleri",
+      "p3": "İptal talebinin değerlendirilmesi için seyahat acentesiyle iletişime geçilmesi ve yazılı başvuru yapılması gerekir. Karar, her durumun bireysel olarak değerlendirilmesi temelinde seyahat acentesi tarafından verilir.",
+      "p4": "Turun seyahat acentesinden kaynaklanan nedenlerle iptal edilmesi halinde Müşteriye tam iade veya alternatif bir tur teklif edilir."
+    },
+    "clientResponsibility": {
+      "title": "Müşterinin Sorumlulukları",
+      "intro": "Müşteri şunlardan sorumludur:",
+      "item1": "Tur için gerekli tüm belgelerin (pasaport, vize vb.) mevcut olması",
+      "item2": "Sağlık durumunun turun gerekliliklerine uygun olması",
+      "item3": "Önerilen ekipman ve kişisel eşyaların hazırlanması",
+      "item4": "Tur sırasında rehberin ve organizatörlerin talimatlarına uyulması",
+      "item5": "Güvenlik kurallarına uyulması",
+      "item6": "Diğer katılımcılara ve onların konforuna saygı gösterilmesi",
+      "outro": "Tur sırasında uygunsuz davranış, güvenlik kurallarının ihlali veya diğer katılımcıların rahatsız edilmesi durumunda seyahat acentesi, Müşterinin tura katılımını ücret iadesi yapmaksızın sonlandırma hakkına sahiptir."
+    },
+    "liability": {
+      "title": "Sorumluluğun Sınırlandırılması",
+      "intro": "Seyahat acentesi şunlardan sorumlu değildir:",
+      "item1": "Öngörülemeyen durumlar (doğal afetler, salgın, siyasi kriz vb.)",
+      "item2": "Müşterinin kişisel eşyaları, bunların kaybolması veya hasar görmesi",
+      "item3": "Müşterinin güvenlik kurallarını ihlal etmesinin sonuçları",
+      "item4": "Belirtilen standartlara uymaması halinde üçüncü taraf hizmetlerinin (oteller, restoranlar, ulaşım) kalitesi",
+      "outro": "Seyahat acentesi güvenli ve kaliteli bir hizmet sunmak için her türlü çabayı gösterir, ancak öngörülemeyen durumlar için sorumluluk kabul etmez."
+    },
+    "contact": {
+      "title": "İletişim ve Destek",
+      "intro": "Herhangi bir sorunuz veya sorununuz olması ya da yardıma ihtiyaç duymanız halinde lütfen seyahat acentemizle iletişime geçin:",
+      "item1": "Telefonla (web sitesinde belirtilmiştir)",
+      "item2": "E-posta ile",
+      "item3": "Web sitesindeki iletişim formu aracılığıyla",
+      "outro": "Ekibimiz turun planlanması, rezervasyonu ve organizasyonunun her aşamasında size yardımcı olmaya hazırdır."
+    },
+    "changesToTerms": {
+      "title": "Şartlarda Değişiklik",
+      "p1": "Seyahat acentesi bu Şartları ve Koşulları herhangi bir zamanda değiştirme veya güncelleme hakkını saklı tutar. Değişiklikler web sitesinde yayımlandıkları andan itibaren yürürlüğe girer.",
+      "p2": "Bu Şartları ve Koşulları güncellemeler açısından düzenli olarak kontrol etmek Müşterinin sorumluluğundadır. Web sitesini kullanmaya devam etmeniz, güncellenmiş şartları kabul ettiğiniz anlamına gelir."
+    },
+    "language": {
+      "title": "Dil",
+      "p1": "Bu Şartlar ve Koşullar iki dilde sunulmaktadır: Gürcüce ve İngilizce. Çeviride herhangi bir yanlışlık veya farklılık olması durumunda Gürcüce metin esas alınır."
+    }
+  },
+  "privacy": {
+    "title": "Gizlilik Politikası",
+    "intro": "Lütfen Gizlilik Politikamızı okuyun; zira web sitemizi (<site>www.daudtravel.com</site> ve alt alan adları) ziyaret etmeniz, sizin (web sitesi kullanıcısı) aşağıda belirtilen hükümleri kabul ettiğiniz anlamına gelir. Kabul etmiyorsanız lütfen web sitesinden ayrılın.",
+    "collect": {
+      "title": "Hangi Bilgileri Topluyoruz",
+      "p1": "Yalnızca tur rezervasyonu, sipariş verme ve/veya benzeri bir işlem sırasında bize bizzat sağladığınız bilgileri topluyoruz.",
+      "providedTitle": "Sağladığınız bilgiler:",
+      "item1": "Ad ve soyad",
+      "item2": "Cep telefonu numarası (doğrudan iletişim ve irtibat için kullanılır)",
+      "item3": "E-posta adresi",
+      "paymentTitle": "Ödeme bilgileri:",
+      "paymentText": "Banka kartı bilgilerinizi saklamıyoruz. Ödeme işlemi, entegre bir üçüncü tarafın (banka veya ödeme sistemi) güvenli hizmetleri aracılığıyla gerçekleştirilir."
+    },
+    "use": {
+      "title": "Toplanan Bilgileri Nasıl Kullanıyoruz",
+      "intro": "Topladığımız bilgileri şu amaçlarla kullanırız:",
+      "item1": "Siparişinizi/rezervasyonunuzu almak, işlemek ve onaylamak",
+      "item2": "Satın aldığınız turla ilgili detaylar, değişiklikler veya diğer gerekli bilgiler hakkında sizinle (telefonla veya e-posta ile) iletişime geçmek",
+      "item3": "Başarılı rezervasyon/satın alma hakkında size e-posta bildirimleri göndermek ve turun nihai detaylarını iletmek",
+      "item4": "Bizimle etkileşiminizi daha kolay hale getirmek için web sitemizi ve hizmetlerimizi geliştirmek",
+      "item5": "Gerektiğinde sizi haberler, özel teklifler ve yeni turlar hakkında bilgilendirmek (yalnızca onayınızla veya abonelikten çıkma seçeneğiyle)"
+    },
+    "sharing": {
+      "title": "Bilgilerin Üçüncü Taraflara Aktarılması",
+      "intro": "Aşağıdaki durumlar dışında bilgileri kendi isteğimizle üçüncü taraflara aktarmayız:",
+      "item1": "Kanunen öngörülen gereklilikler",
+      "item2": "Hizmetin sunulması için zorunlu durumlar: sınırlı bilgiler (örneğin ad, soyad), satın aldığınız turun gerçekleştirilmesinde doğrudan yer alan tur operatörleri, rehberler veya hizmet sağlayıcılarla paylaşılabilir. Bu durumda yalnızca hizmetin eksiksiz sunulması için gerekli bilgiler paylaşılır"
+    },
+    "other": {
+      "title": "Diğer Detaylar",
+      "p1": "Gizlilik Politikamız iki dilde sunulmaktadır: Gürcüce ve İngilizce. Çeviride herhangi bir yanlışlık olması durumunda Gürcüce metin esas alınır. Gizlilik Politikası ile ilgili sorularınız varsa lütfen bizimle iletişime geçin."
+    }
+  }
+}

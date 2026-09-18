@@ -22,6 +22,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { faqApi, FAQLocalization } from "@/src/services/faq.service";
@@ -36,6 +37,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const form = useEditFaqValidator();
+  const t = useTranslations("admin");
 
   const queryClient = useQueryClient();
 
@@ -64,14 +66,14 @@ export function EditFaq({ params }: { params: { id: string } }) {
 
         form.reset(formData);
       } catch {
-        toast.error("კითხვის დეტალების ჩატვირთვა ვერ მოხერხდა");
+        toast.error(t("faq.loadFailed"));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchFaqDetails();
-  }, [form, params.id]);
+  }, [form, params.id, t]);
 
   const onSubmit = async (data: EditFaqFormData) => {
     try {
@@ -83,7 +85,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
       );
 
       if (filteredLocalizations.length === 0) {
-        toast.error("მინიმუმ ერთი სრული თარგმანი აუცილებელია");
+        toast.error(t("faq.minOneTranslation"));
         return;
       }
 
@@ -92,14 +94,14 @@ export function EditFaq({ params }: { params: { id: string } }) {
         category: data.category,
       });
 
-      toast.success("კითხვა წარმატებით განახლდა");
+      toast.success(t("faq.updated"));
       await queryClient.invalidateQueries({ queryKey: ["faqs"] });
       router.push("?faqs=all");
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "კითხვის განახლება ვერ მოხერხდა");
+        toast.error(error.response?.data?.message || t("faq.updateFailed"));
       } else {
-        toast.error("მოხდა მოულოდნელი შეცდომა");
+        toast.error(t("common.unexpectedError"));
       }
     } finally {
       setIsSubmitting(false);
@@ -117,7 +119,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>კითხვის რედაქტირება</CardTitle>
+        <CardTitle>{t("faq.editTitle")}</CardTitle>
       </CardHeader>
       <CardContent>
 
@@ -128,10 +130,10 @@ export function EditFaq({ params }: { params: { id: string } }) {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>კატეგორია (არასავალდებულო)</FormLabel>
+                  <FormLabel>{t("common.categoryOptional")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="მაგ: ზოგადი, ტრანსფერები, გადახდა"
+                      placeholder={t("faq.categoryPlaceholder")}
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -147,17 +149,10 @@ export function EditFaq({ params }: { params: { id: string } }) {
                   key={localeCode}
                   className="space-y-4 p-4 border rounded-lg"
                 >
-                  <h3 className="text-lg font-semibold capitalize">
-                    {localeCode === "ka"
-                      ? "ქართული"
-                      : localeCode === "en"
-                        ? "ინგლისური"
-                        : localeCode === "ru"
-                          ? "რუსული"
-                          : localeCode === "tr"
-                            ? "თურქული"
-                            : "არაბული"}{" "}
-                    თარგმანი
+                  <h3 className="text-lg font-semibold">
+                    {t("faq.languageTranslation", {
+                      language: t(`common.languages.${localeCode}`),
+                    })}
                   </h3>
 
                   <FormField
@@ -165,7 +160,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
                     name={`localizations.${index}.question`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>კითხვა</FormLabel>
+                        <FormLabel>{t("faq.question")}</FormLabel>
                         <FormControl>
                           <Input {...field} disabled={isSubmitting} />
                         </FormControl>
@@ -179,7 +174,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
                     name={`localizations.${index}.answer`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>პასუხი</FormLabel>
+                        <FormLabel>{t("faq.answer")}</FormLabel>
                         <FormControl>
                           <Textarea
                             className="min-h-[120px]"
@@ -199,10 +194,10 @@ export function EditFaq({ params }: { params: { id: string } }) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  იტვირთება...
+                  {t("common.loading")}
                 </>
               ) : (
-                "განახლება"
+                t("common.update")
               )}
             </Button>
           </form>

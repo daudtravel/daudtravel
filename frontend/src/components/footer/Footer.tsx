@@ -92,7 +92,7 @@ export default function Footer() {
         {/* Services + company nav */}
         <nav
           className="grid grid-cols-2 gap-6 text-center md:text-left"
-          aria-label="Footer"
+          aria-label={t("footerNav")}
         >
           <div>
             <h3 className="text-sm font-bold text-brand-yellow uppercase tracking-wider mb-3">

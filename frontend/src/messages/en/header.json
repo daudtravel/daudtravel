@@ -17,5 +17,9 @@
   "termsAndConditions": "Terms & Conditions",
   "privacyPolicy": "Privacy Policy",
   "allRightsReserved": "All rights reserved",
-  "gallery": "Gallery"
+  "gallery": "Gallery",
+  "consentText": "By using the website, you agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+  "consentDecline": "Decline",
+  "consentAccept": "Accept",
+  "footerNav": "Footer"
 }

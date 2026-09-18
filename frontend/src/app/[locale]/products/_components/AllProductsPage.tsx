@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Link } from "@/src/i18n/routing";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -23,6 +24,7 @@ const cardVariants = {
 
 export default function AllProductsPage() {
   const [page, setPage] = useState(1);
+  const t = useTranslations("main");
   const { data: productsData, isLoading } = usePublicQuickLinks(page, 9);
 
   const products = productsData?.data || [];
@@ -41,9 +43,9 @@ export default function AllProductsPage() {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-20">
         <Package className="w-20 h-20 text-gray-300 mb-4" />
         <h3 className="text-xl font-semibold text-gray-700 mb-2">
-          Product not found
+          {t("productNotFound")}
         </h3>
-        <p className="text-gray-500">Product is not available</p>
+        <p className="text-gray-500">{t("productNotAvailable")}</p>
       </div>
     );
   }
@@ -95,7 +97,7 @@ export default function AllProductsPage() {
                       </div>
                       <div className="flex items-center gap-2 text-brand-green-mid group-hover:text-brand-green transition-colors">
                         <ShoppingCart size={18} />
-                        <span className="font-medium text-sm">შეძენა</span>
+                        <span className="font-medium text-sm">{t("buy")}</span>
                       </div>
                     </div>
                   </div>

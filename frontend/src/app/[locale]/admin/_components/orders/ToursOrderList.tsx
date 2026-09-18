@@ -19,6 +19,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +45,8 @@ const TourOrdersList = () => {
     getPageNumbers,
     fetchOrders,
   } = useTourOrders();
+  const t = useTranslations("admin");
+  const locale = useLocale();
 
   const getStatusConfig = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -51,32 +54,32 @@ const TourOrdersList = () => {
         return {
           color: "text-yellow-700 bg-yellow-50 border-yellow-200",
           icon: AlertTriangle,
-          text: "მუშავდება",
+          text: t("status.processing"),
         };
       case "paid":
       case "confirmed":
         return {
           color: "text-green-700 bg-green-50 border-green-200",
           icon: CheckCircle,
-          text: "გადახდილი",
+          text: t("status.paid"),
         };
       case "refunded":
         return {
           color: "text-blue-700 bg-blue-50 border-blue-200",
           icon: AlertCircle,
-          text: "დაბრუნებული",
+          text: t("status.refunded"),
         };
       case "cancelled":
         return {
           color: "text-red-700 bg-red-50 border-red-200",
           icon: XCircle,
-          text: "გაუქმებული",
+          text: t("status.cancelled"),
         };
       case "failed":
         return {
           color: "text-red-700 bg-red-50 border-red-200",
           icon: XCircle,
-          text: "წარუმატებელი",
+          text: t("status.failed"),
         };
       default:
         return {
@@ -89,7 +92,7 @@ const TourOrdersList = () => {
 
   const renderOrderCard = (data: (typeof orders)[number]) => {
     const formattedDate = new Date(data.selectedDate).toLocaleDateString(
-      "ka-GE",
+      locale,
       { year: "numeric", month: "long", day: "numeric" }
     );
     const statusConfig = getStatusConfig(data.status);
@@ -138,29 +141,31 @@ const TourOrdersList = () => {
           {/* Collapsed details */}
           <details className="group">
             <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-brand-green select-none list-none [&::-webkit-details-marker]:hidden">
-              <span>დეტალები</span>
+              <span>{t("common.details")}</span>
               <span className="text-xs text-gray-400 group-open:hidden">
-                გახსნა ▾
+                {t("tourOrders.expand")}
               </span>
               <span className="text-xs text-gray-400 hidden group-open:inline">
-                დახურვა ▴
+                {t("tourOrders.collapse")}
               </span>
             </summary>
             <div className="mt-3 space-y-4">
           <p className="text-xs text-gray-500">
-            შეკვეთის ID: #{data.id.slice(-8)}
+            {t("common.orderId", { id: `#${data.id.slice(-8)}` })}
           </p>
 
           {["failed", "cancelled"].includes(data.status?.toLowerCase()) &&
             data.rejectionReason && (
               <p className="text-xs text-red-600 leading-snug">
-                წარუმატებლობის მიზეზი: {data.rejectionReason}
+                {t("tourOrders.failureReason", {
+                  reason: data.rejectionReason,
+                })}
               </p>
             )}
 
           <div className="space-y-3">
             <h4 className="font-semibold text-xs uppercase tracking-wide text-gray-500">
-              მომხმარებლის ინფორმაცია
+              {t("tourOrders.customerInfo")}
             </h4>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -194,7 +199,7 @@ const TourOrdersList = () => {
 
           <div className="space-y-3 pt-3 border-t border-gray-100">
             <h4 className="font-semibold text-xs uppercase tracking-wide text-gray-500">
-              ტურის დეტალები
+              {t("tourOrders.tourDetails")}
             </h4>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-start gap-2">
@@ -202,7 +207,7 @@ const TourOrdersList = () => {
                   <CalendarDays className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-500">თარიღი</div>
+                  <div className="text-xs text-gray-500">{t("common.date")}</div>
                   <div className="text-sm font-medium text-gray-900">
                     {formattedDate}
                   </div>
@@ -214,7 +219,7 @@ const TourOrdersList = () => {
                   <PersonStanding className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-500">ადამიანები</div>
+                  <div className="text-xs text-gray-500">{t("common.people")}</div>
                   <div className="text-sm font-medium text-gray-900">
                     {data.peopleAmount}
                   </div>
@@ -226,11 +231,11 @@ const TourOrdersList = () => {
                   <Timer className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-500">ხანგრძლივობა</div>
+                  <div className="text-xs text-gray-500">{t("common.duration")}</div>
                   <div className="text-sm font-medium text-gray-900">
-                    {data.tourDurationDays} დღე
+                    {t("common.days", { count: data.tourDurationDays })}
                     {data.tourDurationNights > 0 &&
-                      ` / ${data.tourDurationNights} ღამე`}
+                      ` / ${t("common.nights", { count: data.tourDurationNights })}`}
                   </div>
                 </div>
               </div>
@@ -240,9 +245,11 @@ const TourOrdersList = () => {
                   <CreditCard className="w-3.5 h-3.5 text-gray-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-500">გადახდის ტიპი</div>
+                  <div className="text-xs text-gray-500">{t("tourOrders.paymentType")}</div>
                   <div className="text-sm font-medium text-gray-900">
-                    {data.isFullPayment ? "სრული" : "ნაწილობრივი"}
+                    {data.isFullPayment
+                      ? t("tourOrders.fullPayment")
+                      : t("tourOrders.partialPayment")}
                   </div>
                 </div>
               </div>
@@ -251,13 +258,13 @@ const TourOrdersList = () => {
 
           <div className="space-y-3 pt-3 border-t border-gray-100">
             <h4 className="font-semibold text-xs uppercase tracking-wide text-gray-500">
-              გადახდა
+              {t("common.payment")}
             </h4>
             <div className="space-y-2 bg-gray-50 rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">სრული თანხა:</span>
+                  <span className="text-sm text-gray-600">{t("tourOrders.totalAmount")}</span>
                 </div>
                 <span className="text-sm font-medium text-gray-900">
                   ₾{data.totalTourPrice}
@@ -267,7 +274,7 @@ const TourOrdersList = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-gray-600">გადახდილი:</span>
+                  <span className="text-sm text-gray-600">{t("tourOrders.paid")}</span>
                 </div>
                 <span className="text-sm font-medium text-green-600">
                   ₾{data.amountPaid}
@@ -278,7 +285,7 @@ const TourOrdersList = () => {
                 <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                   <div className="flex items-center gap-2">
                     <Wallet className="w-4 h-4 text-orange-600" />
-                    <span className="text-sm text-gray-600">დარჩენილი:</span>
+                    <span className="text-sm text-gray-600">{t("tourOrders.remaining")}</span>
                   </div>
                   <span className="text-sm font-medium text-orange-600">
                     ₾{amountRemaining}
@@ -290,7 +297,7 @@ const TourOrdersList = () => {
                 <div className="flex items-center justify-center gap-2 pt-2 border-t border-gray-200">
                   <CheckCircle className="w-4 h-4 text-green-600" />
                   <span className="text-sm font-medium text-green-600">
-                    გადახდა დასრულებულია
+                    {t("tourOrders.paymentCompleted")}
                   </span>
                 </div>
               )}
@@ -310,10 +317,10 @@ const TourOrdersList = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900">
-            ტურების შეკვეთები
+            {t("tourOrders.title")}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            სულ: {orders.length} შეკვეთა
+            {t("common.totalOrders", { count: orders.length })}
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
@@ -326,7 +333,7 @@ const TourOrdersList = () => {
             <RefreshCw
               className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
             />
-            <span className="text-sm">განახლება</span>
+            <span className="text-sm">{t("common.refresh")}</span>
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -336,29 +343,29 @@ const TourOrdersList = () => {
                 disabled={loading}
               >
                 <XCircle className="w-4 h-4 mr-2" />
-                <span className="text-sm">წარუმ. წაშლა</span>
+                <span className="text-sm">{t("common.deleteFailedOrders")}</span>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>წარუმატებელი შეკვეთების წაშლა</AlertDialogTitle>
+                <AlertDialogTitle>{t("common.deleteFailedOrdersTitle")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  დარწმუნებული ხართ? ყველა წარუმატებელი სტატუსის შეკვეთა სამუდამოდ წაიშლება.
+                  {t("tourOrders.deleteFailedConfirm")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => {
                     handleDeleteFailed().then(() => {
-                      toast.success("წარუმატებელი შეკვეთები წაიშალა");
+                      toast.success(t("common.failedOrdersDeleted"));
                     }).catch(() => {
-                      toast.error("წაშლა ვერ მოხერხდა");
+                      toast.error(t("common.deleteFailed"));
                     });
                   }}
                   className="bg-red-500 hover:bg-red-600"
                 >
-                  წაშლა
+                  {t("common.delete")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -370,7 +377,7 @@ const TourOrdersList = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center min-h-[300px] p-6">
             <RefreshCw className="w-8 h-8 animate-spin text-primary mb-4" />
-            <p className="text-gray-600">შეკვეთების ჩატვირთვა...</p>
+            <p className="text-gray-600">{t("tourOrders.loadingOrders")}</p>
           </CardContent>
         </Card>
       ) : error ? (
@@ -378,7 +385,7 @@ const TourOrdersList = () => {
           <CardContent className="flex flex-col items-center justify-center min-h-[300px] p-6 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
             <h2 className="text-lg font-semibold text-gray-800 mb-2">
-              შეკვეთების ჩატვირთვა ვერ მოხერხდა
+              {t("common.ordersLoadFailed")}
             </h2>
             <p className="text-gray-600 mb-4">{error}</p>
             <Button
@@ -386,7 +393,7 @@ const TourOrdersList = () => {
               variant="outline"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              თავიდან ცდა
+              {t("common.retry")}
             </Button>
           </CardContent>
         </Card>
@@ -397,7 +404,7 @@ const TourOrdersList = () => {
               <CalendarDays className="h-8 w-8 text-gray-400" />
             </div>
             <p className="text-gray-500 text-base sm:text-lg text-center">
-              შეკვეთები არ მოიძებნა
+              {t("common.noOrdersFound")}
             </p>
           </CardContent>
         </Card>
@@ -415,7 +422,7 @@ const TourOrdersList = () => {
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={!pagination.hasPreviousPage}
               >
-                წინა
+                {t("common.previous")}
               </Button>
 
               <div className="flex gap-1">
@@ -449,7 +456,7 @@ const TourOrdersList = () => {
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={!pagination.hasNextPage}
               >
-                შემდეგი
+                {t("common.next")}
               </Button>
             </div>
           )}

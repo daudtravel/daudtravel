@@ -13,12 +13,3 @@ export const TRANSFERS_CONFIG = {
   DEFAULT_LIMIT: 10,
   MAX_LIMIT: 100,
 } as const;
-
-export const TRANSFER_MESSAGES = {
-  CREATE_SUCCESS: "Transfer created successfully",
-  UPDATE_SUCCESS: "Transfer updated successfully",
-  DELETE_SUCCESS: "Transfer deleted successfully",
-  DELETE_ERROR: "Cannot delete transfer with existing payment orders",
-  LOAD_ERROR: "Failed to load transfer",
-  GENERIC_ERROR: "An unexpected error occurred",
-} as const;

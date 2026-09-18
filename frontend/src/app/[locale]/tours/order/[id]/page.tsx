@@ -82,6 +82,8 @@ interface Translations {
   statusConfirmed: string;
   statusCompleted: string;
   statusCancelled: string;
+  statusUnknown: string;
+  invalidDate: string;
 }
 
 interface PageParams {
@@ -130,6 +132,8 @@ const translations: Record<string, Translations> = {
     statusConfirmed: "Confirmed",
     statusCompleted: "Completed",
     statusCancelled: "Cancelled",
+    statusUnknown: "UNKNOWN",
+    invalidDate: "Invalid Date",
   },
   ka: {
     orderDetails: "შეკვეთის დეტალები",
@@ -165,6 +169,119 @@ const translations: Record<string, Translations> = {
     statusConfirmed: "დადასტურებული",
     statusCompleted: "დასრულებული",
     statusCancelled: "გაუქმებული",
+    statusUnknown: "უცნობი",
+    invalidDate: "არასწორი თარიღი",
+  },
+  ru: {
+    orderDetails: "Детали заказа",
+    customerInformation: "Информация о клиенте",
+    name: "Имя",
+    email: "Эл. почта",
+    phone: "Телефон",
+    tourDetails: "Детали тура",
+    startDate: "Дата начала",
+    personCount: "Количество человек",
+    duration: "Продолжительность",
+    day: "дн.",
+    night: "ноч.",
+    paymentType: "Тип оплаты",
+    fullPayment: "Полная оплата",
+    partialPayment: "Частичная оплата",
+    paymentInformation: "Информация об оплате",
+    totalAmount: "Общая сумма",
+    amountPaid: "Оплаченная сумма",
+    amountRemaining: "Оставшаяся сумма",
+    paymentExpires: "Срок оплаты истекает",
+    completePayment: "Завершить оплату",
+    routeInformation: "Информация о маршруте",
+    startLocation: "Начальная локация",
+    endLocation: "Конечная локация",
+    tourDestinations: "Направления тура",
+    refresh: "Обновить",
+    orderNotFound: "Заказ не найден",
+    errorLoadingOrder: "Ошибка загрузки заказа",
+    loadingOrderDetails: "Загрузка деталей заказа",
+    tryAgain: "Попробовать снова",
+    statusPending: "В ожидании",
+    statusConfirmed: "Подтверждён",
+    statusCompleted: "Завершён",
+    statusCancelled: "Отменён",
+    statusUnknown: "Неизвестно",
+    invalidDate: "Неверная дата",
+  },
+  ar: {
+    orderDetails: "تفاصيل الطلب",
+    customerInformation: "معلومات العميل",
+    name: "الاسم",
+    email: "البريد الإلكتروني",
+    phone: "الهاتف",
+    tourDetails: "تفاصيل الجولة",
+    startDate: "تاريخ البدء",
+    personCount: "عدد الأشخاص",
+    duration: "المدة",
+    day: "يوم",
+    night: "ليلة",
+    paymentType: "نوع الدفع",
+    fullPayment: "دفع كامل",
+    partialPayment: "دفع جزئي",
+    paymentInformation: "معلومات الدفع",
+    totalAmount: "المبلغ الإجمالي",
+    amountPaid: "المبلغ المدفوع",
+    amountRemaining: "المبلغ المتبقي",
+    paymentExpires: "تنتهي صلاحية الدفع",
+    completePayment: "إكمال الدفع",
+    routeInformation: "معلومات المسار",
+    startLocation: "موقع البداية",
+    endLocation: "موقع النهاية",
+    tourDestinations: "وجهات الجولة",
+    refresh: "تحديث",
+    orderNotFound: "الطلب غير موجود",
+    errorLoadingOrder: "خطأ في تحميل الطلب",
+    loadingOrderDetails: "جارٍ تحميل تفاصيل الطلب",
+    tryAgain: "حاول مرة أخرى",
+    statusPending: "قيد الانتظار",
+    statusConfirmed: "مؤكد",
+    statusCompleted: "مكتمل",
+    statusCancelled: "ملغى",
+    statusUnknown: "غير معروف",
+    invalidDate: "تاريخ غير صالح",
+  },
+  tr: {
+    orderDetails: "Sipariş Detayları",
+    customerInformation: "Müşteri Bilgileri",
+    name: "Ad",
+    email: "E-posta",
+    phone: "Telefon",
+    tourDetails: "Tur Detayları",
+    startDate: "Başlangıç Tarihi",
+    personCount: "Kişi Sayısı",
+    duration: "Süre",
+    day: "gün",
+    night: "gece",
+    paymentType: "Ödeme Türü",
+    fullPayment: "Tam Ödeme",
+    partialPayment: "Kısmi Ödeme",
+    paymentInformation: "Ödeme Bilgileri",
+    totalAmount: "Toplam Tutar",
+    amountPaid: "Ödenen Tutar",
+    amountRemaining: "Kalan Tutar",
+    paymentExpires: "Ödeme Son Tarihi",
+    completePayment: "Ödemeyi Tamamla",
+    routeInformation: "Güzergah Bilgileri",
+    startLocation: "Başlangıç Noktası",
+    endLocation: "Bitiş Noktası",
+    tourDestinations: "Tur Destinasyonları",
+    refresh: "Yenile",
+    orderNotFound: "Sipariş Bulunamadı",
+    errorLoadingOrder: "Sipariş Yüklenirken Hata",
+    loadingOrderDetails: "Sipariş detayları yükleniyor",
+    tryAgain: "Tekrar Dene",
+    statusPending: "Beklemede",
+    statusConfirmed: "Onaylandı",
+    statusCompleted: "Tamamlandı",
+    statusCancelled: "İptal edildi",
+    statusUnknown: "Bilinmiyor",
+    invalidDate: "Geçersiz tarih",
   },
 };
 
@@ -230,10 +347,10 @@ const UnifiedOrderDetailsClient: React.FC<UnifiedOrderDetailsProps> = ({
       try {
         return new Date(dateString).toLocaleDateString(locale);
       } catch {
-        return "Invalid Date";
+        return t.invalidDate;
       }
     },
-    [locale]
+    [locale, t]
   );
 
   const formatDateTime = useCallback(
@@ -241,10 +358,10 @@ const UnifiedOrderDetailsClient: React.FC<UnifiedOrderDetailsProps> = ({
       try {
         return new Date(dateString).toLocaleString(locale);
       } catch {
-        return "Invalid Date";
+        return t.invalidDate;
       }
     },
-    [locale]
+    [locale, t]
   );
 
   const statusConfig = useMemo(() => {
@@ -285,7 +402,7 @@ const UnifiedOrderDetailsClient: React.FC<UnifiedOrderDetailsProps> = ({
     return {
       color: "text-gray-700 bg-gray-50 border-gray-200",
       icon: AlertCircle,
-      text: order?.status?.toUpperCase() || "UNKNOWN",
+      text: order?.status?.toUpperCase() || t.statusUnknown,
     };
   }, [order?.status, t]);
 

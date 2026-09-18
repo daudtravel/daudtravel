@@ -23,6 +23,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/src/components/ui/textarea";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +49,7 @@ const CreateFaq = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const params = useParams();
+  const t = useTranslations("admin");
 
   const form = useForm<CreateFaqForm>({
     resolver: zodResolver(createFaqSchema),
@@ -70,7 +72,7 @@ const CreateFaq = () => {
       );
 
       if (filteredLocalizations.length === 0) {
-        toast.error("მინიმუმ ერთი სრული თარგმანი აუცილებელია");
+        toast.error(t("faq.minOneTranslation"));
         setIsSubmitting(false);
         return;
       }
@@ -83,16 +85,16 @@ const CreateFaq = () => {
 
       await faqApi.post(submitData);
 
-      toast.success("კითხვა წარმატებით შეიქმნა");
+      toast.success(t("faq.created"));
       await queryClient.invalidateQueries({ queryKey: ["faqs"] });
       router.push(`?faqs=all`);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         const errorMsg =
-          error.response.data.message || "კითხვის შექმნა ვერ მოხერხდა";
+          error.response.data.message || t("faq.createFailed");
         toast.error(errorMsg);
       } else {
-        toast.error("მოულოდნელი შეცდომა. გთხოვთ სცადოთ თავიდან");
+        toast.error(t("common.unexpectedErrorRetry"));
       }
     } finally {
       setIsSubmitting(false);
@@ -102,7 +104,7 @@ const CreateFaq = () => {
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
-        <CardTitle>ახალი კითხვის დამატება</CardTitle>
+        <CardTitle>{t("faq.createTitle")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -112,10 +114,10 @@ const CreateFaq = () => {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>კატეგორია (არასავალდებულო)</FormLabel>
+                  <FormLabel>{t("common.categoryOptional")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="მაგ: ზოგადი, ტრანსფერები, გადახდა"
+                      placeholder={t("faq.categoryPlaceholder")}
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -127,9 +129,9 @@ const CreateFaq = () => {
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">
-                თარგმანები
+                {t("common.translations")}
                 <span className="text-sm font-normal text-gray-500 ml-2">
-                  (მინიმუმ ერთი აუცილებელია)
+                  {t("common.atLeastOneRequired")}
                 </span>
               </h3>
 
@@ -142,15 +144,7 @@ const CreateFaq = () => {
                     <h4 className="text-md font-semibold flex items-center gap-2">
                       <span className="uppercase">{localeCode}</span>
                       <span className="text-sm font-normal text-gray-600">
-                        {localeCode === "ka"
-                          ? "ქართული"
-                          : localeCode === "en"
-                            ? "ინგლისური"
-                            : localeCode === "ru"
-                              ? "რუსული"
-                              : localeCode === "tr"
-                                ? "თურქული"
-                                : "არაბული"}
+                        {t(`common.languages.${localeCode}`)}
                       </span>
                     </h4>
 
@@ -159,10 +153,10 @@ const CreateFaq = () => {
                       name={`localizations.${index}.question`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>კითხვა</FormLabel>
+                          <FormLabel>{t("faq.question")}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="შეიყვანეთ კითხვა"
+                              placeholder={t("faq.questionPlaceholder")}
                               {...field}
                               disabled={isSubmitting}
                             />
@@ -177,10 +171,10 @@ const CreateFaq = () => {
                       name={`localizations.${index}.answer`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>პასუხი</FormLabel>
+                          <FormLabel>{t("faq.answer")}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="შეიყვანეთ პასუხი"
+                              placeholder={t("faq.answerPlaceholder")}
                               className="min-h-[120px]"
                               {...field}
                               disabled={isSubmitting}
@@ -203,16 +197,16 @@ const CreateFaq = () => {
                 onClick={() => router.push("?faqs=all")}
                 disabled={isSubmitting}
               >
-                გაუქმება
+                {t("common.cancel")}
               </Button>
               <Button type="submit" className="flex-1" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    იტვირთება...
+                    {t("common.loading")}
                   </>
                 ) : (
-                  "კითხვის დამატება"
+                  t("faq.add")
                 )}
               </Button>
             </div>

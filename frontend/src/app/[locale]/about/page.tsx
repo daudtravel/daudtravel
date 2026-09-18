@@ -193,7 +193,7 @@ function Page() {
             <div className="relative h-80 sm:h-[400px] w-full border-2 border-brand-green-100 lg:rounded-lg overflow-hidden md:shadow-xl">
               <Image
                 src={About1}
-                alt="Daud Travel team providing premium tourism services in Georgia"
+                alt={t("teamImageAlt")}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -205,7 +205,7 @@ function Page() {
             >
               <Image
                 src={About2}
-                alt="Professional travel services and experienced guides in Georgia"
+                alt={t("servicesImageAlt")}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

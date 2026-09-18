@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   Form,
@@ -38,6 +39,7 @@ export function EditTour() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
 
   const tourId = searchParams.get("tours") || "";
   const form = useEditTourForm(tourId || "");
@@ -94,13 +96,13 @@ export function EditTour() {
       return toursAPI.put(tourId, payload);
     },
     onSuccess: () => {
-      toast.success("ტური წარმატებით განახლდა");
+      toast.success(t("tours.updated"));
       queryClient.invalidateQueries({ queryKey: ["tours"] });
       queryClient.invalidateQueries({ queryKey: ["tour", tourId] });
       router.push("?tours=all");
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "ტურის განახლება ვერ მოხერხდა");
+      toast.error(error instanceof Error ? error.message : t("tours.updateFailed"));
     },
   });
 
@@ -271,7 +273,7 @@ export function EditTour() {
     return (
       <Card className="w-full">
         <CardContent className="p-6">
-          <p className="text-center text-gray-500">ტურის ID არ მოიძებნა</p>
+          <p className="text-center text-gray-500">{t("tours.idNotFound")}</p>
         </CardContent>
       </Card>
     );
@@ -290,7 +292,7 @@ export function EditTour() {
       <Card className="w-full">
         <CardContent className="p-6">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            შეცდომა: ტურის ჩატვირთვა ვერ მოხერხდა
+            {t("tours.loadError")}
           </div>
         </CardContent>
       </Card>
@@ -301,7 +303,7 @@ export function EditTour() {
     return (
       <Card className="w-full">
         <CardContent className="p-6">
-          <p className="text-center text-gray-500">ტური არ მოიძებნა</p>
+          <p className="text-center text-gray-500">{t("tours.tourNotFound")}</p>
         </CardContent>
       </Card>
     );
@@ -310,7 +312,7 @@ export function EditTour() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>რედაქტირება</CardTitle>
+        <CardTitle>{t("tours.editTitle")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -321,11 +323,11 @@ export function EditTour() {
               render={() => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
                   <div>
-                    <FormLabel>ტურის ტიპი</FormLabel>
+                    <FormLabel>{t("tours.tourType")}</FormLabel>
                     <FormDescription>
                       {tourType === TourType.INDIVIDUAL
-                        ? "ინდივიდუალური"
-                        : "ჯგუფური"}
+                        ? t("tours.individual")
+                        : t("tours.group")}
                     </FormDescription>
                   </div>
                   <Switch checked={tourType === TourType.INDIVIDUAL} disabled />
@@ -338,7 +340,7 @@ export function EditTour() {
               name="isPublic"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                  <FormLabel>ხილვადობა</FormLabel>
+                  <FormLabel>{t("tours.visibility")}</FormLabel>
                   <FormControl>
                     <Switch
                       checked={field.value}
@@ -355,7 +357,7 @@ export function EditTour() {
               name="isDaily"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                  <FormLabel>ყოველდღიური ტური</FormLabel>
+                  <FormLabel>{t("tours.dailyTour")}</FormLabel>
                   <FormControl>
                     <Switch
                       checked={field.value}
@@ -381,11 +383,11 @@ export function EditTour() {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold capitalize">
-                        {locale} თარგმანი
+                        {t("tours.localeTranslation", { locale })}
                       </h3>
                       {hasContent && (
                         <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded">
-                          შევსებულია
+                          {t("common.filled")}
                         </span>
                       )}
                     </div>
@@ -396,16 +398,16 @@ export function EditTour() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            დასახელება
+                            {t("common.name")}
                             <span className="text-xs text-gray-500 ml-2">
-                              (არასავალდებულო)
+                              {t("common.optional")}
                             </span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               disabled={isSubmitting}
-                              placeholder="ტურის დასახელება"
+                              placeholder={t("tours.namePlaceholder")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -419,16 +421,16 @@ export function EditTour() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            საწყისი ლოკაცია
+                            {t("tours.colStartLocation")}
                             <span className="text-xs text-gray-500 ml-2">
-                              (არასავალდებულო)
+                              {t("common.optional")}
                             </span>
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               disabled={isSubmitting}
-                              placeholder="საწყისი ლოკაცია"
+                              placeholder={t("tours.colStartLocation")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -441,7 +443,7 @@ export function EditTour() {
                       name={`localizations.${idx}.locations`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>შემდეგი ლოკაციები</FormLabel>
+                          <FormLabel>{t("tours.nextLocations")}</FormLabel>
                           <div className="space-y-2">
                             {field.value?.map((loc, locIdx) => (
                               <div key={locIdx} className="flex gap-2">
@@ -481,7 +483,7 @@ export function EditTour() {
                               className="w-full"
                             >
                               <Plus className="h-4 w-4 mr-2" />
-                              ლოკაციის დამატება
+                              {t("tours.addLocation")}
                             </Button>
                           </div>
                           <FormMessage />
@@ -496,9 +498,9 @@ export function EditTour() {
                         return (
                           <FormItem>
                             <FormLabel>
-                              აღწერა
+                              {t("common.description")}
                               <span className="text-xs text-gray-500 ml-2">
-                                (არასავალდებულო)
+                                {t("common.optional")}
                               </span>
                             </FormLabel>
                             <FormControl>
@@ -507,7 +509,7 @@ export function EditTour() {
                                 value={field.value || ""}
                                 onChange={field.onChange}
                                 disabled={isSubmitting}
-                                placeholder="შეიყვანეთ ტურის აღწერა"
+                                placeholder={t("tours.descriptionPlaceholder")}
                               />
                             </FormControl>
                             <FormMessage />
@@ -526,7 +528,7 @@ export function EditTour() {
                 name="days"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>დღე</FormLabel>
+                    <FormLabel>{t("tours.daysLabel")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -545,7 +547,7 @@ export function EditTour() {
                 name="nights"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ღამე</FormLabel>
+                    <FormLabel>{t("tours.nightsLabel")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -565,7 +567,7 @@ export function EditTour() {
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>თარიღი</FormLabel>
+                      <FormLabel>{t("common.date")}</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} disabled={isSubmitting} />
                       </FormControl>
@@ -578,14 +580,14 @@ export function EditTour() {
 
             {tourType === TourType.GROUP && (
               <div className="space-y-4">
-                <h3 className="font-medium">ჯგუფური ფასები</h3>
+                <h3 className="font-medium">{t("tours.groupPricing")}</h3>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="groupPricing.totalPrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>საერთო ფასი</FormLabel>
+                        <FormLabel>{t("tours.totalPrice")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -608,7 +610,7 @@ export function EditTour() {
                     name="groupPricing.reservationPrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>დაჯავშნის ფასი</FormLabel>
+                        <FormLabel>{t("tours.reservationPrice")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -631,7 +633,7 @@ export function EditTour() {
                     name="groupPricing.discountedPrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>ფასდაკლებული ფასი</FormLabel>
+                        <FormLabel>{t("tours.discountedPrice")}</FormLabel>
                         <FormControl>
                           <Input
                             step="0.01"
@@ -654,14 +656,14 @@ export function EditTour() {
 
             {tourType === TourType.INDIVIDUAL && (
               <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-                <h3 className="font-medium">ინდივიდუალური ტურის დეტალები</h3>
+                <h3 className="font-medium">{t("tours.individualDetails")}</h3>
 
                 <FormField
                   control={form.control}
                   name="maxPersons"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ადამიანების რაოდენობა</FormLabel>
+                      <FormLabel>{t("common.peopleCount")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -678,14 +680,14 @@ export function EditTour() {
                 />
 
                 <div className="space-y-4">
-                  <h4 className="font-medium">სეზონური ფასები</h4>
+                  <h4 className="font-medium">{t("tours.seasonPrices")}</h4>
                   <div className="grid sm:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="individualPricing.seasonTotalPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>საერთო ფასი</FormLabel>
+                          <FormLabel>{t("tours.totalPrice")}</FormLabel>
                           <Input
                             type="number"
                             step="0.01"
@@ -706,7 +708,7 @@ export function EditTour() {
                       name="individualPricing.seasonDiscountedPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ფასდაკლებული</FormLabel>
+                          <FormLabel>{t("tours.discounted")}</FormLabel>
                           <Input
                             type="number"
                             step="0.01"
@@ -727,7 +729,7 @@ export function EditTour() {
                       name="individualPricing.seasonReservationPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>დაჯავშნის ფასი</FormLabel>
+                          <FormLabel>{t("tours.reservationPrice")}</FormLabel>
                           <Input
                             type="number"
                             step="0.01"
@@ -746,14 +748,14 @@ export function EditTour() {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="font-medium">არასეზონური ფასები</h4>
+                  <h4 className="font-medium">{t("tours.offSeasonPrices")}</h4>
                   <div className="grid sm:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="individualPricing.offSeasonTotalPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>საერთო ფასი</FormLabel>
+                          <FormLabel>{t("tours.totalPrice")}</FormLabel>
                           <Input
                             type="number"
                             step="0.01"
@@ -774,7 +776,7 @@ export function EditTour() {
                       name="individualPricing.offSeasonDiscountedPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ფასდაკლებული</FormLabel>
+                          <FormLabel>{t("tours.discounted")}</FormLabel>
                           <Input
                             type="number"
                             step="0.01"
@@ -795,7 +797,7 @@ export function EditTour() {
                       name="individualPricing.offSeasonReservationPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>დაჯავშნის ფასი</FormLabel>
+                          <FormLabel>{t("tours.reservationPrice")}</FormLabel>
                           <Input
                             step="0.01"
                             min={0}
@@ -820,7 +822,7 @@ export function EditTour() {
               name="mainImage"
               render={() => (
                 <FormItem>
-                  <FormLabel>მთავარი ფოტო</FormLabel>
+                  <FormLabel>{t("tours.mainPhoto")}</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
@@ -840,7 +842,7 @@ export function EditTour() {
                               ? mainImagePreview
                               : `${process.env.NEXT_PUBLIC_BASE_URL}${mainImagePreview}`
                         }
-                        alt="Preview"
+                        alt={t("common.preview")}
                         width={400}
                         height={225}
                         className="object-cover rounded"
@@ -851,7 +853,7 @@ export function EditTour() {
                       />
                       {hasNewMainImage && (
                         <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                          ახალი
+                          {t("common.new")}
                         </span>
                       )}
                     </div>
@@ -866,7 +868,7 @@ export function EditTour() {
               name="gallery"
               render={() => (
                 <FormItem>
-                  <FormLabel>გალერია</FormLabel>
+                  <FormLabel>{t("tours.gallery")}</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
@@ -895,7 +897,7 @@ export function EditTour() {
                           >
                             <Image
                               src={imageSrc || "/placeholder.svg"}
-                              alt={`Gallery ${idx + 1}`}
+                              alt={t("tours.galleryImageAlt", { n: idx + 1 })}
                               width={200}
                               height={150}
                               className="w-full h-32 object-cover rounded"
@@ -908,14 +910,14 @@ export function EditTour() {
                               type="button"
                               onClick={() => removeGalleryImage(idx)}
                               className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                              aria-label="წაშლა"
+                              aria-label={t("common.delete")}
                               disabled={isSubmitting}
                             >
                               <X className="h-4 w-4" />
                             </button>
                             {isNewImage && (
                               <span className="absolute bottom-1 left-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                                ახალი
+                                {t("common.new")}
                               </span>
                             )}
                           </div>
@@ -924,8 +926,10 @@ export function EditTour() {
                     </div>
                   )}
                   <FormDescription>
-                    არსებული სურათები: {existingGalleryUrls.length} | ახალი
-                    სურათები: {galleryFiles.length}
+                    {t("tours.existingNewImages", {
+                      existing: existingGalleryUrls.length,
+                      newCount: galleryFiles.length,
+                    })}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -936,10 +940,10 @@ export function EditTour() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  იტვირთება...
+                  {t("common.loading")}
                 </>
               ) : (
-                "განახლება"
+                t("common.update")
               )}
             </Button>
           </form>

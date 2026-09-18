@@ -121,7 +121,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       ) || bookingData.tourData.localizations?.[0];
 
     if (!tourLocalization) {
-      throw new Error("Tour localization not found");
+      throw new Error(t("tourNotFound"));
     }
 
     const tourDescription = ExtractPlainText(tourLocalization.description);

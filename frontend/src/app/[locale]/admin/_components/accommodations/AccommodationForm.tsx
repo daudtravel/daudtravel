@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { Loader2, X, Building2, Home } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import {
   Form,
@@ -39,23 +40,6 @@ import { Accommodation } from "@/src/types/accommodations.type";
 import { useCreateAccommodation } from "@/src/hooks/accommodations/useCreateAccommodation";
 import { useUpdateAccommodation } from "@/src/hooks/accommodations/useUpdateAccommodation";
 
-const AMENITY_LABELS_KA: Record<string, string> = {
-  wifi: "Wi-Fi",
-  parking: "პარკინგი",
-  pool: "აუზი",
-  breakfast: "საუზმე",
-  ac: "კონდიციონერი",
-  kitchen: "სამზარეულო",
-  tv: "ტელევიზორი",
-  washingMachine: "სარეცხი მანქანა",
-  heating: "გათბობა",
-  balcony: "აივანი",
-  seaView: "ზღვის ხედი",
-  elevator: "ლიფტი",
-  petsAllowed: "ცხოველების დაშვება",
-  gym: "სავარჯიშო დარბაზი",
-};
-
 const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -73,6 +57,10 @@ export default function AccommodationForm({ accommodation }: Props) {
   const router = useRouter();
   const createMutation = useCreateAccommodation();
   const updateMutation = useUpdateAccommodation();
+  const t = useTranslations("admin");
+  // Amenity and type labels are shared with the public accommodations pages
+  const tAcc = useTranslations("accommodations");
+  const schema = useMemo(() => accommodationFormSchema(t), [t]);
 
   const [type, setType] = useState<AccommodationType>(
     (accommodation?.type as AccommodationType) || AccommodationType.HOTEL
@@ -91,7 +79,7 @@ export default function AccommodationForm({ accommodation }: Props) {
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
 
   const form = useForm<AccommodationFormData>({
-    resolver: zodResolver(accommodationFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       type: (accommodation?.type as AccommodationType) || AccommodationType.HOTEL,
       localizations: SUPPORTED_LOCALES.map((locale) => {
@@ -153,7 +141,7 @@ export default function AccommodationForm({ accommodation }: Props) {
       if (!isEdit && !mainImageFile) {
         form.setError("mainImage", {
           type: "manual",
-          message: "მთავარი სურათი სავალდებულოა",
+          message: t("common.mainImageRequired"),
         });
         return;
       }
@@ -197,12 +185,12 @@ export default function AccommodationForm({ accommodation }: Props) {
           },
           {
             onSuccess: () => {
-              toast.success("განცხადება განახლდა");
+              toast.success(t("accommodations.updated"));
               router.push("?accommodations=all");
             },
             onError: (error) =>
               toast.error(
-                error instanceof Error ? error.message : "განახლება ვერ მოხერხდა"
+                error instanceof Error ? error.message : t("common.updateFailed")
               ),
           }
         );
@@ -223,13 +211,13 @@ export default function AccommodationForm({ accommodation }: Props) {
           },
           {
             onSuccess: () => {
-              toast.success("განცხადება შეიქმნა");
+              toast.success(t("accommodations.created"));
               form.reset();
               router.push("?accommodations=all");
             },
             onError: (error) =>
               toast.error(
-                error instanceof Error ? error.message : "შექმნა ვერ მოხერხდა"
+                error instanceof Error ? error.message : t("common.createFailed")
               ),
           }
         );
@@ -237,7 +225,7 @@ export default function AccommodationForm({ accommodation }: Props) {
     } catch {
       form.setError("mainImage", {
         type: "manual",
-        message: "სურათების დამუშავება ვერ მოხერხდა",
+        message: t("accommodations.imageProcessingFailed"),
       });
     }
   };
@@ -246,7 +234,7 @@ export default function AccommodationForm({ accommodation }: Props) {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>
-          {isEdit ? "განცხადების რედაქტირება" : "ახალი განცხადება"}
+          {isEdit ? t("accommodations.editTitle") : t("accommodations.newTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -265,13 +253,15 @@ export default function AccommodationForm({ accommodation }: Props) {
                       ) : (
                         <Building2 className="h-4 w-4" />
                       )}
-                      ტიპი:{" "}
-                      {type === AccommodationType.APARTMENT
-                        ? "აპარტამენტი"
-                        : "სასტუმრო"}
+                      {t("accommodations.typeLabel", {
+                        type:
+                          type === AccommodationType.APARTMENT
+                            ? tAcc("apartment")
+                            : tAcc("hotel"),
+                      })}
                     </FormLabel>
                     <FormDescription>
-                      ჩართეთ აპარტამენტისთვის, გამორთეთ სასტუმროსთვის
+                      {t("accommodations.typeHint")}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -296,10 +286,10 @@ export default function AccommodationForm({ accommodation }: Props) {
               name="city"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>ქალაქი</FormLabel>
+                  <FormLabel>{t("accommodations.city")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="მაგ: ბათუმი"
+                      placeholder={t("accommodations.cityPlaceholder")}
                       {...field}
                       disabled={isSubmitting}
                     />
@@ -312,9 +302,9 @@ export default function AccommodationForm({ accommodation }: Props) {
             {/* Localizations: fill one or more languages */}
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">
-                თარგმანები
+                {t("common.translations")}
                 <span className="text-sm font-normal text-gray-500 ml-2">
-                  (მინიმუმ ერთი აუცილებელია)
+                  {t("common.atLeastOneRequired")}
                 </span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -333,7 +323,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                         <h4 className="font-semibold uppercase">{locale}</h4>
                         {hasContent && (
                           <span className="text-xs bg-brand-green text-white px-2 py-1 rounded">
-                            შევსებულია
+                            {t("common.filled")}
                           </span>
                         )}
                       </div>
@@ -343,10 +333,10 @@ export default function AccommodationForm({ accommodation }: Props) {
                         name={`localizations.${idx}.name`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>დასახელება</FormLabel>
+                            <FormLabel>{t("common.name")}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="მაგ: Sea View Apartment"
+                                placeholder={t("accommodations.namePlaceholder")}
                                 {...field}
                                 disabled={isSubmitting}
                               />
@@ -361,10 +351,10 @@ export default function AccommodationForm({ accommodation }: Props) {
                         name={`localizations.${idx}.address`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>მისამართი (არასავალდებულო)</FormLabel>
+                            <FormLabel>{t("accommodations.addressOptional")}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="ქუჩა, ნომერი"
+                                placeholder={t("accommodations.addressPlaceholder")}
                                 {...field}
                                 disabled={isSubmitting}
                               />
@@ -379,13 +369,13 @@ export default function AccommodationForm({ accommodation }: Props) {
                         name={`localizations.${idx}.description`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>აღწერა</FormLabel>
+                            <FormLabel>{t("common.description")}</FormLabel>
                             <FormControl>
                               <RichTextEditor
                                 value={field.value || ""}
                                 onChange={field.onChange}
                                 disabled={isSubmitting}
-                                placeholder="შეიყვანეთ აღწერა"
+                                placeholder={t("accommodations.descriptionPlaceholder")}
                               />
                             </FormControl>
                             <FormMessage />
@@ -412,7 +402,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ფასი (₾ / ღამე)</FormLabel>
+                    <FormLabel>{t("accommodations.pricePerNight")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -431,7 +421,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                 name="maxGuests"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>სტუმრები</FormLabel>
+                    <FormLabel>{t("accommodations.guests")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -450,7 +440,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                 name="bedrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>საძინებლები</FormLabel>
+                    <FormLabel>{t("accommodations.bedrooms")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -469,7 +459,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                 name="bathrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>სველი წერტილები</FormLabel>
+                    <FormLabel>{t("accommodations.bathrooms")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -491,7 +481,7 @@ export default function AccommodationForm({ accommodation }: Props) {
               name="amenities"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>კეთილმოწყობა</FormLabel>
+                  <FormLabel>{t("accommodations.amenities")}</FormLabel>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
                     {AMENITY_KEYS.map((key) => {
                       const checked = field.value?.includes(key);
@@ -512,7 +502,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                             }}
                             disabled={isSubmitting}
                           />
-                          {AMENITY_LABELS_KA[key]}
+                          {tAcc(`amenityLabels.${key}`)}
                         </label>
                       );
                     })}
@@ -528,7 +518,7 @@ export default function AccommodationForm({ accommodation }: Props) {
               name="mainImage"
               render={() => (
                 <FormItem>
-                  <FormLabel>მთავარი სურათი</FormLabel>
+                  <FormLabel>{t("common.mainImage")}</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
@@ -543,7 +533,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                         width={400}
                         height={400}
                         src={mainImagePreview}
-                        alt="გადახედვა"
+                        alt={t("common.preview")}
                         className="max-w-full h-auto max-h-48 object-cover rounded"
                         unoptimized
                       />
@@ -560,7 +550,7 @@ export default function AccommodationForm({ accommodation }: Props) {
               name="gallery"
               render={() => (
                 <FormItem>
-                  <FormLabel>გალერეა (არასავალდებულო)</FormLabel>
+                  <FormLabel>{t("common.galleryOptional")}</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
@@ -579,7 +569,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                             width={200}
                             height={200}
                             src={`${process.env.NEXT_PUBLIC_BASE_URL}${url}`}
-                            alt={`სურათი ${index + 1}`}
+                            alt={t("accommodations.imageN", { n: index + 1 })}
                             className="w-full h-32 object-cover rounded"
                           />
                           <button
@@ -598,7 +588,7 @@ export default function AccommodationForm({ accommodation }: Props) {
                             width={200}
                             height={200}
                             src={preview}
-                            alt={`ახალი სურათი ${index + 1}`}
+                            alt={t("accommodations.newImageN", { n: index + 1 })}
                             className="w-full h-32 object-cover rounded"
                             unoptimized
                           />
@@ -626,9 +616,9 @@ export default function AccommodationForm({ accommodation }: Props) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">გამოქვეყნება</FormLabel>
+                    <FormLabel className="text-base">{t("accommodations.publish")}</FormLabel>
                     <FormDescription>
-                      გამოჩნდეს თუ არა საიტზე
+                      {t("accommodations.publishHint")}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -645,12 +635,12 @@ export default function AccommodationForm({ accommodation }: Props) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  იტვირთება...
+                  {t("common.loading")}
                 </>
               ) : isEdit ? (
-                "განახლება"
+                t("common.update")
               ) : (
-                "შექმნა"
+                t("common.create")
               )}
             </Button>
           </form>

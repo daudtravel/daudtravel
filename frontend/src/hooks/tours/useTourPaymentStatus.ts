@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 import type { PaymentStatusResponse } from "../../app/[locale]/payment/types";
 
 export const useTourPaymentStatus = (orderId: string | null) => {
@@ -12,10 +13,13 @@ export const useTourPaymentStatus = (orderId: string | null) => {
   const pollCountRef = useRef(0);
   const maxPolls = 15;
   const pollInterval = 2000;
+  const t = useTranslations("payment.result");
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const fetchPaymentStatus = useCallback(async () => {
     if (!orderId) {
-      setError("No order ID provided");
+      setError(tRef.current("noOrderId"));
       setIsLoading(false);
       return null;
     }
@@ -40,14 +44,14 @@ export const useTourPaymentStatus = (orderId: string | null) => {
         data.status === "pending";
 
       if (!response.ok && !isPending) {
-        const errorMsg = data.message || "Payment verification failed";
+        const errorMsg = data.message || tRef.current("verificationFailed");
         setError(errorMsg);
       }
 
       return data;
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Error verifying payment";
+        err instanceof Error ? err.message : tRef.current("verifyError");
       setError(errorMessage);
       return null;
     }
@@ -79,9 +83,7 @@ export const useTourPaymentStatus = (orderId: string | null) => {
           setIsLoading(false);
 
           if (pollCountRef.current >= maxPolls && data.success === null) {
-            setError(
-              "Payment verification taking longer than expected. Please check your order details or contact support."
-            );
+            setError(tRef.current("takingLonger"));
           }
         }
       } else if (pollCountRef.current >= maxPolls) {
@@ -90,9 +92,7 @@ export const useTourPaymentStatus = (orderId: string | null) => {
           pollIntervalRef.current = null;
         }
         setIsLoading(false);
-        setError(
-          "Could not verify payment status. Please contact support if you were charged."
-        );
+        setError(tRef.current("couldNotVerify"));
       }
     }, pollInterval);
   }, [fetchPaymentStatus, maxPolls, pollInterval]);

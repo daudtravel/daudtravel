@@ -26,7 +26,7 @@ export default function ToursPagination({
   return (
     <nav
       className="flex justify-center items-center space-x-2 mt-6"
-      aria-label="Pagination"
+      aria-label={t("pagination")}
     >
       <Button
         variant="outline"
@@ -59,7 +59,7 @@ export default function ToursPagination({
             variant={currentPage === page ? "default" : "outline"}
             onClick={() => onPageChange(page)}
             className="px-3 py-1"
-            aria-label={`Page ${page}`}
+            aria-label={t("pageN", { page })}
             aria-current={currentPage === page ? "page" : undefined}
           >
             {page}

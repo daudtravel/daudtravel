@@ -17,5 +17,9 @@
   "termsAndConditions": "წესები და პირობები",
   "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
   "allRightsReserved": "ყველა უფლება დაცულია",
-  "gallery": "გალერეა"
+  "gallery": "გალერეა",
+  "consentText": "ვებსაიტის გამოყენებით, თქვენ ეთანხმებით <terms>წესებს</terms> და <privacy>პოლიტიკას</privacy>.",
+  "consentDecline": "უარი",
+  "consentAccept": "ვეთანხმები",
+  "footerNav": "ქვედა ნავიგაცია"
 }

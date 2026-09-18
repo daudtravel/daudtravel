@@ -1,17 +1,22 @@
 "use client";
 
 import { PaymentStatusResponse } from "@/src/app/[locale]/payment/types";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 export const useTransferPaymentStatus = (orderId: string | null) => {
   const [isLoading, setIsLoading] = useState(true);
   const [paymentDetails, setPaymentDetails] =
     useState<PaymentStatusResponse | null>(null);
   const [error, setError] = useState<string>("");
+  const t = useTranslations("payment.result");
+  const tPayment = useTranslations("payment");
+  const tRef = useRef({ t, tPayment });
+  tRef.current = { t, tPayment };
 
   const fetchPaymentStatus = useCallback(async () => {
     if (!orderId) {
-      setError("No order ID provided");
+      setError(tRef.current.t("noOrderId"));
       setIsLoading(false);
       return;
     }
@@ -35,11 +40,14 @@ export const useTransferPaymentStatus = (orderId: string | null) => {
       if (!response.ok) {
         // Handle HTTP errors but still process the response data
         if (response.status === 404) {
-          setError(data.message || "Payment not found");
+          setError(data.message || tRef.current.t("paymentNotFound"));
         } else if (response.status === 500) {
-          setError(data.message || "Server error occurred");
+          setError(data.message || tRef.current.t("serverError"));
         } else {
-          setError(data.message || `HTTP error! status: ${response.status}`);
+          setError(
+            data.message ||
+              tRef.current.tPayment("httpError", { status: response.status })
+          );
         }
 
         // Still set payment details if available for failed payments
@@ -52,12 +60,12 @@ export const useTransferPaymentStatus = (orderId: string | null) => {
 
         // Additional validation
         if (!data.success) {
-          setError(data.message || "Payment verification failed");
+          setError(data.message || tRef.current.t("verificationFailed"));
         }
       }
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Error verifying payment";
+        err instanceof Error ? err.message : tRef.current.t("verifyError");
       setError(errorMessage);
       console.error("Payment verification error:", err);
     } finally {

@@ -1,5 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Locale } from "@/src/i18n/routing";
 
 const BASE_URL = "https://www.daudtravel.com";
@@ -11,10 +13,10 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations("meta");
   return {
-    title: "Privacy Policy | Daud Travel",
-    description:
-      "Read the Daud Travel privacy policy to understand how we collect, use, and protect your personal information when you book tours and transfers in Georgia.",
+    title: t("privacyTitle"),
+    description: t("privacyDescription"),
     alternates: {
       canonical: `${BASE_URL}/${locale}/privacy`,
       languages: {
@@ -29,99 +31,58 @@ export async function generateMetadata({
 }
 
 const PrivacyPolicy = () => {
+  const t = useTranslations("legal.privacy");
+
+  // Renders legal.privacy.<section>.item1..itemN as list items
+  const items = (section: string, count: number) =>
+    Array.from({ length: count }, (_, i) => (
+      <li key={i}>{t(`${section}.item${i + 1}`)}</li>
+    ));
+
   const policyContent = [
     {
-      title: "რა ინფორმაციას ვაგროვებთ",
+      title: t("collect.title"),
       content: (
         <>
-          <p className="mb-4">
-            ჩვენ ვაგროვებთ მხოლოდ იმ ინფორმაციას, რომელსაც თქვენ თვითონ გვაწვდით
-            ტურის დაჯავშნის, შეკვეთის გაკეთების ან/და მსგავსი ქმედების
-            განხორციელებისას.
-          </p>
+          <p className="mb-4">{t("collect.p1")}</p>
 
-          <p className="mb-2">თქვენ მიერ მოწოდებული ინფორმაცია:</p>
-          <ul className="list-disc list-inside ml-6 space-y-2 mb-4">
-            <li>სახელი და გვარი</li>
-            <li>
-              მობილურის ნომერი (გამოიყენება უშუალო კომუნიკაციისა და
-              კონტაქტისთვის)
-            </li>
-            <li>ელფოსტის მისამართი</li>
+          <p className="mb-2">{t("collect.providedTitle")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2 mb-4">
+            {items("collect", 3)}
           </ul>
 
-          <p className="mb-2">გადახდის დეტალები:</p>
-          <p className="ml-6">
-            ჩვენ არ ვინახავთ თქვენი საბანკო ბარათის დეტალებს. გადახდის პროცესი
-            ხორციელდება ინტეგრირებული მესამე მხარის (ბანკის ან საგადახდო
-            სისტემის) უსაფრთხო სერვისების მეშვეობით.
-          </p>
+          <p className="mb-2">{t("collect.paymentTitle")}</p>
+          <p className="ms-6">{t("collect.paymentText")}</p>
         </>
       ),
     },
     {
-      title: "რაში ვიყენებთ შეგროვებულ ინფორმაციას",
+      title: t("use.title"),
       content: (
         <>
-          <p className="mb-4">ჩვენ შეგროვებულ ინფორმაციას ვიყენებთ, რომ:</p>
-          <ul className="list-disc list-inside ml-6 space-y-2">
-            <li>
-              შევძლოთ თქვენი შეკვეთის/დაჯავშნის მიღება, დამუშავება და
-              დადასტურება
-            </li>
-            <li>
-              დაგიკავშირდეთ (ტელეფონით ან ელფოსტით) შეძენილ ტურთან დაკავშირებული
-              დეტალების, ცვლილებების ან სხვა აუცილებელი ინფორმაციის გასაცნობად
-            </li>
-            <li>
-              გამოგიგზავნოთ შეტყობინებები ელექტრონული ფოსტით წარმატებული
-              დაჯავშნის/ყიდვის შესახებ და მივაწოდოთ ტურის საბოლოო დეტალები
-            </li>
-            <li>
-              გავაუმჯობესოთ ჩვენი ვებსაიტი და სერვისები, რათა თქვენთვის უფრო
-              მოსახერხებელი გახდეს ჩვენთან ურთიერთობა
-            </li>
-            <li>
-              საჭიროების შემთხვევაში, შეგატყობინოთ სიახლეების, სპეციალური
-              შეთავაზებებისა და ახალი ტურების შესახებ (მხოლოდ თქვენი თანხმობის
-              შემთხვევაში ან გამოწერის გაუქმების შესაძლებლობით)
-            </li>
+          <p className="mb-4">{t("use.intro")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2">
+            {items("use", 5)}
           </ul>
         </>
       ),
     },
     {
-      title: "ინფორმაციის გადაცემა მესამე პირზე",
+      title: t("sharing.title"),
       content: (
         <>
-          <p className="mb-4">
-            ჩვენ ჩვენი ნებით არ გადავცემთ ინფორმაციას მესამე პირს, გარდა:
-          </p>
-          <ol className="list-decimal list-inside ml-6 space-y-3 mb-4">
-            <li>კანონით გათვალისწინებული მოთხოვნებისა</li>
-            <li>
-              სერვისის მიწოდებისთვის აუცილებელი შემთხვევებისა: შეზღუდული
-              ინფორმაცია (მაგალითად, სახელი, გვარი) შესაძლოა გაზიარდეს იმ
-              ტურ-ოპერატორებთან, გიდებთან ან მომსახურების მიმწოდებლებთან,
-              რომლებიც უშუალოდ მონაწილეობენ თქვენ მიერ შეძენილი ტურის
-              განხორციელებაში. ამ შემთხვევაში გაზიარება ხდება მხოლოდ იმ
-              ინფორმაციის ფარგლებში, რაც აუცილებელია სერვისის სრულყოფილად
-              მიწოდებისთვის
-            </li>
+          <p className="mb-4">{t("sharing.intro")}</p>
+          <ol className="list-decimal list-inside ms-6 space-y-3 mb-4">
+            {items("sharing", 2)}
           </ol>
         </>
       ),
     },
     {
-      title: "სხვა დეტალები",
+      title: t("other.title"),
       content: (
         <>
-          <p>
-            ჩვენი კონფიდენციალურობის პოლიტიკა წარმოდგენილია ორ ენაზე: ქართულად
-            და ინგლისურად. თარგმანში არსებული უზუსტობის შემთხვევაში უპირატესობა
-            ენიჭება ქართულ ვერსიას. თუ გაქვთ კითხვა კონფიდენციალურობის
-            პოლიტიკასთან დაკავშირებით, გთხოვთ, დაგვიკავშირდეთ.
-          </p>
+          <p>{t("other.p1")}</p>
         </>
       ),
     },
@@ -131,23 +92,22 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8  ">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6 md:p-10">
         <h1 className="text-3xl md:text-4xl mb-8 pb-4 border-b-2">
-          კონფიდენციალურობის პოლიტიკა
+          {t("title")}
         </h1>
 
         <p className="mb-10 leading-relaxed bg-gray-50 p-5 rounded-lg">
-          გთხოვთ, გაეცნოთ ჩვენს კონფიდენციალურობის პოლიტიკას, რადგან თქვენი
-          შემოსვლა ჩვენს ვებსაიტზე (
-          <a
-            href="https://www.daudtravel.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:no-underline"
-          >
-            www.daudtravel.com
-          </a>
-          -ზე და მის ქვედომენებზე) ნიშნავს, რომ თქვენ (ვებსაიტის მომხმარებელი),
-          ეთანხმებით ქვემოთ ჩამოთვლილ დებულებებს. თუ არ ეთანხმებით, გთხოვთ,
-          დატოვეთ ვებსაიტი.
+          {t.rich("intro", {
+            site: (chunks) => (
+              <a
+                href="https://www.daudtravel.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:no-underline"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
 
         <div className="space-y-8">

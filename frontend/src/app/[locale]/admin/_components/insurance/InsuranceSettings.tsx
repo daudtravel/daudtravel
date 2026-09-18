@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   useInsuranceSettings,
   useUpdateInsuranceSettings,
@@ -37,6 +38,7 @@ interface PriceExample {
 export default function InsuranceSettings() {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("admin");
 
   const { data: settingsData, isLoading } = useInsuranceSettings();
   const updateSettings = useUpdateInsuranceSettings();
@@ -70,12 +72,12 @@ export default function InsuranceSettings() {
     const discount90 = parseFloat(formData.discount90Days);
 
     if (isNaN(discount30) || discount30 < 0 || discount30 > 100) {
-      toast.error("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
+      toast.error(t("insuranceSettings.discountRange"));
       return;
     }
 
     if (isNaN(discount90) || discount90 < 0 || discount90 > 100) {
-      toast.error("ფასდაკლება უნდა იყოს 0-დან 100-მდე");
+      toast.error(t("insuranceSettings.discountRange"));
       return;
     }
 
@@ -85,14 +87,14 @@ export default function InsuranceSettings() {
       .filter(Boolean);
 
     if (emails.length === 0) {
-      toast.error("გთხოვთ შეიყვანოთ მინიმუმ ერთი ელ.ფოსტა");
+      toast.error(t("insuranceSettings.enterEmail"));
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const invalidEmail = emails.find((e) => !emailRegex.test(e));
     if (invalidEmail) {
-      toast.error(`არასწორი ელ.ფოსტა: ${invalidEmail}`);
+      toast.error(t("insuranceSettings.invalidEmail", { email: invalidEmail }));
       return;
     }
 
@@ -103,12 +105,12 @@ export default function InsuranceSettings() {
         adminEmail: formData.adminEmail,
         isActive: formData.isActive,
       });
-      toast.success("პარამეტრები წარმატებით განახლდა");
+      toast.success(t("insuranceSettings.updated"));
     } catch (error: unknown) {
       const msg =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (error instanceof Error ? error.message : "შეცდომა");
-      toast.error(`შეცდომა: ${msg}`);
+        (error instanceof Error ? error.message : t("common.error"));
+      toast.error(t("common.errorWithMessage", { message: msg }));
     }
   };
 
@@ -189,10 +191,10 @@ export default function InsuranceSettings() {
             </button>
             <div className="min-w-0">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
-                დაზღვევის პარამეტრები
+                {t("insuranceSettings.title")}
               </h2>
               <p className="text-gray-600 text-xs sm:text-sm mt-1">
-                მართეთ დაზღვევის სისტემის პარამეტრები და ფასდაკლებები
+                {t("insuranceSettings.subtitle")}
               </p>
             </div>
           </div>
@@ -205,14 +207,20 @@ export default function InsuranceSettings() {
           {/* Pricing Info (read-only display) */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-              ფასების სტრუქტურა (ფიქსირებული)
+              {t("insuranceSettings.pricingStructure")}
             </h3>
             <ul className="text-xs sm:text-sm text-gray-600 space-y-1">
               <li>
-                • 1–7 დღე: <strong>40 ₾</strong> (ფიქსირებული)
+                •{" "}
+                {t.rich("insuranceSettings.pricingLine1", {
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </li>
               <li>
-                • 8+ დღე: <strong>40 ₾ + 5 ₾</strong> თითო დამატებითი დღისთვის
+                •{" "}
+                {t.rich("insuranceSettings.pricingLine2", {
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </li>
             </ul>
           </div>
@@ -221,14 +229,14 @@ export default function InsuranceSettings() {
           <div className="space-y-4 border border-gray-200 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <Percent className="w-5 h-5 text-blue-600" />
-              <h3 className="font-semibold text-gray-800">ფასდაკლებები</h3>
+              <h3 className="font-semibold text-gray-800">{t("insuranceSettings.discounts")}</h3>
             </div>
 
             {/* 30+ Days Discount */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="w-4 h-4" />
-                ფასდაკლება 30+ დღისთვის (%)
+                {t("insuranceSettings.discount30Label")}
               </label>
               <input
                 type="number"
@@ -242,7 +250,7 @@ export default function InsuranceSettings() {
                 placeholder="10"
               />
               <p className="text-xs text-gray-500 mt-1">
-                ეს ფასდაკლება გამოიყენება თუ პერიოდი 30 დღე ან მეტია
+                {t("insuranceSettings.discount30Hint")}
               </p>
             </div>
 
@@ -250,7 +258,7 @@ export default function InsuranceSettings() {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="w-4 h-4" />
-                ფასდაკლება 90+ დღისთვის (%)
+                {t("insuranceSettings.discount90Label")}
               </label>
               <input
                 type="number"
@@ -264,7 +272,7 @@ export default function InsuranceSettings() {
                 placeholder="20"
               />
               <p className="text-xs text-gray-500 mt-1">
-                ეს ფასდაკლება გამოიყენება თუ პერიოდი 90 დღე ან მეტია
+                {t("insuranceSettings.discount90Hint")}
               </p>
             </div>
           </div>
@@ -273,7 +281,7 @@ export default function InsuranceSettings() {
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
               <Mail className="w-4 h-4" />
-              ადმინის ელ.ფოსტა
+              {t("insuranceSettings.adminEmail")}
             </label>
 
             {/* Email tags */}
@@ -289,7 +297,7 @@ export default function InsuranceSettings() {
                       type="button"
                       onClick={() => removeEmail(index)}
                       className="ml-1 text-blue-500 hover:text-red-500 transition-colors"
-                      aria-label={`Remove ${email}`}
+                      aria-label={t("insuranceSettings.removeEmail", { email })}
                     >
                       <X size={12} />
                     </button>
@@ -308,7 +316,7 @@ export default function InsuranceSettings() {
               required
             />
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              რამდენიმე ელ.ფოსტისთვის გამოიყენეთ მძიმე გამყოფად:{" "}
+              {t("insuranceSettings.multiEmailHint")}{" "}
               <span className="font-mono text-xs">
                 email1@x.com, email2@x.com
               </span>
@@ -320,12 +328,12 @@ export default function InsuranceSettings() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex-1">
                 <label className="text-sm font-medium text-gray-700 block mb-1">
-                  სერვისის სტატუსი
+                  {t("insuranceSettings.serviceStatus")}
                 </label>
                 <p className="text-xs sm:text-sm text-gray-500">
                   {formData.isActive
-                    ? "დაზღვევის სისტემა აქტიურია და მომხმარებლები შეძლებენ შეკვეთის გაკეთებას"
-                    : "დაზღვევის სისტემა გამორთულია, შეკვეთები არ მიიღება"}
+                    ? t("insuranceSettings.serviceActive")
+                    : t("insuranceSettings.serviceInactive")}
                 </p>
               </div>
               <button
@@ -342,12 +350,12 @@ export default function InsuranceSettings() {
                 {formData.isActive ? (
                   <>
                     <ToggleRight size={20} />
-                    <span className="font-medium text-sm">აქტიური</span>
+                    <span className="font-medium text-sm">{t("insuranceSettings.active")}</span>
                   </>
                 ) : (
                   <>
                     <ToggleLeft size={20} />
-                    <span className="font-medium text-sm">გამორთული</span>
+                    <span className="font-medium text-sm">{t("insuranceSettings.inactive")}</span>
                   </>
                 )}
               </button>
@@ -357,22 +365,24 @@ export default function InsuranceSettings() {
           {/* Pricing Examples */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
             <h3 className="font-semibold text-blue-900 mb-3 text-sm sm:text-base">
-              ფასების მაგალითები
+              {t("insuranceSettings.pricingExamples")}
             </h3>
             <div className="space-y-3 text-xs sm:text-sm">
               {/* 5 days example */}
               <div className="bg-white rounded p-3">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-700">5 დღე:</span>
-                  <span className="text-gray-500">ფიქსირებული ფასი</span>
+                  <span className="font-medium text-gray-700">
+                    {t("common.days", { count: 5 })}:
+                  </span>
+                  <span className="text-gray-500">{t("insuranceSettings.fixedPrice")}</span>
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ბაზისური:</span>
+                    <span className="text-gray-600">{t("insuranceSettings.base")}</span>
                     <span>₾{calculateExample(5).baseAmount}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-blue-900">
-                    <span>საბოლოო:</span>
+                    <span>{t("insuranceSettings.final")}</span>
                     <span>₾{calculateExample(5).finalAmount}</span>
                   </div>
                 </div>
@@ -381,16 +391,18 @@ export default function InsuranceSettings() {
               {/* 10 days example */}
               <div className="bg-white rounded p-3">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-700">10 დღე:</span>
+                  <span className="font-medium text-gray-700">
+                    {t("common.days", { count: 10 })}:
+                  </span>
                   <span className="text-gray-500">40 + (3 × 5) ₾</span>
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ბაზისური:</span>
+                    <span className="text-gray-600">{t("insuranceSettings.base")}</span>
                     <span>₾{calculateExample(10).baseAmount}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-blue-900">
-                    <span>საბოლოო:</span>
+                    <span>{t("insuranceSettings.final")}</span>
                     <span>₾{calculateExample(10).finalAmount}</span>
                   </div>
                 </div>
@@ -399,26 +411,30 @@ export default function InsuranceSettings() {
               {/* 45 days example */}
               <div className="bg-white rounded p-3">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-700">45 დღე:</span>
+                  <span className="font-medium text-gray-700">
+                    {t("common.days", { count: 45 })}:
+                  </span>
                   <span className="text-green-600 font-medium">
                     {calculateExample(45).discountPercent > 0
-                      ? `-${calculateExample(45).discountPercent}% ფასდაკლება`
-                      : "ფასდაკლების გარეშე"}
+                      ? t("insuranceSettings.discountBadge", {
+                          percent: calculateExample(45).discountPercent,
+                        })
+                      : t("insuranceSettings.noDiscount")}
                   </span>
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ბაზისური:</span>
+                    <span className="text-gray-600">{t("insuranceSettings.base")}</span>
                     <span>₾{calculateExample(45).baseAmount}</span>
                   </div>
                   {calculateExample(45).discountPercent > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>ფასდაკლება:</span>
+                      <span>{t("insuranceSettings.discountColon")}</span>
                       <span>-₾{calculateExample(45).discountAmount}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold text-blue-900">
-                    <span>საბოლოო:</span>
+                    <span>{t("insuranceSettings.final")}</span>
                     <span>₾{calculateExample(45).finalAmount}</span>
                   </div>
                 </div>
@@ -427,26 +443,30 @@ export default function InsuranceSettings() {
               {/* 120 days example */}
               <div className="bg-white rounded p-3">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-700">120 დღე:</span>
+                  <span className="font-medium text-gray-700">
+                    {t("common.days", { count: 120 })}:
+                  </span>
                   <span className="text-green-600 font-medium">
                     {calculateExample(120).discountPercent > 0
-                      ? `-${calculateExample(120).discountPercent}% ფასდაკლება`
-                      : "ფასდაკლების გარეშე"}
+                      ? t("insuranceSettings.discountBadge", {
+                          percent: calculateExample(120).discountPercent,
+                        })
+                      : t("insuranceSettings.noDiscount")}
                   </span>
                 </div>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ბაზისური:</span>
+                    <span className="text-gray-600">{t("insuranceSettings.base")}</span>
                     <span>₾{calculateExample(120).baseAmount}</span>
                   </div>
                   {calculateExample(120).discountPercent > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>ფასდაკლება:</span>
+                      <span>{t("insuranceSettings.discountColon")}</span>
                       <span>-₾{calculateExample(120).discountAmount}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold text-blue-900">
-                    <span>საბოლოო:</span>
+                    <span>{t("insuranceSettings.final")}</span>
                     <span>₾{calculateExample(120).finalAmount}</span>
                   </div>
                 </div>
@@ -464,12 +484,12 @@ export default function InsuranceSettings() {
               {updateSettings.isPending ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  <span>მიმდინარეობს შენახვა...</span>
+                  <span>{t("insuranceSettings.saving")}</span>
                 </>
               ) : (
                 <>
                   <Save size={20} />
-                  <span>პარამეტრების შენახვა</span>
+                  <span>{t("insuranceSettings.saveSettings")}</span>
                 </>
               )}
             </button>
@@ -479,7 +499,7 @@ export default function InsuranceSettings() {
               disabled={updateSettings.isPending}
               className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
             >
-              გაუქმება
+              {t("common.cancel")}
             </button>
           </div>
         </form>

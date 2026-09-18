@@ -258,7 +258,7 @@ const ContactCard: React.FC = () => {
                   href="https://www.google.com/maps/place/Daud+Travel/@41.6443898,41.6346718,696m/data=!3m2!1e3!4b1!4m6!3m5!1s0x406787f6f7466e93:0x69bea43bb941487c!8m2!3d41.6443898!4d41.6346718!16s%2Fg%2F11s2jbmn0l?entry=ttu&g_ep=EgoyMDI0MTAyOS4wIKXMDSoASAFQAw%3D%3D"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Address"
+                  aria-label={t("address")}
                   className="hover:opacity-70 transition-opacity"
                 >
                   <MapPin className="w-7 h-7 text-brand-cream" />

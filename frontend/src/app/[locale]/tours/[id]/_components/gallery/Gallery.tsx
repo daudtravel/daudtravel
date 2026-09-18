@@ -3,6 +3,7 @@ import { useImageLoader } from "@/src/hooks/useImageLoader";
 import Image from "next/image";
 import React, { useMemo } from "react";
 import { PhotoView } from "react-photo-view";
+import { useTranslations } from "next-intl";
 
 interface GalleryProps {
   data: {
@@ -14,6 +15,7 @@ interface GalleryProps {
 
 const Gallery = React.memo<GalleryProps>(({ data, tourName }) => {
   const { handleImageLoad, isImageLoaded } = useImageLoader();
+  const t = useTranslations("tours");
 
   const galleryConfig = useMemo(() => {
     const displayLimit = 8;
@@ -49,7 +51,11 @@ const Gallery = React.memo<GalleryProps>(({ data, tourName }) => {
                 <div className="relative w-full h-full">
                   <Image
                     src={imageSrc}
-                    alt={tourName ? `${tourName} - photo ${index + 1}` : `Tour photo ${index + 1}`}
+                    alt={
+                      tourName
+                        ? t("photoN", { name: tourName, n: index + 1 })
+                        : t("tourPhotoN", { n: index + 1 })
+                    }
                     fill
                     loading="lazy"
                     className={`object-cover transition-opacity duration-300 ${
@@ -73,7 +79,7 @@ const Gallery = React.memo<GalleryProps>(({ data, tourName }) => {
                 <div className="relative w-full h-full">
                   <Image
                     src={galleryConfig.hiddenImages[0]}
-                    alt="Additional images"
+                    alt={t("additionalImages")}
                     fill
                     loading="lazy"
                     className="object-cover"

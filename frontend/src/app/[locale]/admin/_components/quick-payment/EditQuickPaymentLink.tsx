@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Upload, X, ArrowLeft, Languages, Plus } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useUpdateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 import { quickPaymentService } from "@/src/services/quick-payment.service";
 
@@ -47,6 +48,7 @@ function EditQuickLinkContent() {
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
   const updateLink = useUpdateQuickLink();
+  const t = useTranslations("admin");
 
   useEffect(() => {
     if (slug && slug !== "create" && slug !== "orders" && slug !== "all") {
@@ -80,12 +82,12 @@ function EditQuickLinkContent() {
         if (validLocalizations.length > 0) {
           setLocalizations(validLocalizations);
         } else {
-          toast.error("პროდუქტს არ აქვს ვალიდური თარგმანები");
+          toast.error(t("quickLinks.noValidTranslations"));
           router.push("/admin?quickPayment=all");
           return;
         }
       } else {
-        toast.error("პროდუქტს არ აქვს თარგმანები");
+        toast.error(t("quickLinks.noTranslations"));
         router.push("/admin?quickPayment=all");
         return;
       }
@@ -98,7 +100,7 @@ function EditQuickLinkContent() {
       setImagePreview(imageUrl);
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message
-        || (error instanceof Error ? error.message : "შეცდომა მონაცემების ჩატვირთვისას");
+        || (error instanceof Error ? error.message : t("common.loadDataError"));
       toast.error(msg);
       router.push("/admin?quickPayment=all");
     } finally {
@@ -124,7 +126,7 @@ function EditQuickLinkContent() {
     // Check if already exists
     const exists = localizations.some((loc) => loc.locale === locale);
     if (exists) {
-      toast.error("ეს ენა უკვე დამატებულია");
+      toast.error(t("quickLinks.languageAlreadyAdded"));
       return;
     }
 
@@ -139,13 +141,17 @@ function EditQuickLinkContent() {
   const removeLocalization = (locale: string) => {
     const localeConfig = AVAILABLE_LOCALES.find((l) => l.code === locale);
     if (localeConfig?.required) {
-      toast.error(`${localeConfig.label} ენა სავალდებულოა`);
+      toast.error(
+        t("quickLinks.languageRequired", {
+          language: t(`common.languages.${localeConfig.code}`),
+        })
+      );
       return;
     }
 
     // ✅ FIXED: Don't allow removing if it's the only localization
     if (localizations.length === 1) {
-      toast.error("მინიმუმ ერთი ენა უნდა იყოს დამატებული");
+      toast.error(t("quickLinks.minOneLanguageAdded"));
       return;
     }
 
@@ -157,7 +163,7 @@ function EditQuickLinkContent() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("ფაილის ზომა არ უნდა აღემატებოდეს 5MB-ს");
+      toast.error(t("quickLinks.fileTooLarge5"));
       return;
     }
 
@@ -182,14 +188,14 @@ function EditQuickLinkContent() {
     // Validate Georgian localization exists
     const georgianLoc = localizations.find((loc) => loc.locale === "ka");
     if (!georgianLoc || !georgianLoc.name.trim()) {
-      toast.error("ქართული სახელი სავალდებულოა");
+      toast.error(t("quickLinks.georgianNameRequired"));
       return;
     }
 
     // Validate price
     const priceValue = parseFloat(price);
     if (isNaN(priceValue) || priceValue <= 0) {
-      toast.error("გთხოვთ შეიყვანოთ სწორი ფასი");
+      toast.error(t("common.enterValidPrice"));
       return;
     }
 
@@ -197,7 +203,7 @@ function EditQuickLinkContent() {
     const validLocalizations = localizations.filter((loc) => loc.name.trim());
 
     if (validLocalizations.length === 0) {
-      toast.error("მინიმუმ ერთი ენა უნდა იყოს შევსებული");
+      toast.error(t("common.minOneLanguageFilled"));
       return;
     }
 
@@ -205,7 +211,7 @@ function EditQuickLinkContent() {
     const locales = validLocalizations.map((loc) => loc.locale);
     const uniqueLocales = new Set(locales);
     if (locales.length !== uniqueLocales.size) {
-      toast.error("ორი ერთნაირი ენა არ შეიძლება იყოს დამატებული");
+      toast.error(t("quickLinks.duplicateLanguages"));
       return;
     }
 
@@ -227,12 +233,12 @@ function EditQuickLinkContent() {
       }
 
       await updateLink.mutateAsync({ slug: slug!, data: submitData });
-      toast.success("ლინკი წარმატებით განახლდა");
+      toast.success(t("quickLinks.updated"));
       router.push("/admin?quickPayment=all");
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
-        (error instanceof Error ? error.message : "შეცდომა ლინკის განახლებისას");
+        (error instanceof Error ? error.message : t("quickLinks.updateError"));
       toast.error(errorMessage);
     }
   };
@@ -266,10 +272,10 @@ function EditQuickLinkContent() {
           </button>
           <div className="flex-1">
             <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">
-              ლინკის რედაქტირება
+              {t("quickLinks.editTitle")}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              მრავალენოვანი პროდუქტის რედაქტირება
+              {t("quickLinks.editSubtitle")}
             </p>
           </div>
         </div>
@@ -281,7 +287,7 @@ function EditQuickLinkContent() {
               <div className="flex items-center gap-2">
                 <Languages className="w-5 h-5 text-blue-600" />
                 <h3 className="text-lg font-semibold text-gray-800">
-                  ენები და თარგმანები
+                  {t("quickLinks.languagesAndTranslations")}
                 </h3>
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
                   {localizations.length}/{AVAILABLE_LOCALES.length}
@@ -297,7 +303,7 @@ function EditQuickLinkContent() {
                     className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm text-sm font-medium"
                   >
                     <Plus size={16} />
-                    <span>ენის დამატება</span>
+                    <span>{t("quickLinks.addLanguage")}</span>
                   </button>
                   {showLanguageDropdown && (
                     <>
@@ -345,7 +351,7 @@ function EditQuickLinkContent() {
                           </span>
                           {localeInfo?.required && (
                             <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-                              სავალდებულო
+                              {t("common.required")}
                             </span>
                           )}
                         </div>
@@ -363,7 +369,7 @@ function EditQuickLinkContent() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        პროდუქტის სახელი{" "}
+                        {t("quickLinks.productName")}{" "}
                         {localeInfo?.required && (
                           <span className="text-red-500">*</span>
                         )}
@@ -379,14 +385,16 @@ function EditQuickLinkContent() {
                           )
                         }
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base"
-                        placeholder={`პროდუქტის სახელი ${localeInfo?.label}-ად`}
+                        placeholder={t("quickLinks.productNameIn", {
+                          language: localeInfo?.label ?? loc.locale,
+                        })}
                         required={localeInfo?.required}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        აღწერა (არასავალდებულო)
+                        {t("quickLinks.descriptionOptional")}
                       </label>
                       <textarea
                         value={loc.description}
@@ -399,7 +407,9 @@ function EditQuickLinkContent() {
                         }
                         rows={3}
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-all text-sm sm:text-base"
-                        placeholder={`პროდუქტის აღწერა ${localeInfo?.label}-ად`}
+                        placeholder={t("quickLinks.productDescriptionIn", {
+                          language: localeInfo?.label ?? loc.locale,
+                        })}
                       />
                     </div>
                   </div>
@@ -411,7 +421,7 @@ function EditQuickLinkContent() {
           {/* Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              ფასი (₾) <span className="text-red-500">*</span>
+              {t("common.priceGel")} <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -428,7 +438,7 @@ function EditQuickLinkContent() {
           {/* Image */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              სურათი
+              {t("quickLinks.image")}
             </label>
 
             {imagePreview ? (
@@ -437,7 +447,7 @@ function EditQuickLinkContent() {
                   <div className="relative w-full sm:w-64 h-64 rounded-xl overflow-hidden border-2 border-gray-200 bg-gray-100">
                     <Image
                       src={imagePreview}
-                      alt="Preview"
+                      alt={t("common.preview")}
                       fill
                       className="object-cover"
                       unoptimized={imagePreview.startsWith("data:") || false}
@@ -456,7 +466,7 @@ function EditQuickLinkContent() {
                 <div>
                   <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
                     <Upload size={16} />
-                    <span>სურათის შეცვლა</span>
+                    <span>{t("quickLinks.changeImage")}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -470,10 +480,10 @@ function EditQuickLinkContent() {
               <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                 <Upload className="w-10 h-10 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500 font-medium">
-                  ატვირთეთ სურათი
+                  {t("quickLinks.uploadImage")}
                 </span>
                 <span className="text-xs text-gray-400 mt-1">
-                  მაქსიმალური ზომა: 5MB
+                  {t("quickLinks.maxSize5")}
                 </span>
                 <input
                   type="file"
@@ -498,7 +508,7 @@ function EditQuickLinkContent() {
               htmlFor="showOnWebsite"
               className="text-sm font-medium text-gray-700 cursor-pointer flex-1"
             >
-              გამოჩნდეს ვებსაიტზე (საჯარო პროდუქტი)
+              {t("quickLinks.showOnWebsite")}
             </label>
           </div>
 
@@ -512,10 +522,10 @@ function EditQuickLinkContent() {
               {updateLink.isPending ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  <span>მიმდინარეობს...</span>
+                  <span>{t("common.processing")}</span>
                 </>
               ) : (
-                <span>განახლება</span>
+                <span>{t("common.update")}</span>
               )}
             </button>
             <button
@@ -524,7 +534,7 @@ function EditQuickLinkContent() {
               disabled={updateLink.isPending}
               className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-semibold"
             >
-              გაუქმება
+              {t("common.cancel")}
             </button>
           </div>
         </form>

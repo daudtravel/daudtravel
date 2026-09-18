@@ -15,6 +15,7 @@ import {
 import { format } from "date-fns";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ export const QuickPaymentOrders = () => {
     undefined
   );
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
+  const t = useTranslations("admin");
 
   const {
     data: ordersData,
@@ -64,18 +66,18 @@ export const QuickPaymentOrders = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "წაშლა ვერ მოხერხდა");
+        throw new Error(result.message || t("common.deleteFailed"));
       }
 
-      toast.success("შეკვეთა წარმატებით წაიშალა");
+      toast.success(t("common.orderDeleted"));
       await refetch();
 
       if (orders.length === 1 && page > 1) {
         setPage(page - 1);
       }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "შეცდომა";
-      toast.error(`შეცდომა: ${msg}`);
+      const msg = error instanceof Error ? error.message : t("common.error");
+      toast.error(t("common.errorWithMessage", { message: msg }));
     } finally {
       setDeletingOrderId(null);
     }
@@ -87,21 +89,21 @@ export const QuickPaymentOrders = () => {
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
             <CheckCircle size={14} />
-            <span className="hidden sm:inline">გადახდილი</span>
+            <span className="hidden sm:inline">{t("status.paid")}</span>
           </span>
         );
       case "PENDING":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             <Clock size={14} />
-            <span className="hidden sm:inline">მიმდინარე</span>
+            <span className="hidden sm:inline">{t("status.inProgress")}</span>
           </span>
         );
       case "FAILED":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle size={14} />
-            <span className="hidden sm:inline">წარუმატებელი</span>
+            <span className="hidden sm:inline">{t("status.failed")}</span>
           </span>
         );
       default:
@@ -135,10 +137,10 @@ export const QuickPaymentOrders = () => {
               </button>
               <div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
-                  შეკვეთები
+                  {t("common.orders")}
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
-                  სულ: {pagination?.total || 0} შეკვეთა
+                  {t("common.totalOrders", { count: pagination?.total || 0 })}
                 </p>
               </div>
             </div>
@@ -149,10 +151,10 @@ export const QuickPaymentOrders = () => {
                 onChange={(e) => setStatusFilter(e.target.value || undefined)}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                <option value="">ყველა სტატუსი</option>
-                <option value="PAID">გადახდილი</option>
-                <option value="PENDING">მიმდინარე</option>
-                <option value="FAILED">წარუმატებელი</option>
+                <option value="">{t("common.allStatuses")}</option>
+                <option value="PAID">{t("status.paid")}</option>
+                <option value="PENDING">{t("status.inProgress")}</option>
+                <option value="FAILED">{t("status.failed")}</option>
               </select>
             </div>
           </div>
@@ -160,7 +162,7 @@ export const QuickPaymentOrders = () => {
 
         {orders.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <p className="text-lg">შეკვეთები არ მოიძებნა</p>
+            <p className="text-lg">{t("common.noOrdersFound")}</p>
           </div>
         ) : (
           <>
@@ -170,22 +172,22 @@ export const QuickPaymentOrders = () => {
                 <thead className="bg-gray-50 border-b">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      კლიენტი
+                      {t("common.client")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      პროდუქტი
+                      {t("common.product")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      თანხა
+                      {t("common.amount")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      სტატუსი
+                      {t("common.status")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      თარიღი
+                      {t("common.date")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      მოქმედება
+                      {t("common.action")}
                     </th>
                   </tr>
                 </thead>
@@ -238,7 +240,7 @@ export const QuickPaymentOrders = () => {
                             {!order.linkSlug &&
                               order.linkName === "Deleted Link" && (
                                 <p className="text-xs text-red-500">
-                                  ლინკი წაშლილია
+                                  {t("quickOrders.linkDeleted")}
                                 </p>
                               )}
                           </div>
@@ -299,7 +301,7 @@ export const QuickPaymentOrders = () => {
                           <button
                             disabled
                             className="p-2 rounded-lg opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
-                            title="გადახდილი შეკვეთების წაშლა შეუძლებელია"
+                            title={t("quickOrders.cannotDeletePaid")}
                           >
                             <Trash2 className="w-5 h-5" />
                           </button>
@@ -309,7 +311,7 @@ export const QuickPaymentOrders = () => {
                               <button
                                 disabled={deletingOrderId === order.id}
                                 className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50"
-                                title="შეკვეთის წაშლა"
+                                title={t("common.deleteOrder")}
                               >
                                 {deletingOrderId === order.id ? (
                                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -320,18 +322,18 @@ export const QuickPaymentOrders = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                                <AlertDialogTitle>{t("common.deleteOrder")}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  დარწმუნებული ხართ, რომ გსურთ ამ შეკვეთის წაშლა?
+                                  {t("quickOrders.deleteConfirm")}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDeleteOrder(order.id)}
                                   className="bg-red-500 hover:bg-red-600"
                                 >
-                                  წაშლა
+                                  {t("common.delete")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -361,7 +363,7 @@ export const QuickPaymentOrders = () => {
                         <button
                           disabled
                           className="p-1.5 rounded-lg opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
-                          title="გადახდილი შეკვეთების წაშლა შეუძლებელია"
+                          title={t("quickOrders.cannotDeletePaid")}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -381,18 +383,18 @@ export const QuickPaymentOrders = () => {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                              <AlertDialogTitle>{t("common.deleteOrder")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                დარწმუნებული ხართ, რომ გსურთ ამ შეკვეთის წაშლა?
+                                {t("quickOrders.deleteConfirm")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteOrder(order.id)}
                                 className="bg-red-500 hover:bg-red-600"
                               >
-                                წაშლა
+                                {t("common.delete")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -428,14 +430,14 @@ export const QuickPaymentOrders = () => {
                         </p>
                       )}
                       {!order.linkSlug && order.linkName === "Deleted Link" && (
-                        <p className="text-xs text-red-500">ლინკი წაშლილია</p>
+                        <p className="text-xs text-red-500">{t("quickOrders.linkDeleted")}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">თანხა</p>
+                      <p className="text-xs text-gray-500 mb-1">{t("common.amount")}</p>
                       <span className="text-base font-semibold text-gray-900">
                         {order.productTotalPrice != null
                           ? `₾${Number(order.productTotalPrice).toFixed(2)}`
@@ -443,7 +445,7 @@ export const QuickPaymentOrders = () => {
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">თარიღი</p>
+                      <p className="text-xs text-gray-500 mb-1">{t("common.date")}</p>
                       <div className="text-sm text-gray-600">
                         {order.paidAt ? (
                           <span>
@@ -471,7 +473,7 @@ export const QuickPaymentOrders = () => {
                   {order.status === "FAILED" && order.failureReason && (
                     <details>
                       <summary className="text-xs text-red-500 font-medium cursor-pointer select-none">
-                        მიზეზის ნახვა
+                        {t("common.viewReason")}
                       </summary>
                       <p className="text-xs text-red-600 leading-snug mt-1">
                         {order.failureReason}
@@ -489,17 +491,20 @@ export const QuickPaymentOrders = () => {
                   disabled={page === 1}
                   className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  წინა
+                  {t("common.previous")}
                 </button>
                 <span className="text-xs sm:text-sm text-gray-600">
-                  გვერდი {pagination.page} / {pagination.totalPages}
+                  {t("common.pageOf", {
+                    page: pagination.page,
+                    total: pagination.totalPages,
+                  })}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page >= pagination.totalPages}
                   className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  შემდეგი
+                  {t("common.next")}
                 </button>
               </div>
             )}

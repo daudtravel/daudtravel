@@ -45,5 +45,15 @@
   "galleryDesc": "Фото и видео из наших туров и приключений по Грузии",
   "photos": "Фото",
   "videos": "Видео",
-  "noVideosAvailable": "Видео в данный момент недоступны."
+  "noVideosAvailable": "Видео в данный момент недоступны.",
+  "buy": "Купить",
+  "productNotFound": "Продукт не найден",
+  "productNotAvailable": "Продукт недоступен",
+  "previousSlide": "Предыдущий слайд",
+  "nextSlide": "Следующий слайд",
+  "slideN": "Слайд {n}",
+  "goToSlide": "Перейти к слайду {n}",
+  "pagination": "Навигация по страницам",
+  "pageN": "Страница {page}",
+  "error_loading_faqs": "Ошибка при загрузке часто задаваемых вопросов"
 }

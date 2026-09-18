@@ -30,8 +30,8 @@ export async function generateMetadata({
 
   if (!tour) {
     return {
-      title: "Tour Not Found",
-      description: "The requested tour could not be found.",
+      title: t("tourNotFound"),
+      description: t("tourNotFoundDescription"),
       robots: { index: false, follow: false },
     };
   }

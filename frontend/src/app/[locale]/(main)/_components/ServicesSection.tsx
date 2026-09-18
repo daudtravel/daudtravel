@@ -146,7 +146,7 @@ const ServicesSection = () => {
               current === index ? "w-4 bg-brand-green" : "w-2 bg-gray-300"
             }`}
             onClick={() => api?.scrollTo(index)}
-            aria-label={`Go to slide ${index + 1}`}
+            aria-label={t("goToSlide", { n: index + 1 })}
           />
         ))}
       </div>

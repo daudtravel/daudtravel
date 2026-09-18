@@ -41,5 +41,16 @@
   "booking": "Gürcistan Turunuzu Rezerve Edin | Online Rezervasyon",
   "descriptionBooking": "Daud Travel ile Gürcistan turunuzu online rezerve edin. Basit rezervasyon süreci, güvenli ödeme, anında onay ve Gürcü maceranız için profesyonel müşteri desteği.",
   "transferDetail": "Transfer: {start} → {end}",
-  "descriptionTransferDetail": "Daud Travel ile {start} - {end} arası konforlu transfer rezervasyonu yapın. Profesyonel sürücüler, modern araçlar, uygun fiyatlar."
+  "descriptionTransferDetail": "Daud Travel ile {start} - {end} arası konforlu transfer rezervasyonu yapın. Profesyonel sürücüler, modern araçlar, uygun fiyatlar.",
+  "termsTitle": "Şartlar ve Koşullar | Daud Travel",
+  "termsDescription": "Gürcistan'da tur, transfer ve seyahat hizmetleri rezervasyonu için Daud Travel şartlarını ve koşullarını okuyun. Rezervasyon, ödeme, iptal ve iade politikalarımız hakkında bilgi edinin.",
+  "privacyTitle": "Gizlilik Politikası | Daud Travel",
+  "privacyDescription": "Gürcistan'da tur ve transfer rezervasyonu yaparken kişisel bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu öğrenmek için Daud Travel gizlilik politikasını okuyun.",
+  "tourNotFound": "Tur Bulunamadı",
+  "tourNotFoundDescription": "İstenen tur bulunamadı.",
+  "transferNotFound": "Transfer Bulunamadı",
+  "transferNotFoundDescription": "İstenen transfer bulunamadı.",
+  "accommodationNotFound": "Konaklama Bulunamadı",
+  "accommodationNotFoundDescription": "İstenen konaklama bulunamadı.",
+  "driverProfile": "Sürücü Profili | Daud Travel"
 }

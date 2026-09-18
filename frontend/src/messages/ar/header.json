@@ -17,5 +17,9 @@
   "termsAndConditions": "الشروط والأحكام",
   "privacyPolicy": "سياسة الخصوصية",
   "allRightsReserved": "جميع الحقوق محفوظة",
-  "gallery": "المعرض"
+  "gallery": "المعرض",
+  "consentText": "باستخدامك للموقع الإلكتروني، فإنك توافق على <terms>الشروط</terms> و<privacy>سياسة الخصوصية</privacy>.",
+  "consentDecline": "رفض",
+  "consentAccept": "موافق",
+  "footerNav": "تذييل الصفحة"
 }

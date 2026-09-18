@@ -17,6 +17,7 @@ import { Textarea } from "@/src/components/ui/textarea";
 import { Label } from "@/src/components/ui/label";
 import axios from "axios";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { videoApi } from "@/src/services/videos.service";
 import { VideoLocalizationInput } from "@/src/types/video.types";
 
@@ -33,6 +34,7 @@ type LocaleFields = { title: string; description: string };
 export default function CreateVideo() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [url, setUrl] = useState("");
   const [category, setCategory] = useState("");
@@ -59,7 +61,7 @@ export default function CreateVideo() {
 
     try {
       if (!url.trim()) {
-        toast.error("URL სავალდებულოა");
+        toast.error(t("videos.urlRequired"));
         setIsSubmitting(false);
         return;
       }
@@ -67,7 +69,7 @@ export default function CreateVideo() {
       try {
         new URL(url);
       } catch {
-        toast.error("გთხოვთ შეიყვანოთ სწორი URL");
+        toast.error(t("videos.invalidUrl"));
         setIsSubmitting(false);
         return;
       }
@@ -96,14 +98,14 @@ export default function CreateVideo() {
 
       await videoApi.post(submitData);
 
-      toast.success("ვიდეო წარმატებით დაემატა");
+      toast.success(t("videos.added"));
       await queryClient.invalidateQueries({ queryKey: ["videos"] });
       router.push("?videos=all");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        toast.error(error.response.data.message || "ვიდეოს დამატება ვერ მოხერხდა");
+        toast.error(error.response.data.message || t("videos.addFailed"));
       } else {
-        toast.error("მოხდა მოულოდნელი შეცდომა");
+        toast.error(t("common.unexpectedError"));
       }
     } finally {
       setIsSubmitting(false);
@@ -118,7 +120,7 @@ export default function CreateVideo() {
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">ვიდეოს დამატება</CardTitle>
+          <CardTitle className="text-xl font-semibold">{t("videos.add")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -137,27 +139,27 @@ export default function CreateVideo() {
                 disabled={isSubmitting}
               />
               <p className="text-xs text-gray-500">
-                შეიყვანეთ YouTube ან სხვა ვიდეო პლატფორმის ბმული
+                {t("videos.urlHint")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">კატეგორია</Label>
+              <Label htmlFor="category">{t("common.category")}</Label>
               <Input
                 id="category"
                 name="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="მაგ: ტრანსფერები, ტურები, ზოგადი (არასავალდებულო)"
+                placeholder={t("videos.categoryPlaceholder")}
                 disabled={isSubmitting}
               />
             </div>
 
             <div className="space-y-4">
               <Label className="text-base font-semibold">
-                სათაური და აღწერა ენების მიხედვით{" "}
+                {t("videos.titleDescByLanguage")}{" "}
                 <span className="text-gray-400 text-xs font-normal">
-                  (არასავალდებულო)
+                  {t("common.optional")}
                 </span>
               </Label>
 
@@ -177,7 +179,7 @@ export default function CreateVideo() {
                     onChange={(e) =>
                       setLocaleField(l.code, "title", e.target.value)
                     }
-                    placeholder="სათაური"
+                    placeholder={t("videos.colTitle")}
                     disabled={isSubmitting}
                     dir={l.code === "ar" ? "rtl" : "ltr"}
                   />
@@ -186,7 +188,7 @@ export default function CreateVideo() {
                     onChange={(e) =>
                       setLocaleField(l.code, "description", e.target.value)
                     }
-                    placeholder="აღწერა"
+                    placeholder={t("common.description")}
                     rows={2}
                     disabled={isSubmitting}
                     dir={l.code === "ar" ? "rtl" : "ltr"}
@@ -202,7 +204,7 @@ export default function CreateVideo() {
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
-                გაუქმება
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -212,10 +214,10 @@ export default function CreateVideo() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    მიმდინარეობს...
+                    {t("common.processing")}
                   </>
                 ) : (
-                  "შენახვა"
+                  t("common.save")
                 )}
               </Button>
             </div>

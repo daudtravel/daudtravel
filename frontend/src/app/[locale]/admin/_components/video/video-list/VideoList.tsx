@@ -19,12 +19,14 @@ import {
 import { VideoListType } from "@/src/types/video.types";
 import { videoApi } from "@/src/services/videos.service";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function VideoList() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const params = useParams();
   const locale = params.locale as string;
+  const t = useTranslations("admin");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["videos", locale],
@@ -38,9 +40,9 @@ export function VideoList() {
     try {
       await videoApi.delete(id);
       queryClient.invalidateQueries({ queryKey: ["videos"] });
-      toast.success("ვიდეო წარმატებით წაიშალა");
+      toast.success(t("videos.deleted"));
     } catch {
-      toast.error("ვიდეოს წაშლა ვერ მოხერხდა");
+      toast.error(t("videos.deleteFailed"));
     }
   };
 
@@ -59,7 +61,7 @@ export function VideoList() {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[400px] text-red-500">
-        შეცდომა ვიდეოების ჩატვირთვისას
+        {t("videos.loadError")}
       </div>
     );
   }
@@ -67,28 +69,28 @@ export function VideoList() {
   return (
     <div className="container mx-auto px-4 space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-semibold">ვიდეოები</h1>
+        <h1 className="text-xl font-semibold">{t("videos.title")}</h1>
         <Button onClick={handleCreateVideo} className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
-          <span>ვიდეოს დამატება</span>
+          <span>{t("videos.add")}</span>
         </Button>
       </div>
 
       {videos.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] bg-gray-50 rounded-lg">
-          <p className="text-gray-500 text-lg mb-4">ვიდეოები არ მოიძებნა</p>
+          <p className="text-gray-500 text-lg mb-4">{t("videos.notFound")}</p>
           <Button onClick={handleCreateVideo} variant="outline">
-            დაამატე პირველი ვიდეო
+            {t("videos.addFirst")}
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-100 rounded-lg font-medium text-sm text-gray-600">
-            <div className="col-span-3">სათაური</div>
-            <div className="col-span-3">აღწერა</div>
+            <div className="col-span-3">{t("videos.colTitle")}</div>
+            <div className="col-span-3">{t("common.description")}</div>
             <div className="col-span-2">URL</div>
-            <div className="col-span-2">კატეგორია</div>
-            <div className="col-span-2">მოქმედებები</div>
+            <div className="col-span-2">{t("common.category")}</div>
+            <div className="col-span-2">{t("common.actions")}</div>
           </div>
 
           <div className="space-y-4">
@@ -101,13 +103,13 @@ export function VideoList() {
                   <div className="grid grid-cols-12 gap-4 items-center">
                     <div className="col-span-3">
                       <div className="font-semibold line-clamp-2">
-                        {video.title || "უსათაურო"}
+                        {video.title || t("videos.untitled")}
                       </div>
                     </div>
 
                     <div className="col-span-3">
                       <div className="text-sm text-gray-600 line-clamp-3">
-                        {video.description || "აღწერა არ არის"}
+                        {video.description || t("videos.noDescription")}
                       </div>
                     </div>
 
@@ -118,7 +120,7 @@ export function VideoList() {
                         rel="noopener noreferrer"
                         className="text-sm text-blue-600 hover:underline flex items-center gap-1 truncate"
                       >
-                        <span className="truncate">ბმული</span>
+                        <span className="truncate">{t("videos.link")}</span>
                         <ExternalLink className="h-3 w-3 flex-shrink-0" />
                       </a>
                     </div>
@@ -142,19 +144,18 @@ export function VideoList() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>ვიდეოს წაშლა</AlertDialogTitle>
+                            <AlertDialogTitle>{t("videos.deleteTitle")}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              დარწმუნებული ხართ რომ გსურთ ვიდეოს წაშლა? ეს
-                              მოქმედება ვერ გაუქმდება.
+                              {t("videos.deleteConfirm")}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDeleteVideo(video.id)}
                               className="bg-red-500 hover:bg-red-600"
                             >
-                              წაშლა
+                              {t("common.delete")}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

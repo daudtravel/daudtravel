@@ -17,7 +17,7 @@ import {
   UpdateTransferFormData,
   useEditTransferValidator,
 } from "./EditTransferValidator";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import {
   Tabs,
@@ -25,23 +25,17 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/src/components/ui/tabs";
-import { TRANSFER_MESSAGES } from "@/src/constants/transfers.constants";
 import { useTransferById } from "@/src/hooks/transfers/useTransfersById";
 import { useUpdateTransfer } from "@/src/hooks/transfers/useUpdateTransfer";
 import { VehicleType } from "@/src/types/transfers.types";
 import { SUPPORTED_LOCALES } from "../../tours/edit-tour/EditTourValidator";
 
-const VEHICLE_LABEL: Record<string, string> = {
-  SEDAN: "სედანი",
-  MINIVAN: "მინივენი",
-  VITO: "ვიტო",
-  SPRINTER: "სპრინტერი",
-  BUS: "ავტობუსი",
-};
+const VEHICLE_TYPES: string[] = Object.values(VehicleType);
 
 export function EditTransfer({ params }: { params: { id: string } }) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("admin");
   const form = useEditTransferValidator();
 
   const { data: response, isLoading } = useTransferById(params.id);
@@ -89,12 +83,12 @@ export function EditTransfer({ params }: { params: { id: string } }) {
       },
       {
         onSuccess: () => {
-          toast.success(TRANSFER_MESSAGES.UPDATE_SUCCESS);
+          toast.success(t("transfers.updated"));
           router.push("?transfers=all");
         },
         onError: (error: unknown) => {
           const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-          toast.error(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
+          toast.error(msg || t("common.unexpectedError"));
         },
       }
     );
@@ -114,8 +108,8 @@ export function EditTransfer({ params }: { params: { id: string } }) {
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">ტრანსფერის რედაქტირება</h2>
-        <p className="text-sm text-gray-400 mt-0.5">შეცვალეთ მარშრუტი, ენები ან ფასები</p>
+        <h2 className="text-xl font-semibold text-gray-900">{t("transfers.editTitle")}</h2>
+        <p className="text-sm text-gray-400 mt-0.5">{t("transfers.editSubtitle")}</p>
       </div>
 
       <Form {...form}>
@@ -137,9 +131,9 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                   </FormControl>
                   <div>
                     <FormLabel className="!mt-0 text-sm font-semibold text-gray-800 cursor-pointer">
-                      საჯარო ტრანსფერი
+                      {t("transfers.publicTransfer")}
                     </FormLabel>
-                    <p className="text-xs text-gray-500">ჩართვისას ტრანსფერი ხელმისაწვდომი იქნება საიტზე</p>
+                    <p className="text-xs text-gray-500">{t("transfers.publicHint")}</p>
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -151,7 +145,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Localizations */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">თარგმანები</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t("common.translations")}</h3>
               <Tabs defaultValue={SUPPORTED_LOCALES[0]} className="w-full">
                 <TabsList
                   className="grid w-full bg-brand-green-50 rounded-xl p-1"
@@ -176,10 +170,10 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                         name={`localizations.${index}.startLocation`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-semibold text-gray-600">საწყისი ლოკაცია</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">{t("transfers.startLocation")}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="მაგ. თბილისი"
+                                placeholder={t("transfers.startPlaceholder")}
                                 {...field}
                                 disabled={isPending}
                                 className="border-gray-200 focus-visible:ring-brand-green text-sm"
@@ -194,10 +188,10 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                         name={`localizations.${index}.endLocation`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-semibold text-gray-600">საბოლოო ლოკაცია</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">{t("transfers.endLocation")}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="მაგ. ბათუმი"
+                                placeholder={t("transfers.endPlaceholder")}
                                 {...field}
                                 disabled={isPending}
                                 className="border-gray-200 focus-visible:ring-brand-green text-sm"
@@ -215,7 +209,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
 
             {/* Vehicle types */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
+              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t("transfers.vehicleTypes")}</h3>
               <Tabs defaultValue={vehicleTypes[0]} className="w-full">
                 <TabsList
                   className="grid w-full bg-brand-green-50 rounded-xl p-1"
@@ -227,7 +221,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                       value={type}
                       className="text-xs rounded-lg data-[state=active]:bg-brand-green data-[state=active]:text-white"
                     >
-                      {VEHICLE_LABEL[type] || type}
+                      {VEHICLE_TYPES.includes(type) ? t(`vehicles.${type}`) : type}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -240,7 +234,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                         name={`vehicleTypes.${index}.price`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-semibold text-gray-600">ფასი (₾)</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">{t("common.priceGel")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -262,7 +256,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
                         name={`vehicleTypes.${index}.maxPersons`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-semibold text-gray-600">მაქს. პასაჟირები</FormLabel>
+                            <FormLabel className="text-xs font-semibold text-gray-600">{t("transfers.maxPassengers")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -291,9 +285,9 @@ export function EditTransfer({ params }: { params: { id: string } }) {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-semibold text-sm transition-colors disabled:opacity-60"
           >
             {isPending ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />განახლება...</>
+              <><Loader2 className="h-4 w-4 animate-spin" />{t("common.updating")}</>
             ) : (
-              "განახლება"
+              t("common.update")
             )}
           </button>
         </form>

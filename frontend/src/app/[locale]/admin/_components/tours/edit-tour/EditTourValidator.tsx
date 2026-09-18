@@ -1,9 +1,14 @@
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import { TourType } from "@/src/types/tours.type";
 
 export const SUPPORTED_LOCALES = ["en", "ka", "ru", "ar", "tr"] as const;
+
+// Translator for the "admin" namespace (validation messages are localized)
+type Translate = (key: string) => string;
 
 const localizationSchema = z.object({
   locale: z.enum(SUPPORTED_LOCALES),
@@ -28,42 +33,46 @@ const individualPricingSchema = z.object({
   offSeasonDiscountedPrice: z.coerce.number().min(0),
 });
 
-export const editTourSchema = z
-  .object({
-    type: z.nativeEnum(TourType),
-    localizations: z.array(localizationSchema).min(1),
-    days: z.coerce.number().min(1),
-    nights: z.coerce.number().min(0),
-    mainImage: z.string().nullable(),
-    gallery: z.array(z.string()).default([]),
-    isPublic: z.boolean(),
-    isDaily: z.boolean(),
-    startDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional(),
-    groupPricing: groupPricingSchema.optional(),
-    individualPricing: individualPricingSchema.optional(),
-    maxPersons: z.coerce.number().min(1).optional(),
-  })
-  .refine(
-    (data) =>
-      data.localizations.some((loc) => loc.name && loc.name.trim().length > 0),
-    {
-      message: "მინიმუმ ერთი ენა უნდა იყოს შევსებული",
-      path: ["localizations"],
-    }
-  );
+export const editTourSchema = (t: Translate) =>
+  z
+    .object({
+      type: z.nativeEnum(TourType),
+      localizations: z.array(localizationSchema).min(1),
+      days: z.coerce.number().min(1),
+      nights: z.coerce.number().min(0),
+      mainImage: z.string().nullable(),
+      gallery: z.array(z.string()).default([]),
+      isPublic: z.boolean(),
+      isDaily: z.boolean(),
+      startDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional(),
+      groupPricing: groupPricingSchema.optional(),
+      individualPricing: individualPricingSchema.optional(),
+      maxPersons: z.coerce.number().min(1).optional(),
+    })
+    .refine(
+      (data) =>
+        data.localizations.some((loc) => loc.name && loc.name.trim().length > 0),
+      {
+        message: t("common.minOneLanguageFilled"),
+        path: ["localizations"],
+      }
+    );
 
-export type EditTourFormData = z.infer<typeof editTourSchema>;
+export type EditTourFormData = z.infer<ReturnType<typeof editTourSchema>>;
 
 export const isLocalizationFilled = (loc: any): boolean => {
   return !!(loc.name && loc.name.trim().length > 0);
 };
 
 export const useEditTourForm = (tourId: string) => {
+  const t = useTranslations("admin");
+  const schema = useMemo(() => editTourSchema(t), [t]);
+
   return useForm<EditTourFormData>({
-    resolver: zodResolver(editTourSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       type: TourType.GROUP,
       localizations: SUPPORTED_LOCALES.map((locale) => ({

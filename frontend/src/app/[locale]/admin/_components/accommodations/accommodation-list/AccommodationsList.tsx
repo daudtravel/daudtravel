@@ -33,10 +33,13 @@ import { accommodationsService } from "@/src/services/accommodations.service";
 import { useAdminAccommodations } from "@/src/hooks/accommodations/useAdminAccommodations";
 import { QUERY_KEYS } from "@/src/constants/accommodations.constants";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AccommodationsList() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
+  const tAcc = useTranslations("accommodations");
 
   const { data, isLoading, error } = useAdminAccommodations({ limit: 1000 });
 
@@ -49,9 +52,9 @@ export function AccommodationsList() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ADMIN_ACCOMMODATIONS],
       });
-      toast.success("განცხადება წაიშალა");
+      toast.success(t("accommodations.deleted"));
     } catch {
-      toast.error("წაშლა ვერ მოხერხდა");
+      toast.error(t("common.deleteFailed"));
     }
   };
 
@@ -69,14 +72,14 @@ export function AccommodationsList() {
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900">
-          საცხოვრებელი
+          {t("accommodations.title")}
         </h1>
         <Button
           onClick={handleCreate}
           className="w-full sm:w-auto flex items-center justify-center gap-2"
         >
           <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="text-sm sm:text-base">დამატება</span>
+          <span className="text-sm sm:text-base">{t("common.add")}</span>
         </Button>
       </div>
 
@@ -87,10 +90,10 @@ export function AccommodationsList() {
               <Building2 className="h-8 w-8 text-gray-400" />
             </div>
             <p className="text-gray-500 text-base sm:text-lg mb-4 text-center">
-              განცხადებები არ მოიძებნა
+              {t("accommodations.notFound")}
             </p>
             <Button onClick={handleCreate} variant="outline" size="lg">
-              დაამატე პირველი
+              {t("accommodations.addFirst")}
             </Button>
           </CardContent>
         </Card>
@@ -111,7 +114,7 @@ export function AccommodationsList() {
                     <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 ring-1 ring-gray-200">
                       <Image
                         src={imageUrl}
-                        alt={loc.name || "Accommodation"}
+                        alt={loc.name || t("accommodations.imageAlt")}
                         fill
                         className="object-cover"
                       />
@@ -120,7 +123,7 @@ export function AccommodationsList() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">
-                          {loc.name || "უსახელო"}
+                          {loc.name || t("accommodations.untitled")}
                         </h3>
                         <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-50 rounded-full text-xs text-gray-600">
                           {isApartment ? (
@@ -128,12 +131,12 @@ export function AccommodationsList() {
                           ) : (
                             <Building2 className="h-3 w-3" />
                           )}
-                          {isApartment ? "აპარტამენტი" : "სასტუმრო"}
+                          {isApartment ? tAcc("apartment") : tAcc("hotel")}
                         </span>
                         {!item.isPublic && (
                           <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full text-xs">
                             <EyeOff className="h-3 w-3" />
-                            დამალული
+                            {t("accommodations.hidden")}
                           </span>
                         )}
                       </div>
@@ -163,7 +166,7 @@ export function AccommodationsList() {
                         size="sm"
                         onClick={() => handleEdit(item.id)}
                         className="hover:bg-gray-100"
-                        aria-label="რედაქტირება"
+                        aria-label={t("common.edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -173,25 +176,25 @@ export function AccommodationsList() {
                             variant="ghost"
                             size="sm"
                             className="hover:bg-red-50 hover:text-red-600"
-                            aria-label="წაშლა"
+                            aria-label={t("common.delete")}
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>განცხადების წაშლა</AlertDialogTitle>
+                            <AlertDialogTitle>{t("accommodations.deleteTitle")}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              დარწმუნებული ხართ? ეს მოქმედება შეუქცევადია.
+                              {t("common.confirmIrreversible")}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(item.id)}
                               className="bg-red-500 hover:bg-red-600"
                             >
-                              წაშლა
+                              {t("common.delete")}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

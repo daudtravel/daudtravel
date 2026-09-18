@@ -25,6 +25,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/src/utlis/cn";
 import { toast } from "sonner";
 
@@ -66,10 +67,14 @@ const TransferDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const locale = useLocale();
+  const t = useTranslations("transfers.orderPage");
+  const tTransfers = useTranslations("transfers");
+  const tPayment = useTranslations("payment");
 
   const fetchTransfer = async () => {
     if (!id) {
-      setError("Transfer not found");
+      setError(t("notFound"));
       setLoading(false);
       return;
     }
@@ -84,19 +89,19 @@ const TransferDetails: React.FC = () => {
 
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error("Transfer not found");
+          throw new Error(t("notFound"));
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(tPayment("httpError", { status: response.status }));
       }
 
       const result = await response.json();
       if (result.success && result.data) {
         setTransfer(result.data);
       } else {
-        throw new Error("Invalid response format");
+        throw new Error(t("invalidResponse"));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error loading transfer");
+      setError(err instanceof Error ? err.message : t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -106,32 +111,42 @@ const TransferDetails: React.FC = () => {
     fetchTransfer();
   }, [id]);
 
-  const formatDate = useCallback((dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleDateString("en-CA");
-    } catch {
-      return "Invalid Date";
-    }
-  }, []);
+  // Date stays in the locale-neutral YYYY-MM-DD form; times follow the active locale
+  const formatDate = useCallback(
+    (dateString: string) => {
+      try {
+        return new Date(dateString).toLocaleDateString("en-CA");
+      } catch {
+        return t("invalidDate");
+      }
+    },
+    [t]
+  );
 
-  const formatTime = useCallback((timeString: string) => {
-    try {
-      return new Date(timeString).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return "Invalid Time";
-    }
-  }, []);
+  const formatTime = useCallback(
+    (timeString: string) => {
+      try {
+        return new Date(timeString).toLocaleTimeString(locale, {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch {
+        return t("invalidTime");
+      }
+    },
+    [locale, t]
+  );
 
-  const formatDateTime = useCallback((dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleString("en-CA");
-    } catch {
-      return "Invalid Date";
-    }
-  }, []);
+  const formatDateTime = useCallback(
+    (dateString: string) => {
+      try {
+        return new Date(dateString).toLocaleString(locale);
+      } catch {
+        return t("invalidDate");
+      }
+    },
+    [locale, t]
+  );
 
   const statusConfig = useMemo(() => {
     switch (transfer?.status) {
@@ -139,49 +154,44 @@ const TransferDetails: React.FC = () => {
         return {
           color: "text-yellow-700 bg-yellow-50 border-yellow-200",
           icon: AlertTriangle,
-          text: "PENDING",
+          text: t("statusPending"),
         };
       case "confirmed":
         return {
           color: "text-blue-700 bg-blue-50 border-blue-200",
           icon: Clock,
-          text: "CONFIRMED",
+          text: t("statusConfirmed"),
         };
       case "completed":
         return {
           color: "text-green-700 bg-green-50 border-green-200",
           icon: CheckCircle,
-          text: "COMPLETED",
+          text: t("statusCompleted"),
         };
       case "cancelled":
         return {
           color: "text-red-700 bg-red-50 border-red-200",
           icon: XCircle,
-          text: "CANCELLED",
+          text: t("statusCancelled"),
         };
       default:
         return {
           color: "text-gray-700 bg-gray-50 border-gray-200",
           icon: AlertCircle,
-          text: transfer?.status?.toUpperCase() || "UNKNOWN",
+          text: transfer?.status?.toUpperCase() || t("statusUnknown"),
         };
     }
-  }, [transfer?.status]);
+  }, [transfer?.status, t]);
 
   const vehicleTypeDisplay = useMemo(() => {
-    const vehicleTypes: Record<string, string> = {
-      sedan: "Sedan",
-      MINIVAN: "Minivan",
-      VITO: "Vito",
-      SPRINTER: "Sprinter",
-      BUS: "Bus",
-    };
-    return (
-      vehicleTypes[transfer?.transfer.vehicleType || ""] ||
-      transfer?.transfer.vehicleType ||
-      "Unknown"
-    );
-  }, [transfer?.transfer.vehicleType]);
+    // Vehicle names are shared with the public transfers pages
+    const vehicleType = transfer?.transfer.vehicleType || "";
+    const key = vehicleType.toLowerCase();
+    if (["sedan", "minivan", "vito", "sprinter", "bus"].includes(key)) {
+      return tTransfers(key);
+    }
+    return vehicleType || t("unknownVehicle");
+  }, [transfer?.transfer.vehicleType, t, tTransfers]);
 
   const handleRefresh = useCallback(() => {
     fetchTransfer();
@@ -232,17 +242,17 @@ const TransferDetails: React.FC = () => {
 
       pdf.save(`transfer-${transfer.id.slice(-8)}.pdf`);
     } catch (error) {
-      toast.error("Error generating PDF. Please try again.");
+      toast.error(t("pdfError"));
     } finally {
       setIsGeneratingPDF(false);
     }
-  }, [transfer]);
+  }, [transfer, t]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading transfer details...</span>
+        <span className="ml-2 text-gray-600">{t("loading")}</span>
       </div>
     );
   }
@@ -252,7 +262,7 @@ const TransferDetails: React.FC = () => {
       <div className="flex flex-col items-center justify-center p-8 text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
         <h2 className="text-lg font-semibold text-gray-800 mb-2">
-          Error Loading Transfer
+          {t("errorTitle")}
         </h2>
         <p className="text-gray-600 mb-4">{error}</p>
         <button
@@ -260,7 +270,7 @@ const TransferDetails: React.FC = () => {
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
-          Try Again
+          {t("tryAgain")}
         </button>
       </div>
     );
@@ -275,7 +285,7 @@ const TransferDetails: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-4">
           <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
-            Transfer Details
+            {tTransfers("transferDetails")}
           </h1>
         </div>
         <div className="flex gap-2">
@@ -285,14 +295,14 @@ const TransferDetails: React.FC = () => {
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Printer className="w-4 h-4 mr-2" />
-            {isGeneratingPDF ? "Generating..." : "Download PDF"}
+            {isGeneratingPDF ? t("generating") : t("downloadPdf")}
           </button>
           <button
             onClick={handleRefresh}
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
+            {t("refresh")}
           </button>
         </div>
       </div>
@@ -305,7 +315,7 @@ const TransferDetails: React.FC = () => {
                 {transfer.transfer.name}
               </h2>
               <p className="text-sm text-gray-600">
-                Order ID: {transfer.id.slice(-8)}
+                {t("orderId", { id: transfer.id.slice(-8) })}
               </p>
             </div>
             <div
@@ -322,22 +332,22 @@ const TransferDetails: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <User className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-bold">Customer Information</span>
+              <span className="text-sm font-bold">{t("customerInfo")}</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Name:</span>
+                <span className="text-sm font-semibold">{t("name")}</span>
                 <span className="text-sm">{transfer.customer.fullName}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Email:</span>
+                <span className="text-sm font-semibold">{t("email")}</span>
                 <span className="text-sm">{transfer.customer.email}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Phone:</span>
+                <span className="text-sm font-semibold">{t("phone")}</span>
                 <span className="text-sm">{transfer.customer.phone}</span>
               </div>
             </div>
@@ -347,31 +357,31 @@ const TransferDetails: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <Car className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-bold">Transfer Details</span>
+              <span className="text-sm font-bold">{tTransfers("transferDetails")}</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Date:</span>
+                <span className="text-sm font-semibold">{t("date")}</span>
                 <span className="text-sm">
                   {formatDate(transfer.transfer.date)}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Timer className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Time:</span>
+                <span className="text-sm font-semibold">{t("time")}</span>
                 <span className="text-sm">
                   {formatTime(transfer.transfer.time)}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Car className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Vehicle:</span>
+                <span className="text-sm font-semibold">{t("vehicle")}</span>
                 <span className="text-sm">{vehicleTypeDisplay}</span>
               </div>
               <div className="flex items-center gap-2">
                 <PersonStanding className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Passengers:</span>
+                <span className="text-sm font-semibold">{t("passengers")}</span>
                 <span className="text-sm">
                   {transfer.transfer.passengerCount}
                 </span>
@@ -383,13 +393,13 @@ const TransferDetails: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-bold">Route Information</span>
+              <span className="text-sm font-bold">{t("routeInfo")}</span>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-center gap-4">
                 <div className="text-center">
                   <div className="w-3 h-3 bg-green-500 rounded-full mx-auto mb-2"></div>
-                  <p className="text-sm font-semibold">From</p>
+                  <p className="text-sm font-semibold">{t("from")}</p>
                   <p className="text-sm text-gray-600">
                     {transfer.transfer.startLocation}
                   </p>
@@ -397,7 +407,7 @@ const TransferDetails: React.FC = () => {
                 <ArrowRight className="w-6 h-6 text-gray-400" />
                 <div className="text-center">
                   <div className="w-3 h-3 bg-red-500 rounded-full mx-auto mb-2"></div>
-                  <p className="text-sm font-semibold">To</p>
+                  <p className="text-sm font-semibold">{t("to")}</p>
                   <p className="text-sm text-gray-600">
                     {transfer.transfer.endLocation}
                   </p>
@@ -410,19 +420,19 @@ const TransferDetails: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <Wallet className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-bold">Payment Information</span>
+              <span className="text-sm font-bold">{t("paymentInfo")}</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <Wallet className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Amount:</span>
+                <span className="text-sm font-semibold">{t("amount")}</span>
                 <span className="text-sm font-semibold text-green-600">
                   {transfer.paymentAmount} {transfer.currency}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold">Created:</span>
+                <span className="text-sm font-semibold">{t("created")}</span>
                 <span className="text-sm">
                   {formatDateTime(transfer.createdAt)}
                 </span>
@@ -435,7 +445,7 @@ const TransferDetails: React.FC = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4 text-orange-600" />
                   <span className="text-sm font-semibold text-orange-700">
-                    Payment expires:
+                    {t("paymentExpires")}
                   </span>
                   <span className="text-sm text-orange-600">
                     {formatDateTime(transfer.expiresAt)}
@@ -448,7 +458,7 @@ const TransferDetails: React.FC = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
                   >
-                    Complete Payment
+                    {t("completePayment")}
                   </a>
                 )}
               </div>

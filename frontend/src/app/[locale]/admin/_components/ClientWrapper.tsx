@@ -18,6 +18,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ToursList } from "./tours/tour-list/ToursList";
 import { TransfersList } from "./transfers/transfer-list/TransfersList";
 import CreateTour from "./tours/create-tour/CreateTour";
@@ -49,13 +50,11 @@ import PaymentOrdersList from "./stats/PaymentOrdersList";
 
 interface SidebarItem {
   key: string;
-  label: string;
   query: string;
 }
 
 interface SidebarGroup {
   key: string;
-  label: string;
   icon: React.ElementType;
   items: SidebarItem[];
 }
@@ -63,62 +62,52 @@ interface SidebarGroup {
 const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
     key: "statsGroup",
-    label: "სტატისტიკა",
     icon: BarChart3,
     items: [
-      { key: "paymentStats", label: "გადახდები", query: "?stats=payments" },
-      {
-        key: "paymentOrders",
-        label: "გადახდების სტატუსები",
-        query: "?stats=orders",
-      },
+      { key: "paymentStats", query: "?stats=payments" },
+      { key: "paymentOrders", query: "?stats=orders" },
     ],
   },
   {
     key: "toursGroup",
-    label: "ტურები",
     icon: UserCheck,
     items: [
-      { key: "tours", label: "ტურები", query: "?tours=all" },
-      { key: "orders", label: "შეკვეთები", query: "?orders=all" },
+      { key: "tours", query: "?tours=all" },
+      { key: "orders", query: "?orders=all" },
     ],
   },
   {
     key: "transfersGroup",
-    label: "ტრანსფერები",
     icon: Truck,
     items: [
-      { key: "transfers", label: "ტრანსფერები", query: "?transfers=all" },
-      { key: "drivers", label: "მძღოლები", query: "?drivers=all" },
-      { key: "transferOrders", label: "შეკვეთები", query: "?transferOrders=all" },
+      { key: "transfers", query: "?transfers=all" },
+      { key: "drivers", query: "?drivers=all" },
+      { key: "transferOrders", query: "?transferOrders=all" },
     ],
   },
   {
     key: "accommodationsGroup",
-    label: "საცხოვრებელი",
     icon: BedDouble,
     items: [
-      { key: "accommodations", label: "სასტუმრო/აპარტამენტი", query: "?accommodations=all" },
+      { key: "accommodations", query: "?accommodations=all" },
     ],
   },
   {
     key: "servicesGroup",
-    label: "სერვისები",
     icon: Link,
     items: [
-      { key: "quickPayment", label: "გადახდ. ლინკები", query: "?quickPayment=all" },
-      { key: "quickPaymentOrders", label: "გადახდ. შეკვეთები", query: "?quickPayment=orders" },
-      { key: "insurance", label: "დაზღვევა", query: "?insurance=all" },
-      { key: "insuranceSettings", label: "დაზღვ. პარამეტრები", query: "?insurance=settings" },
+      { key: "quickPayment", query: "?quickPayment=all" },
+      { key: "quickPaymentOrders", query: "?quickPayment=orders" },
+      { key: "insurance", query: "?insurance=all" },
+      { key: "insuranceSettings", query: "?insurance=settings" },
     ],
   },
   {
     key: "contentGroup",
-    label: "კონტენტი",
     icon: ShieldQuestion,
     items: [
-      { key: "faqs", label: "F.A.Q", query: "?faqs=all" },
-      { key: "videos", label: "ვიდეო", query: "?videos=all" },
+      { key: "faqs", query: "?faqs=all" },
+      { key: "videos", query: "?videos=all" },
     ],
   },
 ];
@@ -132,6 +121,7 @@ export const ClientWrapper = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { logout } = useAuth();
+  const t = useTranslations("admin");
 
   const tours = searchParams.get("tours");
   const transfers = searchParams.get("transfers");
@@ -258,7 +248,7 @@ export const ClientWrapper = () => {
               isSidebarOpen ? "opacity-100 max-w-full" : "lg:opacity-0 lg:max-w-0"
             }`}
           >
-            Admin Panel
+            {t("sidebar.title")}
           </span>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -289,7 +279,7 @@ export const ClientWrapper = () => {
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5 shrink-0" />
-                      <span>{group.label}</span>
+                      <span>{t(`sidebar.${group.key}`)}</span>
                       <ChevronDown
                         className={`h-3 w-3 ml-auto shrink-0 transition-transform duration-200 ${
                           isOpen ? "rotate-180" : ""
@@ -311,7 +301,7 @@ export const ClientWrapper = () => {
                             }`}
                           >
                             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isItemActive(item) ? "bg-white" : "bg-gray-300"}`} />
-                            {item.label}
+                            {t(`sidebar.${item.key}`)}
                           </button>
                         ))}
                       </div>
@@ -331,7 +321,7 @@ export const ClientWrapper = () => {
                   <button
                     key={group.key}
                     onClick={() => setIsSidebarOpen(true)}
-                    title={group.label}
+                    title={t(`sidebar.${group.key}`)}
                     className={`p-3 rounded-xl transition-colors ${
                       groupActive
                         ? "bg-brand-green-50 text-brand-green"
@@ -353,7 +343,7 @@ export const ClientWrapper = () => {
             className="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-colors text-sm font-medium"
           >
             <LogOut size={17} className="shrink-0" />
-            {isSidebarOpen && <span>გამოსვლა</span>}
+            {isSidebarOpen && <span>{t("sidebar.logout")}</span>}
           </button>
         </div>
       </aside>

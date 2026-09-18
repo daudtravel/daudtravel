@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,7 @@ export const QuickLinksList = () => {
   const pathname = usePathname();
   const [page, setPage] = useState(1);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const t = useTranslations("admin");
 
   const { data, isLoading, error } = useQuickLinks(page, 20);
   const toggleLink = useToggleQuickLink();
@@ -61,18 +63,18 @@ export const QuickLinksList = () => {
   const handleToggle = async (slug: string) => {
     try {
       await toggleLink.mutateAsync(slug);
-      toast.success("სტატუსი წარმატებით შეიცვალა");
+      toast.success(t("quickLinks.statusChanged"));
     } catch {
-      toast.error("შეცდომა სტატუსის შეცვლისას");
+      toast.error(t("quickLinks.statusChangeError"));
     }
   };
 
   const handleDelete = async (slug: string) => {
     try {
       await deleteLink.mutateAsync(slug);
-      toast.success("ლინკი წარმატებით წაიშალა");
+      toast.success(t("quickLinks.deleted"));
     } catch {
-      toast.error("შეცდომა წაშლისას");
+      toast.error(t("common.deleteError"));
     }
   };
 
@@ -87,7 +89,7 @@ export const QuickLinksList = () => {
   if (error) {
     return (
       <div className="text-center text-red-600 p-8">
-        შეცდომა მონაცემების ჩატვირთვისას
+        {t("common.loadDataError")}
       </div>
     );
   }
@@ -100,10 +102,10 @@ export const QuickLinksList = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
-            გადახდის ლინკები
+            {t("quickLinks.title")}
           </h2>
           <p className="text-gray-600 text-sm mt-1">
-            სულ: {pagination?.total || 0} ლინკი
+            {t("quickLinks.total", { count: pagination?.total || 0 })}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -112,22 +114,22 @@ export const QuickLinksList = () => {
             className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex-1 sm:flex-initial"
           >
             <TrendingUp size={18} />
-            <span>შეკვეთები</span>
+            <span>{t("common.orders")}</span>
           </button>
           <button
             onClick={handleCreateNew}
             className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex-1 sm:flex-initial"
           >
             <Plus size={18} />
-            <span>ახალი ლინკი</span>
+            <span>{t("quickLinks.newLink")}</span>
           </button>
         </div>
       </div>
 
       {links.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
-          <p className="text-lg">ლინკები არ მოიძებნა</p>
-          <p className="text-sm mt-2">დააჭირეთ ახალი ლინკი-ს რათა შექმნათ</p>
+          <p className="text-lg">{t("quickLinks.notFound")}</p>
+          <p className="text-sm mt-2">{t("quickLinks.createHint")}</p>
         </div>
       ) : (
         <>
@@ -137,25 +139,25 @@ export const QuickLinksList = () => {
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    პროდუქტი
+                    {t("common.product")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    ფასი
+                    {t("common.price")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    შეკვეთები
+                    {t("common.orders")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    ხილვადობა
+                    {t("quickLinks.colVisibility")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    სტატუსი
+                    {t("common.status")}
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    ლინკი
+                    {t("quickLinks.colLink")}
                   </th>
                   <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                    მოქმედებები
+                    {t("common.actions")}
                   </th>
                 </tr>
               </thead>
@@ -194,19 +196,19 @@ export const QuickLinksList = () => {
                     </td>
                     <td className="px-4 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {link.paidOrdersCount} გადახდილი
+                        {t("quickLinks.paidCount", { count: link.paidOrdersCount })}
                       </span>
                     </td>
                     <td className="px-4 py-4">
                       {link.showOnWebsite ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                           <Globe size={14} />
-                          საჯარო
+                          {t("quickLinks.public")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <GlobeLock size={14} />
-                          პირადი
+                          {t("quickLinks.private")}
                         </span>
                       )}
                     </td>
@@ -214,12 +216,12 @@ export const QuickLinksList = () => {
                       {link.isActive ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          აქტიური
+                          {t("quickLinks.active")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                          გამორთული
+                          {t("quickLinks.inactive")}
                         </span>
                       )}
                     </td>
@@ -233,7 +235,7 @@ export const QuickLinksList = () => {
                         {copiedSlug === link.slug ? (
                           <>
                             <CheckCircle size={16} />
-                            <span className="text-sm">კოპირებულია!</span>
+                            <span className="text-sm">{t("quickLinks.copied")}</span>
                           </>
                         ) : (
                           <>
@@ -250,7 +252,7 @@ export const QuickLinksList = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                          title="გახსნა"
+                          title={t("quickLinks.open")}
                         >
                           <ExternalLink size={18} />
                         </a>
@@ -263,22 +265,24 @@ export const QuickLinksList = () => {
                                   ? "text-green-600 hover:bg-green-50"
                                   : "text-gray-600 hover:bg-gray-100"
                               }`}
-                              title={link.isActive ? "გამორთვა" : "ჩართვა"}
+                              title={link.isActive ? t("quickLinks.disable") : t("quickLinks.enable")}
                             >
                               <Power size={18} />
                             </button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>სტატუსის შეცვლა</AlertDialogTitle>
+                              <AlertDialogTitle>{t("quickLinks.changeStatusTitle")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                {link.isActive ? "გამორთავთ" : "ჩართავთ"} ამ ლინკს?
+                                {link.isActive
+                                  ? t("quickLinks.confirmDisable")
+                                  : t("quickLinks.confirmEnable")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                               <AlertDialogAction onClick={() => handleToggle(link.slug)}>
-                                დადასტურება
+                                {t("common.confirm")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -288,25 +292,25 @@ export const QuickLinksList = () => {
                             <button
                               disabled={deleteLink.isPending}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="წაშლა"
+                              title={t("common.delete")}
                             >
                               <Trash2 size={18} />
                             </button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>ლინკის წაშლა</AlertDialogTitle>
+                              <AlertDialogTitle>{t("quickLinks.deleteTitle")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                დარწმუნებული ხართ? ეს ქმედება შეუქცევადია.
+                                {t("quickLinks.deleteConfirm")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDelete(link.slug)}
                                 className="bg-red-500 hover:bg-red-600"
                               >
-                                წაშლა
+                                {t("common.delete")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -314,7 +318,7 @@ export const QuickLinksList = () => {
                         <button
                           onClick={() => handleEdit(link.slug)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="რედაქტირება"
+                          title={t("common.edit")}
                         >
                           <Edit size={18} />
                         </button>
@@ -361,23 +365,23 @@ export const QuickLinksList = () => {
                       {link.isActive ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                          აქტიური
+                          {t("quickLinks.active")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                          გამორთული
+                          {t("quickLinks.inactive")}
                         </span>
                       )}
                       {link.showOnWebsite ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                           <Globe size={12} />
-                          საჯარო
+                          {t("quickLinks.public")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <GlobeLock size={12} />
-                          პირადი
+                          {t("quickLinks.private")}
                         </span>
                       )}
                     </div>
@@ -392,7 +396,7 @@ export const QuickLinksList = () => {
                     {copiedSlug === link.slug ? (
                       <>
                         <CheckCircle size={14} />
-                        <span>კოპირებულია!</span>
+                        <span>{t("quickLinks.copied")}</span>
                       </>
                     ) : (
                       <>
@@ -402,7 +406,7 @@ export const QuickLinksList = () => {
                     )}
                   </button>
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-2">
-                    {link.paidOrdersCount} გადახდილი
+                    {t("quickLinks.paidCount", { count: link.paidOrdersCount })}
                   </span>
                 </div>
 
@@ -430,15 +434,17 @@ export const QuickLinksList = () => {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>სტატუსის შეცვლა</AlertDialogTitle>
+                        <AlertDialogTitle>{t("quickLinks.changeStatusTitle")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          {link.isActive ? "გამორთავთ" : "ჩართავთ"} ამ ლინკს?
+                          {link.isActive
+                            ? t("quickLinks.confirmDisable")
+                            : t("quickLinks.confirmEnable")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                        <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => handleToggle(link.slug)}>
-                          დადასტურება
+                          {t("common.confirm")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -454,18 +460,18 @@ export const QuickLinksList = () => {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>ლინკის წაშლა</AlertDialogTitle>
+                        <AlertDialogTitle>{t("quickLinks.deleteTitle")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          დარწმუნებული ხართ? ეს ქმედება შეუქცევადია.
+                          {t("quickLinks.deleteConfirm")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                        <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => handleDelete(link.slug)}
                           className="bg-red-500 hover:bg-red-600"
                         >
-                          წაშლა
+                          {t("common.delete")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -488,17 +494,20 @@ export const QuickLinksList = () => {
                 disabled={page === 1}
                 className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                წინა
+                {t("common.previous")}
               </button>
               <span className="text-xs sm:text-sm text-gray-600">
-                გვერდი {pagination.page} / {pagination.totalPages}
+                {t("common.pageOf", {
+                  page: pagination.page,
+                  total: pagination.totalPages,
+                })}
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
                 className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                შემდეგი
+                {t("common.next")}
               </button>
             </div>
           )}

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 export interface InsurancePaymentDetails {
   id: string;
@@ -28,10 +29,13 @@ export function useInsurancePaymentStatus(externalOrderId: string | null) {
   const [paymentDetails, setPaymentDetails] =
     useState<InsurancePaymentDetails | null>(null);
   const [error, setError] = useState("");
+  const t = useTranslations("payment.result");
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     if (!externalOrderId) {
-      setError("No order ID provided");
+      setError(tRef.current("noOrderId"));
       setIsLoading(false);
       return;
     }
@@ -48,7 +52,7 @@ export function useInsurancePaymentStatus(externalOrderId: string | null) {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch payment status");
+          throw new Error(tRef.current("fetchStatusFailed"));
         }
 
         const result = await response.json();
@@ -69,7 +73,7 @@ export function useInsurancePaymentStatus(externalOrderId: string | null) {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err instanceof Error ? err.message : "Unknown error");
+          setError(err instanceof Error ? err.message : tRef.current("unknownError"));
           setIsLoading(false);
         }
       }

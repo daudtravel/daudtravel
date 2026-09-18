@@ -426,7 +426,7 @@ export default function InsuranceSubmissionPage() {
                           <button
                             type="button"
                             onClick={() => removePerson(person.id)}
-                            aria-label={`Remove person ${index + 1}`}
+                            aria-label={t("removePerson", { n: index + 1 })}
                             className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 size={15} />
@@ -584,7 +584,7 @@ export default function InsuranceSubmissionPage() {
                               <button
                                 type="button"
                                 onClick={() => removeImage(person.id)}
-                                aria-label="Remove photo"
+                                aria-label={t("removePhoto")}
                                 className="absolute -top-1.5 -right-1.5 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md transition-colors"
                               >
                                 <X size={10} />

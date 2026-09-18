@@ -39,6 +39,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { driversAPI, Driver, DriverReview } from "@/src/services/drivers.service";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 
 function StarRow({ rating }: { rating: number }) {
   return (
@@ -56,6 +57,8 @@ function StarRow({ rating }: { rating: number }) {
 function ReviewsPanel({ driver }: { driver: Driver }) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
+  const locale = useLocale();
 
   const { data, isLoading } = useQuery({
     queryKey: ["driver-reviews", driver.id],
@@ -82,7 +85,7 @@ function ReviewsPanel({ driver }: { driver: Driver }) {
         className="flex items-center gap-1.5 text-xs text-brand-green-mid hover:text-brand-green transition-colors font-medium"
       >
         <MessageSquare className="h-3.5 w-3.5" />
-        {driver.totalReviews} შეფასება
+        {t("drivers.reviewsCount", { count: driver.totalReviews })}
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -93,7 +96,7 @@ function ReviewsPanel({ driver }: { driver: Driver }) {
               <Loader2 className="h-4 w-4 animate-spin text-brand-green-mid" />
             </div>
           ) : reviews.length === 0 ? (
-            <p className="text-xs text-gray-400">შეფასებები არ არის</p>
+            <p className="text-xs text-gray-400">{t("drivers.noReviews")}</p>
           ) : (
             reviews.map((review) => (
               <div key={review.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
@@ -104,7 +107,7 @@ function ReviewsPanel({ driver }: { driver: Driver }) {
                   </div>
                   {review.comment && <p className="text-xs text-gray-500">{review.comment}</p>}
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {new Date(review.createdAt).toLocaleDateString("ka-GE")}
+                    {new Date(review.createdAt).toLocaleDateString(locale)}
                   </p>
                 </div>
                 <button
@@ -126,6 +129,7 @@ function ReviewsPanel({ driver }: { driver: Driver }) {
 export function DriversList() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["drivers"],
@@ -137,9 +141,9 @@ export function DriversList() {
     mutationFn: (id: string) => driversAPI.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
-      toast.success("მძღოლი წარმატებით წაიშალა");
+      toast.success(t("drivers.deleted"));
     },
-    onError: (err: Error) => toast.error(err?.message || "წაშლა ვერ მოხერხდა"),
+    onError: (err: Error) => toast.error(err?.message || t("common.deleteFailed")),
   });
 
   if (isLoading) {
@@ -154,7 +158,7 @@ export function DriversList() {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-          <p className="text-red-600 font-medium text-sm">მძღოლების ჩატვირთვა ვერ მოხერხდა</p>
+          <p className="text-red-600 font-medium text-sm">{t("drivers.loadFailed")}</p>
         </div>
       </div>
     );
@@ -167,15 +171,17 @@ export function DriversList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">მძღოლები</h1>
-          <p className="text-sm text-gray-400 mt-0.5">სულ: {drivers.length} მძღოლი</p>
+          <h1 className="text-2xl font-semibold text-gray-900">{t("drivers.title")}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            {t("drivers.total", { count: drivers.length })}
+          </p>
         </div>
         <button
           onClick={() => router.push("?drivers=createDriver")}
           className="flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
-          მძღოლის დამატება
+          {t("drivers.add")}
         </button>
       </div>
 
@@ -184,13 +190,13 @@ export function DriversList() {
           <div className="w-14 h-14 rounded-full bg-brand-green-50 flex items-center justify-center">
             <Users className="h-7 w-7 text-brand-green-mid" />
           </div>
-          <p className="text-gray-500">მძღოლები არ მოიძებნა</p>
+          <p className="text-gray-500">{t("drivers.notFound")}</p>
           <button
             onClick={() => router.push("?drivers=createDriver")}
             className="flex items-center gap-2 border border-brand-green text-brand-green hover:bg-brand-green-50 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
           >
             <Plus className="h-4 w-4" />
-            პირველი მძღოლის დამატება
+            {t("drivers.addFirst")}
           </button>
         </div>
       ) : (
@@ -198,9 +204,9 @@ export function DriversList() {
           {/* Table header */}
           <div className="hidden sm:grid grid-cols-[56px_1fr_160px_100px_88px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold uppercase tracking-wider text-gray-400">
             <span />
-            <span>მძღოლი</span>
-            <span>შეფასება</span>
-            <span>შეფ. რ-ბა</span>
+            <span>{t("drivers.colDriver")}</span>
+            <span>{t("drivers.colRating")}</span>
+            <span>{t("drivers.colReviewCount")}</span>
             <span />
           </div>
 
@@ -230,6 +236,7 @@ function EditDriverModal({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
   const [firstName, setFirstName] = useState(driver.firstName);
   const [lastName, setLastName] = useState(driver.lastName);
   const [languages, setLanguages] = useState(driver.languages.join(", "));
@@ -255,37 +262,37 @@ function EditDriverModal({
       }),
     onSuccess: () => {
       invalidate();
-      toast.success("მძღოლი წარმატებით განახლდა");
+      toast.success(t("drivers.updated"));
       onClose();
     },
-    onError: () => toast.error("განახლება ვერ მოხერხდა"),
+    onError: () => toast.error(t("common.updateFailed")),
   });
 
   const { mutate: uploadPhotos, isPending: isUploading } = useMutation({
     mutationFn: (files: File[]) => driversAPI.uploadCarPhotos(driver.id, files),
     onSuccess: () => {
       invalidate();
-      toast.success("ფოტოები აიტვირთა");
+      toast.success(t("drivers.photosUploaded"));
     },
-    onError: () => toast.error("ფოტოების ატვირთვა ვერ მოხერხდა"),
+    onError: () => toast.error(t("drivers.photosUploadFailed")),
   });
 
   const { mutate: removePhoto, isPending: isRemoving } = useMutation({
     mutationFn: (url: string) => driversAPI.deleteCarPhoto(driver.id, url),
     onSuccess: () => {
       invalidate();
-      toast.success("ფოტო წაიშალა");
+      toast.success(t("drivers.photoDeleted"));
     },
-    onError: () => toast.error("ფოტოს წაშლა ვერ მოხერხდა"),
+    onError: () => toast.error(t("drivers.photoDeleteFailed")),
   });
 
   const submit = () => {
     if (!firstName.trim() || !lastName.trim()) {
-      toast.error("სახელი და გვარი სავალდებულოა");
+      toast.error(t("drivers.nameRequired"));
       return;
     }
     if (dailyRentPrice.trim() !== "" && (isNaN(Number(dailyRentPrice)) || Number(dailyRentPrice) < 0)) {
-      toast.error("მიუთითეთ სწორი ფასი");
+      toast.error(t("drivers.invalidPrice"));
       return;
     }
     saveDriver();
@@ -298,14 +305,16 @@ function EditDriverModal({
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-brand-green">
-            მძღოლის რედაქტირება — {driver.firstName} {driver.lastName}
+            {t("drivers.editTitle", {
+              name: `${driver.firstName} ${driver.lastName}`,
+            })}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 pt-1">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-gray-700">სახელი</Label>
+              <Label className="text-sm font-medium text-gray-700">{t("drivers.firstName")}</Label>
               <Input
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
@@ -313,7 +322,7 @@ function EditDriverModal({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium text-gray-700">გვარი</Label>
+              <Label className="text-sm font-medium text-gray-700">{t("drivers.lastName")}</Label>
               <Input
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
@@ -324,7 +333,8 @@ function EditDriverModal({
 
           <div className="space-y-1.5">
             <Label className="text-sm font-medium text-gray-700">
-              ენები <span className="text-gray-400 text-xs font-normal">(მძიმით გამოყოფილი)</span>
+              {t("drivers.languages")}{" "}
+              <span className="text-gray-400 text-xs font-normal">{t("drivers.commaSeparated")}</span>
             </Label>
             <Input
               value={languages}
@@ -336,8 +346,8 @@ function EditDriverModal({
 
           <div className="space-y-1.5">
             <Label className="text-sm font-medium text-gray-700">
-              დღიური ქირაობის ფასი (₾){" "}
-              <span className="text-gray-400 text-xs font-normal">(ცარიელი = არ ქირაობს)</span>
+              {t("drivers.dailyRentPrice")}{" "}
+              <span className="text-gray-400 text-xs font-normal">{t("drivers.emptyNoRent")}</span>
             </Label>
             <Input
               type="number"
@@ -350,13 +360,13 @@ function EditDriverModal({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">მანქანის ფოტოები</Label>
+            <Label className="text-sm font-medium text-gray-700">{t("drivers.carPhotos")}</Label>
             <div className="grid grid-cols-3 gap-2">
               {driver.carPhotos.map((photo) => (
                 <div key={photo} className="relative aspect-[4/3] rounded-lg overflow-hidden group">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BASE_URL}${photo}`}
-                    alt="car"
+                    alt={t("drivers.carAlt")}
                     fill
                     className="object-cover"
                   />
@@ -379,7 +389,7 @@ function EditDriverModal({
                 ) : (
                   <ImagePlus className="h-5 w-5" />
                 )}
-                <span className="text-[10px] font-medium">ატვირთვა</span>
+                <span className="text-[10px] font-medium">{t("drivers.upload")}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -403,7 +413,7 @@ function EditDriverModal({
             disabled={busy}
             className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            დახურვა
+            {t("common.close")}
           </button>
           <button
             onClick={submit}
@@ -413,10 +423,10 @@ function EditDriverModal({
             {isSaving ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                ინახება...
+                {t("common.saving")}
               </>
             ) : (
-              "შენახვა"
+              t("common.save")
             )}
           </button>
         </DialogFooter>
@@ -436,6 +446,7 @@ function DriverRow({
 }) {
   const [showReviews, setShowReviews] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const t = useTranslations("admin");
 
   return (
     <div>
@@ -462,7 +473,7 @@ function DriverRow({
             {driver.firstName} {driver.lastName}
           </p>
           <p className="text-xs text-gray-400 sm:hidden">
-            {driver.averageRating !== null ? `★ ${driver.averageRating}` : "შეფასება არ არის"}
+            {driver.averageRating !== null ? `★ ${driver.averageRating}` : t("drivers.noRating")}
           </p>
         </div>
 
@@ -513,18 +524,20 @@ function DriverRow({
             </AlertDialogTrigger>
             <AlertDialogContent className="max-w-sm rounded-2xl">
               <AlertDialogHeader>
-                <AlertDialogTitle>მძღოლის წაშლა</AlertDialogTitle>
+                <AlertDialogTitle>{t("drivers.deleteTitle")}</AlertDialogTitle>
                 <AlertDialogDescription className="text-sm">
-                  დარწმუნებული ხართ? {driver.firstName} {driver.lastName} წაიშლება სამუდამოდ.
+                  {t("drivers.deleteConfirm", {
+                    name: `${driver.firstName} ${driver.lastName}`,
+                  })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl">გაუქმება</AlertDialogCancel>
+                <AlertDialogCancel className="rounded-xl">{t("common.cancel")}</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => onDelete(driver.id)}
                   className="rounded-xl bg-red-500 hover:bg-red-600"
                 >
-                  წაშლა
+                  {t("common.delete")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

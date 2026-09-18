@@ -1,0 +1,125 @@
+{
+  "terms": {
+    "title": "Terms & Conditions",
+    "intro": "Please read the terms and conditions for using our services carefully. Accessing our website (<site>www.daudtravel.com</site> and its subdomains), booking or purchasing a tour means that you (the Client) fully agree to and accept these Terms and Conditions. If you do not agree with any provision, please do not use our services.",
+    "general": {
+      "title": "General Provisions",
+      "p1": "By accessing our website (www.daudtravel.com and its subdomains) and using our services, you agree to these Terms and Conditions. Please read them carefully before purchasing or booking a tour.",
+      "p2": "In the event of a violation of these Terms and Conditions, the travel agency has the right to refuse to provide the service or to cancel the booking."
+    },
+    "booking": {
+      "title": "Booking and Payment",
+      "intro": "On our website you can purchase a tour in two ways:",
+      "option1Title": "1. Full payment",
+      "option1Text": "Immediate payment of the full price of the tour online by bank card or by another available payment method.",
+      "option2Title": "2. Reservation (advance payment)",
+      "option2Text": "Booking a tour by paying an advance. The remaining amount can be paid later in cash or by online bank transaction. The deadline and conditions for paying the remaining amount are specified in the booking confirmation.",
+      "p1": "All payments are processed through secure payment systems. Once your payment is confirmed, you will receive a confirmation message by email.",
+      "p2": "In the case of a reservation, if the remaining amount is not paid before the start of the tour, the travel agency has the right to cancel the tour."
+    },
+    "tourDetails": {
+      "title": "Tour Description and Details",
+      "intro": "Detailed information is provided on the website for each tour, including:",
+      "item1": "Tour type (individual or group)",
+      "item2": "Tour duration",
+      "item3": "Number of participants (minimum and maximum)",
+      "item4": "Route and locations",
+      "item5": "Included services (transport, guide, meals, accommodation, etc.)",
+      "item6": "Price (per person or for the whole group)",
+      "item7": "Required equipment or personal items",
+      "outro": "Please read all the details carefully before purchasing a tour. Upon purchase, you are deemed to have agreed to the conditions described for the tour."
+    },
+    "changes": {
+      "title": "Changes and Modifications",
+      "p1": "Any change or modification to the tour details is possible only after direct contact with the travel agency.",
+      "listIntro": "Changes may include:",
+      "item1": "Changing the date",
+      "item2": "Changing the number of participants",
+      "item3": "Adding extra services",
+      "item4": "Adjusting the route",
+      "p2": "All changes are subject to availability and may incur additional charges. Changes take effect only after written confirmation from the travel agency.",
+      "p3": "The travel agency reserves the right, in the event of unforeseen circumstances (weather conditions, safety issues, etc.), to make changes to the tour route or services in order to ensure the safety and comfort of the Client."
+    },
+    "cancellation": {
+      "title": "Cancellation and Refunds",
+      "p1": "As a rule, amounts paid are not refunded after the tour has been purchased.",
+      "p2": "However, in exceptional cases the travel agency may consider a refund on an individual basis. Whether a refund is possible, and its amount, depend on:",
+      "item1": "The reason for and circumstances of the cancellation",
+      "item2": "The time remaining before the tour at the moment of cancellation",
+      "item3": "Costs already incurred for organizing the tour",
+      "item4": "The type and specifics of the tour",
+      "p3": "To have a cancellation considered, you must contact the travel agency and submit a written request. The decision is made by the travel agency based on an individual review of each case.",
+      "p4": "If the tour is cancelled for reasons attributable to the travel agency, the Client is offered a full refund or an alternative tour."
+    },
+    "clientResponsibility": {
+      "title": "Client Responsibilities",
+      "intro": "The Client is responsible for:",
+      "item1": "Having all documents required for the tour (passport, visa, etc.)",
+      "item2": "Ensuring that their state of health is compatible with the requirements of the tour",
+      "item3": "Preparing the recommended equipment and personal items",
+      "item4": "Following the instructions of the guide and organizers during the tour",
+      "item5": "Complying with safety rules",
+      "item6": "Respecting other participants and their comfort",
+      "outro": "In the event of inappropriate behavior, violation of safety rules, or disturbance of other participants during the tour, the travel agency has the right to terminate the Client's participation in the tour without a refund."
+    },
+    "liability": {
+      "title": "Limitation of Liability",
+      "intro": "The travel agency is not responsible for:",
+      "item1": "Unforeseen circumstances (natural disasters, pandemics, political crises, etc.)",
+      "item2": "The Client's personal belongings, or their loss or damage",
+      "item3": "The consequences of the Client violating safety rules",
+      "item4": "The quality of third-party services (hotels, restaurants, transport) if it does not meet the stated standards",
+      "outro": "The travel agency will make every effort to ensure a safe and high-quality service, but does not accept responsibility for unforeseen circumstances."
+    },
+    "contact": {
+      "title": "Contact and Support",
+      "intro": "If you have any questions or problems, or need assistance, please contact our travel agency:",
+      "item1": "By phone (listed on the website)",
+      "item2": "By email",
+      "item3": "Via the contact form on the website",
+      "outro": "Our team is ready to help you at every stage of planning, booking and organizing your tour."
+    },
+    "changesToTerms": {
+      "title": "Changes to the Terms",
+      "p1": "The travel agency reserves the right to change or update these Terms and Conditions at any time. Changes take effect from the moment they are published on the website.",
+      "p2": "It is the Client's responsibility to review these Terms and Conditions periodically for updates. Continued use of the website constitutes your acceptance of the updated terms."
+    },
+    "language": {
+      "title": "Language",
+      "p1": "These Terms and Conditions are presented in two languages: Georgian and English. In the event of any inaccuracy or discrepancy in the translation, the Georgian version shall prevail."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "Please read our Privacy Policy, because by accessing our website (<site>www.daudtravel.com</site> and its subdomains) you (the website user) agree to the provisions set out below. If you do not agree, please leave the website.",
+    "collect": {
+      "title": "What Information We Collect",
+      "p1": "We collect only the information that you yourself provide to us when booking a tour, placing an order and/or performing a similar action.",
+      "providedTitle": "Information you provide:",
+      "item1": "First and last name",
+      "item2": "Mobile phone number (used for direct communication and contact)",
+      "item3": "Email address",
+      "paymentTitle": "Payment details:",
+      "paymentText": "We do not store your bank card details. Payments are processed through the secure services of an integrated third party (a bank or payment system)."
+    },
+    "use": {
+      "title": "How We Use the Collected Information",
+      "intro": "We use the collected information to:",
+      "item1": "Receive, process and confirm your order/booking",
+      "item2": "Contact you (by phone or email) about details, changes or other necessary information related to the purchased tour",
+      "item3": "Send you email notifications about a successful booking/purchase and provide the final tour details",
+      "item4": "Improve our website and services so that interacting with us is more convenient for you",
+      "item5": "Where appropriate, inform you about news, special offers and new tours (only with your consent or with the option to unsubscribe)"
+    },
+    "sharing": {
+      "title": "Disclosure of Information to Third Parties",
+      "intro": "We do not voluntarily share information with third parties, except:",
+      "item1": "Where required by law",
+      "item2": "Where necessary to provide the service: limited information (for example, first and last name) may be shared with tour operators, guides or service providers directly involved in carrying out the tour you have purchased. In such cases, only the information necessary for the full provision of the service is shared"
+    },
+    "other": {
+      "title": "Other Details",
+      "p1": "Our Privacy Policy is presented in two languages: Georgian and English. In the event of any inaccuracy in the translation, the Georgian version shall prevail. If you have any questions regarding the Privacy Policy, please contact us."
+    }
+  }
+}

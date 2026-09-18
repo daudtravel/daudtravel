@@ -49,5 +49,7 @@
   "fieldsCompleted": "полей заполнено",
   "minDaysNote": "Минимум 5 дней",
   "requiredFieldsNote": "Поля со * обязательны",
-  "orderSummary": "Итог заказа"
+  "orderSummary": "Итог заказа",
+  "removePerson": "Удалить человека {n}",
+  "removePhoto": "Удалить фото"
 }

@@ -4,12 +4,14 @@ import React, { useState } from "react";
 import { X, Loader2, Upload, XCircle, Globe } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useCreateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 
 export const CreateQuickLink = () => {
   const router = useRouter();
   const pathname = usePathname();
   const createLink = useCreateQuickLink();
+  const t = useTranslations("admin");
 
   // Georgian localization (default/required)
   const [formData, setFormData] = useState({
@@ -27,12 +29,12 @@ export const CreateQuickLink = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("გთხოვთ აირჩიოთ სურათი");
+      toast.error(t("quickLinks.selectImage"));
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("სურათი ძალიან დიდია (მაქსიმუმ 10MB)");
+      toast.error(t("quickLinks.imageTooLarge10"));
       return;
     }
 
@@ -55,13 +57,13 @@ export const CreateQuickLink = () => {
 
     // ✅ FIXED: Better validation
     if (!formData.nameKa || !formData.nameKa.trim()) {
-      toast.error("პროდუქტის სახელი სავალდებულოა");
+      toast.error(t("quickLinks.productNameRequired"));
       return;
     }
 
     const priceValue = parseFloat(formData.price);
     if (isNaN(priceValue) || priceValue <= 0) {
-      toast.error("გთხოვთ შეიყვანოთ სწორი ფასი");
+      toast.error(t("common.enterValidPrice"));
       return;
     }
 
@@ -92,12 +94,12 @@ export const CreateQuickLink = () => {
       setImagePreview(null);
       setImageBase64(null);
 
-      toast.success("ლინკი წარმატებით შეიქმნა");
+      toast.success(t("quickLinks.created"));
       router.push(`${pathname}?quickPayment=all`);
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
-        (error instanceof Error ? error.message : "შეცდომა ლინკის შექმნისას");
+        (error instanceof Error ? error.message : t("quickLinks.createError"));
       toast.error(errorMessage);
     }
   };
@@ -110,7 +112,7 @@ export const CreateQuickLink = () => {
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mx-2 sm:mx-0">
       <div className="flex justify-between items-center mb-4 sm:mb-6">
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
-          ახალი გადახდის ლინკი
+          {t("quickLinks.createTitle")}
         </h2>
         <button
           onClick={handleBack}
@@ -124,7 +126,7 @@ export const CreateQuickLink = () => {
         {/* Georgian Name - Required */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            პროდუქტის სახელი (ქართული) *
+            {t("quickLinks.productNameKa")}
           </label>
           <input
             type="text"
@@ -132,26 +134,26 @@ export const CreateQuickLink = () => {
             onChange={(e) =>
               setFormData({ ...formData, nameKa: e.target.value })
             }
-            placeholder="მაგ: თაფლი 500გ"
+            placeholder={t("quickLinks.productNamePlaceholder")}
             className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             required
           />
           <p className="text-xs text-gray-500 mt-1">
-            ქართული სახელი სავალდებულოა. სხვა ენები დაემატება რედაქტირებისას.
+            {t("quickLinks.georgianRequiredHint")}
           </p>
         </div>
 
         {/* Georgian Description - Optional */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            აღწერა (ქართული) (არასავალდებულო)
+            {t("quickLinks.descriptionKa")}
           </label>
           <textarea
             value={formData.descriptionKa}
             onChange={(e) =>
               setFormData({ ...formData, descriptionKa: e.target.value })
             }
-            placeholder="მაგ: ორგანული მთის თაფლი..."
+            placeholder={t("quickLinks.descriptionKaPlaceholder")}
             rows={3}
             className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base resize-none"
           />
@@ -160,13 +162,13 @@ export const CreateQuickLink = () => {
         {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            სურათი (არასავალდებულო)
+            {t("quickLinks.imageOptional")}
           </label>
           {imagePreview ? (
             <div className="relative w-full h-40 sm:h-48 border rounded-lg overflow-hidden">
               <img
                 src={imagePreview}
-                alt="Preview"
+                alt={t("common.preview")}
                 className="w-full h-full object-cover"
               />
               <button
@@ -181,9 +183,9 @@ export const CreateQuickLink = () => {
             <label className="flex flex-col items-center justify-center w-full h-40 sm:h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
               <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mb-2" />
               <p className="text-xs sm:text-sm text-gray-500">
-                დააჭირეთ ან გადმოიტანეთ სურათი
+                {t("quickLinks.dropImage")}
               </p>
-              <p className="text-xs text-gray-400 mt-1">მაქსიმუმ 10MB</p>
+              <p className="text-xs text-gray-400 mt-1">{t("quickLinks.max10")}</p>
               <input
                 type="file"
                 accept="image/*"
@@ -197,7 +199,7 @@ export const CreateQuickLink = () => {
         {/* Price */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            ფასი (₾) *
+            {t("common.priceGel")} *
           </label>
           <input
             type="number"
@@ -207,7 +209,7 @@ export const CreateQuickLink = () => {
             onChange={(e) =>
               setFormData({ ...formData, price: e.target.value })
             }
-            placeholder="მაგ: 45.50"
+            placeholder={t("quickLinks.pricePlaceholder")}
             className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             required
           />
@@ -232,18 +234,20 @@ export const CreateQuickLink = () => {
               size={16}
               className="sm:w-[18px] sm:h-[18px] text-blue-600 flex-shrink-0 mt-0.5 sm:mt-0"
             />
-            <span>გამოჩნდეს ვებსაიტზე (საჯარო პროდუქტი)</span>
+            <span>{t("quickLinks.showOnWebsite")}</span>
           </label>
         </div>
         <p className="text-xs text-gray-500 -mt-2 ml-1">
-          თუ გამორთულია, პროდუქტი ხელმისაწვდომი იქნება მხოლოდ პირდაპირი ლინკით
+          {t("quickLinks.showOnWebsiteHint")}
         </p>
 
         {/* Info Box */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
           <p className="text-xs sm:text-sm text-yellow-800">
-            💡 <strong>ინფორმაცია:</strong> პროდუქტის შექმნის შემდეგ შეგიძლიათ
-            დაამატოთ ინგლისური და რუსული თარგმანები რედაქტირების გვერდიდან.
+            💡{" "}
+            {t.rich("quickLinks.infoBox", {
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </div>
 
@@ -256,14 +260,14 @@ export const CreateQuickLink = () => {
             {createLink.isPending && (
               <Loader2 className="animate-spin" size={20} />
             )}
-            შექმნა
+            {t("common.create")}
           </button>
           <button
             type="button"
             onClick={handleBack}
             className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
           >
-            გაუქმება
+            {t("common.cancel")}
           </button>
         </div>
       </form>

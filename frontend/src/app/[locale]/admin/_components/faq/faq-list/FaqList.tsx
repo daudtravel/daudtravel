@@ -2,6 +2,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Plus, Loader2, Pencil, Trash } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -23,6 +24,7 @@ export function FaqList() {
   const queryClient = useQueryClient();
   const params = useParams();
   const locale = params.locale as string;
+  const t = useTranslations("admin");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["faqs", locale],
@@ -35,9 +37,9 @@ export function FaqList() {
     try {
       await faqApi.delete(id);
       queryClient.invalidateQueries({ queryKey: ["faqs"] });
-      toast.success("FAQ წარმატებით წაიშალა");
+      toast.success(t("faq.deleted"));
     } catch {
-      toast.error("FAQ-ის წაშლა ვერ მოხერხდა");
+      toast.error(t("faq.deleteFailed"));
     }
   };
 
@@ -60,26 +62,26 @@ export function FaqList() {
   return (
     <div className="container mx-auto px-4 space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-semibold">ხშირად დასმული კითხვები</h1>
+        <h1 className="text-xl font-semibold">{t("faq.title")}</h1>
         <Button onClick={handleCreateFaq} className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
-          <span>კითხვის დამატება</span>
+          <span>{t("faq.add")}</span>
         </Button>
       </div>
 
       {faqs.length === 0 && !error ? (
         <div className="flex flex-col items-center justify-center min-h-[400px] bg-gray-50 rounded-lg">
-          <p className="text-gray-500 text-lg mb-4">კითხვები არ მოიძებნა</p>
+          <p className="text-gray-500 text-lg mb-4">{t("faq.notFound")}</p>
           <Button onClick={handleCreateFaq} variant="outline">
-            დაამატე პირველი კითხვა
+            {t("faq.addFirst")}
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-100 rounded-lg font-medium text-sm text-gray-600">
-            <div className="col-span-5">კითხვა</div>
-            <div className="col-span-5">პასუხი</div>
-            <div className="col-span-2">მოქმედებები</div>
+            <div className="col-span-5">{t("faq.question")}</div>
+            <div className="col-span-5">{t("faq.answer")}</div>
+            <div className="col-span-2">{t("common.actions")}</div>
           </div>
 
           <div className="space-y-4">
@@ -120,18 +122,18 @@ export function FaqList() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>კითხვის წაშლა</AlertDialogTitle>
+                              <AlertDialogTitle>{t("faq.deleteTitle")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                დარწმუნებული ხართ რომ გსურთ კითხვის წაშლა?
+                                {t("faq.deleteConfirm")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteFaq(faq.id)}
                                 className="bg-red-500 hover:bg-red-600"
                               >
-                                წაშლა
+                                {t("common.delete")}
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

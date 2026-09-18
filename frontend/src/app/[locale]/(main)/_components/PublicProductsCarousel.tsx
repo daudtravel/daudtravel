@@ -158,7 +158,7 @@ export default function PublicProductsCarousel() {
                             </div>
                             <div className="flex items-center gap-2 text-brand-green-mid hover:text-brand-green transition-colors">
                               <ShoppingCart size={18} />
-                              <span className="font-medium text-sm">შეძენა</span>
+                              <span className="font-medium text-sm">{t("buy")}</span>
                             </div>
                           </div>
                         </div>
@@ -178,7 +178,7 @@ export default function PublicProductsCarousel() {
                   current === index ? "w-4 bg-brand-green" : "w-2 bg-gray-300"
                 }`}
                 onClick={() => api?.scrollTo(index)}
-                aria-label={`Go to slide ${index + 1}`}
+                aria-label={t("goToSlide", { n: index + 1 })}
               />
             ))}
           </div>

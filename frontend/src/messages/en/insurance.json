@@ -49,5 +49,7 @@
   "fieldsCompleted": "fields completed",
   "minDaysNote": "Minimum 5 days required",
   "requiredFieldsNote": "Fields marked with * are required",
-  "orderSummary": "Order Summary"
+  "orderSummary": "Order Summary",
+  "removePerson": "Remove person {n}",
+  "removePhoto": "Remove photo"
 }

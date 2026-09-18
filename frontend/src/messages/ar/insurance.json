@@ -49,5 +49,7 @@
   "fieldsCompleted": "حقول مكتملة",
   "minDaysNote": "الحد الأدنى 5 أيام",
   "requiredFieldsNote": "الحقول المُعلَّمة بـ * إلزامية",
-  "orderSummary": "ملخص الطلب"
+  "orderSummary": "ملخص الطلب",
+  "removePerson": "إزالة الشخص {n}",
+  "removePhoto": "إزالة الصورة"
 }

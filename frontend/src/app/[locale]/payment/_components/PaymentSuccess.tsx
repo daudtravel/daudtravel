@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import PaymentStatusCard from "./PaymentStatusCard";
 import { useTourPaymentStatus } from "@/src/hooks/tours/useTourPaymentStatus";
 import { useQuickPaymentStatus } from "@/src/hooks/quick-payment/useQuickPaymentStatus";
@@ -14,6 +15,7 @@ export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("order_id");
+  const t = useTranslations("payment.result");
 
   const getPaymentType = (): PaymentType => {
     if (!orderId) return "unknown";
@@ -59,7 +61,7 @@ export default function PaymentSuccess() {
           ? transferPayment.error
           : paymentType === "insurance"
             ? insurancePayment.error
-            : "Invalid order type";
+            : t("invalidOrderType");
 
   const tourPaymentDetails =
     paymentType === "tour" ? tourPayment.paymentDetails : null;
@@ -181,7 +183,7 @@ export default function PaymentSuccess() {
                 </svg>
               </div>
               <p className="text-sm font-medium text-gray-900">
-                Payment Successful!
+                {t("successTitle")}
               </p>
             </div>
 
@@ -191,14 +193,14 @@ export default function PaymentSuccess() {
                   onClick={handleViewDetails}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  View Details
+                  {t("viewDetails")}
                 </button>
               )}
               <button
                 onClick={handleGoHome}
                 className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Go Home
+                {t("goHome")}
               </button>
             </div>
           </div>
@@ -232,10 +234,10 @@ export default function PaymentSuccess() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">
-                Waiting for payment confirmation...
+                {t("waitingConfirmation")}
               </p>
               <p className="text-xs text-gray-500">
-                Your payment is being verified
+                {t("beingVerified")}
               </p>
             </div>
           </div>

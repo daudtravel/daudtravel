@@ -1,41 +1,57 @@
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { VehicleType } from "@/src/types/transfers.types";
 
 export const SUPPORTED_LOCALES = ["en", "ka", "ru", "ar", "tr"] as const;
 
-const TransferLocalizationSchema = z.object({
-  locale: z.string().min(1, "Locale is required"),
-  startLocation: z.string().optional().default(""),
-  endLocation: z.string().optional().default(""),
-});
+// Translator for the "admin" namespace (validation messages are localized)
+type Translate = (key: string) => string;
 
-const VehicleTypeSchema = z.object({
-  type: z.nativeEnum(VehicleType),
-  price: z.number().min(0.01, "Price must be greater than 0"),
-  maxPersons: z.number().int().min(1, "Max persons must be at least 1"),
-});
+const TransferLocalizationSchema = (t: Translate) =>
+  z.object({
+    locale: z.string().min(1, t("transfers.validation.localeRequired")),
+    startLocation: z.string().optional().default(""),
+    endLocation: z.string().optional().default(""),
+  });
 
-const CreateTransferSchema = z.object({
-  localizations: z
-    .array(TransferLocalizationSchema)
-    .refine(
-      (locs) =>
-        locs.some((l) => l.startLocation?.trim() && l.endLocation?.trim()),
-      { message: "მინიმუმ ერთი ენა შეავსეთ (საწყისი და საბოლოო ლოკაცია)" }
-    ),
-  vehicleTypes: z
-    .array(VehicleTypeSchema)
-    .min(1, "At least one vehicle type is required"),
-  isPublic: z.boolean().optional(),
-});
+const VehicleTypeSchema = (t: Translate) =>
+  z.object({
+    type: z.nativeEnum(VehicleType),
+    price: z.number().min(0.01, t("transfers.validation.pricePositive")),
+    maxPersons: z
+      .number()
+      .int()
+      .min(1, t("transfers.validation.maxPersonsMin")),
+  });
 
-export type CreateTransferFormData = z.infer<typeof CreateTransferSchema>;
+const CreateTransferSchema = (t: Translate) =>
+  z.object({
+    localizations: z
+      .array(TransferLocalizationSchema(t))
+      .refine(
+        (locs) =>
+          locs.some((l) => l.startLocation?.trim() && l.endLocation?.trim()),
+        { message: t("transfers.validation.minOneLanguage") }
+      ),
+    vehicleTypes: z
+      .array(VehicleTypeSchema(t))
+      .min(1, t("transfers.validation.vehicleTypeRequired")),
+    isPublic: z.boolean().optional(),
+  });
+
+export type CreateTransferFormData = z.infer<
+  ReturnType<typeof CreateTransferSchema>
+>;
 
 export const useCreateTransferValidator = () => {
+  const t = useTranslations("admin");
+  const schema = useMemo(() => CreateTransferSchema(t), [t]);
+
   return useForm<CreateTransferFormData>({
-    resolver: zodResolver(CreateTransferSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       localizations: SUPPORTED_LOCALES.map((locale) => ({
         locale,

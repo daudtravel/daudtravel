@@ -178,7 +178,7 @@ export default function DriverProfile({ driverId }: { driverId: string }) {
                 >
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BASE_URL}${photo}`}
-                    alt={`${fullName} — car`}
+                    alt={t("carPhotoAlt", { name: fullName })}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -230,7 +230,7 @@ export default function DriverProfile({ driverId }: { driverId: string }) {
             <div className="relative w-full aspect-[4/3]">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BASE_URL}${lightboxPhoto}`}
-                alt={`${fullName} — car`}
+                alt={t("carPhotoAlt", { name: fullName })}
                 fill
                 className="object-contain rounded-xl"
               />

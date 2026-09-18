@@ -20,6 +20,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     insurance: (await import(`../messages/${locale}/insurance.json`)).default,
     accommodations: (await import(`../messages/${locale}/accommodations.json`))
       .default,
+    admin: (await import(`../messages/${locale}/admin.json`)).default,
+    auth: (await import(`../messages/${locale}/auth.json`)).default,
+    legal: (await import(`../messages/${locale}/legal.json`)).default,
   };
 
   return {

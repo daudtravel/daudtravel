@@ -21,19 +21,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/src/components/ui/alert-dialog";
-import { TRANSFER_MESSAGES } from "@/src/constants/transfers.constants";
 import { useAdminTransfers } from "@/src/hooks/transfers/useAdminTransfers";
 import { useDeleteTransfer } from "@/src/hooks/transfers/useDeleteTransfer";
-import { Transfer } from "@/src/types/transfers.types";
+import { Transfer, VehicleType } from "@/src/types/transfers.types";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
-const VEHICLE_LABEL: Record<string, string> = {
-  SEDAN: "სედანი",
-  MINIVAN: "მინივენი",
-  VITO: "ვიტო",
-  SPRINTER: "სპრინტერი",
-  BUS: "ავტობუსი",
-};
+const VEHICLE_TYPES: string[] = Object.values(VehicleType);
 
 export function TransfersList() {
   const router = useRouter();
@@ -41,16 +35,20 @@ export function TransfersList() {
   const locale = params.locale as string;
   const { data, isLoading, isError } = useAdminTransfers({ locale });
   const { mutate: deleteTransfer, isPending: isDeleting } = useDeleteTransfer();
+  const t = useTranslations("admin");
+
+  const vehicleLabel = (type: string) =>
+    VEHICLE_TYPES.includes(type) ? t(`vehicles.${type}`) : type;
 
   const transfers = data?.data || [];
 
   const handleDelete = (id: string) => {
     deleteTransfer(id, {
       onSuccess: () => {
-        toast.success("ტრანსფერი წარმატებით წაიშალა");
+        toast.success(t("transfers.deleted"));
       },
       onError: (error: unknown) => {
-        const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || TRANSFER_MESSAGES.DELETE_ERROR;
+        const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || t("transfers.deleteBlocked");
         toast.error(msg);
       },
     });
@@ -68,7 +66,7 @@ export function TransfersList() {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-          <p className="text-red-600 font-medium text-sm">ტრანსფერების ჩატვირთვა ვერ მოხერხდა</p>
+          <p className="text-red-600 font-medium text-sm">{t("transfers.loadFailed")}</p>
         </div>
       </div>
     );
@@ -79,15 +77,17 @@ export function TransfersList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">ტრანსფერები</h1>
-          <p className="text-sm text-gray-400 mt-0.5">სულ: {transfers.length} ტრანსფერი</p>
+          <h1 className="text-2xl font-semibold text-gray-900">{t("transfers.title")}</h1>
+          <p className="text-sm text-gray-400 mt-0.5">
+            {t("transfers.total", { count: transfers.length })}
+          </p>
         </div>
         <button
           onClick={() => router.push("?transfers=createTransfer")}
           className="flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
-          ახალი ტრანსფერი
+          {t("transfers.newTransfer")}
         </button>
       </div>
 
@@ -96,13 +96,13 @@ export function TransfersList() {
           <div className="w-14 h-14 rounded-full bg-brand-green-50 flex items-center justify-center">
             <Car className="h-7 w-7 text-brand-green-mid" />
           </div>
-          <p className="text-gray-500 text-base">ტრანსფერები არ მოიძებნა</p>
+          <p className="text-gray-500 text-base">{t("transfers.notFound")}</p>
           <button
             onClick={() => router.push("?transfers=createTransfer")}
             className="flex items-center gap-2 border border-brand-green text-brand-green hover:bg-brand-green-50 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
           >
             <Plus className="h-4 w-4" />
-            პირველი ტრანსფერის დამატება
+            {t("transfers.addFirst")}
           </button>
         </div>
       ) : (
@@ -128,7 +128,7 @@ export function TransfersList() {
                       <div className="flex items-center gap-1.5 mb-1">
                         <MapPin className="h-3.5 w-3.5 text-brand-green shrink-0" />
                         <span className="text-xs font-semibold uppercase tracking-wide text-brand-green-mid">
-                          მარშრუტი
+                          {t("transfers.route")}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-900 flex-wrap">
@@ -152,7 +152,7 @@ export function TransfersList() {
                             : "bg-gray-100 text-gray-500"
                         }`}
                       >
-                        {transfer.isPublic ? "საჯარო" : "პირადი"}
+                        {transfer.isPublic ? t("transfers.public") : t("transfers.private")}
                       </span>
                     </div>
                   </div>
@@ -166,7 +166,7 @@ export function TransfersList() {
                           className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-green-50 border border-brand-green-100 rounded-lg text-xs font-medium text-brand-green"
                         >
                             <Car className="h-3 w-3" />
-                          <span>{VEHICLE_LABEL[vt.type] || vt.type}</span>
+                          <span>{vehicleLabel(vt.type)}</span>
                           <span className="text-brand-green-mid font-normal">₾{vt.price}</span>
                         </span>
                       ))}
@@ -181,7 +181,7 @@ export function TransfersList() {
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-green-50 hover:border-brand-green-100 hover:text-brand-green transition-colors disabled:opacity-50"
                     >
                       <Pencil className="h-4 w-4" />
-                      რედაქტირება
+                      {t("common.edit")}
                     </button>
 
                     <AlertDialog>
@@ -191,23 +191,23 @@ export function TransfersList() {
                           className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors disabled:opacity-50"
                         >
                           <Trash className="h-4 w-4" />
-                          წაშლა
+                          {t("common.delete")}
                         </button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="max-w-sm rounded-2xl">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>ტრანსფერის წაშლა</AlertDialogTitle>
+                          <AlertDialogTitle>{t("transfers.deleteTitle")}</AlertDialogTitle>
                           <AlertDialogDescription className="text-sm">
-                            დარწმუნებული ხართ რომ გსურთ ამ ტრანსფერის წაშლა? ეს მოქმედება შეუქცევადია.
+                            {t("transfers.deleteConfirm")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel className="rounded-xl">გაუქმება</AlertDialogCancel>
+                          <AlertDialogCancel className="rounded-xl">{t("common.cancel")}</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(transfer.id)}
                             className="rounded-xl bg-red-500 hover:bg-red-600"
                           >
-                            წაშლა
+                            {t("common.delete")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

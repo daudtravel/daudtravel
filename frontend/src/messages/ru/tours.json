@@ -71,5 +71,8 @@
   "statusCompleted": "оплачен",
   "commissionNote": "Примечание: при оплате международной картой банк может взять комиссию 1–3%.",
   "decrementPerson": "Уменьшить количество людей",
-  "incrementPerson": "Увеличить количество людей"
+  "incrementPerson": "Увеличить количество людей",
+  "photoN": "{name} — фото {n}",
+  "tourPhotoN": "Фото тура {n}",
+  "additionalImages": "Дополнительные изображения"
 }

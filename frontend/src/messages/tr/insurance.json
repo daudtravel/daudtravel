@@ -49,5 +49,7 @@
   "fieldsCompleted": "alan dolduruldu",
   "minDaysNote": "Minimum 5 gün gerekli",
   "requiredFieldsNote": "* ile işaretli alanlar zorunludur",
-  "orderSummary": "Sipariş Özeti"
+  "orderSummary": "Sipariş Özeti",
+  "removePerson": "{n}. kişiyi kaldır",
+  "removePhoto": "Fotoğrafı kaldır"
 }

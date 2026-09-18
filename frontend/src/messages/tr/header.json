@@ -17,5 +17,9 @@
   "termsAndConditions": "Şartlar ve Koşullar",
   "privacyPolicy": "Gizlilik Politikası",
   "allRightsReserved": "Tüm hakları saklıdır",
-  "gallery": "Galeri"
+  "gallery": "Galeri",
+  "consentText": "Web sitesini kullanarak <terms>Şartları</terms> ve <privacy>Gizlilik Politikasını</privacy> kabul etmiş olursunuz.",
+  "consentDecline": "Reddet",
+  "consentAccept": "Kabul Et",
+  "footerNav": "Alt bilgi"
 }

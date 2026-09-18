@@ -1,10 +1,14 @@
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import DriverProfile from "./_components/DriverProfile";
 
-export const metadata: Metadata = {
-  title: "Driver Profile | Daud Travel",
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return {
+    title: t("driverProfile"),
+    robots: { index: false, follow: true },
+  };
+}
 
 export default async function Page({
   params,

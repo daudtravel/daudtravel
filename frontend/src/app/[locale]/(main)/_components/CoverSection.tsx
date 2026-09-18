@@ -142,7 +142,7 @@ export default function CoverSection() {
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                aria-label={`Slide ${i + 1}`}
+                aria-label={t("slideN", { n: i + 1 })}
                 className={`rounded-full transition-all duration-300 ${
                   i === current
                     ? "w-8 h-2 bg-brand-yellow"
@@ -154,14 +154,14 @@ export default function CoverSection() {
           <div className="hidden md:flex items-center gap-2">
             <button
               onClick={() => goTo(current - 1)}
-              aria-label="Previous slide"
+              aria-label={t("previousSlide")}
               className="w-10 h-10 rounded-full border border-white/40 text-white hover:bg-white/15 flex items-center justify-center transition-colors"
             >
               <ChevronLeft className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
             </button>
             <button
               onClick={() => goTo(current + 1)}
-              aria-label="Next slide"
+              aria-label={t("nextSlide")}
               className="w-10 h-10 rounded-full border border-white/40 text-white hover:bg-white/15 flex items-center justify-center transition-colors"
             >
               <ChevronRight className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />

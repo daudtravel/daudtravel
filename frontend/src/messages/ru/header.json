@@ -17,5 +17,9 @@
   "termsAndConditions": "Правила и условия",
   "privacyPolicy": "Политика конфиденциальности",
   "allRightsReserved": "Все права защищены",
-  "gallery": "Галерея"
+  "gallery": "Галерея",
+  "consentText": "Используя веб-сайт, вы соглашаетесь с <terms>Правилами</terms> и <privacy>Политикой конфиденциальности</privacy>.",
+  "consentDecline": "Отклонить",
+  "consentAccept": "Принять",
+  "footerNav": "Нижняя навигация"
 }

@@ -44,9 +44,10 @@ export async function generateMetadata({
   const tAcc = await getTranslations("accommodations");
 
   if (!res) {
+    const tMeta = await getTranslations("meta");
     return {
-      title: "Accommodation Not Found",
-      description: "The requested accommodation could not be found.",
+      title: tMeta("accommodationNotFound"),
+      description: tMeta("accommodationNotFoundDescription"),
       robots: { index: false, follow: false },
     };
   }

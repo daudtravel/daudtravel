@@ -11,6 +11,7 @@ import {
   ContentBlock,
 } from "draft-js";
 import "draft-js/dist/Draft.css";
+import { useTranslations } from "next-intl";
 
 const findLinkEntities = (
   contentBlock: ContentBlock,
@@ -58,6 +59,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   placeholder,
   disabled,
 }) => {
+  // Only used by the admin panel
+  const t = useTranslations("admin");
   const decorator = new CompositeDecorator([
     {
       strategy: findLinkEntities,
@@ -103,7 +106,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const addLink = () => {
     const selection = editorState.getSelection();
     const contentState = editorState.getCurrentContent();
-    const url = window.prompt("Enter the URL")?.trim();
+    const url = window.prompt(t("editor.enterUrl"))?.trim();
 
     if (url) {
       // Ensure URL has a protocol
@@ -165,7 +168,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={addLink}
             className="bg-indigo-500 text-white px-2 py-1 rounded text-sm"
           >
-            Link
+            {t("editor.link")}
           </button>
         </div>
 

@@ -41,5 +41,16 @@
   "booking": "Book Your Georgia Tour | Online Booking",
   "descriptionBooking": "Book your Georgia tour online with Daud Travel. Easy booking process, secure payment, instant confirmation, and professional customer support for your Georgian adventure.",
   "transferDetail": "Transfer: {start} → {end}",
-  "descriptionTransferDetail": "Book a comfortable transfer from {start} to {end} with Daud Travel. Professional drivers, modern vehicles, fair prices."
+  "descriptionTransferDetail": "Book a comfortable transfer from {start} to {end} with Daud Travel. Professional drivers, modern vehicles, fair prices.",
+  "termsTitle": "Terms & Conditions | Daud Travel",
+  "termsDescription": "Read the Daud Travel terms and conditions for booking tours, transfers, and travel services in Georgia. Understand our booking, payment, cancellation, and refund policies.",
+  "privacyTitle": "Privacy Policy | Daud Travel",
+  "privacyDescription": "Read the Daud Travel privacy policy to understand how we collect, use, and protect your personal information when you book tours and transfers in Georgia.",
+  "tourNotFound": "Tour Not Found",
+  "tourNotFoundDescription": "The requested tour could not be found.",
+  "transferNotFound": "Transfer Not Found",
+  "transferNotFoundDescription": "The requested transfer could not be found.",
+  "accommodationNotFound": "Accommodation Not Found",
+  "accommodationNotFoundDescription": "The requested accommodation could not be found.",
+  "driverProfile": "Driver Profile | Daud Travel"
 }

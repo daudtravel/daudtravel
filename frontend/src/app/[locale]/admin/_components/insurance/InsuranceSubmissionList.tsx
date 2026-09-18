@@ -23,6 +23,7 @@ import {
   useDeleteInsuranceSubmission,
 } from "@/src/hooks/insurance/useInsurance";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,27 +43,30 @@ import {
   PaymentStatus,
 } from "@/src/types/insurance.types";
 
-const getStatusBadge = (status: PaymentStatus) => {
+// Translator for the "admin" namespace
+type Translate = (key: string) => string;
+
+const getStatusBadge = (status: PaymentStatus, t: Translate) => {
   switch (status) {
     case PaymentStatus.PAID:
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
           <CheckCircle size={14} />
-          <span className="hidden sm:inline">გადახდილი</span>
+          <span className="hidden sm:inline">{t("status.paid")}</span>
         </span>
       );
     case PaymentStatus.PENDING:
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
           <Clock size={14} />
-          <span className="hidden sm:inline">მიმდინარე</span>
+          <span className="hidden sm:inline">{t("status.inProgress")}</span>
         </span>
       );
     case PaymentStatus.FAILED:
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
           <XCircle size={14} />
-          <span className="hidden sm:inline">წარუმატებელი</span>
+          <span className="hidden sm:inline">{t("status.failed")}</span>
         </span>
       );
     default:
@@ -80,143 +84,156 @@ const SubmissionDetails = ({
 }: {
   submission: InsuranceSubmission;
   onClose: () => void;
-}) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-    <div className="bg-white rounded-lg max-w-4xl w-full my-8">
-      <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex justify-between items-center rounded-t-lg">
-        <div>
-          <h3 className="text-xl font-semibold">შეკვეთის დეტალები</h3>
-          <code className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mt-1 inline-block">
-            {submission.externalOrderId}
-          </code>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-gray-100 rounded-lg"
-          aria-label="Close"
-        >
-          <X size={24} />
-        </button>
-      </div>
+}) => {
+  const t = useTranslations("admin");
 
-      <div className="p-4 sm:p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
-        <div className="bg-blue-50 rounded-lg p-4">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-            <div>
-              <p className="text-gray-600 mb-1">სტატუსი</p>
-              {getStatusBadge(submission.status)}
-            </div>
-            <div>
-              <p className="text-gray-600 mb-1">ადამიანები</p>
-              <p className="font-semibold">{submission.peopleCount}</p>
-            </div>
-            <div>
-              <p className="text-gray-600 mb-1">სულ დღეები</p>
-              <p className="font-semibold">{submission.totalDays}</p>
-            </div>
-            <div>
-              <p className="text-gray-600 mb-1">სულ თანხა</p>
-              <p className="font-semibold text-green-600 text-lg">
-                ₾{Number(submission.totalAmount).toFixed(2)}
-              </p>
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full my-8">
+        <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex justify-between items-center rounded-t-lg">
+          <div>
+            <h3 className="text-xl font-semibold">{t("insurance.orderDetails")}</h3>
+            <code className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mt-1 inline-block">
+              {submission.externalOrderId}
+            </code>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+            aria-label={t("common.close")}
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+          <div className="bg-blue-50 rounded-lg p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              <div>
+                <p className="text-gray-600 mb-1">{t("common.status")}</p>
+                {getStatusBadge(submission.status, t)}
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">{t("common.people")}</p>
+                <p className="font-semibold">{submission.peopleCount}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">{t("insurance.totalDays")}</p>
+                <p className="font-semibold">{submission.totalDays}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-1">{t("insurance.totalAmount")}</p>
+                <p className="font-semibold text-green-600 text-lg">
+                  ₾{Number(submission.totalAmount).toFixed(2)}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div>
-          <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
-            <Users size={20} />
-            ადამიანების დეტალები
-          </h4>
-          <div className="space-y-4">
-            {submission.people.map((person: InsurancePerson, index: number) => (
-              <div key={person.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h5 className="font-semibold text-gray-900">{person.fullName}</h5>
-                    <p className="text-sm text-gray-600">{person.phoneNumber}</p>
-                  </div>
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                    #{index + 1}
-                  </span>
-                </div>
-
-                <div className="mb-4">
-                  <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                    <Image
-                      src={`${process.env.NEXT_PUBLIC_BASE_URL}${person.passportPhoto}`}
-                      alt={`${person.fullName} - პასპორტი`}
-                      fill
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <Calendar size={14} />
-                      <span>პერიოდი</span>
+          <div>
+            <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <Users size={20} />
+              {t("insurance.peopleDetails")}
+            </h4>
+            <div className="space-y-4">
+              {submission.people.map((person: InsurancePerson, index: number) => (
+                <div key={person.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h5 className="font-semibold text-gray-900">{person.fullName}</h5>
+                      <p className="text-sm text-gray-600">{person.phoneNumber}</p>
                     </div>
-                    <p className="font-medium">
-                      {format(new Date(person.startDate), "dd/MM/yyyy")} -{" "}
-                      {format(new Date(person.endDate), "dd/MM/yyyy")}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">{person.totalDays} დღე</p>
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                      #{index + 1}
+                    </span>
                   </div>
 
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <DollarSign size={14} />
-                      <span>ფასი</span>
+                  <div className="mb-4">
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                      <Image
+                        src={`${process.env.NEXT_PUBLIC_BASE_URL}${person.passportPhoto}`}
+                        alt={t("insurance.passportAlt", { name: person.fullName })}
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
                     </div>
-                    <p className="font-medium">₾{Number(person.pricePerDay).toFixed(2)} / დღე</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      ბაზისური: ₾{Number(person.baseAmount).toFixed(2)}
-                    </p>
                   </div>
 
-                  {person.discount > 0 && (
-                    <div className="bg-green-50 p-3 rounded">
-                      <div className="text-green-700 mb-1">ფასდაკლება</div>
-                      <p className="font-medium text-green-800">-{person.discount}%</p>
-                      <p className="text-xs text-green-600 mt-1">
-                        -₾{((Number(person.baseAmount) * Number(person.discount)) / 100).toFixed(2)}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="flex items-center gap-2 text-gray-600 mb-1">
+                        <Calendar size={14} />
+                        <span>{t("insurance.period")}</span>
+                      </div>
+                      <p className="font-medium">
+                        {format(new Date(person.startDate), "dd/MM/yyyy")} -{" "}
+                        {format(new Date(person.endDate), "dd/MM/yyyy")}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t("common.days", { count: person.totalDays })}
                       </p>
                     </div>
-                  )}
 
-                  <div className="bg-blue-50 p-3 rounded">
-                    <div className="text-blue-700 mb-1">საბოლოო თანხა</div>
-                    <p className="font-semibold text-blue-900 text-lg">
-                      ₾{Number(person.finalAmount).toFixed(2)}
-                    </p>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <div className="flex items-center gap-2 text-gray-600 mb-1">
+                        <DollarSign size={14} />
+                        <span>{t("common.price")}</span>
+                      </div>
+                      <p className="font-medium">
+                        {t("insurance.perDay", {
+                          price: `₾${Number(person.pricePerDay).toFixed(2)}`,
+                        })}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t("insurance.base", {
+                          amount: `₾${Number(person.baseAmount).toFixed(2)}`,
+                        })}
+                      </p>
+                    </div>
+
+                    {person.discount > 0 && (
+                      <div className="bg-green-50 p-3 rounded">
+                        <div className="text-green-700 mb-1">{t("insurance.discount")}</div>
+                        <p className="font-medium text-green-800">-{person.discount}%</p>
+                        <p className="text-xs text-green-600 mt-1">
+                          -₾{((Number(person.baseAmount) * Number(person.discount)) / 100).toFixed(2)}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="bg-blue-50 p-3 rounded">
+                      <div className="text-blue-700 mb-1">{t("insurance.finalAmount")}</div>
+                      <p className="font-semibold text-blue-900 text-lg">
+                        ₾{Number(person.finalAmount).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="border-t pt-4">
-          <h4 className="font-semibold mb-2">კონტაქტი</h4>
-          <div className="flex items-center gap-2 text-gray-700">
-            <Mail size={16} />
-            <span>{submission.submitterEmail}</span>
+          <div className="border-t pt-4">
+            <h4 className="font-semibold mb-2">{t("insurance.contact")}</h4>
+            <div className="flex items-center gap-2 text-gray-700">
+              <Mail size={16} />
+              <span>{submission.submitterEmail}</span>
+            </div>
+            {submission.emailSent && submission.emailSentAt && (
+              <p className="text-xs text-green-600 mt-2">
+                <CheckCircle size={12} className="inline mr-1" />
+                {t("insurance.emailSentAt", {
+                  date: format(new Date(submission.emailSentAt), "dd/MM/yyyy HH:mm"),
+                })}
+              </p>
+            )}
           </div>
-          {submission.emailSent && submission.emailSentAt && (
-            <p className="text-xs text-green-600 mt-2">
-              <CheckCircle size={12} className="inline mr-1" />
-              ელ.ფოსტა გაგზავნილია:{" "}
-              {format(new Date(submission.emailSentAt), "dd/MM/yyyy HH:mm")}
-            </p>
-          )}
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function InsuranceSubmissionsList() {
   const router = useRouter();
@@ -227,6 +244,7 @@ export default function InsuranceSubmissionsList() {
   );
   const [selectedSubmission, setSelectedSubmission] =
     useState<InsuranceSubmission | null>(null);
+  const t = useTranslations("admin");
 
   const { data: submissionsData, isLoading } = useInsuranceSubmissions(
     statusFilter,
@@ -241,9 +259,9 @@ export default function InsuranceSubmissionsList() {
   const handleDelete = async (submissionId: string) => {
     try {
       await deleteSubmission.mutateAsync(submissionId);
-      toast.success("შეკვეთა წარმატებით წაიშალა");
+      toast.success(t("common.orderDeleted"));
     } catch {
-      toast.error("შეცდომა წაშლისას. სცადეთ თავიდან.");
+      toast.error(t("common.deleteErrorRetry"));
     }
   };
 
@@ -261,10 +279,10 @@ export default function InsuranceSubmissionsList() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
-                დაზღვევის შეკვეთები
+                {t("insurance.title")}
               </h2>
               <p className="text-gray-600 text-sm mt-1">
-                სულ: {pagination?.total || 0} შეკვეთა
+                {t("common.totalOrders", { count: pagination?.total || 0 })}
               </p>
             </div>
 
@@ -274,7 +292,7 @@ export default function InsuranceSubmissionsList() {
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
                 <Settings size={18} />
-                <span className="hidden sm:inline">პარამეტრები</span>
+                <span className="hidden sm:inline">{t("insurance.settings")}</span>
               </button>
             </div>
           </div>
@@ -288,17 +306,17 @@ export default function InsuranceSubmissionsList() {
               }}
               className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
             >
-              <option value="">ყველა სტატუსი</option>
-              <option value={PaymentStatus.PAID}>გადახდილი</option>
-              <option value={PaymentStatus.PENDING}>მიმდინარე</option>
-              <option value={PaymentStatus.FAILED}>წარუმატებელი</option>
+              <option value="">{t("common.allStatuses")}</option>
+              <option value={PaymentStatus.PAID}>{t("status.paid")}</option>
+              <option value={PaymentStatus.PENDING}>{t("status.inProgress")}</option>
+              <option value={PaymentStatus.FAILED}>{t("status.failed")}</option>
             </select>
           </div>
         </div>
 
         {submissions.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <p className="text-lg">შეკვეთები არ მოიძებნა</p>
+            <p className="text-lg">{t("common.noOrdersFound")}</p>
           </div>
         ) : (
           <>
@@ -308,28 +326,28 @@ export default function InsuranceSubmissionsList() {
                 <thead className="bg-gray-50 border-b">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      გამომგზავნი
+                      {t("insurance.colSender")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      ადამიანები
+                      {t("common.people")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      სულ დღეები
+                      {t("insurance.totalDays")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      თანხა
+                      {t("common.amount")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      სტატუსი
+                      {t("common.status")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      ელ.ფოსტა
+                      {t("insurance.colEmail")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
-                      თარიღი
+                      {t("common.date")}
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase">
-                      მოქმედებები
+                      {t("common.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -375,7 +393,7 @@ export default function InsuranceSubmissionsList() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5">
-                          {getStatusBadge(submission.status)}
+                          {getStatusBadge(submission.status, t)}
                           {submission.status === "FAILED" &&
                             submission.failureReason && (
                               <span className="group relative inline-flex">
@@ -392,7 +410,7 @@ export default function InsuranceSubmissionsList() {
                           <div className="text-sm">
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               <CheckCircle size={12} />
-                              კი
+                              {t("common.yes")}
                             </span>
                             {submission.emailSentAt && (
                               <p className="text-xs text-gray-500 mt-1">
@@ -406,7 +424,7 @@ export default function InsuranceSubmissionsList() {
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                             <XCircle size={12} />
-                            არა
+                            {t("common.no")}
                           </span>
                         )}
                       </td>
@@ -454,7 +472,7 @@ export default function InsuranceSubmissionsList() {
                           <button
                             onClick={() => setSelectedSubmission(submission)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="დეტალები"
+                            title={t("common.details")}
                           >
                             <Eye size={18} />
                           </button>
@@ -463,25 +481,25 @@ export default function InsuranceSubmissionsList() {
                               <button
                                 disabled={deleteSubmission.isPending}
                                 className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                                title="წაშლა"
+                                title={t("common.delete")}
                               >
                                 <Trash2 size={18} />
                               </button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                                <AlertDialogTitle>{t("common.deleteOrder")}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  დარწმუნებული ხართ? {submission.submitterEmail}-ის შეკვეთა და ყველა პასპორტის ფოტო სამუდამოდ წაიშლება.
+                                  {t("insurance.deleteConfirm", { email: submission.submitterEmail })}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDelete(submission.id)}
                                   className="bg-red-500 hover:bg-red-600"
                                 >
-                                  წაშლა
+                                  {t("common.delete")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -513,14 +531,14 @@ export default function InsuranceSubmissionsList() {
                         #{submission.externalOrderId?.slice(-8)}
                       </p>
                     </div>
-                    {getStatusBadge(submission.status)}
+                    {getStatusBadge(submission.status, t)}
                   </div>
 
                   {submission.status === "FAILED" &&
                     submission.failureReason && (
                       <details className="mb-3">
                         <summary className="text-xs text-red-500 font-medium cursor-pointer select-none">
-                          მიზეზის ნახვა
+                          {t("common.viewReason")}
                         </summary>
                         <p className="text-xs text-red-600 leading-snug mt-1">
                           {submission.failureReason}
@@ -530,7 +548,7 @@ export default function InsuranceSubmissionsList() {
 
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">ადამიანები</p>
+                      <p className="text-xs text-gray-500 mb-1">{t("common.people")}</p>
                       <div className="flex items-center gap-1">
                         <Users className="w-4 h-4 text-blue-500" />
                         <span className="font-semibold text-gray-900">
@@ -539,7 +557,7 @@ export default function InsuranceSubmissionsList() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">სულ დღეები</p>
+                      <p className="text-xs text-gray-500 mb-1">{t("insurance.totalDays")}</p>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4 text-purple-500" />
                         <span className="font-semibold text-gray-900">
@@ -548,29 +566,29 @@ export default function InsuranceSubmissionsList() {
                       </div>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-xs text-gray-500 mb-1">სულ თანხა</p>
+                      <p className="text-xs text-gray-500 mb-1">{t("insurance.totalAmount")}</p>
                       <span className="text-lg font-semibold text-green-600">
                         ₾{Number(submission.totalAmount).toFixed(2)}
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">ელ.ფოსტა</p>
+                      <p className="text-xs text-gray-500 mb-1">{t("insurance.colEmail")}</p>
                       {submission.emailSent ? (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                           <CheckCircle size={12} />
-                          კი
+                          {t("common.yes")}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <XCircle size={12} />
-                          არა
+                          {t("common.no")}
                         </span>
                       )}
                     </div>
                   </div>
 
                   <div className="mb-3">
-                    <p className="text-xs text-gray-500 mb-1">თარიღი</p>
+                    <p className="text-xs text-gray-500 mb-1">{t("common.date")}</p>
                     <div className="text-sm text-gray-600">
                       {submission.paidAt ? (
                         <span className="text-green-600">
@@ -601,7 +619,7 @@ export default function InsuranceSubmissionsList() {
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
                     >
                       <Eye size={16} />
-                      დეტალები
+                      {t("common.details")}
                     </button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -610,23 +628,23 @@ export default function InsuranceSubmissionsList() {
                           className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 text-sm"
                         >
                           <Trash2 size={16} />
-                          წაშლა
+                          {t("common.delete")}
                         </button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>შეკვეთის წაშლა</AlertDialogTitle>
+                          <AlertDialogTitle>{t("common.deleteOrder")}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            დარწმუნებული ხართ? {submission.submitterEmail}-ის შეკვეთა და ყველა პასპორტის ფოტო სამუდამოდ წაიშლება.
+                            {t("insurance.deleteConfirm", { email: submission.submitterEmail })}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>გაუქმება</AlertDialogCancel>
+                          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(submission.id)}
                             className="bg-red-500 hover:bg-red-600"
                           >
-                            წაშლა
+                            {t("common.delete")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -643,17 +661,20 @@ export default function InsuranceSubmissionsList() {
                   disabled={page === 1}
                   className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  წინა
+                  {t("common.previous")}
                 </button>
                 <span className="text-xs sm:text-sm text-gray-600">
-                  გვერდი {pagination.page} / {pagination.totalPages}
+                  {t("common.pageOf", {
+                    page: pagination.page,
+                    total: pagination.totalPages,
+                  })}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page >= pagination.totalPages}
                   className="px-3 sm:px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  შემდეგი
+                  {t("common.next")}
                 </button>
               </div>
             )}

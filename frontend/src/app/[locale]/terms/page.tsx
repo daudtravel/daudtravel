@@ -1,5 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Locale } from "@/src/i18n/routing";
 
 const BASE_URL = "https://www.daudtravel.com";
@@ -11,10 +13,10 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations("meta");
   return {
-    title: "Terms & Conditions | Daud Travel",
-    description:
-      "Read the Daud Travel terms and conditions for booking tours, transfers, and travel services in Georgia. Understand our booking, payment, cancellation, and refund policies.",
+    title: t("termsTitle"),
+    description: t("termsDescription"),
     alternates: {
       canonical: `${BASE_URL}/${locale}/terms`,
       languages: {
@@ -29,240 +31,132 @@ export async function generateMetadata({
 }
 
 const TermsAndConditions = () => {
+  const t = useTranslations("legal.terms");
+
+  // Renders legal.terms.<section>.item1..itemN as list items
+  const items = (section: string, count: number) =>
+    Array.from({ length: count }, (_, i) => (
+      <li key={i}>{t(`${section}.item${i + 1}`)}</li>
+    ));
+
   const termsContent = [
     {
-      title: "ზოგადი დებულებები",
+      title: t("general.title"),
       content: (
         <>
-          <p className="mb-4">
-            ჩვენს ვებსაიტზე (www.daudtravel.com-ზე და მის ქვედომენებზე)
-            შემოსვლითა და სერვისების გამოყენებით, თქვენ ეთანხმებით ამ წესებსა და
-            პირობებს. გთხოვთ, ყურადღებით გაეცნოთ მათ ტურის შეძენამდე ან
-            დაჯავშნამდე.
-          </p>
-          <p>
-            ამ წესებისა და პირობების დარღვევის შემთხვევაში, ტურ-სააგენტოს უფლება
-            აქვს უარი თქვას სერვისის მიწოდებაზე ან გააუქმოს დაჯავშნა.
-          </p>
+          <p className="mb-4">{t("general.p1")}</p>
+          <p>{t("general.p2")}</p>
         </>
       ),
     },
     {
-      title: "დაჯავშნა და გადახდა",
+      title: t("booking.title"),
       content: (
         <>
-          <p className="mb-4">
-            ჩვენს ვებსაიტზე თქვენ შეგიძლიათ შეიძინოთ ტური ორი გზით:
-          </p>
+          <p className="mb-4">{t("booking.intro")}</p>
 
-          <p className="mb-2 ml-6">1. სრული თანხის გადახდა</p>
-          <p className="mb-4 ml-12">
-            ტურის სრული ღირებულების დაუყოვნებლივ გადახდა ონლაინ საბანკო ბარათით
-            ან სხვა ხელმისაწვდომი საგადახდო მეთოდით.
-          </p>
+          <p className="mb-2 ms-6">{t("booking.option1Title")}</p>
+          <p className="mb-4 ms-12">{t("booking.option1Text")}</p>
 
-          <p className="mb-2 ml-6">2. რეზერვაცია (ავანსის გადახდა)</p>
-          <p className="mb-4 ml-12">
-            ტურის დაჯავშნა ავანსის გადახდით. დარჩენილი თანხის გადახდა
-            შესაძლებელია მოგვიანებით ნაღდი ანგარიშსწორებით ან ონლაინ საბანკო
-            ტრანზაქციით. დარჩენილი თანხის გადახდის ვადა და პირობები მითითებულია
-            დაჯავშნის დადასტურებაში.
-          </p>
+          <p className="mb-2 ms-6">{t("booking.option2Title")}</p>
+          <p className="mb-4 ms-12">{t("booking.option2Text")}</p>
 
-          <p className="mb-4">
-            ყველა გადახდა ხორციელდება უსაფრთხო საგადახდო სისტემების მეშვეობით.
-            გადახდის დადასტურების შემდეგ, თქვენ მიიღებთ დადასტურების
-            შეტყობინებას ელექტრონულ ფოსტაზე.
-          </p>
+          <p className="mb-4">{t("booking.p1")}</p>
 
-          <p>
-            რეზერვაციის შემთხვევაში, თუ დარჩენილი თანხა არ იქნება გადახდილი
-            ტურის დაწყებამდე, ტურ-სააგენტოს უფლება აქვს გააუქმოს ტური.
-          </p>
+          <p>{t("booking.p2")}</p>
         </>
       ),
     },
     {
-      title: "ტურის აღწერა და დეტალები",
+      title: t("tourDetails.title"),
       content: (
         <>
-          <p className="mb-4">
-            ვებსაიტზე თითოეული ტურისთვის მოცემულია დეტალური ინფორმაცია, რომელიც
-            მოიცავს:
-          </p>
-          <ul className="list-disc list-inside ml-6 space-y-2">
-            <li>ტურის ტიპი (ინდივიდუალური ან ჯგუფური)</li>
-            <li>ტურის ხანგრძლივობა</li>
-            <li>მონაწილეთა რაოდენობა (მინიმალური და მაქსიმალური)</li>
-            <li>მარშრუტი და ლოკაციები</li>
-            <li>
-              ჩართული სერვისები (ტრანსპორტი, გიდი, კვება, განთავსება და სხვა)
-            </li>
-            <li>ფასი (ადამიანზე ან მთელ ჯგუფზე)</li>
-            <li>საჭირო აღჭურვილობა ან პირადი ნივთები</li>
+          <p className="mb-4">{t("tourDetails.intro")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2">
+            {items("tourDetails", 7)}
           </ul>
-          <p className="mt-4">
-            ტურის შეძენამდე გთხოვთ, ყურადღებით გაეცნოთ ყველა დეტალს. შეძენის
-            შემდეგ ითვლება, რომ თქვენ დაეთანხმეთ ტურის აღწერილ პირობებს.
-          </p>
+          <p className="mt-4">{t("tourDetails.outro")}</p>
         </>
       ),
     },
     {
-      title: "ცვლილებები და მოდიფიკაციები",
+      title: t("changes.title"),
       content: (
         <>
-          <p className="mb-4">
-            ტურის დეტალებში ნებისმიერი ცვლილება ან მოდიფიკაცია შესაძლებელია
-            მხოლოდ ტურ-სააგენტოსთან უშუალო კონტაქტის შემდეგ.
-          </p>
-          <p className="mb-4">ცვლილებები შეიძლება მოიცავდეს:</p>
-          <ul className="list-disc list-inside ml-6 space-y-2 mb-4">
-            <li>თარიღის შეცვლა</li>
-            <li>მონაწილეთა რაოდენობის ცვლილება</li>
-            <li>დამატებითი სერვისების დამატება</li>
-            <li>მარშრუტის კორექტირება</li>
+          <p className="mb-4">{t("changes.p1")}</p>
+          <p className="mb-4">{t("changes.listIntro")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2 mb-4">
+            {items("changes", 4)}
           </ul>
-          <p className="mb-4">
-            ყველა ცვლილება დამოკიდებულია ხელმისაწვდომობაზე და შესაძლოა
-            გამოიწვიოს დამატებითი საფასურის დაკისრება. ცვლილებები ძალაში შედის
-            მხოლოდ ტურ-სააგენტოს მხრიდან წერილობითი დადასტურების შემდეგ.
-          </p>
-          <p>
-            ტურ-სააგენტო იტოვებს უფლებას, გაუთვალისწინებელი გარემოებების
-            შემთხვევაში (ამინდის პირობები, უსაფრთხოების საკითხები და სხვა),
-            განახორციელოს ცვლილებები ტურის მარშრუტში ან სერვისებში კლიენტის
-            უსაფრთხოებისა და კომფორტის უზრუნველსაყოფად.
-          </p>
+          <p className="mb-4">{t("changes.p2")}</p>
+          <p>{t("changes.p3")}</p>
         </>
       ),
     },
     {
-      title: "გაუქმება და თანხის დაბრუნება",
+      title: t("cancellation.title"),
       content: (
         <>
-          <p className="mb-4">
-            ტურის შეძენის შემდეგ გადახდილი თანხის დაბრუნება, როგორც წესი, არ
-            ხორციელდება.
-          </p>
-          <p className="mb-4">
-            თუმცა, განსაკუთრებულ შემთხვევებში თანხის დაბრუნების საკითხი შეიძლება
-            განიხილოს ტურ-სააგენტომ ინდივიდუალურად. თანხის დაბრუნების
-            შესაძლებლობა და თანხა დამოკიდებულია:
-          </p>
-          <ul className="list-disc list-inside ml-6 space-y-2 mb-4">
-            <li>გაუქმების მიზეზი და გარემოებები</li>
-            <li>გაუქმებამდე დარჩენილი დრო</li>
-            <li>უკვე გაწეული ხარჯები ტურის ორგანიზებისთვის</li>
-            <li>ტურის ტიპი და სპეციფიკა</li>
+          <p className="mb-4">{t("cancellation.p1")}</p>
+          <p className="mb-4">{t("cancellation.p2")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2 mb-4">
+            {items("cancellation", 4)}
           </ul>
-          <p className="mb-4">
-            გაუქმების საკითხის განსახილველად აუცილებელია ტურ-სააგენტოსთან
-            დაკავშირება და წერილობითი განაცხადის წარდგენა. გადაწყვეტილებას იღებს
-            ტურ-სააგენტო თითოეული შემთხვევის ინდივიდუალური განხილვის საფუძველზე.
-          </p>
-          <p>
-            თუ ტურის გაუქმება ხდება ტურ-სააგენტოს მიზეზით, კლიენტს ეთავაზება
-            თანხის სრული დაბრუნება ან ალტერნატიული ტური.
-          </p>
+          <p className="mb-4">{t("cancellation.p3")}</p>
+          <p>{t("cancellation.p4")}</p>
         </>
       ),
     },
     {
-      title: "კლიენტის პასუხისმგებლობა",
+      title: t("clientResponsibility.title"),
       content: (
         <>
-          <p className="mb-4">კლიენტი პასუხისმგებელია:</p>
-          <ul className="list-disc list-inside ml-6 space-y-2 mb-4">
-            <li>
-              ტურისთვის საჭირო ყველა დოკუმენტის (პასპორტი, ვიზა და სხვა)
-              ხელმისაწვდომობაზე
-            </li>
-            <li>ჯანმრთელობის მდგომარეობის შესაბამისობაზე ტურის მოთხოვნებთან</li>
-            <li>რეკომენდებული აღჭურვილობისა და პირადი ნივთების მომზადებაზე</li>
-            <li>ტურის დროს გიდისა და ორგანიზატორების ინსტრუქციების დაცვაზე</li>
-            <li>უსაფრთხოების წესების დაცვაზე</li>
-            <li>სხვა მონაწილეების პატივისცემასა და კომფორტზე</li>
+          <p className="mb-4">{t("clientResponsibility.intro")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2 mb-4">
+            {items("clientResponsibility", 6)}
           </ul>
-          <p>
-            ტურის დროს არაადეკვატური ქცევის, უსაფრთხოების წესების დარღვევის ან
-            სხვა მონაწილეების შეწუხების შემთხვევაში, ტურ-სააგენტოს უფლება აქვს
-            შეაჩეროს კლიენტის მონაწილეობა ტურში თანხის დაბრუნების გარეშე.
-          </p>
+          <p>{t("clientResponsibility.outro")}</p>
         </>
       ),
     },
     {
-      title: "პასუხისმგებლობის შეზღუდვა",
+      title: t("liability.title"),
       content: (
         <>
-          <p className="mb-4">ტურ-სააგენტო არ არის პასუხისმგებელი:</p>
-          <ul className="list-disc list-inside ml-6 space-y-2 mb-4">
-            <li>
-              გაუთვალისწინებელ გარემოებებზე (სტიქიური უბედურება, პანდემია,
-              პოლიტიკური კრიზისი და სხვა)
-            </li>
-            <li>კლიენტის პირად ნივთებზე, დაკარგვაზე ან დაზიანებაზე</li>
-            <li>კლიენტის მიერ უსაფრთხოების წესების დარღვევის შედეგებზე</li>
-            <li>
-              მესამე პირის სერვისების (სასტუმროები, რესტორნები, ტრანსპორტი)
-              ხარისხზე, თუ ის არ შეესაბამება მითითებულ სტანდარტებს
-            </li>
+          <p className="mb-4">{t("liability.intro")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2 mb-4">
+            {items("liability", 4)}
           </ul>
-          <p>
-            ტურ-სააგენტო ყველა ღონეს გამოიყენებს უსაფრთხო და ხარისხიანი სერვისის
-            უზრუნველსაყოფად, მაგრამ არ იღებს პასუხისმგებლობას გაუთვალისწინებელ
-            გარემოებებზე.
-          </p>
+          <p>{t("liability.outro")}</p>
         </>
       ),
     },
     {
-      title: "კონტაქტი და მხარდაჭერა",
+      title: t("contact.title"),
       content: (
         <>
-          <p className="mb-4">
-            ნებისმიერი კითხვის, პრობლემის ან დახმარების საჭიროების შემთხვევაში,
-            გთხოვთ დაუკავშირდეთ ჩვენს ტურ-სააგენტოს:
-          </p>
-          <ul className="list-disc list-inside ml-6 space-y-2 mb-4">
-            <li>ტელეფონით (მითითებულია ვებსაიტზე)</li>
-            <li>ელექტრონული ფოსტით</li>
-            <li>ვებსაიტზე კონტაქტის ფორმის მეშვეობით</li>
+          <p className="mb-4">{t("contact.intro")}</p>
+          <ul className="list-disc list-inside ms-6 space-y-2 mb-4">
+            {items("contact", 3)}
           </ul>
-          <p>
-            ჩვენი გუნდი მზად არის დაგეხმაროთ ტურის დაგეგმვის, დაჯავშნის და
-            ორგანიზების ყველა ეტაპზე.
-          </p>
+          <p>{t("contact.outro")}</p>
         </>
       ),
     },
     {
-      title: "წესების შეცვლა",
+      title: t("changesToTerms.title"),
       content: (
         <>
-          <p className="mb-4">
-            ტურ-სააგენტო იტოვებს უფლებას, ნებისმიერ დროს შეცვალოს ან განაახლოს
-            ეს წესები და პირობები. ცვლილებები ძალაში შედის მათი ვებსაიტზე
-            გამოქვეყნების მომენტიდან.
-          </p>
-          <p>
-            კლიენტის პასუხისმგებლობაა პერიოდულად შეამოწმოს ეს წესები და პირობები
-            განახლებების შესამოწმებლად. ვებსაიტის გამოყენების გაგრძელება ნიშნავს
-            თქვენს თანხმობას განახლებულ წესებთან.
-          </p>
+          <p className="mb-4">{t("changesToTerms.p1")}</p>
+          <p>{t("changesToTerms.p2")}</p>
         </>
       ),
     },
     {
-      title: "ენა",
+      title: t("language.title"),
       content: (
         <>
-          <p>
-            ეს წესები და პირობები წარმოდგენილია ორ ენაზე: ქართულად და
-            ინგლისურად. თარგმანში არსებული უზუსტობის ან განსხვავების შემთხვევაში
-            უპირატესობა ენიჭება ქართულ ვერსიას.
-          </p>
+          <p>{t("language.p1")}</p>
         </>
       ),
     },
@@ -272,24 +166,22 @@ const TermsAndConditions = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6 md:p-10">
         <h1 className="text-3xl md:text-4xl mb-8 pb-4 border-b-2">
-          წესები და პირობები
+          {t("title")}
         </h1>
 
         <p className="mb-10 leading-relaxed bg-gray-50 p-5 rounded-lg">
-          გთხოვთ, ყურადღებით გაეცნოთ ჩვენი სერვისის გამოყენების წესებსა და
-          პირობებს. ჩვენს ვებსაიტზე (
-          <a
-            href="https://www.daudtravel.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:no-underline"
-          >
-            www.daudtravel.com
-          </a>
-          -ზე და მის ქვედომენებზე) შემოსვლა, ტურის დაჯავშნა ან შეძენა ნიშნავს,
-          რომ თქვენ (კლიენტი) სრულად ეთანხმებით და იღებთ ამ წესებსა და პირობებს.
-          თუ არ ეთანხმებით რომელიმე პუნქტს, გთხოვთ, არ გამოიყენოთ ჩვენი
-          სერვისები.
+          {t.rich("intro", {
+            site: (chunks) => (
+              <a
+                href="https://www.daudtravel.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:no-underline"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
 
         <div className="space-y-8">

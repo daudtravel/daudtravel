@@ -49,5 +49,7 @@
   "fieldsCompleted": "ველი შევსებულია",
   "minDaysNote": "მინიმუმ 5 დღე საჭიროა",
   "requiredFieldsNote": "*-ით მონიშნული ველები სავალდებულოა",
-  "orderSummary": "შეკვეთის სარეზიუმე"
+  "orderSummary": "შეკვეთის სარეზიუმე",
+  "removePerson": "პირის წაშლა #{n}",
+  "removePhoto": "ფოტოს წაშლა"
 }

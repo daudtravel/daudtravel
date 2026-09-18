@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import PaymentStatusCard from "./PaymentStatusCard";
 import { useTourPaymentStatus } from "@/src/hooks/tours/useTourPaymentStatus";
 import { useQuickPaymentStatus } from "@/src/hooks/quick-payment/useQuickPaymentStatus";
@@ -14,6 +15,7 @@ export default function PaymentFailure() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("order_id");
+  const t = useTranslations("payment.result");
 
   // Determine payment type based on order_id prefix
   const getPaymentType = (): PaymentType => {
@@ -60,7 +62,7 @@ export default function PaymentFailure() {
           ? transferPayment.error
           : paymentType === "insurance"
             ? insurancePayment.error
-            : "Invalid order type";
+            : t("invalidOrderType");
 
   const tourPaymentDetails =
     paymentType === "tour" ? tourPayment.paymentDetails : null;
@@ -145,10 +147,10 @@ export default function PaymentFailure() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">
-                Payment not completed
+                {t("notCompletedTitle")}
               </p>
               <p className="text-xs text-gray-500">
-                The payment was cancelled or not submitted
+                {t("notCompletedText")}
               </p>
             </div>
           </div>

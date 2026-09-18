@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Loader2,
   Wallet,
@@ -18,44 +19,15 @@ import {
 } from "@/src/hooks/payment-stats/usePaymentStats";
 
 // Validated categorical palette (dataviz reference, light surface)
-const TYPE_META: Record<PaymentType, { label: string; color: string }> = {
-  tours: { label: "ტურები", color: "#2a78d6" },
-  transfers: { label: "ტრანსფერები", color: "#1baf7a" },
-  quick: { label: "სწრაფი გადახდები", color: "#eda100" },
-  insurance: { label: "დაზღვევა", color: "#008300" },
+// Labels come from admin.paymentTypes.<type>
+const TYPE_META: Record<PaymentType, { color: string }> = {
+  tours: { color: "#2a78d6" },
+  transfers: { color: "#1baf7a" },
+  quick: { color: "#eda100" },
+  insurance: { color: "#008300" },
 };
 
 const TYPE_ORDER: PaymentType[] = ["tours", "transfers", "quick", "insurance"];
-
-const MONTH_LABELS = [
-  "იანვარი",
-  "თებერვალი",
-  "მარტი",
-  "აპრილი",
-  "მაისი",
-  "ივნისი",
-  "ივლისი",
-  "აგვისტო",
-  "სექტემბერი",
-  "ოქტომბერი",
-  "ნოემბერი",
-  "დეკემბერი",
-];
-
-const MONTH_LABELS_SHORT = [
-  "იან",
-  "თებ",
-  "მარ",
-  "აპრ",
-  "მაი",
-  "ივნ",
-  "ივლ",
-  "აგვ",
-  "სექ",
-  "ოქტ",
-  "ნოე",
-  "დეკ",
-];
 
 // period is a preset key or a specific "YYYY-MM" month
 type PeriodKey = "all" | "thisMonth" | "year" | "6m" | string;
@@ -65,23 +37,6 @@ const formatMoney = (value: number) =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-
-const formatMonthShort = (month: string) => {
-  const [year, m] = month.split("-");
-  return `${MONTH_LABELS_SHORT[Number(m) - 1]} ${year.slice(2)}`;
-};
-
-const formatMonthLong = (month: string) => {
-  const [year, m] = month.split("-");
-  return `${MONTH_LABELS[Number(m) - 1]} ${year}`;
-};
-
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("ka-GE", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
 
 const currentMonth = () => {
   const now = new Date();
@@ -111,7 +66,28 @@ const inPeriod = (month: string, [from, to]: [string | null, string | null]) =>
 export const PaymentsDashboard = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("admin");
+  const locale = useLocale();
   const { data, isLoading, error, refetch, isRefetching } = usePaymentStats();
+
+  const typeLabel = (type: PaymentType) => t(`paymentTypes.${type}`);
+
+  const formatMonthShort = (month: string) => {
+    const [year, m] = month.split("-");
+    return `${t(`months.short.m${Number(m)}`)} ${year.slice(2)}`;
+  };
+
+  const formatMonthLong = (month: string) => {
+    const [year, m] = month.split("-");
+    return `${t(`months.long.m${Number(m)}`)} ${year}`;
+  };
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(locale, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
   const [period, setPeriod] = useState<PeriodKey>("all");
   const [typeFilter, setTypeFilter] = useState<PaymentType | "all">("all");
 
@@ -255,32 +231,32 @@ export const PaymentsDashboard = () => {
   if (error || !stats) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700 text-sm">
-        სტატისტიკის ჩატვირთვა ვერ მოხერხდა
+        {t("stats.loadFailed")}
       </div>
     );
   }
 
   const kpis = [
     {
-      label: "შემოსავალი",
+      label: t("stats.revenue"),
       value: formatMoney(totals.revenue),
       icon: Wallet,
       iconClass: "text-brand-green bg-brand-green-50",
     },
     {
-      label: "წარმატებული გადახდა",
+      label: t("stats.successfulPayments"),
       value: String(totals.paid),
       icon: CheckCircle,
       iconClass: "text-green-600 bg-green-50",
     },
     {
-      label: "წარუმატებელი",
+      label: t("stats.failedPayments"),
       value: String(totals.failed),
       icon: XCircle,
       iconClass: "text-red-600 bg-red-50",
     },
     {
-      label: "წარმატების მაჩვენებელი",
+      label: t("stats.successRate"),
       value:
         totals.successRate === null
           ? "—"
@@ -296,24 +272,24 @@ export const PaymentsDashboard = () => {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            გადახდების სტატისტიკა
+            {t("stats.title")}
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             {period === "all"
-              ? "ყველა დრო"
+              ? t("stats.allTime")
               : period === "thisMonth"
                 ? formatMonthLong(currentMonth())
                 : period === "year"
-                  ? "მიმდინარე წელი"
+                  ? t("stats.thisYear")
                   : period === "6m"
-                    ? "ბოლო 6 თვე"
+                    ? t("stats.last6Months")
                     : formatMonthLong(period)}
-            {typeFilter !== "all" && ` · ${TYPE_META[typeFilter].label}`}
+            {typeFilter !== "all" && ` · ${typeLabel(typeFilter)}`}
           </p>
         </div>
         <button
           onClick={() => refetch()}
-          title="განახლება"
+          title={t("common.refresh")}
           className="p-2 rounded-xl border border-gray-200 bg-white text-gray-400 hover:text-brand-green transition-colors"
         >
           <RefreshCw
@@ -329,10 +305,10 @@ export const PaymentsDashboard = () => {
           onChange={(e) => setPeriod(e.target.value)}
           className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-green/30"
         >
-          <option value="all">ყველა დრო</option>
-          <option value="thisMonth">მიმდინარე თვე</option>
-          <option value="year">მიმდინარე წელი</option>
-          <option value="6m">ბოლო 6 თვე</option>
+          <option value="all">{t("stats.allTime")}</option>
+          <option value="thisMonth">{t("stats.thisMonth")}</option>
+          <option value="year">{t("stats.thisYear")}</option>
+          <option value="6m">{t("stats.last6Months")}</option>
           <option disabled>──────────</option>
           {availableMonths.map((month) => (
             <option key={month} value={month}>
@@ -350,7 +326,7 @@ export const PaymentsDashboard = () => {
                 : "text-gray-500 hover:text-gray-800"
             }`}
           >
-            ყველა
+            {t("common.all")}
           </button>
           {TYPE_ORDER.map((type) => (
             <button
@@ -366,7 +342,7 @@ export const PaymentsDashboard = () => {
                 className="w-2 h-2 rounded-sm shrink-0"
                 style={{ backgroundColor: TYPE_META[type].color }}
               />
-              {TYPE_META[type].label}
+              {typeLabel(type)}
             </button>
           ))}
         </div>
@@ -400,7 +376,7 @@ export const PaymentsDashboard = () => {
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
           <h2 className="text-sm font-bold text-gray-900">
-            შემოსავალი თვეების მიხედვით
+            {t("stats.revenueByMonth")}
           </h2>
           {visibleTypes.length > 1 && (
             <div className="flex flex-wrap items-center gap-3">
@@ -413,7 +389,7 @@ export const PaymentsDashboard = () => {
                     className="w-2.5 h-2.5 rounded-sm shrink-0"
                     style={{ backgroundColor: TYPE_META[type].color }}
                   />
-                  {TYPE_META[type].label}
+                  {typeLabel(type)}
                 </span>
               ))}
             </div>
@@ -422,7 +398,7 @@ export const PaymentsDashboard = () => {
 
         {monthly.length === 0 ? (
           <p className="text-sm text-gray-400 py-10 text-center">
-            ამ პერიოდში გადახდილი შეკვეთები არ არის
+            {t("stats.noPaidOrders")}
           </p>
         ) : (
           <div className="overflow-x-auto pb-1">
@@ -446,11 +422,11 @@ export const PaymentsDashboard = () => {
                             className="w-2 h-2 rounded-sm inline-block"
                             style={{ backgroundColor: TYPE_META[type].color }}
                           />
-                          {TYPE_META[type].label}: {formatMoney(m.perType[type])}
+                          {typeLabel(type)}: {formatMoney(m.perType[type])}
                         </p>
                       ))}
                     <p className="border-t border-white/20 mt-1 pt-1 font-semibold">
-                      სულ: {formatMoney(m.total)}
+                      {t("stats.total", { amount: formatMoney(m.total) })}
                     </p>
                   </div>
 
@@ -493,38 +469,38 @@ export const PaymentsDashboard = () => {
           visibleTypes.length > 2 ? "xl:grid-cols-4" : ""
         }`}
       >
-        {byType.map((t) => (
+        {byType.map((row) => (
           <div
-            key={t.type}
+            key={row.type}
             className="bg-white rounded-2xl border border-gray-100 p-5"
           >
             <div className="flex items-center gap-2 mb-3">
               <span
                 className="w-2.5 h-2.5 rounded-sm shrink-0"
-                style={{ backgroundColor: TYPE_META[t.type].color }}
+                style={{ backgroundColor: TYPE_META[row.type].color }}
               />
               <h3 className="text-sm font-bold text-gray-900">
-                {TYPE_META[t.type].label}
+                {typeLabel(row.type)}
               </h3>
             </div>
             <p className="text-2xl font-bold text-gray-900 mb-3">
-              {formatMoney(t.revenue)}
+              {formatMoney(row.revenue)}
             </p>
             <div className="flex flex-wrap gap-1.5 text-[11px]">
               <span className="px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">
-                ✓ {t.paid} გადახდილი
+                ✓ {t("stats.paidCount", { count: row.paid })}
               </span>
               <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-medium">
-                ✕ {t.failed} წარუმატებელი
+                ✕ {t("stats.failedCount", { count: row.failed })}
               </span>
-              {t.pending > 0 && (
+              {row.pending > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium">
-                  {t.pending} მოლოდინში
+                  {t("stats.pendingCount", { count: row.pending })}
                 </span>
               )}
-              {t.refunded > 0 && (
+              {row.refunded > 0 && (
                 <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">
-                  {t.refunded} დაბრუნებული
+                  {t("stats.refundedCount", { count: row.refunded })}
                 </span>
               )}
             </div>
@@ -538,7 +514,7 @@ export const PaymentsDashboard = () => {
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-red-500" />
             <h2 className="text-sm font-bold text-gray-900">
-              წარუმატებლობის მიზეზები (ბანკის პასუხი)
+              {t("stats.failureReasons")}
             </h2>
           </div>
           <button
@@ -546,12 +522,12 @@ export const PaymentsDashboard = () => {
             className="flex items-center gap-1.5 text-xs font-medium text-brand-green hover:underline"
           >
             <List className="w-3.5 h-3.5" />
-            ყველა გადახდის სია →
+            {t("stats.allPaymentsList")}
           </button>
         </div>
         {failureReasons.length === 0 ? (
           <p className="text-sm text-gray-400 py-6 text-center">
-            წარუმატებელი გადახდები არ არის
+            {t("stats.noFailedPayments")}
           </p>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
@@ -565,7 +541,7 @@ export const PaymentsDashboard = () => {
                     {r.reason}
                   </p>
                   <p className="text-[11px] text-gray-400 mt-0.5">
-                    ბოლოს: {formatDate(r.lastAt)}
+                    {t("stats.lastAt", { date: formatDate(r.lastAt) })}
                   </p>
                 </div>
                 <span className="shrink-0 min-w-[28px] text-center px-2 py-1 rounded-lg bg-red-50 text-red-600 text-xs font-bold">

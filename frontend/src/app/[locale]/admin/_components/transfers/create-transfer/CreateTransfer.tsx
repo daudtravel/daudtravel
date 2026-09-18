@@ -23,23 +23,18 @@ import {
   TabsTrigger,
 } from "@/src/components/ui/tabs";
 import { Checkbox } from "@/src/components/ui/checkbox";
-import { TRANSFER_MESSAGES } from "@/src/constants/transfers.constants";
 import { VehicleType } from "@/src/types/transfers.types";
 import { useCreateTransfer } from "@/src/hooks/transfers/useCreateTransfer";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
-const VEHICLE_LABEL: Record<string, string> = {
-  SEDAN: "სედანი",
-  MINIVAN: "მინივენი",
-  VITO: "ვიტო",
-  SPRINTER: "სპრინტერი",
-  BUS: "ავტობუსი",
-};
+const VEHICLE_TYPES: string[] = Object.values(VehicleType);
 
 const CreateTransfer = () => {
   const router = useRouter();
   const form = useCreateTransferValidator();
   const { mutate: createTransfer, isPending } = useCreateTransfer();
+  const t = useTranslations("admin");
 
   const onSubmit = async (data: CreateTransferFormData) => {
     // Only send languages the admin actually filled in
@@ -57,13 +52,13 @@ const CreateTransfer = () => {
       },
       {
         onSuccess: () => {
-          toast.success(TRANSFER_MESSAGES.CREATE_SUCCESS);
+          toast.success(t("transfers.created"));
           form.reset();
           router.push("?transfers=all");
         },
         onError: (error: unknown) => {
           const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-          toast.error(msg || TRANSFER_MESSAGES.GENERIC_ERROR);
+          toast.error(msg || t("common.unexpectedError"));
         },
       }
     );
@@ -75,8 +70,8 @@ const CreateTransfer = () => {
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">ახალი ტრანსფერის შექმნა</h2>
-        <p className="text-sm text-gray-400 mt-0.5">შეავსეთ მარშრუტი და ავტომობილის ტიპები</p>
+        <h2 className="text-xl font-semibold text-gray-900">{t("transfers.createTitle")}</h2>
+        <p className="text-sm text-gray-400 mt-0.5">{t("transfers.createSubtitle")}</p>
       </div>
 
       <Form {...form}>
@@ -98,9 +93,9 @@ const CreateTransfer = () => {
                   </FormControl>
                   <div>
                     <FormLabel className="!mt-0 text-sm font-semibold text-gray-800 cursor-pointer">
-                      საჯარო ტრანსფერი
+                      {t("transfers.publicTransfer")}
                     </FormLabel>
-                    <p className="text-xs text-gray-500">ჩართვისას ტრანსფერი ხელმისაწვდომი იქნება საიტზე</p>
+                    <p className="text-xs text-gray-500">{t("transfers.publicHint")}</p>
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -113,9 +108,9 @@ const CreateTransfer = () => {
             {/* Route — fill one or more languages */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-4 shadow-sm">
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                მარშრუტი
+                {t("transfers.route")}
                 <span className="text-xs font-normal text-gray-400 normal-case ml-2">
-                  (მინიმუმ ერთი ენა)
+                  {t("transfers.minOneLanguage")}
                 </span>
               </h3>
               <div className="space-y-3">
@@ -138,7 +133,7 @@ const CreateTransfer = () => {
                         </span>
                         {hasContent && (
                           <span className="text-[10px] bg-brand-green text-white px-1.5 py-0.5 rounded">
-                            შევსებულია
+                            {t("common.filled")}
                           </span>
                         )}
                       </div>
@@ -148,10 +143,10 @@ const CreateTransfer = () => {
                           name={`localizations.${idx}.startLocation`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-xs font-semibold text-gray-600">საწყისი ლოკაცია</FormLabel>
+                              <FormLabel className="text-xs font-semibold text-gray-600">{t("transfers.startLocation")}</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="მაგ. თბილისი"
+                                  placeholder={t("transfers.startPlaceholder")}
                                   {...field}
                                   disabled={isPending}
                                   className="border-gray-200 focus-visible:ring-brand-green text-sm"
@@ -166,10 +161,10 @@ const CreateTransfer = () => {
                           name={`localizations.${idx}.endLocation`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-xs font-semibold text-gray-600">საბოლოო ლოკაცია</FormLabel>
+                              <FormLabel className="text-xs font-semibold text-gray-600">{t("transfers.endLocation")}</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="მაგ. ბათუმი"
+                                  placeholder={t("transfers.endPlaceholder")}
                                   {...field}
                                   disabled={isPending}
                                   className="border-gray-200 focus-visible:ring-brand-green text-sm"
@@ -195,7 +190,7 @@ const CreateTransfer = () => {
 
             {/* Vehicle types */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">ავტომობილის ტიპები</h3>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{t("transfers.vehicleTypes")}</h3>
             <Tabs defaultValue={vehicleTypes[0]} className="w-full">
               <TabsList className="grid w-full bg-brand-green-50 rounded-xl p-1" style={{ gridTemplateColumns: `repeat(${vehicleTypes.length}, 1fr)` }}>
                 {vehicleTypes.map((type) => (
@@ -204,7 +199,7 @@ const CreateTransfer = () => {
                     value={type}
                     className="text-xs rounded-lg data-[state=active]:bg-brand-green data-[state=active]:text-white"
                   >
-                    {VEHICLE_LABEL[type] || type}
+                    {VEHICLE_TYPES.includes(type) ? t(`vehicles.${type}`) : type}
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -217,7 +212,7 @@ const CreateTransfer = () => {
                       name={`vehicleTypes.${index}.price`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-semibold text-gray-600">ფასი (₾)</FormLabel>
+                          <FormLabel className="text-xs font-semibold text-gray-600">{t("common.priceGel")}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -239,7 +234,7 @@ const CreateTransfer = () => {
                       name={`vehicleTypes.${index}.maxPersons`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs font-semibold text-gray-600">მაქს. პასაჟირები</FormLabel>
+                          <FormLabel className="text-xs font-semibold text-gray-600">{t("transfers.maxPassengers")}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -268,9 +263,9 @@ const CreateTransfer = () => {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-semibold text-sm transition-colors disabled:opacity-60"
           >
             {isPending ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />იტვირთება...</>
+              <><Loader2 className="h-4 w-4 animate-spin" />{t("common.loading")}</>
             ) : (
-              "ტრანსფერის შექმნა"
+              t("transfers.createButton")
             )}
           </button>
         </form>

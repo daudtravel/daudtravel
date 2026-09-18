@@ -26,16 +26,15 @@ export async function generateMetadata({
   const { id, locale } = await params;
   const response = await getTransfer(id, locale);
   const transfer = response?.data;
+  const t = await getTranslations("meta");
 
   if (!transfer) {
     return {
-      title: "Transfer Not Found",
-      description: "The requested transfer could not be found.",
+      title: t("transferNotFound"),
+      description: t("transferNotFoundDescription"),
       robots: { index: false, follow: false },
     };
   }
-
-  const t = await getTranslations("meta");
 
   const localization =
     transfer.localizations?.find(

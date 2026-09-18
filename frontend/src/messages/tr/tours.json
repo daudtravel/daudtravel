@@ -71,5 +71,8 @@
   "statusCompleted": "paralı",
   "commissionNote": "Not: Uluslararası kart işlemleri nedeniyle ödemenize %1-3 oranında banka komisyonu uygulanabilir.",
   "decrementPerson": "Kişi sayısını azalt",
-  "incrementPerson": "Kişi sayısını artır"
+  "incrementPerson": "Kişi sayısını artır",
+  "photoN": "{name} - fotoğraf {n}",
+  "tourPhotoN": "Tur fotoğrafı {n}",
+  "additionalImages": "Ek görseller"
 }

@@ -6,6 +6,7 @@ import { Separator } from "@/src/components/ui/separator";
 import Image from "next/image";
 import { LogIn } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ export default function SignInModal() {
   const searchParams = useSearchParams();
   const status = searchParams.get("signin");
   const { login } = useAuth();
+  const t = useTranslations("auth.signIn");
 
   const modalCloseClickHandler = () => {
     if (status !== null) {
@@ -89,7 +91,7 @@ export default function SignInModal() {
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "Error signing in. Please try again.";
+        t("error");
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -100,20 +102,20 @@ export default function SignInModal() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="flex md:h-[600px] max-w-4xl p-0 border-none md:rounded-md overflow-hidden">
         <DialogHeader className="sr-only">
-          <DialogTitle>Sign In</DialogTitle>
+          <DialogTitle>{t("dialogTitle")}</DialogTitle>
         </DialogHeader>
         <div className="relative hidden w-1/2 md:block">
           <Image
             src={img}
-            alt="Sign in background"
+            alt={t("backgroundAlt")}
             fill
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />
           <div className="absolute bottom-8 left-8 right-8">
-            <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
+            <h2 className="text-3xl font-bold text-white">{t("welcomeBack")}</h2>
             <p className="mt-2 text-white/80">
-              Sign in to continue your journey with us
+              {t("welcomeSubtitle")}
             </p>
           </div>
         </div>
@@ -121,10 +123,10 @@ export default function SignInModal() {
         <div className="flex w-full flex-col justify-between bg-white p-8 md:w-1/2">
           <div>
             <h3 className="text-2xl font-semibold text-gray-900">
-              Sign in to your account
+              {t("heading")}
             </h3>
             <p className="mt-2 text-sm text-gray-500">
-              Welcome back! Please enter your details
+              {t("subheading")}
             </p>
             <div className="relative my-6">
               <Separator />
@@ -141,7 +143,7 @@ export default function SignInModal() {
                     <FormItem>
                       <FormControl>
                         <Input
-                          placeholder="Email"
+                          placeholder={t("emailPlaceholder")}
                           {...field}
                           className="h-11"
                           disabled={isLoading}
@@ -159,7 +161,7 @@ export default function SignInModal() {
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="Password"
+                          placeholder={t("passwordPlaceholder")}
                           {...field}
                           className="h-11"
                           disabled={isLoading}
@@ -175,11 +177,11 @@ export default function SignInModal() {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    "Signing in..."
+                    t("submitting")
                   ) : (
                     <>
                       <LogIn className="mr-2 h-4 w-4" />
-                      Sign in
+                      {t("submit")}
                     </>
                   )}
                 </Button>

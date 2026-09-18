@@ -7,6 +7,9 @@ export enum TourType {
 
 export const SUPPORTED_LOCALES = ["en", "ka", "ru", "ar", "tr"] as const;
 
+// Translator for the "admin" namespace (validation messages are localized)
+type Translate = (key: string) => string;
+
 const localizationSchema = z.object({
   locale: z.string().default("ka"),
   name: z.string().optional().default(""),
@@ -23,13 +26,16 @@ export const isCompleteLocalization = (loc: {
 }): boolean =>
   !!(loc.name?.trim() && loc.description?.trim() && loc.startLocation?.trim());
 
-const groupPricingSchema = z.object({
-  totalPrice: z.coerce.number().min(0, "Total price must be positive"),
-  reservationPrice: z.coerce
-    .number()
-    .min(0, "Reservation price must be positive"),
-  discountedPrice: z.coerce.number().min(0).optional(),
-});
+const groupPricingSchema = (t: Translate) =>
+  z.object({
+    totalPrice: z.coerce
+      .number()
+      .min(0, t("tours.validation.totalPricePositive")),
+    reservationPrice: z.coerce
+      .number()
+      .min(0, t("tours.validation.reservationPricePositive")),
+    discountedPrice: z.coerce.number().min(0).optional(),
+  });
 
 const individualPricingSchema = z.object({
   seasonTotalPrice: z.coerce.number().min(0),
@@ -46,53 +52,58 @@ const imageValidator = z.union([
   z.string().length(0), // Allow empty string when File object is stored separately
 ]);
 
-export const createTourSchema = z
-  .object({
-    type: z.nativeEnum(TourType).default(TourType.GROUP),
+export const createTourSchema = (t: Translate) =>
+  z
+    .object({
+      type: z.nativeEnum(TourType).default(TourType.GROUP),
 
-    localizations: z
-      .array(localizationSchema)
-      .refine((locs) => locs.some(isCompleteLocalization), {
-        message:
-          "მინიმუმ ერთი სრული თარგმანი აუცილებელია (დასახელება, აღწერა, საწყისი ლოკაცია)",
-      }),
+      localizations: z
+        .array(localizationSchema)
+        .refine((locs) => locs.some(isCompleteLocalization), {
+          message: t("tours.validation.minOneTranslation"),
+        }),
 
-    days: z.coerce.number().min(1, "Days must be at least 1").default(1),
-    nights: z.coerce.number().min(0, "Nights must be positive").default(0),
+      days: z.coerce
+        .number()
+        .min(1, t("tours.validation.daysMin"))
+        .default(1),
+      nights: z.coerce
+        .number()
+        .min(0, t("tours.validation.nightsPositive"))
+        .default(0),
 
-    // Changed: Accept empty string during form filling, will validate File object at submit
-    mainImage: z.string().default(""),
+      // Changed: Accept empty string during form filling, will validate File object at submit
+      mainImage: z.string().default(""),
 
-    // Changed: Accept array of empty strings during form filling
-    gallery: z.array(z.string()).default([]),
+      // Changed: Accept array of empty strings during form filling
+      gallery: z.array(z.string()).default([]),
 
-    isPublic: z.boolean().default(false),
-    isDaily: z.boolean().default(false),
+      isPublic: z.boolean().default(false),
+      isDaily: z.boolean().default(false),
 
-    groupPricing: groupPricingSchema.optional(),
-    individualPricing: individualPricingSchema.optional(),
-    startDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
-      .optional(),
-    maxPersons: z.coerce.number().min(1).optional(),
-  })
-  .refine((data) => data.type !== TourType.GROUP || !!data.groupPricing, {
-    message: "Group pricing is required for group tours",
-    path: ["groupPricing"],
-  })
-  .refine(
-    (data) =>
-      data.type !== TourType.INDIVIDUAL ||
-      (!!data.individualPricing && !!data.maxPersons),
-    {
-      message:
-        "Individual pricing and max persons are required for individual tours",
-      path: ["individualPricing"],
-    }
-  );
+      groupPricing: groupPricingSchema(t).optional(),
+      individualPricing: individualPricingSchema.optional(),
+      startDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional(),
+      maxPersons: z.coerce.number().min(1).optional(),
+    })
+    .refine((data) => data.type !== TourType.GROUP || !!data.groupPricing, {
+      message: t("tours.validation.groupPricingRequired"),
+      path: ["groupPricing"],
+    })
+    .refine(
+      (data) =>
+        data.type !== TourType.INDIVIDUAL ||
+        (!!data.individualPricing && !!data.maxPersons),
+      {
+        message: t("tours.validation.individualPricingRequired"),
+        path: ["individualPricing"],
+      }
+    );
 
-export type CreateTourFormData = z.infer<typeof createTourSchema>;
+export type CreateTourFormData = z.infer<ReturnType<typeof createTourSchema>>;
 
 export interface ApiResponse<T, M = undefined> {
   message: string;

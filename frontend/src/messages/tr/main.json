@@ -45,5 +45,15 @@
   "galleryDesc": "Gürcistan'daki turlarımızdan ve maceralarımızdan fotoğraflar ve videolar",
   "photos": "Fotoğraflar",
   "videos": "Videolar",
-  "noVideosAvailable": "Şu anda video bulunmamaktadır."
+  "noVideosAvailable": "Şu anda video bulunmamaktadır.",
+  "buy": "Satın Al",
+  "productNotFound": "Ürün bulunamadı",
+  "productNotAvailable": "Ürün mevcut değil",
+  "previousSlide": "Önceki slayt",
+  "nextSlide": "Sonraki slayt",
+  "slideN": "Slayt {n}",
+  "goToSlide": "{n}. slayta git",
+  "pagination": "Sayfalandırma",
+  "pageN": "Sayfa {page}",
+  "error_loading_faqs": "SSS yüklenirken hata oluştu"
 }

@@ -27,6 +27,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { driversAPI } from "@/src/services/drivers.service";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { handleFileToBase64 } from "@/src/utlis/base64/mainImageUpload";
 
 const CreateDriver = () => {
@@ -36,6 +37,7 @@ const CreateDriver = () => {
   const router = useRouter();
   const form = useCreateDriverValidator();
   const queryClient = useQueryClient();
+  const t = useTranslations("admin");
 
   const handleMainImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -64,11 +66,11 @@ const CreateDriver = () => {
       }
 
       await driversAPI.post(formData);
-      toast.success("მძღოლი წარმატებით დაემატა");
+      toast.success(t("drivers.added"));
       await queryClient.invalidateQueries({ queryKey: ["drivers"] });
       router.push("?drivers=all");
     } catch {
-      toast.error("მძღოლის დამატება ვერ მოხერხდა");
+      toast.error(t("drivers.addFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +79,7 @@ const CreateDriver = () => {
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
-        <CardTitle>ახალი მძღოლის დამატება</CardTitle>
+        <CardTitle>{t("drivers.createTitle")}</CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -89,10 +91,10 @@ const CreateDriver = () => {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>სახელი *</FormLabel>
+                    <FormLabel>{t("drivers.firstName")} *</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="შეიყვანეთ სახელი"
+                        placeholder={t("drivers.firstNamePlaceholder")}
                         {...field}
                         disabled={isSubmitting}
                       />
@@ -107,10 +109,10 @@ const CreateDriver = () => {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>გვარი *</FormLabel>
+                    <FormLabel>{t("drivers.lastName")} *</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="შეიყვანეთ გვარი"
+                        placeholder={t("drivers.lastNamePlaceholder")}
                         {...field}
                         disabled={isSubmitting}
                       />
@@ -126,7 +128,7 @@ const CreateDriver = () => {
               name="photo"
               render={() => (
                 <FormItem>
-                  <FormLabel>ფოტო (პროფილის სურათი)</FormLabel>
+                  <FormLabel>{t("drivers.photoLabel")}</FormLabel>
                   <FormControl>
                     <div className="space-y-4">
                       <Input
@@ -140,7 +142,7 @@ const CreateDriver = () => {
                         <div className="relative w-40 h-40 border rounded-md overflow-hidden bg-gray-50">
                           <Image
                             src={imagePreview}
-                            alt="მძღოლის ფოტო"
+                            alt={t("drivers.photoAlt")}
                             fill
                             className="object-cover"
                           />
@@ -161,10 +163,10 @@ const CreateDriver = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  იტვირთება...
+                  {t("common.loading")}
                 </>
               ) : (
-                "მძღოლის დამატება"
+                t("drivers.add")
               )}
             </Button>
           </form>

@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle, XCircle, Loader2, AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   PaymentStatusResponse,
   QuickPaymentDetails,
@@ -92,6 +93,8 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
   completed,
   paymentType,
 }) => {
+  const t = useTranslations("payment.result");
+
   const isSuccess =
     paymentType === "quick"
       ? quickPaymentDetails?.status === "PAID"
@@ -124,14 +127,13 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
     }
     if (paymentDetails?.reject_reason) {
       const reasons: Record<string, string> = {
-        expiration:
-          "Payment session expired - the order took too long to complete",
-        timeout: "Payment timed out - please try again",
-        cancelled: "Payment was cancelled by user",
-        insufficient_funds: "Insufficient funds in account",
-        card_declined: "Card was declined by your bank",
-        invalid_card: "Invalid card details provided",
-        unknown: "Payment failed due to an unknown error",
+        expiration: t("rejectExpiration"),
+        timeout: t("rejectTimeout"),
+        cancelled: t("rejectCancelled"),
+        insufficient_funds: t("rejectInsufficientFunds"),
+        card_declined: t("issueDeclined"),
+        invalid_card: t("rejectInvalidCard"),
+        unknown: t("rejectUnknown"),
       };
       return (
         reasons[paymentDetails.reject_reason.toLowerCase()] ||
@@ -144,29 +146,22 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
     if (error) {
       return error;
     }
-    return "Your payment could not be processed";
+    return t("couldNotProcess");
   };
 
   const getSuccessMessage = () => {
-    if (paymentType === "tour")
-      return "Congratulations! You have successfully purchased your tour.";
-    if (paymentType === "transfer")
-      return "Your transfer has been booked successfully!";
-    if (paymentType === "insurance")
-      return "Your insurance application has been submitted successfully.";
-    if (paymentType === "quick")
-      return "Your payment has been completed successfully.";
-    return "Payment completed successfully!";
+    if (paymentType === "tour") return t("successTour");
+    if (paymentType === "transfer") return t("successTransfer");
+    if (paymentType === "insurance") return t("successInsurance");
+    if (paymentType === "quick") return t("successQuick");
+    return t("successGeneric");
   };
 
   const getEmailMessage = () => {
-    if (paymentType === "tour")
-      return "You will receive tour information via email shortly.";
-    if (paymentType === "transfer")
-      return "You will receive transfer confirmation via email shortly.";
-    if (paymentType === "insurance")
-      return "We will process your insurance application and contact you soon.";
-    return "Payment confirmation has been sent to your email.";
+    if (paymentType === "tour") return t("emailTour");
+    if (paymentType === "transfer") return t("emailTransfer");
+    if (paymentType === "insurance") return t("emailInsurance");
+    return t("emailGeneric");
   };
 
   if (isLoading || isPending) {
@@ -176,17 +171,15 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
           <CardContent className="flex flex-col items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
             <p className="text-center text-gray-600">
-              {isPending
-                ? "Verifying your payment..."
-                : "Checking payment status..."}
+              {isPending ? t("verifying") : t("checkingStatus")}
             </p>
             <p className="text-center text-gray-400 text-sm mt-2">
-              Please wait, this may take a few seconds
+              {t("pleaseWait")}
             </p>
             {isPending && (
               <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-3 w-full">
                 <p className="text-blue-800 text-sm text-center">
-                  💳 Your payment is being processed by the bank
+                  💳 {t("bankProcessing")}
                 </p>
               </div>
             )}
@@ -208,20 +201,20 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
               <AlertCircle className="h-6 w-6" />
-              Verification Error
+              {t("verificationError")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">{error}</p>
             <div className="space-y-2">
               <Button onClick={() => (window.location.href = "/")}>
-                Return Home
+                {t("returnHome")}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => (window.location.href = "/contact")}
               >
-                Contact Support
+                {t("contactSupport")}
               </Button>
             </div>
           </CardContent>
@@ -238,7 +231,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-600">
               <CheckCircle className="h-6 w-6" />
-              Payment Successful!
+              {t("successTitle")}
             </CardTitle>
             <CardDescription>{getSuccessMessage()}</CardDescription>
           </CardHeader>
@@ -249,7 +242,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
                 <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-blue-900 font-medium">
-                      Amount Paid:
+                      {t("amountPaid")}
                     </span>
                     <span className="text-lg font-bold text-blue-900">
                       {paymentDetails.amount.currency}{" "}
@@ -259,7 +252,9 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
                   {paymentDetails.transaction_id && (
                     <div className="mt-2 pt-2 border-t border-blue-200">
                       <span className="text-xs text-blue-700">
-                        Transaction ID: {paymentDetails.transaction_id}
+                        {t("transactionId", {
+                          id: paymentDetails.transaction_id,
+                        })}
                       </span>
                     </div>
                   )}
@@ -270,7 +265,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
             {paymentType === "quick" && quickPaymentDetails && (
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <div className="mb-3">
-                  <span className="text-sm text-gray-600">Product:</span>
+                  <span className="text-sm text-gray-600">{t("product")}</span>
                   <p className="text-lg font-semibold text-gray-900">
                     {quickPaymentDetails.productName}
                   </p>
@@ -283,7 +278,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
                 {quickPaymentDetails.productQuantity &&
                   quickPaymentDetails.productQuantity > 1 && (
                     <div className="flex justify-between items-center pb-2">
-                      <span className="text-sm text-gray-600">Quantity:</span>
+                      <span className="text-sm text-gray-600">{t("quantity")}</span>
                       <span className="text-sm font-medium text-gray-900">
                         {quickPaymentDetails.productQuantity}
                       </span>
@@ -291,7 +286,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
                   )}
                 <div className="flex justify-between items-center pt-3 border-t border-blue-200">
                   <span className="text-sm text-blue-900 font-medium">
-                    Amount Paid:
+                    {t("amountPaid")}
                   </span>
                   <span className="text-lg font-bold text-blue-900">
                     ₾
@@ -309,17 +304,16 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
             {paymentType === "insurance" && insurancePaymentDetails && (
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <div className="mb-3">
-                  <span className="text-sm text-gray-600">Insurance for:</span>
+                  <span className="text-sm text-gray-600">{t("insuranceFor")}</span>
                   <p className="text-lg font-semibold text-gray-900">
-                    {insurancePaymentDetails.peopleCount}{" "}
-                    {insurancePaymentDetails.peopleCount === 1
-                      ? "person"
-                      : "people"}
+                    {t("peopleCount", {
+                      count: insurancePaymentDetails.peopleCount,
+                    })}
                   </p>
                 </div>
                 <div className="flex justify-between items-center pt-3 border-t border-blue-200">
                   <span className="text-sm text-blue-900 font-medium">
-                    Total Amount:
+                    {t("totalAmount")}
                   </span>
                   <span className="text-lg font-bold text-blue-900">
                     ₾{insurancePaymentDetails.totalAmount.toFixed(2)}
@@ -333,13 +327,13 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
                 ✅ {getEmailMessage()}
               </p>
               <p className="text-green-800 text-sm">
-                📧 Check your inbox for confirmation.
+                📧 {t("checkInbox")}
               </p>
             </div>
 
             <div className="pt-4 space-y-2">
               <Button onClick={() => (window.location.href = "/")}>
-                Return Home
+                {t("returnHome")}
               </Button>
             </div>
           </CardContent>
@@ -354,7 +348,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
             <XCircle className="h-6 w-6" />
-            Payment Failed
+            {t("failedTitle")}
           </CardTitle>
           <CardDescription>{getErrorMessage()}</CardDescription>
         </CardHeader>
@@ -362,32 +356,34 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
           {paymentDetails?.external_order_id && (
             <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
               <p className="text-xs text-gray-600">
-                Order Reference: {paymentDetails.external_order_id.slice(-12)}
+                {t("orderReference", {
+                  ref: paymentDetails.external_order_id.slice(-12),
+                })}
               </p>
             </div>
           )}
 
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
             <p className="text-blue-900 text-sm font-medium mb-2">
-              Common issues:
+              {t("commonIssues")}
             </p>
             <ul className="text-blue-800 text-xs space-y-1 list-disc list-inside">
-              <li>Card was declined by your bank</li>
-              <li>Insufficient funds</li>
-              <li>Incorrect card details</li>
-              <li>Payment session expired</li>
+              <li>{t("issueDeclined")}</li>
+              <li>{t("issueFunds")}</li>
+              <li>{t("issueDetails")}</li>
+              <li>{t("issueExpired")}</li>
             </ul>
           </div>
 
           <div className="pt-4 space-y-2">
             <Button onClick={() => (window.location.href = "/")}>
-              Try Again
+              {t("tryAgain")}
             </Button>
             <Button
               variant="outline"
               onClick={() => (window.location.href = "/contact")}
             >
-              Contact Support
+              {t("contactSupport")}
             </Button>
           </div>
         </CardContent>
