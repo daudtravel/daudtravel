@@ -18,6 +18,9 @@ import { InsuranceModule } from './insurance/insurance.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
 import { PaymentStatsModule } from './payment-stats/payment-stats.module';
 import { HealthController } from './health.controller';
+import { AccessModule } from './access/access.module';
+import { UsersModule } from './users/users.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { HealthController } from './health.controller';
       isGlobal: true,
     }),
     PrismaModule,
+    AccessModule,
+    UsersModule,
+    RolesModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

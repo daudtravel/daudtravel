@@ -13,6 +13,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import {
   ApiTags,
   ApiOperation,
@@ -35,6 +37,7 @@ export class TransfersController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new transfer (Admin)' })
   @ApiBody({ type: CreateTransferDto })
@@ -107,6 +110,7 @@ export class TransfersController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update transfer (Admin)' })
   @ApiBody({ type: UpdateTransferDto })
   @ApiResponse({ status: 200, description: 'Transfer updated successfully' })
@@ -131,6 +135,7 @@ export class TransfersController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete transfer (Admin)' })
   @ApiResponse({ status: 200, description: 'Transfer deleted successfully' })

@@ -1,6 +1,8 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { PaymentStatsService, PaymentType } from './payment-stats.service';
 
 @ApiTags('Payment Stats')
@@ -10,6 +12,7 @@ export class PaymentStatsController {
 
   @Get()
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({
     summary:
       'Aggregated payment statistics across tours, transfers, quick payments and insurance (Admin)',
@@ -20,6 +23,7 @@ export class PaymentStatsController {
 
   @Get('orders')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({
     summary: 'Unified paginated payment orders across all types (Admin)',
   })

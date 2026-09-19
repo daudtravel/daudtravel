@@ -306,12 +306,72 @@ model User {
   email      String   @unique
   password   String
   isVerified Boolean  @default(false) @map("is_verified")
+  // Super admin: every permission, and the only one who manages users/roles
   isAdmin    Boolean  @default(false) @map("is_admin")
+  isActive   Boolean  @default(true) @map("is_active")
+  phone      String?
+  position   String?
+  lastLoginAt       DateTime? @map("last_login_at")
+  // Tokens issued before this moment are rejected (password change/reset, deactivation)
+  sessionsRevokedAt DateTime? @map("sessions_revoked_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
-  
+
+  roles Role[]
+
   @@index([email])
   @@map("users")
+}
+
+// ─── Access control (admin-managed roles) ────────────────────────────────────
+
+enum PermissionModule {
+  BOOKINGS_HOTEL
+  BOOKINGS_TOUR
+  BOOKINGS_PACKAGE
+  DRIVERS
+  HOTELS
+  PARTNERS
+  TRANSACTIONS
+  FINANCE
+  CATALOG
+  CALENDAR
+  CURRENCY
+  WEBSITE
+  ONLINE_ORDERS
+}
+
+enum AccessScope {
+  OWN
+  ALL
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId    String           @map("role_id")
+  module    PermissionModule
+  canView   Boolean          @default(false) @map("can_view")
+  canCreate Boolean          @default(false) @map("can_create")
+  canEdit   Boolean          @default(false) @map("can_edit")
+  canDelete Boolean          @default(false) @map("can_delete")
+  scope     AccessScope      @default(OWN)
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, module])
+  @@map("role_permissions")
 }
 
 model EmailVerification {

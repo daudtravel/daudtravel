@@ -17,6 +17,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { VideosService } from './videos.service';
 
 @ApiTags('Videos')
@@ -26,6 +28,7 @@ export class VideosController {
 
   @Post('create_video')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new video (Admin only)' })
   @ApiResponse({ status: 201, description: 'Video created successfully' })
@@ -68,6 +71,7 @@ export class VideosController {
 
   @Put('update_video/:id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update video (Admin only)' })
   @ApiResponse({ status: 200, description: 'Video updated successfully' })
   @ApiResponse({ status: 404, description: 'Video not found' })
@@ -86,6 +90,7 @@ export class VideosController {
 
   @Delete('delete_video/:id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete video (Admin only)' })
   @ApiResponse({ status: 200, description: 'Video deleted successfully' })

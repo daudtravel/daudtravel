@@ -16,6 +16,8 @@ import {
 import { TransferPaymentsService } from './transfer-payments.service';
 import { CreateTransferPaymentDto } from './dto/create-transfer-payment.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 
@@ -65,6 +67,7 @@ export class TransferPaymentsController {
 
   @Get('orders')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get all transfer payment orders (Admin)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -88,6 +91,7 @@ export class TransferPaymentsController {
 
   @Delete('orders/failed')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete all failed transfer payment orders (Admin)',
@@ -99,6 +103,7 @@ export class TransferPaymentsController {
 
   @Delete('orders/expired')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete all expired transfer payment orders (Admin)',
@@ -110,6 +115,7 @@ export class TransferPaymentsController {
 
   @Delete('orders/cleanup')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Cleanup both failed and expired transfer payment orders (Admin)',

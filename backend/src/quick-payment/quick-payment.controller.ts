@@ -15,13 +15,14 @@ import {
 } from '@nestjs/common';
 import { QuickPaymentService } from './quick-payment.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import {
   CreateQuickLinkDto,
   UpdateQuickLinkDto,
   InitiatePaymentDto,
 } from './dto/quick-payment.dto';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, PermissionModule } from '@prisma/client';
 
 @ApiTags('Quick Payment')
 @Controller('quick-payment')
@@ -91,6 +92,7 @@ export class QuickPaymentController {
 
   @Post('links')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @ApiOperation({ summary: 'Create payment link (Admin)' })
   async createLink(@Body() dto: CreateQuickLinkDto) {
     return this.service.createQuickLink(dto);
@@ -98,6 +100,7 @@ export class QuickPaymentController {
 
   @Get('links')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
   @ApiOperation({ summary: 'Get all payment links (Admin)' })
   @ApiQuery({ name: 'locale', required: false, example: 'ka' })
   async getAllLinks(
@@ -110,6 +113,7 @@ export class QuickPaymentController {
 
   @Put('links/:slug')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update payment link (Admin)' })
   async updateLink(
     @Param('slug') slug: string,
@@ -120,6 +124,7 @@ export class QuickPaymentController {
 
   @Post('links/:slug/toggle')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Toggle link active status (Admin)' })
   async toggleLink(@Param('slug') slug: string) {
     return this.service.toggleLinkStatus(slug);
@@ -127,6 +132,7 @@ export class QuickPaymentController {
 
   @Delete('links/:slug')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @ApiOperation({ summary: 'Delete payment link (Admin)' })
   async deleteLink(@Param('slug') slug: string) {
     return this.service.deleteLink(slug);
@@ -136,6 +142,7 @@ export class QuickPaymentController {
 
   @Get('orders')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get all payment orders (Admin)' })
   @ApiQuery({ name: 'linkId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: PaymentStatus })
@@ -152,6 +159,7 @@ export class QuickPaymentController {
 
   @Get('orders/:orderId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get order details by ID (Admin)' })
   async getOrderById(@Param('orderId') orderId: string) {
     return this.service.getOrderById(orderId);
@@ -159,6 +167,7 @@ export class QuickPaymentController {
 
   @Delete('orders/:orderId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @ApiOperation({ summary: 'Delete order by ID (Admin)' })
   async deleteOrder(@Param('orderId') orderId: string) {
     return this.service.deleteOrder(orderId);

@@ -14,6 +14,8 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { DriversService } from './drivers.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { CreateDriverReviewDto } from './dto/create-driver-review.dto';
 import { UpdateDriverDto, RemoveCarPhotoDto } from './dto/update-driver.dto';
@@ -24,6 +26,7 @@ export class DriversController {
 
   @Post('add_driver')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.DRIVERS, 'create')
   @UseInterceptors(FileInterceptor('photo'))
   async create(
     @Body() body: CreateDriverDto,
@@ -47,6 +50,7 @@ export class DriversController {
 
   @Patch(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
   @UseInterceptors(FileInterceptor('photo'))
   async update(
     @Param('id') id: string,
@@ -59,6 +63,7 @@ export class DriversController {
 
   @Post(':id/car-photos')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
   @UseInterceptors(FilesInterceptor('photos', 10))
   async addCarPhotos(
     @Param('id') id: string,
@@ -70,6 +75,7 @@ export class DriversController {
 
   @Delete(':id/car-photos')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
   async removeCarPhoto(
     @Param('id') id: string,
     @Body() dto: RemoveCarPhotoDto,
@@ -80,6 +86,7 @@ export class DriversController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.DRIVERS, 'delete')
   async delete(@Param('id') id: string) {
     await this.driversService.delete(id);
     return { message: 'Driver deleted successfully' };
@@ -99,6 +106,7 @@ export class DriversController {
 
   @Delete('reviews/:reviewId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
   async deleteReview(@Param('reviewId') reviewId: string) {
     await this.driversService.deleteReview(reviewId);
     return { message: 'Review deleted successfully' };
