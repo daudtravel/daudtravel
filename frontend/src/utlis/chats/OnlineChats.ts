@@ -17,8 +17,10 @@ export const initTawkWidget = () => {
   export const initWhatsAppWidget = (phoneNumber: string) => {
     return `
       (function() {
-        // Create container
+        if (document.getElementById('daud-whatsapp-widget')) return;
+        // Create container (the id lets the admin panel hide it)
         var container = document.createElement('div');
+        container.id = 'daud-whatsapp-widget';
         container.style.position = 'fixed';
         container.style.bottom = '90px';
         container.style.right = '20px';

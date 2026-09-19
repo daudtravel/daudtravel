@@ -1,14 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import AccommodationForm from "../AccommodationForm";
 import { useAccommodationById } from "@/src/hooks/accommodations/useAccommodationById";
 
-export default function EditAccommodation() {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("accommodations") || "";
+export default function EditAccommodation({ id }: { id: string }) {
   const t = useTranslations("admin");
 
   const { data, isLoading } = useAccommodationById({ id, allLocales: true });

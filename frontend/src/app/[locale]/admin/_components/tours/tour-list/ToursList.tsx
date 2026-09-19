@@ -1,4 +1,7 @@
-import { useRouter } from "next/navigation";
+"use client";
+
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   Plus,
   Loader2,
@@ -50,11 +53,11 @@ export function ToursList() {
   });
 
   const handleEditTour = (tourId: string) => {
-    router.push(`?tours=${tourId}`);
+    router.push(adminPaths.websiteTour(tourId));
   };
 
   const handleCreateTour = () => {
-    router.push("?tours=createTour");
+    router.push(adminPaths.websiteTourNew);
   };
 
   const handleDeleteTour = async (id: string) => {

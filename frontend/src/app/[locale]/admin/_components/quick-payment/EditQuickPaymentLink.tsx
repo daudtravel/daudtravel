@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { Loader2, Upload, X, ArrowLeft, Languages, Plus } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -31,10 +32,8 @@ const AVAILABLE_LOCALES = [
   { code: "tr", label: "Türkçe", flag: "🇹🇷", required: false },
 ];
 
-function EditQuickLinkContent() {
+function EditQuickLinkContent({ slug }: { slug: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("quickPayment");
 
   const [loading, setLoading] = useState(true);
   const [localizations, setLocalizations] = useState<Localization[]>([
@@ -83,12 +82,12 @@ function EditQuickLinkContent() {
           setLocalizations(validLocalizations);
         } else {
           toast.error(t("quickLinks.noValidTranslations"));
-          router.push("/admin?quickPayment=all");
+          router.push(adminPaths.websitePaymentLinks);
           return;
         }
       } else {
         toast.error(t("quickLinks.noTranslations"));
-        router.push("/admin?quickPayment=all");
+        router.push(adminPaths.websitePaymentLinks);
         return;
       }
 
@@ -102,7 +101,7 @@ function EditQuickLinkContent() {
       const msg = (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message
         || (error instanceof Error ? error.message : t("common.loadDataError"));
       toast.error(msg);
-      router.push("/admin?quickPayment=all");
+      router.push(adminPaths.websitePaymentLinks);
     } finally {
       setLoading(false);
     }
@@ -234,7 +233,7 @@ function EditQuickLinkContent() {
 
       await updateLink.mutateAsync({ slug: slug!, data: submitData });
       toast.success(t("quickLinks.updated"));
-      router.push("/admin?quickPayment=all");
+      router.push(adminPaths.websitePaymentLinks);
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
@@ -244,7 +243,7 @@ function EditQuickLinkContent() {
   };
 
   const handleCancel = () => {
-    router.push("/admin?quickPayment=all");
+    router.push(adminPaths.websitePaymentLinks);
   };
 
   const addedLocales = localizations.map((loc) => loc.locale);
@@ -543,7 +542,7 @@ function EditQuickLinkContent() {
   );
 }
 
-export const EditQuickLink = () => {
+export const EditQuickLink = ({ slug }: { slug: string }) => {
   return (
     <Suspense
       fallback={
@@ -552,7 +551,7 @@ export const EditQuickLink = () => {
         </div>
       }
     >
-      <EditQuickLinkContent />
+      <EditQuickLinkContent slug={slug} />
     </Suspense>
   );
 };

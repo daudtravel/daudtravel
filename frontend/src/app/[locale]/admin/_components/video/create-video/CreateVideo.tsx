@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import {
@@ -100,7 +101,7 @@ export default function CreateVideo() {
 
       toast.success(t("videos.added"));
       await queryClient.invalidateQueries({ queryKey: ["videos"] });
-      router.push("?videos=all");
+      router.push(adminPaths.websiteVideos);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         toast.error(error.response.data.message || t("videos.addFailed"));
@@ -113,7 +114,7 @@ export default function CreateVideo() {
   };
 
   const handleCancel = () => {
-    router.push("?videos=all");
+    router.push(adminPaths.websiteVideos);
   };
 
   return (

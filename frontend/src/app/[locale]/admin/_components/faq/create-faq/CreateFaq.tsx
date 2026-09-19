@@ -19,7 +19,9 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/src/components/ui/textarea";
 import { toast } from "sonner";
@@ -87,7 +89,7 @@ const CreateFaq = () => {
 
       toast.success(t("faq.created"));
       await queryClient.invalidateQueries({ queryKey: ["faqs"] });
-      router.push(`?faqs=all`);
+      router.push(adminPaths.websiteFaqs);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         const errorMsg =
@@ -194,7 +196,7 @@ const CreateFaq = () => {
                 type="button"
                 variant="outline"
                 className="flex-1"
-                onClick={() => router.push("?faqs=all")}
+                onClick={() => router.push(adminPaths.websiteFaqs)}
                 disabled={isSubmitting}
               >
                 {t("common.cancel")}

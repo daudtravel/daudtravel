@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   Plus,
   Loader2,
@@ -43,8 +44,8 @@ export function AccommodationsList() {
 
   const { data, isLoading, error } = useAdminAccommodations({ limit: 1000 });
 
-  const handleEdit = (id: string) => router.push(`?accommodations=${id}`);
-  const handleCreate = () => router.push("?accommodations=create");
+  const handleEdit = (id: string) => router.push(adminPaths.websiteAccommodation(id));
+  const handleCreate = () => router.push(adminPaths.websiteAccommodationNew);
 
   const handleDelete = async (id: string) => {
     try {

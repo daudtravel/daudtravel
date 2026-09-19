@@ -13,7 +13,8 @@ import {
   Info,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -31,7 +32,6 @@ import { useQuickPaymentOrders } from "@/src/hooks/quick-payment/useQuickPayment
 
 export const QuickPaymentOrders = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
@@ -130,7 +130,7 @@ export const QuickPaymentOrders = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <button
-                onClick={() => router.push(`${pathname}?quickPayment=all`)}
+                onClick={() => router.push(adminPaths.websitePaymentLinks)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <ArrowLeft size={20} />

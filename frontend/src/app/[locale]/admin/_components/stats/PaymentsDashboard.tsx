@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Loader2,
@@ -65,7 +66,6 @@ const inPeriod = (month: string, [from, to]: [string | null, string | null]) =>
 
 export const PaymentsDashboard = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const t = useTranslations("admin");
   const locale = useLocale();
   const { data, isLoading, error, refetch, isRefetching } = usePaymentStats();
@@ -518,7 +518,7 @@ export const PaymentsDashboard = () => {
             </h2>
           </div>
           <button
-            onClick={() => router.push(`${pathname}?stats=orders`)}
+            onClick={() => router.push(adminPaths.ordersStatuses)}
             className="flex items-center gap-1.5 text-xs font-medium text-brand-green hover:underline"
           >
             <List className="w-3.5 h-3.5" />

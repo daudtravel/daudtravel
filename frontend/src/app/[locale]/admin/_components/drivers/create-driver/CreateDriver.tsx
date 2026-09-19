@@ -18,7 +18,8 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   CreateDriverFormData,
   useCreateDriverValidator,
@@ -68,7 +69,7 @@ const CreateDriver = () => {
       await driversAPI.post(formData);
       toast.success(t("drivers.added"));
       await queryClient.invalidateQueries({ queryKey: ["drivers"] });
-      router.push("?drivers=all");
+      router.push(adminPaths.drivers);
     } catch {
       toast.error(t("drivers.addFailed"));
     } finally {

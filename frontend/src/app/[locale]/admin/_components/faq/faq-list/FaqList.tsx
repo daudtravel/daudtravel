@@ -1,4 +1,8 @@
-import { useParams, useRouter } from "next/navigation";
+"use client";
+
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { Plus, Loader2, Pencil, Trash } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -44,11 +48,11 @@ export function FaqList() {
   };
 
   const handleEditFaq = (faqId: string) => {
-    router.push(`?faqs=${faqId}`);
+    router.push(adminPaths.websiteFaq(faqId));
   };
 
   const handleCreateFaq = () => {
-    router.push("?faqs=createFaq");
+    router.push(adminPaths.websiteFaqNew);
   };
 
   if (isLoading) {

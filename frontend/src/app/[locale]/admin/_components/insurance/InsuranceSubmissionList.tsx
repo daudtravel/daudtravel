@@ -17,7 +17,8 @@ import {
   Info,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   useInsuranceSubmissions,
   useDeleteInsuranceSubmission,
@@ -237,7 +238,6 @@ const SubmissionDetails = ({
 
 export default function InsuranceSubmissionsList() {
   const router = useRouter();
-  const pathname = usePathname();
   const [page, setPage] = useState<number>(1);
   const [statusFilter, setStatusFilter] = useState<PaymentStatus | undefined>(
     undefined
@@ -288,7 +288,7 @@ export default function InsuranceSubmissionsList() {
 
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => router.push(`${pathname}?insurance=settings`)}
+                onClick={() => router.push(adminPaths.websiteInsuranceSettings)}
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
                 <Settings size={18} />

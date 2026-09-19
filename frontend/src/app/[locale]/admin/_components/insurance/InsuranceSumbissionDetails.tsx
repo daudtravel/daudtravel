@@ -18,7 +18,8 @@ import {
   DollarSign,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useInsuranceSubmission } from "@/src/hooks/insurance/useInsurance";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -40,11 +41,10 @@ interface InsurancePerson {
   createdAt: string;
 }
 
-export const InsuranceSubmissionDetails: React.FC = () => {
+export const InsuranceSubmissionDetails: React.FC<{ submissionId: string }> = ({
+  submissionId,
+}) => {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const submissionId = searchParams.get("insurance");
   const t = useTranslations("admin");
   const locale = useLocale();
 
@@ -103,7 +103,7 @@ export const InsuranceSubmissionDetails: React.FC = () => {
         <div className="p-4 sm:p-6 border-b">
           <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
             <button
-              onClick={() => router.push(`${pathname}?insurance=all`)}
+              onClick={() => router.push(adminPaths.ordersInsurance)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             >
               <ArrowLeft size={20} />

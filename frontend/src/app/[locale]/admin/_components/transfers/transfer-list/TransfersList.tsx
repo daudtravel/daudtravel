@@ -1,6 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   Plus,
   Loader2,
@@ -83,7 +85,7 @@ export function TransfersList() {
           </p>
         </div>
         <button
-          onClick={() => router.push("?transfers=createTransfer")}
+          onClick={() => router.push(adminPaths.websiteTransferNew)}
           className="flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
@@ -98,7 +100,7 @@ export function TransfersList() {
           </div>
           <p className="text-gray-500 text-base">{t("transfers.notFound")}</p>
           <button
-            onClick={() => router.push("?transfers=createTransfer")}
+            onClick={() => router.push(adminPaths.websiteTransferNew)}
             className="flex items-center gap-2 border border-brand-green text-brand-green hover:bg-brand-green-50 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -176,7 +178,7 @@ export function TransfersList() {
                   {/* Actions */}
                   <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
                     <button
-                      onClick={() => router.push(`?transfers=${transfer.id}`)}
+                      onClick={() => router.push(adminPaths.websiteTransfer(transfer.id))}
                       disabled={isDeleting}
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-brand-green-50 hover:border-brand-green-100 hover:text-brand-green transition-colors disabled:opacity-50"
                     >

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { Loader2, Plus, X } from "lucide-react";
@@ -35,13 +36,12 @@ import {
 } from "./EditTourValidator";
 import { TourType, UpdateTourInput } from "@/src/types/tours.type";
 
-export function EditTour() {
+export function EditTour({ id }: { id: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const t = useTranslations("admin");
 
-  const tourId = searchParams.get("tours") || "";
+  const tourId = id;
   const form = useEditTourForm(tourId || "");
 
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
@@ -99,7 +99,7 @@ export function EditTour() {
       toast.success(t("tours.updated"));
       queryClient.invalidateQueries({ queryKey: ["tours"] });
       queryClient.invalidateQueries({ queryKey: ["tour", tourId] });
-      router.push("?tours=all");
+      router.push(adminPaths.websiteTours);
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : t("tours.updateFailed"));

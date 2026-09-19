@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useState } from "react";
 import {
   Plus,
@@ -177,7 +178,7 @@ export function DriversList() {
           </p>
         </div>
         <button
-          onClick={() => router.push("?drivers=createDriver")}
+          onClick={() => router.push(adminPaths.driverNew)}
           className="flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
@@ -192,7 +193,7 @@ export function DriversList() {
           </div>
           <p className="text-gray-500">{t("drivers.notFound")}</p>
           <button
-            onClick={() => router.push("?drivers=createDriver")}
+            onClick={() => router.push(adminPaths.driverNew)}
             className="flex items-center gap-2 border border-brand-green text-brand-green hover:bg-brand-green-50 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
           >
             <Plus className="h-4 w-4" />

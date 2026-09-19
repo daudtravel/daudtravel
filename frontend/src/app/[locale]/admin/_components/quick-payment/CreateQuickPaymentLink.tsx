@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import { X, Loader2, Upload, XCircle, Globe } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useCreateQuickLink } from "@/src/hooks/quick-payment/useQuickPayment";
 
 export const CreateQuickLink = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const createLink = useCreateQuickLink();
   const t = useTranslations("admin");
 
@@ -95,7 +95,7 @@ export const CreateQuickLink = () => {
       setImageBase64(null);
 
       toast.success(t("quickLinks.created"));
-      router.push(`${pathname}?quickPayment=all`);
+      router.push(adminPaths.websitePaymentLinks);
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
@@ -105,7 +105,7 @@ export const CreateQuickLink = () => {
   };
 
   const handleBack = () => {
-    router.push(`${pathname}?quickPayment=all`);
+    router.push(adminPaths.websitePaymentLinks);
   };
 
   return (

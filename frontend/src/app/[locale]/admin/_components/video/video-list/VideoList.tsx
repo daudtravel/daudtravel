@@ -1,6 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { Plus, Loader2, Trash, ExternalLink } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/src/components/ui/card";
@@ -47,7 +49,7 @@ export function VideoList() {
   };
 
   const handleCreateVideo = () => {
-    router.push("?videos=createVideo");
+    router.push(adminPaths.websiteVideoNew);
   };
 
   if (isLoading) {

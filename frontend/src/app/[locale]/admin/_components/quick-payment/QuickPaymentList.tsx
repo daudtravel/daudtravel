@@ -15,7 +15,8 @@ import {
   Globe,
   GlobeLock,
 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -37,7 +38,6 @@ import {
 
 export const QuickLinksList = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const [page, setPage] = useState(1);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const t = useTranslations("admin");
@@ -47,7 +47,7 @@ export const QuickLinksList = () => {
   const deleteLink = useDeleteQuickLink();
 
   const handleCreateNew = () => {
-    router.push(`${pathname}?quickPayment=create`);
+    router.push(adminPaths.websitePaymentLinkNew);
   };
 
   const handleCopyLink = (link: string, slug: string) => {
@@ -57,7 +57,7 @@ export const QuickLinksList = () => {
   };
 
   const handleEdit = (slug: string) => {
-    router.push(`${pathname}?quickPayment=${slug}`);
+    router.push(adminPaths.websitePaymentLink(slug));
   };
 
   const handleToggle = async (slug: string) => {
@@ -110,7 +110,7 @@ export const QuickLinksList = () => {
         </div>
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => router.push(`${pathname}?quickPayment=orders`)}
+            onClick={() => router.push(adminPaths.ordersPaymentLinks)}
             className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex-1 sm:flex-initial"
           >
             <TrendingUp size={18} />
