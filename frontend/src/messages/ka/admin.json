@@ -794,7 +794,8 @@
     "vehicles": "ავტომობილები",
     "hotels": "სასტუმროები",
     "bookings": "ჯავშნები",
-    "transactions": "შემოსავალი და ხარჯი"
+    "transactions": "შემოსავალი და ხარჯი",
+    "finance": "ფინანსური ანგარიში"
   },
   "login": {
     "eyebrow": "მართვის პანელი",
@@ -1398,5 +1399,42 @@
       "SERVICE_INCOME": "მომსახურების შემოსავალი",
       "OTHER_INCOME": "სხვა შემოსავალი"
     }
+  },
+  "finance": {
+    "subtitle": "შემოსავალი, ხარჯი და მოგება არჩეულ პერიოდში",
+    "period": "პერიოდი",
+    "displayCurrency": "ვალუტა",
+    "count": "რაოდენობა",
+    "revenue": "შემოსავალი ჯავშნებიდან",
+    "costOfSales": "მომსახურების ხარჯი",
+    "commissions": "საკომისიოები",
+    "bookingProfit": "ჯავშნების მოგება",
+    "bookingProfitHint": "შემოსავალი − ხარჯი − საკომისიოები",
+    "onlineIncome": "საიტის გადახდები",
+    "onlineIncomeHint": "გადახდილი შეკვეთები, რომლებზეც ჯავშანი არ შექმნილა",
+    "otherIncome": "სხვა შემოსავალი",
+    "expenses": "ხარჯები",
+    "netResult": "საბოლოო შედეგი",
+    "netResultHint": "ჯავშნების მოგება + შემოსავლები − ხარჯები",
+    "received": "მიღებული თანხა",
+    "outstanding": "მისაღები თანხა",
+    "outstandingHint": "ჯავშნების დარჩენილი ნაშთი",
+    "bookingsCount": "{count, plural, one {# ჯავშანი} other {# ჯავშანი}}",
+    "monthly": "თვეების მიხედვით",
+    "byItemType": "მოგება მომსახურების ტიპით",
+    "byItemTypeHint": "სასტუმრო, ავტომობილი, დაზღვევა — ცალ-ცალკე",
+    "byBookingType": "ჯავშნის ტიპების მიხედვით",
+    "perVehicle": "ავტომობილების მიხედვით",
+    "perVehicleHint": "შემოსავალი მინუს ხარჯი და ავტომობილის ხარჯები",
+    "hotelCommissions": "სასტუმროებიდან მიღებული",
+    "driverPayouts": "მძღოლების ანაზღაურება",
+    "driverPayoutsHint": "ჯავშნის პოზიციების ხარჯიდან",
+    "paidOut": "გადახდილი {amount}",
+    "stillOwed": "დარჩენილი {amount}",
+    "partnerCommissions": "პარტნიორების საკომისიოები",
+    "unpaid": "გადაუხდელი {amount}",
+    "byCurrency": "ვალუტების მიხედვით",
+    "byCurrencyHint": "ჯავშნების თანხები საკუთარ ვალუტაში",
+    "rateNote": "კონვერტაცია დღევანდელი კურსით: 1 {currency} = {rate} GEL"
   }
 }

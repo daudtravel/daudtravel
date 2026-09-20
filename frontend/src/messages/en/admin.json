@@ -794,7 +794,8 @@
     "vehicles": "Vehicles",
     "hotels": "Hotels",
     "bookings": "Bookings",
-    "transactions": "Income & expenses"
+    "transactions": "Income & expenses",
+    "finance": "Finance report"
   },
   "login": {
     "eyebrow": "Back office",
@@ -1398,5 +1399,42 @@
       "SERVICE_INCOME": "Service income",
       "OTHER_INCOME": "Other income"
     }
+  },
+  "finance": {
+    "subtitle": "Income, expenses and profit for the chosen period",
+    "period": "Period",
+    "displayCurrency": "Shown in",
+    "count": "Count",
+    "revenue": "Booking revenue",
+    "costOfSales": "Cost of sales",
+    "commissions": "Commissions",
+    "bookingProfit": "Booking profit",
+    "bookingProfitHint": "Revenue − cost − commissions",
+    "onlineIncome": "Website payments",
+    "onlineIncomeHint": "Paid orders that never became a booking",
+    "otherIncome": "Other income",
+    "expenses": "Expenses",
+    "netResult": "Net result",
+    "netResultHint": "Booking profit + income − expenses",
+    "received": "Received",
+    "outstanding": "Still owed to us",
+    "outstandingHint": "Open balances on bookings",
+    "bookingsCount": "{count, plural, one {# booking} other {# bookings}}",
+    "monthly": "Month by month",
+    "byItemType": "Profit by service",
+    "byItemTypeHint": "Hotel, vehicle, insurance — each on its own",
+    "byBookingType": "By booking type",
+    "perVehicle": "Per vehicle",
+    "perVehicleHint": "What it earned, less its costs and its own expenses",
+    "hotelCommissions": "Earned at hotels",
+    "driverPayouts": "Driver payouts",
+    "driverPayoutsHint": "From the cost of the lines they worked",
+    "paidOut": "paid {amount}",
+    "stillOwed": "still owed {amount}",
+    "partnerCommissions": "Partner commissions",
+    "unpaid": "{amount} unpaid",
+    "byCurrency": "By currency",
+    "byCurrencyHint": "Booking amounts in the currency they were agreed in",
+    "rateNote": "Converted at today's rate: 1 {currency} = {rate} GEL"
   }
 }

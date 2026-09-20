@@ -794,7 +794,8 @@
     "vehicles": "المركبات",
     "hotels": "الفنادق",
     "bookings": "الحجوزات",
-    "transactions": "الإيرادات والمصروفات"
+    "transactions": "الإيرادات والمصروفات",
+    "finance": "التقرير المالي"
   },
   "login": {
     "eyebrow": "لوحة الإدارة",
@@ -1398,5 +1399,42 @@
       "SERVICE_INCOME": "إيراد الخدمات",
       "OTHER_INCOME": "إيرادات أخرى"
     }
+  },
+  "finance": {
+    "subtitle": "الإيرادات والمصروفات والأرباح للفترة المختارة",
+    "period": "الفترة",
+    "displayCurrency": "بعملة",
+    "count": "العدد",
+    "revenue": "إيراد الحجوزات",
+    "costOfSales": "تكلفة الخدمات",
+    "commissions": "العمولات",
+    "bookingProfit": "ربح الحجوزات",
+    "bookingProfitHint": "الإيراد − التكلفة − العمولات",
+    "onlineIncome": "مدفوعات الموقع",
+    "onlineIncomeHint": "طلبات مدفوعة لم تتحول إلى حجز",
+    "otherIncome": "إيرادات أخرى",
+    "expenses": "المصروفات",
+    "netResult": "النتيجة الصافية",
+    "netResultHint": "ربح الحجوزات + الإيرادات − المصروفات",
+    "received": "المُحصَّل",
+    "outstanding": "مستحق لنا",
+    "outstandingHint": "أرصدة الحجوزات المفتوحة",
+    "bookingsCount": "{count, plural, zero {# حجز} one {حجز واحد} two {حجزان} few {# حجوزات} many {# حجزًا} other {# حجز}}",
+    "monthly": "شهرًا بشهر",
+    "byItemType": "الربح حسب الخدمة",
+    "byItemTypeHint": "الفندق والمركبة والتأمين — كل على حدة",
+    "byBookingType": "حسب نوع الحجز",
+    "perVehicle": "حسب المركبة",
+    "perVehicleHint": "ما كسبته ناقص تكاليفها ومصروفاتها",
+    "hotelCommissions": "المكتسب من الفنادق",
+    "driverPayouts": "مستحقات السائقين",
+    "driverPayoutsHint": "من تكلفة البنود التي نفذوها",
+    "paidOut": "مدفوع {amount}",
+    "stillOwed": "متبقٍ {amount}",
+    "partnerCommissions": "عمولات الشركاء",
+    "unpaid": "غير مدفوع {amount}",
+    "byCurrency": "حسب العملة",
+    "byCurrencyHint": "مبالغ الحجوزات بعملتها الأصلية",
+    "rateNote": "التحويل بسعر اليوم: 1 {currency} = {rate} GEL"
   }
 }

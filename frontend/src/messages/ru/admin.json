@@ -794,7 +794,8 @@
     "vehicles": "Автомобили",
     "hotels": "Отели",
     "bookings": "Брони",
-    "transactions": "Доходы и расходы"
+    "transactions": "Доходы и расходы",
+    "finance": "Финансовый отчёт"
   },
   "login": {
     "eyebrow": "Панель управления",
@@ -1398,5 +1399,42 @@
       "SERVICE_INCOME": "Доход от услуг",
       "OTHER_INCOME": "Прочие доходы"
     }
+  },
+  "finance": {
+    "subtitle": "Доходы, расходы и прибыль за выбранный период",
+    "period": "Период",
+    "displayCurrency": "В валюте",
+    "count": "Количество",
+    "revenue": "Выручка по броням",
+    "costOfSales": "Себестоимость",
+    "commissions": "Комиссии",
+    "bookingProfit": "Прибыль по броням",
+    "bookingProfitHint": "Выручка − себестоимость − комиссии",
+    "onlineIncome": "Платежи с сайта",
+    "onlineIncomeHint": "Оплаченные заказы, по которым не создана бронь",
+    "otherIncome": "Прочие доходы",
+    "expenses": "Расходы",
+    "netResult": "Итоговый результат",
+    "netResultHint": "Прибыль по броням + доходы − расходы",
+    "received": "Получено",
+    "outstanding": "Нам должны",
+    "outstandingHint": "Остатки по броням",
+    "bookingsCount": "{count, plural, one {# бронь} few {# брони} many {# броней} other {# брони}}",
+    "monthly": "По месяцам",
+    "byItemType": "Прибыль по услугам",
+    "byItemTypeHint": "Отель, автомобиль, страховка — по отдельности",
+    "byBookingType": "По типам броней",
+    "perVehicle": "По автомобилям",
+    "perVehicleHint": "Заработок минус себестоимость и расходы автомобиля",
+    "hotelCommissions": "Заработано на отелях",
+    "driverPayouts": "Выплаты водителям",
+    "driverPayoutsHint": "Из себестоимости строк, которые они выполнили",
+    "paidOut": "выплачено {amount}",
+    "stillOwed": "осталось {amount}",
+    "partnerCommissions": "Комиссии партнёров",
+    "unpaid": "не выплачено {amount}",
+    "byCurrency": "По валютам",
+    "byCurrencyHint": "Суммы броней в валюте договорённости",
+    "rateNote": "Пересчёт по сегодняшнему курсу: 1 {currency} = {rate} GEL"
   }
 }

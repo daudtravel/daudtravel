@@ -794,7 +794,8 @@
     "vehicles": "Araçlar",
     "hotels": "Oteller",
     "bookings": "Rezervasyonlar",
-    "transactions": "Gelir ve gider"
+    "transactions": "Gelir ve gider",
+    "finance": "Mali rapor"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -1398,5 +1399,42 @@
       "SERVICE_INCOME": "Hizmet geliri",
       "OTHER_INCOME": "Diğer gelir"
     }
+  },
+  "finance": {
+    "subtitle": "Seçilen dönemin geliri, gideri ve kârı",
+    "period": "Dönem",
+    "displayCurrency": "Para birimi",
+    "count": "Adet",
+    "revenue": "Rezervasyon geliri",
+    "costOfSales": "Hizmet maliyeti",
+    "commissions": "Komisyonlar",
+    "bookingProfit": "Rezervasyon kârı",
+    "bookingProfitHint": "Gelir − maliyet − komisyonlar",
+    "onlineIncome": "Site ödemeleri",
+    "onlineIncomeHint": "Rezervasyona dönüşmemiş ödenmiş siparişler",
+    "otherIncome": "Diğer gelir",
+    "expenses": "Giderler",
+    "netResult": "Net sonuç",
+    "netResultHint": "Rezervasyon kârı + gelirler − giderler",
+    "received": "Tahsil edilen",
+    "outstanding": "Bize borçlu",
+    "outstandingHint": "Rezervasyonlardaki açık bakiye",
+    "bookingsCount": "{count, plural, one {# rezervasyon} other {# rezervasyon}}",
+    "monthly": "Ay ay",
+    "byItemType": "Hizmete göre kâr",
+    "byItemTypeHint": "Otel, araç, sigorta — ayrı ayrı",
+    "byBookingType": "Rezervasyon türüne göre",
+    "perVehicle": "Araç bazında",
+    "perVehicleHint": "Kazancı eksi maliyeti ve kendi giderleri",
+    "hotelCommissions": "Otellerden kazanılan",
+    "driverPayouts": "Şoför ödemeleri",
+    "driverPayoutsHint": "Yaptıkları satırların maliyetinden",
+    "paidOut": "ödenen {amount}",
+    "stillOwed": "kalan {amount}",
+    "partnerCommissions": "Ortak komisyonları",
+    "unpaid": "{amount} ödenmedi",
+    "byCurrency": "Para birimine göre",
+    "byCurrencyHint": "Rezervasyon tutarları anlaşılan para biriminde",
+    "rateNote": "Bugünkü kurla çevrildi: 1 {currency} = {rate} GEL"
   }
 }

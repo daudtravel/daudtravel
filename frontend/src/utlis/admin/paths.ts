@@ -33,6 +33,7 @@ export const adminPaths = {
     const query = new URLSearchParams({ new: "1", ...params });
     return `/admin/transactions?${query.toString()}`;
   },
+  finance: "/admin/finance",
   currency: "/admin/currency",
   partners: "/admin/partners",
 

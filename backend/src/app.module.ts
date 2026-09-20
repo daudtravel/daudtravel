@@ -28,6 +28,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
 import { HotelsModule } from './hotels/hotels.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     HotelsModule,
     BookingsModule,
     TransactionsModule,
+    FinanceModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

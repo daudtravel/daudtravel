@@ -14,6 +14,7 @@ import {
   Link2,
   ListChecks,
   Map as MapIcon,
+  PiggyBank,
   Route,
   Shield,
   ShieldCheck,
@@ -95,6 +96,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
   {
     key: "finance",
     items: [
+      {
+        key: "finance",
+        href: adminPaths.finance,
+        icon: PiggyBank,
+        requires: { module: "FINANCE" },
+      },
       {
         key: "transactions",
         href: adminPaths.transactions,
