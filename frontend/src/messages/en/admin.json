@@ -795,7 +795,8 @@
     "hotels": "Hotels",
     "bookings": "Bookings",
     "transactions": "Income & expenses",
-    "finance": "Finance report"
+    "finance": "Finance report",
+    "catalog": "Price catalog"
   },
   "login": {
     "eyebrow": "Back office",
@@ -1436,5 +1437,63 @@
     "byCurrency": "By currency",
     "byCurrencyHint": "Booking amounts in the currency they were agreed in",
     "rateNote": "Converted at today's rate: 1 {currency} = {rate} GEL"
+  },
+  "catalog": {
+    "subtitle": "The prices you quote and what they cost us",
+    "new": "New price",
+    "edit": "Edit price",
+    "formHint": "Our cost never appears on the client version.",
+    "created": "Price created",
+    "updated": "Price updated",
+    "deleted": "Price deleted",
+    "deleteTitle": "Delete price?",
+    "deleteText": "“{name}” will be removed. This cannot be undone.",
+    "searchPlaceholder": "Search by name, description or city…",
+    "name": "Name",
+    "nameRequired": "A name is required",
+    "priceRequired": "Enter a price",
+    "service": "Service",
+    "price": "Price",
+    "cost": "Our cost",
+    "costHint": "Never shown to clients",
+    "margin": "Margin",
+    "unit": "Charged",
+    "season": "Season",
+    "validity": "Valid",
+    "validFrom": "Valid from",
+    "validTo": "Valid to",
+    "sortOrder": "Order",
+    "sortHint": "Smaller numbers come first",
+    "isActive": "Active price",
+    "isActiveHint": "Inactive prices are not offered in bookings",
+    "anyVehicle": "Any vehicle",
+    "showIn": "Show in",
+    "ownCurrency": "Own currency",
+    "printTitle": "Price catalog",
+    "printClient": "Client version",
+    "printInternal": "Internal version",
+    "categories": {
+      "TOUR": "Tours",
+      "TRANSFER": "Transfers",
+      "HOTEL": "Hotels",
+      "VEHICLE": "Vehicles",
+      "INSURANCE": "Insurance",
+      "SIM_CARD": "SIM cards",
+      "PACKAGE": "Packages",
+      "OTHER": "Other"
+    },
+    "units": {
+      "PER_PERSON": "per person",
+      "PER_GROUP": "per group",
+      "PER_NIGHT": "per night",
+      "PER_DAY": "per day",
+      "PER_TRIP": "per trip",
+      "PER_ITEM": "per item"
+    },
+    "seasons": {
+      "ALL_YEAR": "All year",
+      "HIGH": "High season",
+      "LOW": "Low season"
+    }
   }
 }

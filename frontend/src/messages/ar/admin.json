@@ -795,7 +795,8 @@
     "hotels": "الفنادق",
     "bookings": "الحجوزات",
     "transactions": "الإيرادات والمصروفات",
-    "finance": "التقرير المالي"
+    "finance": "التقرير المالي",
+    "catalog": "قائمة الأسعار"
   },
   "login": {
     "eyebrow": "لوحة الإدارة",
@@ -1436,5 +1437,63 @@
     "byCurrency": "حسب العملة",
     "byCurrencyHint": "مبالغ الحجوزات بعملتها الأصلية",
     "rateNote": "التحويل بسعر اليوم: 1 {currency} = {rate} GEL"
+  },
+  "catalog": {
+    "subtitle": "الأسعار التي تعرضها وما تكلفنا",
+    "new": "سعر جديد",
+    "edit": "تعديل السعر",
+    "formHint": "تكلفتنا لا تظهر في نسخة العميل.",
+    "created": "تمت إضافة السعر",
+    "updated": "تم تحديث السعر",
+    "deleted": "تم حذف السعر",
+    "deleteTitle": "حذف السعر؟",
+    "deleteText": "سيتم حذف «{name}». لا يمكن التراجع.",
+    "searchPlaceholder": "ابحث بالاسم أو الوصف أو المدينة…",
+    "name": "الاسم",
+    "nameRequired": "الاسم مطلوب",
+    "priceRequired": "أدخل السعر",
+    "service": "الخدمة",
+    "price": "السعر",
+    "cost": "تكلفتنا",
+    "costHint": "لا تظهر للعميل",
+    "margin": "الهامش",
+    "unit": "طريقة الحساب",
+    "season": "الموسم",
+    "validity": "الصلاحية",
+    "validFrom": "من تاريخ",
+    "validTo": "إلى تاريخ",
+    "sortOrder": "الترتيب",
+    "sortHint": "الأرقام الأصغر تظهر أولًا",
+    "isActive": "سعر نشط",
+    "isActiveHint": "الأسعار غير النشطة لا تظهر في الحجوزات",
+    "anyVehicle": "أي مركبة",
+    "showIn": "العرض بعملة",
+    "ownCurrency": "بعملتها الأصلية",
+    "printTitle": "قائمة الأسعار",
+    "printClient": "نسخة العميل",
+    "printInternal": "النسخة الداخلية",
+    "categories": {
+      "TOUR": "الجولات",
+      "TRANSFER": "النقل",
+      "HOTEL": "الفنادق",
+      "VEHICLE": "المركبات",
+      "INSURANCE": "التأمين",
+      "SIM_CARD": "شرائح الاتصال",
+      "PACKAGE": "الباقات",
+      "OTHER": "أخرى"
+    },
+    "units": {
+      "PER_PERSON": "للفرد",
+      "PER_GROUP": "للمجموعة",
+      "PER_NIGHT": "لليلة",
+      "PER_DAY": "لليوم",
+      "PER_TRIP": "للرحلة",
+      "PER_ITEM": "للوحدة"
+    },
+    "seasons": {
+      "ALL_YEAR": "طوال السنة",
+      "HIGH": "الموسم المرتفع",
+      "LOW": "الموسم المنخفض"
+    }
   }
 }

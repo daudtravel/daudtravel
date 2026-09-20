@@ -19,6 +19,7 @@ import {
   Shield,
   ShieldCheck,
   ShoppingBag,
+  Tags,
   Truck,
   UserCog,
   Users,
@@ -84,6 +85,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         href: adminPaths.hotels,
         icon: Building2,
         requires: { module: "HOTELS" },
+      },
+      {
+        key: "catalog",
+        href: adminPaths.catalog,
+        icon: Tags,
+        requires: { module: "CATALOG" },
       },
       {
         key: "partners",

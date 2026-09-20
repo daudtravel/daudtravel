@@ -29,6 +29,7 @@ import { HotelsModule } from './hotels/hotels.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { FinanceModule } from './finance/finance.module';
+import { CatalogModule } from './catalog/catalog.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { FinanceModule } from './finance/finance.module';
     BookingsModule,
     TransactionsModule,
     FinanceModule,
+    CatalogModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

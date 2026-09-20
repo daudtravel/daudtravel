@@ -795,7 +795,8 @@
     "hotels": "Oteller",
     "bookings": "Rezervasyonlar",
     "transactions": "Gelir ve gider",
-    "finance": "Mali rapor"
+    "finance": "Mali rapor",
+    "catalog": "Fiyat kataloğu"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -1436,5 +1437,63 @@
     "byCurrency": "Para birimine göre",
     "byCurrencyHint": "Rezervasyon tutarları anlaşılan para biriminde",
     "rateNote": "Bugünkü kurla çevrildi: 1 {currency} = {rate} GEL"
+  },
+  "catalog": {
+    "subtitle": "Verdiğiniz fiyatlar ve bize maliyetleri",
+    "new": "Yeni fiyat",
+    "edit": "Fiyatı düzenle",
+    "formHint": "Maliyetimiz müşteri sürümünde yer almaz.",
+    "created": "Fiyat eklendi",
+    "updated": "Fiyat güncellendi",
+    "deleted": "Fiyat silindi",
+    "deleteTitle": "Fiyat silinsin mi?",
+    "deleteText": "“{name}” silinecek. Bu işlem geri alınamaz.",
+    "searchPlaceholder": "Ad, açıklama veya şehre göre ara…",
+    "name": "Ad",
+    "nameRequired": "Ad gerekli",
+    "priceRequired": "Fiyat girin",
+    "service": "Hizmet",
+    "price": "Fiyat",
+    "cost": "Maliyetimiz",
+    "costHint": "Müşteriye gösterilmez",
+    "margin": "Kâr payı",
+    "unit": "Hesaplama",
+    "season": "Sezon",
+    "validity": "Geçerlilik",
+    "validFrom": "Başlangıç",
+    "validTo": "Bitiş",
+    "sortOrder": "Sıra",
+    "sortHint": "Küçük sayılar önce gelir",
+    "isActive": "Aktif fiyat",
+    "isActiveHint": "Pasif fiyatlar rezervasyonlarda önerilmez",
+    "anyVehicle": "Herhangi bir araç",
+    "showIn": "Gösterim para birimi",
+    "ownCurrency": "Kendi para birimi",
+    "printTitle": "Fiyat kataloğu",
+    "printClient": "Müşteri sürümü",
+    "printInternal": "İç sürüm",
+    "categories": {
+      "TOUR": "Turlar",
+      "TRANSFER": "Transferler",
+      "HOTEL": "Oteller",
+      "VEHICLE": "Araçlar",
+      "INSURANCE": "Sigorta",
+      "SIM_CARD": "SIM kartlar",
+      "PACKAGE": "Paketler",
+      "OTHER": "Diğer"
+    },
+    "units": {
+      "PER_PERSON": "kişi başı",
+      "PER_GROUP": "grup başı",
+      "PER_NIGHT": "gecelik",
+      "PER_DAY": "günlük",
+      "PER_TRIP": "sefer başı",
+      "PER_ITEM": "adet başı"
+    },
+    "seasons": {
+      "ALL_YEAR": "Tüm yıl",
+      "HIGH": "Yüksek sezon",
+      "LOW": "Düşük sezon"
+    }
   }
 }

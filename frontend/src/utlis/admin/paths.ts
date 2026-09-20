@@ -34,6 +34,7 @@ export const adminPaths = {
     return `/admin/transactions?${query.toString()}`;
   },
   finance: "/admin/finance",
+  catalog: "/admin/catalog",
   currency: "/admin/currency",
   partners: "/admin/partners",
 
