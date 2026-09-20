@@ -14,6 +14,7 @@ import {
   Printer,
   Trash2,
   User,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -195,6 +196,22 @@ export default function BookingDetailView({ id }: { id: string }) {
               <Printer />
               {t("bookings.printInternal")}
             </Button>
+            {can("TRANSACTIONS", "create") && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  router.push(
+                    adminPaths.transactionNew({
+                      bookingId: id,
+                      type: "EXPENSE",
+                    })
+                  )
+                }
+              >
+                <Wallet />
+                {t("transactions.addExpense")}
+              </Button>
+            )}
             {can("BOOKINGS_HOTEL", "edit") ||
             can("BOOKINGS_TOUR", "edit") ||
             can("BOOKINGS_PACKAGE", "edit") ? (

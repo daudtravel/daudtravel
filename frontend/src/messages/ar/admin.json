@@ -793,7 +793,8 @@
     "partners": "الشركاء",
     "vehicles": "المركبات",
     "hotels": "الفنادق",
-    "bookings": "الحجوزات"
+    "bookings": "الحجوزات",
+    "transactions": "الإيرادات والمصروفات"
   },
   "login": {
     "eyebrow": "لوحة الإدارة",
@@ -923,7 +924,9 @@
     "WEBSITE_EDIT_REQUIRED": "النشر على الموقع يتطلب صلاحية الموقع.",
     "IN_USE": "هذا السجل مستخدم — اجعله غير نشط بدل حذفه.",
     "NO_PHOTOS": "لم يتم اختيار صور.",
-    "PHOTO_NOT_FOUND": "الصورة غير موجودة."
+    "PHOTO_NOT_FOUND": "الصورة غير موجودة.",
+    "CATEGORY_TYPE_MISMATCH": "هذه الفئة تخص الجانب الآخر من السجل.",
+    "BOOKING_NOT_FOUND": "الحجز غير موجود."
   },
   "users": {
     "title": "المستخدمون",
@@ -1351,5 +1354,49 @@
     "countLabel": "{count, plural, zero {# حجز} one {حجز واحد} two {حجزان} few {# حجوزات} many {# حجزًا} other {# حجز}}",
     "printVoucher": "طباعة القسيمة",
     "printInternal": "طباعة داخلية"
+  },
+  "transactions": {
+    "subtitle": "ما يكسبه المكتب وما ينفقه",
+    "new": "قيد جديد",
+    "edit": "تعديل القيد",
+    "formHint": "المبلغ دائمًا موجب — النوع يحدد الاتجاه.",
+    "created": "تمت إضافة القيد",
+    "updated": "تم تحديث القيد",
+    "deleted": "تم حذف القيد",
+    "deleteTitle": "حذف القيد؟",
+    "deleteText": "سيتم حذف «{title}». لا يمكن التراجع.",
+    "searchPlaceholder": "ابحث بالوصف أو الملاحظات أو طريقة الدفع…",
+    "title": "الوصف",
+    "titleRequired": "الوصف مطلوب",
+    "amountRequired": "أدخل المبلغ",
+    "addExpense": "إضافة مصروف",
+    "linkedTo": "مرتبط بـ",
+    "employee": "الموظف",
+    "noEmployee": "بدون موظف",
+    "totalIncome": "الإيرادات",
+    "totalExpense": "المصروفات",
+    "net": "الصافي",
+    "netHint": "باللاري، بسعر الصرف المحفوظ مع كل قيد",
+    "byCategory": "حسب الفئة",
+    "types": {
+      "INCOME": "إيراد",
+      "EXPENSE": "مصروف"
+    },
+    "categories": {
+      "OFFICE": "مصاريف المكتب",
+      "SALARY": "الرواتب",
+      "FUEL": "الوقود",
+      "VEHICLE_REPAIR": "إصلاح المركبة",
+      "VEHICLE_SERVICE": "صيانة المركبة",
+      "RENT": "الإيجار",
+      "UTILITIES": "الخدمات",
+      "MARKETING": "التسويق",
+      "TAX": "الضرائب",
+      "COMMUNICATION": "الاتصالات والإنترنت",
+      "OTHER_EXPENSE": "مصروفات أخرى",
+      "HOTEL_COMMISSION": "عمولة الفندق",
+      "SERVICE_INCOME": "إيراد الخدمات",
+      "OTHER_INCOME": "إيرادات أخرى"
+    }
   }
 }

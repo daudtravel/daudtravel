@@ -36,6 +36,7 @@ import {
   useDriverMonthly,
 } from "@/src/hooks/admin/useDrivers";
 import { useDeleteVehicle, useVehicles } from "@/src/hooks/admin/useVehicles";
+import { useRouter } from "@/src/i18n/routing";
 import { usePermissions } from "@/src/components/admin/access/usePermissions";
 import {
   formatDate,
@@ -94,6 +95,7 @@ export default function DriverDetailView({ id }: { id: string }) {
   const locale = useLocale();
   const errorMessage = useApiErrorMessage();
   const { can } = usePermissions();
+  const router = useRouter();
 
   const [tab, setTab] = useState<Tab>("overview");
   const [year, setYear] = useState<number | undefined>(undefined);
@@ -208,6 +210,22 @@ export default function DriverDetailView({ id }: { id: string }) {
         actions={
           <>
             <PrintButton />
+            {can("TRANSACTIONS", "create") && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  router.push(
+                    adminPaths.transactionNew({
+                      driverId: id,
+                      type: "EXPENSE",
+                    })
+                  )
+                }
+              >
+                <Wallet />
+                {t("transactions.addExpense")}
+              </Button>
+            )}
             {can("DRIVERS", "create") && (
               <Button
                 variant="outline"

@@ -1,4 +1,5 @@
 import {
+  ArrowLeftRight,
   BarChart3,
   BedDouble,
   Building2,
@@ -94,6 +95,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
   {
     key: "finance",
     items: [
+      {
+        key: "transactions",
+        href: adminPaths.transactions,
+        icon: ArrowLeftRight,
+        requires: { module: "TRANSACTIONS" },
+      },
       {
         key: "currency",
         href: adminPaths.currency,

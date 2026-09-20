@@ -27,6 +27,12 @@ export const adminPaths = {
   vehicles: "/admin/vehicles",
   hotels: "/admin/hotels",
   hotel: (id: string) => `/admin/hotels/${encodeURIComponent(id)}`,
+  transactions: "/admin/transactions",
+  /** New transaction with its links prefilled (from a driver, hotel, booking…). */
+  transactionNew: (params: Record<string, string> = {}) => {
+    const query = new URLSearchParams({ new: "1", ...params });
+    return `/admin/transactions?${query.toString()}`;
+  },
   currency: "/admin/currency",
   partners: "/admin/partners",
 

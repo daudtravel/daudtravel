@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ExternalLink, MapPin, Pencil, Star } from "lucide-react";
+import { ExternalLink, MapPin, Pencil, Star, Wallet } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { Skeleton } from "@/src/components/ui/skeleton";
-import { Link } from "@/src/i18n/routing";
+import { Link, useRouter } from "@/src/i18n/routing";
 import PageHeader from "@/src/components/admin/common/PageHeader";
 import PrintButton from "@/src/components/admin/common/PrintButton";
 import Panel from "@/src/components/admin/common/Panel";
@@ -38,6 +38,7 @@ export default function HotelDetailView({ id }: { id: string }) {
   const t = useTranslations("admin");
   const locale = useLocale();
   const { can } = usePermissions();
+  const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
 
   const { data: hotel, isLoading, isError } = useHotel(id);
@@ -79,6 +80,19 @@ export default function HotelDetailView({ id }: { id: string }) {
         actions={
           <>
             <PrintButton />
+            {can("TRANSACTIONS", "create") && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  router.push(
+                    adminPaths.transactionNew({ hotelId: id, type: "EXPENSE" })
+                  )
+                }
+              >
+                <Wallet />
+                {t("transactions.addExpense")}
+              </Button>
+            )}
             {can("HOTELS", "edit") && (
               <Button onClick={() => setEditOpen(true)}>
                 <Pencil />

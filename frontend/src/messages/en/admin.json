@@ -793,7 +793,8 @@
     "partners": "Partners",
     "vehicles": "Vehicles",
     "hotels": "Hotels",
-    "bookings": "Bookings"
+    "bookings": "Bookings",
+    "transactions": "Income & expenses"
   },
   "login": {
     "eyebrow": "Back office",
@@ -923,7 +924,9 @@
     "WEBSITE_EDIT_REQUIRED": "Publishing to the website needs the website permission.",
     "IN_USE": "This record is in use — deactivate it instead of deleting.",
     "NO_PHOTOS": "No photos were selected.",
-    "PHOTO_NOT_FOUND": "That photo no longer exists."
+    "PHOTO_NOT_FOUND": "That photo no longer exists.",
+    "CATEGORY_TYPE_MISMATCH": "That category belongs to the other side of the ledger.",
+    "BOOKING_NOT_FOUND": "That booking no longer exists."
   },
   "users": {
     "title": "Users",
@@ -1351,5 +1354,49 @@
     "countLabel": "{count, plural, one {# booking} other {# bookings}}",
     "printVoucher": "Print voucher",
     "printInternal": "Print internal sheet"
+  },
+  "transactions": {
+    "subtitle": "What the office earns and what it spends",
+    "new": "New entry",
+    "edit": "Edit entry",
+    "formHint": "The amount is always positive — the type says which way it goes.",
+    "created": "Entry created",
+    "updated": "Entry updated",
+    "deleted": "Entry deleted",
+    "deleteTitle": "Delete entry?",
+    "deleteText": "“{title}” will be removed. This cannot be undone.",
+    "searchPlaceholder": "Search by description, notes or payment method…",
+    "title": "Description",
+    "titleRequired": "A description is required",
+    "amountRequired": "Enter an amount",
+    "addExpense": "Add expense",
+    "linkedTo": "Linked to",
+    "employee": "Employee",
+    "noEmployee": "No employee",
+    "totalIncome": "Income",
+    "totalExpense": "Expenses",
+    "net": "Net",
+    "netHint": "In GEL, at the rate stored with each entry",
+    "byCategory": "By category",
+    "types": {
+      "INCOME": "Income",
+      "EXPENSE": "Expense"
+    },
+    "categories": {
+      "OFFICE": "Office",
+      "SALARY": "Salary",
+      "FUEL": "Fuel",
+      "VEHICLE_REPAIR": "Vehicle repair",
+      "VEHICLE_SERVICE": "Vehicle service",
+      "RENT": "Rent",
+      "UTILITIES": "Utilities",
+      "MARKETING": "Marketing",
+      "TAX": "Tax",
+      "COMMUNICATION": "Phone & internet",
+      "OTHER_EXPENSE": "Other expense",
+      "HOTEL_COMMISSION": "Hotel commission",
+      "SERVICE_INCOME": "Service income",
+      "OTHER_INCOME": "Other income"
+    }
   }
 }

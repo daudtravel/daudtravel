@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Car, Pencil, Plus, Trash2, User } from "lucide-react";
+import { Car, Pencil, Plus, Trash2, User, Wallet } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { Link } from "@/src/i18n/routing";
@@ -224,6 +224,17 @@ export default function VehiclesListView() {
               icon: User,
               href: row.driverId ? adminPaths.driver(row.driverId) : undefined,
               hidden: !row.driverId,
+            },
+            {
+              key: "expense",
+              label: t("transactions.addExpense"),
+              icon: Wallet,
+              href: adminPaths.transactionNew({
+                vehicleId: row.id,
+                type: "EXPENSE",
+                category: "FUEL",
+              }),
+              hidden: !can("TRANSACTIONS", "create"),
             },
             {
               key: "delete",

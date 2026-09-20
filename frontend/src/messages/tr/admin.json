@@ -793,7 +793,8 @@
     "partners": "Ortaklar",
     "vehicles": "Araçlar",
     "hotels": "Oteller",
-    "bookings": "Rezervasyonlar"
+    "bookings": "Rezervasyonlar",
+    "transactions": "Gelir ve gider"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -923,7 +924,9 @@
     "WEBSITE_EDIT_REQUIRED": "Sitede yayınlamak için site yetkisi gerekir.",
     "IN_USE": "Bu kayıt kullanımda — silmek yerine pasife alın.",
     "NO_PHOTOS": "Fotoğraf seçilmedi.",
-    "PHOTO_NOT_FOUND": "Fotoğraf bulunamadı."
+    "PHOTO_NOT_FOUND": "Fotoğraf bulunamadı.",
+    "CATEGORY_TYPE_MISMATCH": "Bu kategori kaydın diğer tarafına ait.",
+    "BOOKING_NOT_FOUND": "Rezervasyon bulunamadı."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -1351,5 +1354,49 @@
     "countLabel": "{count, plural, one {# rezervasyon} other {# rezervasyon}}",
     "printVoucher": "Voucher yazdır",
     "printInternal": "Ofis çıktısı"
+  },
+  "transactions": {
+    "subtitle": "Ofisin kazandığı ve harcadığı",
+    "new": "Yeni kayıt",
+    "edit": "Kaydı düzenle",
+    "formHint": "Tutar her zaman pozitiftir — yönü tür belirler.",
+    "created": "Kayıt eklendi",
+    "updated": "Kayıt güncellendi",
+    "deleted": "Kayıt silindi",
+    "deleteTitle": "Kayıt silinsin mi?",
+    "deleteText": "“{title}” silinecek. Bu işlem geri alınamaz.",
+    "searchPlaceholder": "Açıklama, not veya ödeme şekline göre ara…",
+    "title": "Açıklama",
+    "titleRequired": "Açıklama gerekli",
+    "amountRequired": "Tutar girin",
+    "addExpense": "Gider ekle",
+    "linkedTo": "Bağlı olduğu",
+    "employee": "Personel",
+    "noEmployee": "Personelsiz",
+    "totalIncome": "Gelir",
+    "totalExpense": "Gider",
+    "net": "Net",
+    "netHint": "Lari cinsinden, her kaydın kendi kuruyla",
+    "byCategory": "Kategoriye göre",
+    "types": {
+      "INCOME": "Gelir",
+      "EXPENSE": "Gider"
+    },
+    "categories": {
+      "OFFICE": "Ofis gideri",
+      "SALARY": "Maaş",
+      "FUEL": "Yakıt",
+      "VEHICLE_REPAIR": "Araç tamiri",
+      "VEHICLE_SERVICE": "Araç servisi",
+      "RENT": "Kira",
+      "UTILITIES": "Faturalar",
+      "MARKETING": "Pazarlama",
+      "TAX": "Vergi",
+      "COMMUNICATION": "Telefon ve internet",
+      "OTHER_EXPENSE": "Diğer gider",
+      "HOTEL_COMMISSION": "Otel komisyonu",
+      "SERVICE_INCOME": "Hizmet geliri",
+      "OTHER_INCOME": "Diğer gelir"
+    }
   }
 }

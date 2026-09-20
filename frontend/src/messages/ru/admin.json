@@ -793,7 +793,8 @@
     "partners": "Партнёры",
     "vehicles": "Автомобили",
     "hotels": "Отели",
-    "bookings": "Брони"
+    "bookings": "Брони",
+    "transactions": "Доходы и расходы"
   },
   "login": {
     "eyebrow": "Панель управления",
@@ -923,7 +924,9 @@
     "WEBSITE_EDIT_REQUIRED": "Для публикации на сайте нужны права на сайт.",
     "IN_USE": "Запись используется — сделайте её неактивной вместо удаления.",
     "NO_PHOTOS": "Фотографии не выбраны.",
-    "PHOTO_NOT_FOUND": "Фотография не найдена."
+    "PHOTO_NOT_FOUND": "Фотография не найдена.",
+    "CATEGORY_TYPE_MISMATCH": "Категория относится к другой стороне учёта.",
+    "BOOKING_NOT_FOUND": "Бронь не найдена."
   },
   "users": {
     "title": "Пользователи",
@@ -1351,5 +1354,49 @@
     "countLabel": "{count, plural, one {# бронь} few {# брони} many {# броней} other {# брони}}",
     "printVoucher": "Печать ваучера",
     "printInternal": "Печать для офиса"
+  },
+  "transactions": {
+    "subtitle": "Что офис зарабатывает и на что тратит",
+    "new": "Новая запись",
+    "edit": "Редактирование записи",
+    "formHint": "Сумма всегда положительная — направление задаёт тип.",
+    "created": "Запись добавлена",
+    "updated": "Запись обновлена",
+    "deleted": "Запись удалена",
+    "deleteTitle": "Удалить запись?",
+    "deleteText": "«{title}» будет удалена. Действие необратимо.",
+    "searchPlaceholder": "Поиск по описанию, заметкам или способу оплаты…",
+    "title": "Описание",
+    "titleRequired": "Укажите описание",
+    "amountRequired": "Введите сумму",
+    "addExpense": "Добавить расход",
+    "linkedTo": "Связано с",
+    "employee": "Сотрудник",
+    "noEmployee": "Без сотрудника",
+    "totalIncome": "Доходы",
+    "totalExpense": "Расходы",
+    "net": "Итог",
+    "netHint": "В лари, по курсу из каждой записи",
+    "byCategory": "По категориям",
+    "types": {
+      "INCOME": "Доход",
+      "EXPENSE": "Расход"
+    },
+    "categories": {
+      "OFFICE": "Офис",
+      "SALARY": "Зарплата",
+      "FUEL": "Топливо",
+      "VEHICLE_REPAIR": "Ремонт автомобиля",
+      "VEHICLE_SERVICE": "Обслуживание автомобиля",
+      "RENT": "Аренда",
+      "UTILITIES": "Коммунальные услуги",
+      "MARKETING": "Маркетинг",
+      "TAX": "Налоги",
+      "COMMUNICATION": "Связь и интернет",
+      "OTHER_EXPENSE": "Прочие расходы",
+      "HOTEL_COMMISSION": "Комиссия отеля",
+      "SERVICE_INCOME": "Доход от услуг",
+      "OTHER_INCOME": "Прочие доходы"
+    }
   }
 }
