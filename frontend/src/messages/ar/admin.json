@@ -88,7 +88,13 @@
       "ar": "العربية"
     },
     "owner": "المالك",
-    "me": "أنا"
+    "me": "أنا",
+    "open": "فتح",
+    "notes": "ملاحظات",
+    "month": "الشهر",
+    "total": "الإجمالي",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "آخر تحديث"
   },
   "status": {
     "paid": "مدفوع",
@@ -110,7 +116,42 @@
     "MINIVAN": "ميني فان",
     "VITO": "فيتو",
     "SPRINTER": "سبرينتر",
-    "BUS": "حافلة"
+    "BUS": "حافلة",
+    "subtitle": "الأسطول: مركبات السائقين ومركبات الشركة",
+    "new": "مركبة جديدة",
+    "edit": "تعديل المركبة",
+    "formHint": "سجّل الماركة والطراز وسنة الصنع.",
+    "created": "تمت إضافة المركبة",
+    "updated": "تم تحديث المركبة",
+    "deleted": "تم حذف المركبة",
+    "deleteTitle": "حذف المركبة؟",
+    "deleteText": "سيتم حذف «{name}». لا يمكن التراجع عن هذا الإجراء.",
+    "searchPlaceholder": "ابحث بالماركة أو الطراز أو اللوحة أو السائق…",
+    "vehicle": "المركبة",
+    "type": "النوع",
+    "ownership": "تعود إلى",
+    "ownerships": {
+      "DRIVER": "السائق",
+      "COMPANY": "الشركة"
+    },
+    "brand": "الماركة",
+    "model": "الطراز",
+    "year": "سنة الصنع",
+    "yearRange": "يجب أن تكون السنة بين {min} و{max}",
+    "seats": "المقاعد",
+    "seatsRange": "عدد المقاعد بين 1 و100",
+    "seatsCount": "{count, plural, zero {# مقعد} one {مقعد واحد} two {مقعدان} few {# مقاعد} many {# مقعدًا} other {# مقعد}}",
+    "color": "اللون",
+    "plateNumber": "رقم اللوحة",
+    "driver": "السائق",
+    "driverHint": "من يقود هذه المركبة",
+    "noDriver": "بدون سائق",
+    "unassigned": "غير مرتبطة",
+    "assigned": "مرتبطة",
+    "assignment": "الارتباط",
+    "isActive": "مركبة نشطة",
+    "isActiveHint": "المركبات غير النشطة لا تظهر في الحجوزات",
+    "openDriver": "فتح السائق"
   },
   "months": {
     "long": {
@@ -346,7 +387,61 @@
     "validation": {
       "firstNameRequired": "الاسم الأول مطلوب",
       "lastNameRequired": "اسم العائلة مطلوب"
-    }
+    },
+    "subtitle": "السائقون ومركباتهم وأعمالهم",
+    "new": "سائق جديد",
+    "edit": "تعديل السائق",
+    "formHint": "الهاتف والملاحظات والعمولة بيانات داخلية ولا تظهر على الموقع.",
+    "created": "تمت إضافة السائق",
+    "inUse": "لدى هذا السائق مركبات أو طلبات — اجعله غير نشط بدل حذفه.",
+    "searchPlaceholder": "ابحث بالاسم أو الهاتف أو المركبة أو رقم اللوحة…",
+    "driver": "السائق",
+    "language": "اللغة",
+    "languagesHint": "اضغط Enter أو فاصلة للإضافة",
+    "noLanguages": "لا توجد لغات",
+    "dailyRentHint": "فارغ = غير متاح للإيجار",
+    "priceRange": "يجب أن يكون السعر بين 0 و100000",
+    "rating": "التقييم",
+    "referrer": "جاء عن طريق",
+    "referrerHint": "الشريك الذي أحضر لنا هذا السائق",
+    "referrerRate": "عمولة الشريك",
+    "noReferrer": "لا أحد",
+    "visibility": "الظهور",
+    "onWebsite": "على الموقع",
+    "internal": "داخلي",
+    "showOnWebsite": "إظهار على الموقع",
+    "showOnWebsiteHint": "يظهر على الموقع السائقون النشطون فقط",
+    "isActive": "سائق نشط",
+    "isActiveHint": "السائقون غير النشطين لا يظهرون في الحجوزات",
+    "withVehicle": "لديه مركبة",
+    "withoutVehicle": "بدون مركبة",
+    "noVehicle": "لا توجد مركبة",
+    "viewOnWebsite": "عرض على الموقع",
+    "photo": "الصورة الشخصية",
+    "photoHint": "الصورة المربعة تظهر بشكل أفضل",
+    "detailSubtitle": "الملف والمركبات والنشاط",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "vehicles": "المركبات",
+      "photos": "الصور",
+      "monthly": "النشاط الشهري",
+      "reviews": "التقييمات"
+    },
+    "vehiclesHint": "المركبات المرتبطة بهذا السائق",
+    "carPhotosHint": "تظهر هذه الصور على الموقع أيضًا",
+    "noCarPhotos": "لا توجد صور بعد",
+    "monthlyHint": "رحلات النقل من الموقع المسندة إلى هذا السائق شهرًا بشهر",
+    "transferJobs": "رحلات النقل",
+    "transferRevenue": "الإيراد",
+    "inYear": "في عام {year}",
+    "jobs": "رحلات النقل المنفذة",
+    "passengers": "{count, plural, zero {# راكب} one {راكب واحد} two {راكبان} few {# ركاب} many {# راكبًا} other {# راكب}}",
+    "reviewsHint": "التقييمات المتروكة على الموقع",
+    "reviewDeleted": "تم حذف التقييم",
+    "deletePhotoTitle": "حذف الصورة؟",
+    "deletePhotoText": "سيتم حذف الصورة نهائيًا.",
+    "deleteReviewTitle": "حذف التقييم؟",
+    "deleteReviewText": "سيتم حذف التقييم نهائيًا."
   },
   "faq": {
     "title": "الأسئلة الشائعة",
@@ -695,7 +790,8 @@
     "roles": "الأدوار والصلاحيات",
     "profile": "ملفي الشخصي",
     "currency": "أسعار الصرف",
-    "partners": "الشركاء"
+    "partners": "الشركاء",
+    "vehicles": "المركبات"
   },
   "login": {
     "eyebrow": "لوحة الإدارة",
@@ -761,7 +857,8 @@
       "thisMonth": "هذا الشهر",
       "lastMonth": "الشهر الماضي",
       "thisYear": "هذه السنة"
-    }
+    },
+    "more": "و{count} غير ذلك"
   },
   "print": {
     "print": "طباعة",
@@ -780,7 +877,14 @@
     "invalidEmail": "أدخل بريدًا إلكترونيًا صالحًا",
     "tooLong": "{max} حرفًا كحد أقصى",
     "passwordRule": "8 أحرف على الأقل، تتضمن حروفًا وأرقامًا",
-    "passwordsDontMatch": "كلمتا المرور غير متطابقتين"
+    "passwordsDontMatch": "كلمتا المرور غير متطابقتين",
+    "addItem": "إضافة",
+    "removeItem": "حذف «{item}»",
+    "uploadPhoto": "رفع صورة",
+    "replacePhoto": "استبدال الصورة",
+    "removePhoto": "حذف الصورة",
+    "imageOnly": "الرجاء اختيار ملف صورة",
+    "imageTooLarge": "الملف كبير جدًا (الحد الأقصى {max} ميغابايت)"
   },
   "errors": {
     "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",

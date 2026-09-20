@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import DriversListView from "@/src/components/admin/drivers/DriversListView";
+import VehiclesListView from "@/src/components/admin/vehicles/VehiclesListView";
 
 export default function Page() {
   return (
     <AdminPage requires={{ module: "DRIVERS", action: "view" }}>
-      <DriversListView />
+      <VehiclesListView />
     </AdminPage>
   );
 }

@@ -322,6 +322,8 @@ model User {
   roles Role[]
 
   createdPartners Partner[] @relation("PartnerCreatedBy")
+  createdDrivers  Driver[]  @relation("DriverCreatedBy")
+  createdVehicles Vehicle[] @relation("VehicleCreatedBy")
 
   @@index([email])
   @@map("users")
@@ -389,7 +391,8 @@ model Partner {
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
-  createdBy User? @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy       User?    @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  referredDrivers Driver[] @relation("DriverReferrer")
 
   @@index([isActive])
   @@index([createdById])
@@ -458,6 +461,11 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
+enum VehicleOwnership {
+  DRIVER
+  COMPANY
+}
+
 model Driver {
   id             String   @id @default(cuid())
   firstName      String   @map("first_name")
@@ -467,13 +475,59 @@ model Driver {
   dailyRentPrice Decimal? @map("daily_rent_price") @db.Decimal(10, 2)
   carPhotos      String[] @default([]) @map("car_photos")
 
+  // Back-office fields (not shown on the website)
+  phone    String?
+  email    String?
+  notes    String? @db.Text
+  isActive Boolean @default(true) @map("is_active")
+  /// Whether the driver appears on the public website.
+  showOnWebsite Boolean @default(true) @map("show_on_website")
+  /// Who brought this driver to us, and their cut.
+  referrerId             String?  @map("referrer_id")
+  referrerCommissionRate Decimal? @db.Decimal(5, 2) @map("referrer_commission_rate")
+  createdById            String?  @map("created_by_id")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 
   reviews       DriverReview[]
   paymentOrders TransferPaymentOrder[]
+  vehicles      Vehicle[]
+  referrer      Partner? @relation("DriverReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
+  createdBy     User?    @relation("DriverCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
+  @@index([isActive])
+  @@index([showOnWebsite])
+  @@index([createdById])
   @@map("drivers")
+}
+
+/// A car: type, brand, model and model year ("kaç model"), seats, plate.
+model Vehicle {
+  id          String           @id @default(cuid())
+  driverId    String?          @map("driver_id")
+  type        VehicleType
+  brand       String
+  model       String
+  /// Model year.
+  year        Int?
+  seats       Int              @default(4)
+  plateNumber String?          @map("plate_number")
+  color       String?
+  ownership   VehicleOwnership @default(DRIVER)
+  isActive    Boolean          @default(true) @map("is_active")
+  notes       String?          @db.Text
+  createdById String?          @map("created_by_id")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  driver    Driver? @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  createdBy User?   @relation("VehicleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([driverId])
+  @@index([type])
+  @@index([isActive])
+  @@map("vehicles")
 }
 
 model DriverReview {

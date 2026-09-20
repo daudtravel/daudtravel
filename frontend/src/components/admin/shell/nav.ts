@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BedDouble,
+  Car,
   Coins,
   CreditCard,
   Handshake,
@@ -58,6 +59,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         key: "drivers",
         href: adminPaths.drivers,
         icon: Truck,
+        requires: { module: "DRIVERS" },
+      },
+      {
+        key: "vehicles",
+        href: adminPaths.vehicles,
+        icon: Car,
         requires: { module: "DRIVERS" },
       },
       {

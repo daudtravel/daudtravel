@@ -15,7 +15,8 @@ export const adminPaths = {
   role: (id: string) => `/admin/roles/${encodeURIComponent(id)}`,
 
   drivers: "/admin/drivers",
-  driverNew: "/admin/drivers/new",
+  driver: (id: string) => `/admin/drivers/${encodeURIComponent(id)}`,
+  vehicles: "/admin/vehicles",
   currency: "/admin/currency",
   partners: "/admin/partners",
 
@@ -75,10 +76,8 @@ export function legacyAdminRedirect(
     if (transfers === "createTransfer") return adminPaths.websiteTransferNew;
     return adminPaths.websiteTransfer(transfers);
   }
-  const drivers = get("drivers");
-  if (drivers !== null) {
-    return drivers === "createDriver" ? adminPaths.driverNew : adminPaths.drivers;
-  }
+  // Drivers are created in a dialog now, so both old URLs land on the list.
+  if (get("drivers") !== null) return adminPaths.drivers;
   const faqs = get("faqs");
   if (faqs !== null) {
     if (faqs === "all" || faqs === "") return adminPaths.websiteFaqs;

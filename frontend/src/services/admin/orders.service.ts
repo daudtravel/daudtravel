@@ -69,11 +69,14 @@ export const adminPaymentStatusesApi = {
   list: listGetter<PaymentStatusRow>("/payment-stats/orders"),
 };
 
-/** Public driver list, used for the "assign driver" picker. */
+/**
+ * Internal driver list for the "assign driver" picker: unlike the public one it
+ * also contains drivers who are not shown on the website.
+ */
 export const driverOptionsApi = {
   all: async (): Promise<DriverOption[]> => {
     const { data } = await axiosInstance.get<{ data: DriverOption[] }>(
-      "/drivers"
+      "/drivers/admin/options"
     );
     return data.data ?? [];
   },

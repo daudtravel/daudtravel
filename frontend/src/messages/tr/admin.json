@@ -88,7 +88,13 @@
       "ar": "Arapça"
     },
     "owner": "Sahibi",
-    "me": "Ben"
+    "me": "Ben",
+    "open": "Aç",
+    "notes": "Notlar",
+    "month": "Ay",
+    "total": "Toplam",
+    "createdAt": "Oluşturulma",
+    "updatedAt": "Güncellenme"
   },
   "status": {
     "paid": "Ödendi",
@@ -110,7 +116,42 @@
     "MINIVAN": "Minivan",
     "VITO": "Vito",
     "SPRINTER": "Sprinter",
-    "BUS": "Otobüs"
+    "BUS": "Otobüs",
+    "subtitle": "Filo: şoförlerin ve şirketin araçları",
+    "new": "Yeni araç",
+    "edit": "Aracı düzenle",
+    "formHint": "Marka, model ve model yılını girin.",
+    "created": "Araç eklendi",
+    "updated": "Araç güncellendi",
+    "deleted": "Araç silindi",
+    "deleteTitle": "Araç silinsin mi?",
+    "deleteText": "“{name}” silinecek. Bu işlem geri alınamaz.",
+    "searchPlaceholder": "Marka, model, plaka veya şoföre göre ara…",
+    "vehicle": "Araç",
+    "type": "Tip",
+    "ownership": "Sahibi",
+    "ownerships": {
+      "DRIVER": "Şoför",
+      "COMPANY": "Şirket"
+    },
+    "brand": "Marka",
+    "model": "Model",
+    "year": "Model yılı",
+    "yearRange": "Yıl {min} ile {max} arasında olmalı",
+    "seats": "Koltuk",
+    "seatsRange": "Koltuk sayısı 1 ile 100 arasında olmalı",
+    "seatsCount": "{count, plural, one {# koltuk} other {# koltuk}}",
+    "color": "Renk",
+    "plateNumber": "Plaka",
+    "driver": "Şoför",
+    "driverHint": "Bu aracı kim kullanıyor",
+    "noDriver": "Şoförsüz",
+    "unassigned": "Atanmamış",
+    "assigned": "Atanmış",
+    "assignment": "Atama",
+    "isActive": "Aktif araç",
+    "isActiveHint": "Pasif araçlar rezervasyonlarda önerilmez",
+    "openDriver": "Şoförü aç"
   },
   "months": {
     "long": {
@@ -346,7 +387,61 @@
     "validation": {
       "firstNameRequired": "Ad zorunludur",
       "lastNameRequired": "Soyad zorunludur"
-    }
+    },
+    "subtitle": "Şoförler, araçları ve işleri",
+    "new": "Yeni şoför",
+    "edit": "Şoförü düzenle",
+    "formHint": "Telefon, notlar ve komisyon yalnızca şirket içindir; sitede görünmez.",
+    "created": "Şoför eklendi",
+    "inUse": "Bu şoförün aracı veya siparişi var — silmek yerine pasife alın.",
+    "searchPlaceholder": "Ad, telefon, araç veya plakaya göre ara…",
+    "driver": "Şoför",
+    "language": "Dil",
+    "languagesHint": "Eklemek için Enter veya virgüle basın",
+    "noLanguages": "Dil girilmemiş",
+    "dailyRentHint": "Boş = kiralık değil",
+    "priceRange": "Fiyat 0 ile 100000 arasında olmalı",
+    "rating": "Puan",
+    "referrer": "Getiren",
+    "referrerHint": "Bu şoförü bize getiren ortak",
+    "referrerRate": "Ortak komisyonu",
+    "noReferrer": "Yok",
+    "visibility": "Görünürlük",
+    "onWebsite": "Sitede",
+    "internal": "Şirket içi",
+    "showOnWebsite": "Sitede göster",
+    "showOnWebsiteHint": "Sitede yalnızca aktif şoförler görünür",
+    "isActive": "Aktif şoför",
+    "isActiveHint": "Pasif şoförler rezervasyonlarda önerilmez",
+    "withVehicle": "Aracı olan",
+    "withoutVehicle": "Aracı olmayan",
+    "noVehicle": "Araç yok",
+    "viewOnWebsite": "Sitede görüntüle",
+    "photo": "Profil fotoğrafı",
+    "photoHint": "Kare fotoğraf en iyi görünümü verir",
+    "detailSubtitle": "Profil, araçlar ve hareketler",
+    "tabs": {
+      "overview": "Genel bakış",
+      "vehicles": "Araçlar",
+      "photos": "Fotoğraflar",
+      "monthly": "Aylık hareketler",
+      "reviews": "Değerlendirmeler"
+    },
+    "vehiclesHint": "Bu şoföre bağlı araçlar",
+    "carPhotosHint": "Bu fotoğraflar sitede de gösterilir",
+    "noCarPhotos": "Henüz fotoğraf yok",
+    "monthlyHint": "Siteden gelen ve bu şoföre verilen transferler, ay ay",
+    "transferJobs": "Transferler",
+    "transferRevenue": "Gelir",
+    "inYear": "{year} yılında",
+    "jobs": "Yapılan transferler",
+    "passengers": "{count, plural, one {# yolcu} other {# yolcu}}",
+    "reviewsHint": "Sitede bırakılan değerlendirmeler",
+    "reviewDeleted": "Değerlendirme silindi",
+    "deletePhotoTitle": "Fotoğraf silinsin mi?",
+    "deletePhotoText": "Fotoğraf kalıcı olarak silinecek.",
+    "deleteReviewTitle": "Değerlendirme silinsin mi?",
+    "deleteReviewText": "Değerlendirme kalıcı olarak silinecek."
   },
   "faq": {
     "title": "Sıkça sorulan sorular",
@@ -695,7 +790,8 @@
     "roles": "Roller ve yetkiler",
     "profile": "Profilim",
     "currency": "Döviz kurları",
-    "partners": "Ortaklar"
+    "partners": "Ortaklar",
+    "vehicles": "Araçlar"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -761,7 +857,8 @@
       "thisMonth": "Bu ay",
       "lastMonth": "Geçen ay",
       "thisYear": "Bu yıl"
-    }
+    },
+    "more": "{count} tane daha"
   },
   "print": {
     "print": "Yazdır",
@@ -780,7 +877,14 @@
     "invalidEmail": "Geçerli bir e-posta girin",
     "tooLong": "En fazla {max} karakter",
     "passwordRule": "En az 8 karakter, harf ve rakam içermeli",
-    "passwordsDontMatch": "Şifreler eşleşmiyor"
+    "passwordsDontMatch": "Şifreler eşleşmiyor",
+    "addItem": "Ekle",
+    "removeItem": "“{item}” ögesini kaldır",
+    "uploadPhoto": "Fotoğraf yükle",
+    "replacePhoto": "Fotoğrafı değiştir",
+    "removePhoto": "Fotoğrafı kaldır",
+    "imageOnly": "Lütfen bir resim dosyası seçin",
+    "imageTooLarge": "Dosya çok büyük (en fazla {max} MB)"
   },
   "errors": {
     "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",

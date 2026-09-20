@@ -35,6 +35,29 @@ export const toOptionalBoolean = ({ value, obj, key }: TransformArgs) => {
   return undefined;
 };
 
+/**
+ * Number fields that can also be cleared: "" / null → null, numeric strings →
+ * number, anything else is left untouched so `@IsNumber()` rejects it.
+ *
+ * Reads the RAW value for the same reason as `toOptionalBoolean`, and because
+ * multipart forms (driver photo upload) send every field as a string.
+ */
+export const toNullableNumber = ({ value, obj, key }: TransformArgs) => {
+  const raw =
+    obj && key && typeof obj === 'object'
+      ? (obj as Record<string, unknown>)[key]
+      : value;
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === 'number') return raw;
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (trimmed === '') return null;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : trimmed;
+  }
+  return raw;
+};
+
 /** For loose `@Query('flag')` params: "true"/"false" → boolean, else undefined. */
 export const parseBooleanParam = (value: unknown): boolean | undefined => {
   if (value === true || value === 'true') return true;
@@ -47,6 +70,22 @@ export const toStringArray = ({
   value,
 }: TransformArgs): string[] | undefined => {
   if (value === undefined || value === null || value === '') return undefined;
+  return cleanStringList(value);
+};
+
+/**
+ * Same, but an empty value means "an empty list" instead of "not provided" —
+ * for form fields that can be cleared (a driver's languages, say).
+ */
+export const toStringArrayAllowEmpty = ({
+  value,
+}: TransformArgs): string[] | undefined => {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return [];
+  return cleanStringList(value) ?? [];
+};
+
+function cleanStringList(value: unknown): string[] | undefined {
   const list: unknown[] = Array.isArray(value)
     ? value
     : typeof value === 'string'
@@ -57,4 +96,4 @@ export const toStringArray = ({
     .map((v) => v.trim())
     .filter((v) => v !== '');
   return cleaned.length ? cleaned : undefined;
-};
+}

@@ -88,7 +88,13 @@
       "ar": "Arabic"
     },
     "owner": "Owner",
-    "me": "Me"
+    "me": "Me",
+    "open": "Open",
+    "notes": "Notes",
+    "month": "Month",
+    "total": "Total",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
   },
   "status": {
     "paid": "Paid",
@@ -110,7 +116,42 @@
     "MINIVAN": "Minivan",
     "VITO": "Vito",
     "SPRINTER": "Sprinter",
-    "BUS": "Bus"
+    "BUS": "Bus",
+    "subtitle": "The fleet: drivers' cars and company cars",
+    "new": "New vehicle",
+    "edit": "Edit vehicle",
+    "formHint": "Record the make, the model and the model year.",
+    "created": "Vehicle created",
+    "updated": "Vehicle updated",
+    "deleted": "Vehicle deleted",
+    "deleteTitle": "Delete vehicle?",
+    "deleteText": "“{name}” will be removed. This cannot be undone.",
+    "searchPlaceholder": "Search by make, model, plate or driver…",
+    "vehicle": "Vehicle",
+    "type": "Type",
+    "ownership": "Belongs to",
+    "ownerships": {
+      "DRIVER": "Driver",
+      "COMPANY": "Company"
+    },
+    "brand": "Make",
+    "model": "Model",
+    "year": "Model year",
+    "yearRange": "The year must be between {min} and {max}",
+    "seats": "Seats",
+    "seatsRange": "Seats must be between 1 and 100",
+    "seatsCount": "{count, plural, one {# seat} other {# seats}}",
+    "color": "Colour",
+    "plateNumber": "Plate number",
+    "driver": "Driver",
+    "driverHint": "Who drives this vehicle",
+    "noDriver": "No driver",
+    "unassigned": "Unassigned",
+    "assigned": "Assigned",
+    "assignment": "Assignment",
+    "isActive": "Active vehicle",
+    "isActiveHint": "Inactive vehicles are not offered in bookings",
+    "openDriver": "Open driver"
   },
   "months": {
     "long": {
@@ -346,7 +387,61 @@
     "validation": {
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required"
-    }
+    },
+    "subtitle": "Drivers, their vehicles and their work",
+    "new": "New driver",
+    "edit": "Edit driver",
+    "formHint": "Phone, notes and commission stay internal — they are never shown on the website.",
+    "created": "Driver created",
+    "inUse": "This driver has vehicles or orders — deactivate instead of deleting.",
+    "searchPlaceholder": "Search by name, phone, vehicle or plate…",
+    "driver": "Driver",
+    "language": "Language",
+    "languagesHint": "Press Enter or comma to add",
+    "noLanguages": "No languages set",
+    "dailyRentHint": "Empty = not for rent",
+    "priceRange": "The price must be between 0 and 100000",
+    "rating": "Rating",
+    "referrer": "Referred by",
+    "referrerHint": "The partner who brought us this driver",
+    "referrerRate": "Referrer commission",
+    "noReferrer": "Nobody",
+    "visibility": "Visibility",
+    "onWebsite": "On website",
+    "internal": "Internal",
+    "showOnWebsite": "Show on the website",
+    "showOnWebsiteHint": "Only active drivers appear on the website",
+    "isActive": "Active driver",
+    "isActiveHint": "Inactive drivers are not offered in bookings",
+    "withVehicle": "With a vehicle",
+    "withoutVehicle": "Without a vehicle",
+    "noVehicle": "No vehicle",
+    "viewOnWebsite": "View on the website",
+    "photo": "Profile photo",
+    "photoHint": "A square photo looks best",
+    "detailSubtitle": "Profile, vehicles and activity",
+    "tabs": {
+      "overview": "Overview",
+      "vehicles": "Vehicles",
+      "photos": "Photos",
+      "monthly": "Monthly activity",
+      "reviews": "Reviews"
+    },
+    "vehiclesHint": "Vehicles assigned to this driver",
+    "carPhotosHint": "These photos are also shown on the website",
+    "noCarPhotos": "No photos yet",
+    "monthlyHint": "Website transfers assigned to this driver, month by month",
+    "transferJobs": "Transfers",
+    "transferRevenue": "Revenue",
+    "inYear": "In {year}",
+    "jobs": "Completed transfers",
+    "passengers": "{count, plural, one {# passenger} other {# passengers}}",
+    "reviewsHint": "Reviews left on the website",
+    "reviewDeleted": "Review deleted",
+    "deletePhotoTitle": "Delete photo?",
+    "deletePhotoText": "The photo will be permanently deleted.",
+    "deleteReviewTitle": "Delete review?",
+    "deleteReviewText": "The review will be permanently deleted."
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -695,7 +790,8 @@
     "roles": "Roles & permissions",
     "profile": "My profile",
     "currency": "Exchange rates",
-    "partners": "Partners"
+    "partners": "Partners",
+    "vehicles": "Vehicles"
   },
   "login": {
     "eyebrow": "Back office",
@@ -761,7 +857,8 @@
       "thisMonth": "This month",
       "lastMonth": "Last month",
       "thisYear": "This year"
-    }
+    },
+    "more": "{count} more"
   },
   "print": {
     "print": "Print",
@@ -780,7 +877,14 @@
     "invalidEmail": "Enter a valid email",
     "tooLong": "Maximum {max} characters",
     "passwordRule": "At least 8 characters, including letters and digits",
-    "passwordsDontMatch": "Passwords don't match"
+    "passwordsDontMatch": "Passwords don't match",
+    "addItem": "Add",
+    "removeItem": "Remove “{item}”",
+    "uploadPhoto": "Upload photo",
+    "replacePhoto": "Replace photo",
+    "removePhoto": "Remove photo",
+    "imageOnly": "Please choose an image file",
+    "imageTooLarge": "The file is too large (max {max} MB)"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

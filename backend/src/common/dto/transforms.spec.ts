@@ -1,6 +1,12 @@
 import 'reflect-metadata'; // loaded by main.ts at runtime; needed standalone here
 import { plainToInstance, Transform } from 'class-transformer';
-import { toOptionalBoolean, toStringArray, trimToNull } from './transforms';
+import {
+  toNullableNumber,
+  toOptionalBoolean,
+  toStringArray,
+  toStringArrayAllowEmpty,
+  trimToNull,
+} from './transforms';
 
 class Query {
   @Transform(toOptionalBoolean)
@@ -47,5 +53,34 @@ describe('toStringArray', () => {
     expect(toStringArray({ value: 'a, b ,,c' })).toEqual(['a', 'b', 'c']);
     expect(toStringArray({ value: ['a', ' b '] })).toEqual(['a', 'b']);
     expect(toStringArray({ value: '' })).toBeUndefined();
+  });
+});
+
+describe('toStringArrayAllowEmpty', () => {
+  it('treats a blank value as "clear the list", not "not provided"', () => {
+    expect(toStringArrayAllowEmpty({ value: '' })).toEqual([]);
+    expect(toStringArrayAllowEmpty({ value: null })).toEqual([]);
+    expect(toStringArrayAllowEmpty({ value: undefined })).toBeUndefined();
+    expect(toStringArrayAllowEmpty({ value: 'ka, en' })).toEqual(['ka', 'en']);
+  });
+});
+
+describe('toNullableNumber', () => {
+  class Form {
+    @Transform(toNullableNumber)
+    price?: number | null;
+  }
+  const parse = (value: unknown) =>
+    plainToInstance(Form, { price: value }, { enableImplicitConversion: true })
+      .price;
+
+  it('keeps numbers, clears blanks and leaves junk for the validator', () => {
+    // multipart form fields arrive as strings
+    expect(parse('180.50')).toBe(180.5);
+    expect(parse(12)).toBe(12);
+    expect(parse('')).toBeNull();
+    expect(parse('   ')).toBeNull();
+    expect(parse(null)).toBeNull();
+    expect(parse('abc')).toBe('abc');
   });
 });
