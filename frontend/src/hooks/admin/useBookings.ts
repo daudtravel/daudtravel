@@ -31,11 +31,12 @@ export const useBookings = (params: ListParams) =>
     retry: adminRetry,
   });
 
-export const useBookingSummary = (params: ListParams) =>
+export const useBookingSummary = (params: ListParams, enabled = true) =>
   useQuery({
     queryKey: bookingKeys.summary(params),
     queryFn: () => bookingsApi.summary(params),
     placeholderData: keepPreviousData,
+    enabled,
     retry: adminRetry,
   });
 

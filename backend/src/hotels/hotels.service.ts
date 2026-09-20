@@ -325,7 +325,12 @@ export class HotelsService {
       select: { id: true, createdById: true },
     });
     if (!existing) throw new NotFoundException('NOT_FOUND');
-    this.access.assertRecordAccess(user, MODULE, 'delete', existing.createdById);
+    this.access.assertRecordAccess(
+      user,
+      MODULE,
+      'delete',
+      existing.createdById,
+    );
 
     // Contacts are removed with the hotel (cascade).
     await this.prisma.hotel.delete({ where: { id } });

@@ -828,7 +828,11 @@
   },
   "dashboard": {
     "welcome": "مرحبًا، {name}!",
-    "subtitle": "وصول سريع إلى أقسامك"
+    "subtitle": "وصول سريع إلى أقسامك",
+    "thisMonth": "هذا الشهر",
+    "next7Days": "الأيام السبعة القادمة",
+    "next7DaysHint": "الحجوزات والطلبات والملاحظات",
+    "nothingUpcoming": "لا يوجد شيء في الأيام القادمة"
   },
   "list": {
     "search": "بحث…",

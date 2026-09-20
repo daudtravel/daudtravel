@@ -828,7 +828,11 @@
   },
   "dashboard": {
     "welcome": "Hoş geldiniz, {name}!",
-    "subtitle": "Bölümlerinize hızlı erişim"
+    "subtitle": "Bölümlerinize hızlı erişim",
+    "thisMonth": "Bu ay",
+    "next7Days": "Önümüzdeki yedi gün",
+    "next7DaysHint": "Rezervasyonlar, siparişler ve notlar",
+    "nothingUpcoming": "Önümüzdeki günlerde bir şey yok"
   },
   "list": {
     "search": "Ara…",

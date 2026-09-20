@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import Dashboard from "./Dashboard";
+import DashboardView from "@/src/components/admin/dashboard/DashboardView";
 
 export default function DashboardPage() {
   return (
     <AdminPage requires="authenticated">
-      <Dashboard />
+      <DashboardView />
     </AdminPage>
   );
 }

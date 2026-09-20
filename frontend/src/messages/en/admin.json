@@ -828,7 +828,11 @@
   },
   "dashboard": {
     "welcome": "Welcome, {name}!",
-    "subtitle": "Quick access to your sections"
+    "subtitle": "Quick access to your sections",
+    "thisMonth": "This month",
+    "next7Days": "The next seven days",
+    "next7DaysHint": "Bookings, orders and notes",
+    "nothingUpcoming": "Nothing in the days ahead"
   },
   "list": {
     "search": "Search…",

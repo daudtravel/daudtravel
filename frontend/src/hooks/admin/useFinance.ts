@@ -10,10 +10,11 @@ export const financeKeys = {
     ["admin", "finance", "report", params] as const,
 };
 
-export const useFinanceReport = (params: ListParams) =>
+export const useFinanceReport = (params: ListParams, enabled = true) =>
   useQuery({
     queryKey: financeKeys.report(params),
     queryFn: () => financeApi.report(params),
     placeholderData: keepPreviousData,
+    enabled,
     retry: adminRetry,
   });

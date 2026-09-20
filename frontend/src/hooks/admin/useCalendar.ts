@@ -19,12 +19,14 @@ export const calendarKeys = {
 export const useCalendarRange = (
   from: string,
   to: string,
-  createdById?: string
+  createdById?: string,
+  enabled = true
 ) =>
   useQuery({
     queryKey: calendarKeys.range(from, to, createdById),
     queryFn: () => calendarApi.range(from, to, createdById),
     placeholderData: keepPreviousData,
+    enabled,
     retry: adminRetry,
   });
 
