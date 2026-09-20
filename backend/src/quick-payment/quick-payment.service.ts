@@ -14,6 +14,7 @@ import {
 } from '@/common/utils/bog-payments';
 import { PaymentStatus, Prisma } from '@prisma/client';
 import { parseDateRange } from '@/common/utils/date-only.util';
+import { pickLocalization } from '@/common/utils/pick-localization.util';
 import {
   CreateQuickLinkDto,
   UpdateQuickLinkDto,
@@ -550,7 +551,7 @@ export class QuickPaymentService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          localizations: locale ? { where: { locale: requestedLocale } } : true,
+          localizations: true,
           _count: {
             select: {
               orders: {
@@ -573,19 +574,19 @@ export class QuickPaymentService {
     return {
       success: true,
       data: links.map((link) => {
-        const defaultLoc = link.localizations[0];
+        const loc = pickLocalization(link.localizations, requestedLocale);
         return {
           id: link.id,
           slug: link.slug,
-          name: defaultLoc?.name || 'No translation',
-          description: defaultLoc?.description,
+          name: loc?.name ?? '',
+          description: loc?.description,
           image: link.image,
           price: Number(link.price),
           isActive: link.isActive,
           showOnWebsite: link.showOnWebsite,
           paidOrdersCount: link._count.orders,
           paymentLink: `${frontendUrl}/pay/${link.slug}`,
-          localizations: locale ? undefined : link.localizations,
+          localizations: link.localizations,
           createdAt: link.createdAt.toISOString(),
         };
       }),

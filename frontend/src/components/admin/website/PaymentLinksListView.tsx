@@ -119,7 +119,9 @@ export default function PaymentLinksListView() {
             className="hidden h-10 w-10 sm:flex print:hidden"
           />
           <div className="min-w-0">
-            <p className="truncate font-semibold text-gray-900">{row.name}</p>
+            <p className="truncate font-semibold text-gray-900">
+              {row.name || "—"}
+            </p>
             <p className="truncate text-xs text-gray-500" dir="ltr">
               /{row.slug}
             </p>

@@ -107,6 +107,11 @@ export interface AdminPaymentLinkRow {
   paidOrdersCount: number;
   paymentLink: string;
   createdAt: string;
+  localizations?: {
+    locale: string;
+    name: string;
+    description?: string | null;
+  }[];
 }
 
 /** Picks the best localization: current locale → ka → en → first available. */
