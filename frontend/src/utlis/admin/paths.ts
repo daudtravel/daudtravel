@@ -14,6 +14,14 @@ export const adminPaths = {
   roleNew: "/admin/roles/new",
   role: (id: string) => `/admin/roles/${encodeURIComponent(id)}`,
 
+  bookings: "/admin/bookings",
+  bookingNew: "/admin/bookings/new",
+  booking: (id: string) => `/admin/bookings/${encodeURIComponent(id)}`,
+  bookingEdit: (id: string) => `/admin/bookings/${encodeURIComponent(id)}/edit`,
+  /** New booking prefilled from a paid website order. */
+  bookingFromOrder: (type: "TOUR" | "TRANSFER", orderId: string) =>
+    `/admin/bookings/new?orderType=${type}&orderId=${encodeURIComponent(orderId)}`,
+
   drivers: "/admin/drivers",
   driver: (id: string) => `/admin/drivers/${encodeURIComponent(id)}`,
   vehicles: "/admin/vehicles",
@@ -24,8 +32,7 @@ export const adminPaths = {
 
   websiteTours: "/admin/website/tours",
   websiteTourNew: "/admin/website/tours/new",
-  websiteTour: (id: string) =>
-    `/admin/website/tours/${encodeURIComponent(id)}`,
+  websiteTour: (id: string) => `/admin/website/tours/${encodeURIComponent(id)}`,
   websiteTransfers: "/admin/website/transfers",
   websiteTransferNew: "/admin/website/transfers/new",
   websiteTransfer: (id: string) =>
@@ -61,9 +68,7 @@ export const adminPaths = {
  * Maps the old query-string admin URLs (`/admin?tours=all`) to the new paths so
  * bookmarks keep working. Returns null when nothing matches.
  */
-export function legacyAdminRedirect(
-  params: URLSearchParams
-): string | null {
+export function legacyAdminRedirect(params: URLSearchParams): string | null {
   const get = (key: string) => params.get(key);
 
   const tours = get("tours");
@@ -74,7 +79,8 @@ export function legacyAdminRedirect(
   }
   const transfers = get("transfers");
   if (transfers !== null) {
-    if (transfers === "all" || transfers === "") return adminPaths.websiteTransfers;
+    if (transfers === "all" || transfers === "")
+      return adminPaths.websiteTransfers;
     if (transfers === "createTransfer") return adminPaths.websiteTransferNew;
     return adminPaths.websiteTransfer(transfers);
   }
@@ -104,7 +110,8 @@ export function legacyAdminRedirect(
   }
   const insurance = get("insurance");
   if (insurance !== null) {
-    if (insurance === "all" || insurance === "") return adminPaths.ordersInsurance;
+    if (insurance === "all" || insurance === "")
+      return adminPaths.ordersInsurance;
     if (insurance === "settings") return adminPaths.websiteInsuranceSettings;
     return adminPaths.orderInsurance(insurance);
   }
@@ -117,7 +124,9 @@ export function legacyAdminRedirect(
   }
   const stats = get("stats");
   if (stats !== null) {
-    return stats === "orders" ? adminPaths.ordersStatuses : adminPaths.ordersOverview;
+    return stats === "orders"
+      ? adminPaths.ordersStatuses
+      : adminPaths.ordersOverview;
   }
   return null;
 }

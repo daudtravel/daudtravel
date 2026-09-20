@@ -3,7 +3,14 @@
 import { useCallback, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ArrowRight, Eye, Trash2, UserCog, Users } from "lucide-react";
+import {
+  ArrowRight,
+  ClipboardList,
+  Eye,
+  Trash2,
+  UserCog,
+  Users,
+} from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import PageHeader from "@/src/components/admin/common/PageHeader";
@@ -31,6 +38,9 @@ import {
 } from "@/src/hooks/admin/useAdminLists";
 import { adminTransferOrdersApi } from "@/src/services/admin/orders.service";
 import { usePermissions } from "@/src/components/admin/access/usePermissions";
+import { useLinkedOrders } from "@/src/hooks/admin/useBookings";
+import { adminPaths } from "@/src/utlis/admin/paths";
+import { Link } from "@/src/i18n/routing";
 import {
   formatDate,
   formatDateTime,
@@ -72,6 +82,9 @@ export default function TransferOrdersView() {
   const { data, isLoading, isError, refetch } = useAdminTransferOrders(
     list.params
   );
+  // Which of these orders already became a booking
+  const canBook = can("BOOKINGS_TOUR", "create");
+  const linked = useLinkedOrders(canBook || can("BOOKINGS_TOUR"));
   const drivers = useDriverOptions();
   const deleteFailed = useDeleteFailedTransferOrders();
   const deleteExpired = useDeleteExpiredTransferOrders();
@@ -139,7 +152,9 @@ export default function TransferOrdersView() {
       cell: (row) => (
         <span className="whitespace-nowrap text-sm">
           {formatDate(row.transfer.date, locale)}
-          <span className="ms-1 text-gray-500">{timeOf(row.transfer.time)}</span>
+          <span className="ms-1 text-gray-500">
+            {timeOf(row.transfer.time)}
+          </span>
         </span>
       ),
     },
@@ -170,7 +185,24 @@ export default function TransferOrdersView() {
       key: "status",
       header: t("common.status"),
       sortKey: "status",
-      cell: (row) => <PaymentStatusBadge status={row.status} />,
+      cell: (row) => (
+        <div className="space-y-1">
+          <PaymentStatusBadge status={row.status} />
+          {linked.data?.transferOrders[row.id] && (
+            <Link
+              href={adminPaths.booking(linked.data.transferOrders[row.id].id)}
+              onClick={(e) => e.stopPropagation()}
+              className="block text-xs font-semibold text-brand-green hover:underline"
+            >
+              BK-
+              {String(linked.data.transferOrders[row.id].number).padStart(
+                6,
+                "0"
+              )}
+            </Link>
+          )}
+        </div>
+      ),
     },
     {
       key: "createdAt",
@@ -203,6 +235,17 @@ export default function TransferOrdersView() {
               icon: UserCog,
               onSelect: () => setAssignTo(row),
               hidden: !can("ONLINE_ORDERS", "edit"),
+            },
+            {
+              key: "booking",
+              label: linked.data?.transferOrders[row.id]
+                ? t("bookings.openBooking")
+                : t("bookings.createFromOrder"),
+              icon: ClipboardList,
+              href: linked.data?.transferOrders[row.id]
+                ? adminPaths.booking(linked.data.transferOrders[row.id].id)
+                : adminPaths.bookingFromOrder("TRANSFER", row.id),
+              hidden: !canBook || row.status !== "PAID",
             },
           ]}
         />
@@ -281,7 +324,9 @@ export default function TransferOrdersView() {
           label={t("orders.orderDate")}
           from={list.values.dateFrom}
           to={list.values.dateTo}
-          onChange={(from, to) => list.setFilters({ dateFrom: from, dateTo: to })}
+          onChange={(from, to) =>
+            list.setFilters({ dateFrom: from, dateTo: to })
+          }
         />
         <DateRangeFilter
           label={t("transferOrders.transferDate")}
@@ -329,7 +374,10 @@ export default function TransferOrdersView() {
                 {
                   title: t("common.client"),
                   rows: [
-                    { label: t("users.name"), value: details.customer.fullName },
+                    {
+                      label: t("users.name"),
+                      value: details.customer.fullName,
+                    },
                     { label: t("users.email"), value: details.customer.email },
                     { label: t("users.phone"), value: details.customer.phone },
                   ],

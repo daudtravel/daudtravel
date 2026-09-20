@@ -52,6 +52,7 @@ model Tour {
   groupPricing      GroupPricing?
   individualPricing IndividualPricing?
   paymentOrders     TourPaymentOrder[]
+  bookingItems      BookingItem[]
 
   @@index([type, isPublic, isDaily])
   @@map("tours")
@@ -247,7 +248,8 @@ model TourPaymentOrder {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
-  tour Tour @relation(fields: [tourId], references: [id])
+  tour    Tour     @relation(fields: [tourId], references: [id])
+  booking Booking?
 
   @@index([status, createdAt])
   @@index([tourLocale])
@@ -293,6 +295,7 @@ model TransferPaymentOrder {
 
   transfer Transfer @relation(fields: [transferId], references: [id])
   driver   Driver?  @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  booking  Booking?
 
   @@index([status, createdAt])
   @@index([transferLocale])
@@ -325,6 +328,7 @@ model User {
   createdDrivers  Driver[]  @relation("DriverCreatedBy")
   createdVehicles Vehicle[] @relation("VehicleCreatedBy")
   createdHotels   Hotel[]   @relation("HotelCreatedBy")
+  createdBookings Booking[] @relation("BookingCreatedBy")
 
   @@index([email])
   @@map("users")
@@ -392,8 +396,10 @@ model Partner {
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
-  createdBy       User?    @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  referredDrivers Driver[] @relation("DriverReferrer")
+  createdBy       User?               @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  referredDrivers Driver[]            @relation("DriverReferrer")
+  bookings        Booking[]           @relation("BookingReferrer")
+  commissions     BookingCommission[] @relation("CommissionPartner")
 
   @@index([isActive])
   @@index([createdById])
@@ -494,6 +500,8 @@ model Driver {
   reviews       DriverReview[]
   paymentOrders TransferPaymentOrder[]
   vehicles      Vehicle[]
+  bookingItems  BookingItem[]
+  commissions   BookingCommission[]    @relation("CommissionDriver")
   referrer      Partner?               @relation("DriverReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
   createdBy     User?                  @relation("DriverCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
@@ -522,8 +530,9 @@ model Vehicle {
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
 
-  driver    Driver? @relation(fields: [driverId], references: [id], onDelete: SetNull)
-  createdBy User?   @relation("VehicleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  driver       Driver?       @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  createdBy    User?         @relation("VehicleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  bookingItems BookingItem[]
 
   @@index([driverId])
   @@index([type])
@@ -795,8 +804,9 @@ model Hotel {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  contacts  HotelContact[]
-  createdBy User?          @relation("HotelCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  contacts     HotelContact[]
+  createdBy    User?          @relation("HotelCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  bookingItems BookingItem[]
 
   @@index([city])
   @@index([region])
@@ -822,4 +832,178 @@ model HotelContact {
 
   @@index([hotelId])
   @@map("hotel_contacts")
+}
+
+// ─── Bookings (the ledger the office works from) ─────────────────────────────
+
+enum BookingType {
+  HOTEL
+  TOUR
+  TRANSFER
+  /// Hotel + vehicle + extras agreed as one price.
+  PACKAGE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingItemType {
+  HOTEL
+  TOUR
+  TRANSFER
+  VEHICLE
+  INSURANCE
+  SIM_CARD
+  GUIDE
+  OTHER
+}
+
+enum CommissionKind {
+  /// Whoever brought the client.
+  CLIENT_REFERRAL
+  /// Whoever brought the driver working this booking.
+  DRIVER_REFERRAL
+  OTHER
+}
+
+model Booking {
+  /// Shown as BK-000123.
+  number Int           @unique @default(autoincrement())
+  id     String        @id @default(cuid())
+  type   BookingType
+  status BookingStatus @default(PENDING)
+
+  touristName    String  @map("tourist_name")
+  touristPhone   String? @map("tourist_phone")
+  touristEmail   String? @map("tourist_email")
+  touristCountry String? @map("tourist_country")
+  adults         Int     @default(1)
+  children       Int     @default(0)
+
+  /// Service dates (date only, no time zone).
+  startDate DateTime  @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+
+  currency Currency @default(GEL)
+  /// GEL per 1 unit of `currency`, snapshotted when the booking was saved.
+  fxRate   Decimal  @default(1) @map("fx_rate") @db.Decimal(18, 8)
+
+  /// Sums of the items; always recomputed on the server.
+  totalPrice      Decimal @default(0) @map("total_price") @db.Decimal(12, 2)
+  totalCost       Decimal @default(0) @map("total_cost") @db.Decimal(12, 2)
+  totalCommission Decimal @default(0) @map("total_commission") @db.Decimal(12, 2)
+  /// How much the client has paid us so far.
+  paidAmount      Decimal @default(0) @map("paid_amount") @db.Decimal(12, 2)
+  /// totalPrice − paidAmount, kept in a column so "still due" can be filtered
+  /// and sorted (Prisma cannot compare two columns in a where clause).
+  balanceDue      Decimal @default(0) @map("balance_due") @db.Decimal(12, 2)
+
+  paymentMethod String? @map("payment_method")
+  referrerId    String? @map("referrer_id")
+
+  /// Website orders this booking was created from (one booking each).
+  tourOrderId     String? @unique @map("tour_order_id")
+  transferOrderId String? @unique @map("transfer_order_id")
+
+  notes       String? @db.Text
+  createdById String? @map("created_by_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items         BookingItem[]
+  commissions   BookingCommission[]
+  referrer      Partner?              @relation("BookingReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
+  tourOrder     TourPaymentOrder?     @relation(fields: [tourOrderId], references: [id], onDelete: SetNull)
+  transferOrder TransferPaymentOrder? @relation(fields: [transferOrderId], references: [id], onDelete: SetNull)
+  createdBy     User?                 @relation("BookingCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([type, status])
+  @@index([startDate])
+  @@index([createdById])
+  @@index([referrerId])
+  @@index([touristName])
+  @@index([balanceDue])
+  @@map("bookings")
+}
+
+/// One line of a booking: the hotel room, the car, the insurance…
+model BookingItem {
+  id        String          @id @default(cuid())
+  bookingId String          @map("booking_id")
+  type      BookingItemType
+  title     String
+
+  hotelId    String?   @map("hotel_id")
+  roomNumber String?   @map("room_number")
+  roomType   String?   @map("room_type")
+  checkIn    DateTime? @map("check_in") @db.Date
+  checkOut   DateTime? @map("check_out") @db.Date
+
+  tourId      String?   @map("tour_id")
+  driverId    String?   @map("driver_id")
+  vehicleId   String?   @map("vehicle_id")
+  serviceDate DateTime? @map("service_date") @db.Date
+
+  /// What the client pays us for this line.
+  salePrice      Decimal   @default(0) @map("sale_price") @db.Decimal(12, 2)
+  /// What we pay the hotel / driver / supplier for it.
+  costPrice      Decimal   @default(0) @map("cost_price") @db.Decimal(12, 2)
+  /// Whether the supplier has been paid.
+  supplierPaid   Boolean   @default(false) @map("supplier_paid")
+  supplierPaidAt DateTime? @map("supplier_paid_at")
+
+  notes     String? @db.Text
+  sortOrder Int     @default(0) @map("sort_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  booking Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  hotel   Hotel?   @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  tour    Tour?    @relation(fields: [tourId], references: [id], onDelete: SetNull)
+  driver  Driver?  @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([hotelId])
+  @@index([driverId])
+  @@index([vehicleId])
+  @@index([tourId])
+  @@index([serviceDate])
+  @@map("booking_items")
+}
+
+/// What a referrer earns on a booking.
+model BookingCommission {
+  id            String         @id @default(cuid())
+  bookingId     String         @map("booking_id")
+  partnerId     String?        @map("partner_id")
+  /// Name kept even if the partner record is deleted later.
+  recipientName String         @map("recipient_name")
+  kind          CommissionKind @default(CLIENT_REFERRAL)
+  /// Set for a driver referral: whose work the commission is based on.
+  driverId      String?        @map("driver_id")
+  /// Percent; when set, the amount is computed from it.
+  rate          Decimal?       @db.Decimal(5, 2)
+  amount        Decimal        @default(0) @db.Decimal(12, 2)
+  paid          Boolean        @default(false)
+  paidAt        DateTime?      @map("paid_at")
+  note          String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  booking Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  partner Partner? @relation("CommissionPartner", fields: [partnerId], references: [id], onDelete: SetNull)
+  driver  Driver?  @relation("CommissionDriver", fields: [driverId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([partnerId])
+  @@index([paid])
+  @@map("booking_commissions")
 }

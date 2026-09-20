@@ -433,6 +433,10 @@ export class DriversService {
         lastName: true,
         phone: true,
         photo: true,
+        // So a booking can offer the driver-referral commission straight away
+        referrerId: true,
+        referrerCommissionRate: true,
+        referrer: { select: { id: true, name: true } },
         vehicles: {
           where: { isActive: true },
           select: { id: true, type: true, brand: true, model: true },
@@ -440,7 +444,15 @@ export class DriversService {
         },
       },
     });
-    return { data: rows };
+    return {
+      data: rows.map((row) => ({
+        ...row,
+        referrerCommissionRate:
+          row.referrerCommissionRate !== null
+            ? Number(row.referrerCommissionRate)
+            : null,
+      })),
+    };
   }
 
   async findOneAdmin(user: AuthUser, id: string) {

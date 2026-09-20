@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Eye, Trash2, Users } from "lucide-react";
+import { ClipboardList, Eye, Trash2, Users } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import PageHeader from "@/src/components/admin/common/PageHeader";
 import PrintButton from "@/src/components/admin/common/PrintButton";
@@ -28,7 +28,14 @@ import {
 } from "@/src/hooks/admin/useAdminLists";
 import { adminTourOrdersApi } from "@/src/services/admin/orders.service";
 import { usePermissions } from "@/src/components/admin/access/usePermissions";
-import { formatDate, formatDateTime, formatMoney } from "@/src/utlis/admin/format";
+import { useLinkedOrders } from "@/src/hooks/admin/useBookings";
+import { adminPaths } from "@/src/utlis/admin/paths";
+import { Link } from "@/src/i18n/routing";
+import {
+  formatDate,
+  formatDateTime,
+  formatMoney,
+} from "@/src/utlis/admin/format";
 import { useApiErrorMessage } from "@/src/utlis/admin/errors";
 import type { TourOrderRow } from "@/src/types/admin/orders.types";
 import OrderDetailsDialog from "./OrderDetailsDialog";
@@ -55,6 +62,9 @@ export default function TourOrdersView() {
     defaultSortOrder: "desc",
   });
   const { data, isLoading, isError, refetch } = useAdminTourOrders(list.params);
+  // Which of these orders already became a booking
+  const canBook = can("BOOKINGS_TOUR", "create");
+  const linked = useLinkedOrders(canBook || can("BOOKINGS_TOUR"));
   const deleteFailed = useDeleteFailedTourOrders();
   const [details, setDetails] = useState<TourOrderRow | null>(null);
   const [confirmCleanup, setConfirmCleanup] = useState(false);
@@ -138,7 +148,21 @@ export default function TourOrdersView() {
       key: "status",
       header: t("common.status"),
       sortKey: "status",
-      cell: (row) => <PaymentStatusBadge status={row.status} />,
+      cell: (row) => (
+        <div className="space-y-1">
+          <PaymentStatusBadge status={row.status} />
+          {linked.data?.tourOrders[row.id] && (
+            <Link
+              href={adminPaths.booking(linked.data.tourOrders[row.id].id)}
+              onClick={(e) => e.stopPropagation()}
+              className="block text-xs font-semibold text-brand-green hover:underline"
+            >
+              BK-
+              {String(linked.data.tourOrders[row.id].number).padStart(6, "0")}
+            </Link>
+          )}
+        </div>
+      ),
     },
     {
       key: "createdAt",
@@ -164,6 +188,17 @@ export default function TourOrdersView() {
               label: t("common.details"),
               icon: Eye,
               onSelect: () => setDetails(row),
+            },
+            {
+              key: "booking",
+              label: linked.data?.tourOrders[row.id]
+                ? t("bookings.openBooking")
+                : t("bookings.createFromOrder"),
+              icon: ClipboardList,
+              href: linked.data?.tourOrders[row.id]
+                ? adminPaths.booking(linked.data.tourOrders[row.id].id)
+                : adminPaths.bookingFromOrder("TOUR", row.id),
+              hidden: !canBook || row.status !== "PAID",
             },
           ]}
         />
@@ -218,7 +253,9 @@ export default function TourOrdersView() {
           label={t("orders.orderDate")}
           from={list.values.dateFrom}
           to={list.values.dateTo}
-          onChange={(from, to) => list.setFilters({ dateFrom: from, dateTo: to })}
+          onChange={(from, to) =>
+            list.setFilters({ dateFrom: from, dateTo: to })
+          }
         />
         <DateRangeFilter
           label={t("tourOrders.tourDate")}
@@ -266,7 +303,10 @@ export default function TourOrdersView() {
                 {
                   title: t("common.client"),
                   rows: [
-                    { label: t("users.name"), value: details.customerFirstName },
+                    {
+                      label: t("users.name"),
+                      value: details.customerFirstName,
+                    },
                     { label: t("users.email"), value: details.customerEmail },
                     { label: t("users.phone"), value: details.customerPhone },
                     {

@@ -26,6 +26,7 @@ import { CurrencyModule } from './currency/currency.module';
 import { PartnersModule } from './partners/partners.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { HotelsModule } from './hotels/hotels.module';
+import { BookingsModule } from './bookings/bookings.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { HotelsModule } from './hotels/hotels.module';
     PartnersModule,
     VehiclesModule,
     HotelsModule,
+    BookingsModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

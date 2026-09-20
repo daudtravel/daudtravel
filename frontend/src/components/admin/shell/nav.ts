@@ -3,6 +3,7 @@ import {
   BedDouble,
   Building2,
   Car,
+  ClipboardList,
   Coins,
   CreditCard,
   Handshake,
@@ -56,6 +57,14 @@ export const ADMIN_NAV: AdminNavGroup[] = [
   {
     key: "operations",
     items: [
+      {
+        key: "bookings",
+        href: adminPaths.bookings,
+        icon: ClipboardList,
+        requires: {
+          anyOf: ["BOOKINGS_HOTEL", "BOOKINGS_TOUR", "BOOKINGS_PACKAGE"],
+        },
+      },
       {
         key: "drivers",
         href: adminPaths.drivers,

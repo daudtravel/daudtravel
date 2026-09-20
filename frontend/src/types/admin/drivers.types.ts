@@ -114,6 +114,9 @@ export interface DriverOption {
   lastName: string;
   phone: string | null;
   photo: string | null;
+  referrerId: string | null;
+  referrerCommissionRate: number | null;
+  referrer: { id: string; name: string } | null;
   vehicles: { id: string; type: VehicleType; brand: string; model: string }[];
 }
 
