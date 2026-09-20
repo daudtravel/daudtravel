@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BedDouble,
+  Coins,
   CreditCard,
   FileQuestion,
   Film,
@@ -57,6 +58,17 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         href: adminPaths.drivers,
         icon: Truck,
         requires: { module: "DRIVERS" },
+      },
+    ],
+  },
+  {
+    key: "finance",
+    items: [
+      {
+        key: "currency",
+        href: adminPaths.currency,
+        icon: Coins,
+        requires: { module: "CURRENCY" },
       },
     ],
   },

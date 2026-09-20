@@ -691,7 +691,8 @@
     "insuranceSubmissions": "Insurance applications",
     "users": "Users",
     "roles": "Roles & permissions",
-    "profile": "My profile"
+    "profile": "My profile",
+    "currency": "Exchange rates"
   },
   "login": {
     "eyebrow": "Back office",
@@ -798,7 +799,9 @@
     "PASSWORD_UNCHANGED": "The new password must be different from the current one.",
     "PASSWORD_TOO_WEAK": "The password must be at least 8 characters and include letters and digits.",
     "INVALID_DATE_RANGE": "The start date must be before the end date.",
-    "INVALID_EMAIL": "Enter a valid email."
+    "INVALID_EMAIL": "Enter a valid email.",
+    "RATE_UNAVAILABLE": "No exchange rate is available for this currency. Update the rates or set one manually.",
+    "BASE_CURRENCY_RATE": "The base currency always has a rate of 1."
   },
   "users": {
     "title": "Users",
@@ -949,7 +952,9 @@
     "currentRequired": "Enter your current password",
     "saved": "Profile saved",
     "emailHint": "Only an administrator can change the email",
-    "superAdminText": "You are a super admin and have full access to every section."
+    "superAdminText": "You are a super admin and have full access to every section.",
+    "reportCurrency": "Report currency",
+    "reportCurrencyHint": "Currency that back-office reports default to for you"
   },
   "website": {
     "visibility": "Visibility",
@@ -990,5 +995,37 @@
     "paymentMethod": "Payment method",
     "paidAt": "Paid at",
     "orderNumber": "Order number"
+  },
+  "currency": {
+    "subtitle": "Official rates against the Georgian lari",
+    "currency": "Currency",
+    "rateColumn": "Rate (GEL per unit)",
+    "source": "Source",
+    "fetchedAt": "Updated",
+    "history": "Rate history",
+    "refreshNow": "Update now",
+    "refreshed": "{count, plural, =0 {No rates changed} one {# rate updated} other {# rates updated}}",
+    "someMissing": "No rate could be fetched for: {list}",
+    "baseCurrency": "Base currency",
+    "noRate": "No rate yet",
+    "stale": "Not today's",
+    "staleHint": "The latest known rate is older than today",
+    "setManual": "Set rate manually",
+    "manualHint": "A manual rate is kept and is not overwritten by automatic updates.",
+    "rateFor": "How many {base} is 1 {currency}?",
+    "rateSaved": "Rate saved",
+    "invalidRate": "Enter a rate greater than zero",
+    "converter": "Converter",
+    "converterHint": "Uses the latest known rates",
+    "from": "From",
+    "to": "To",
+    "swap": "Swap currencies",
+    "result": "Result",
+    "attribution": "Rates: National Bank of Georgia; missing currencies from exchangerate-api.com.",
+    "sources": {
+      "NBG": "National Bank",
+      "EXCHANGERATE_API": "Exchangerate API",
+      "MANUAL": "Manual"
+    }
   }
 }

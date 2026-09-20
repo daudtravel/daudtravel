@@ -76,6 +76,8 @@ export interface AuthProfile {
   lastName: string;
   phone: string | null;
   position: string | null;
+  /** Currency the back-office reports default to for this user. */
+  preferredCurrency: string;
   isAdmin: boolean;
   isActive: boolean;
   lastLoginAt: string | null;
@@ -121,6 +123,7 @@ export interface StaffUser {
   lastName: string;
   phone: string | null;
   position: string | null;
+  preferredCurrency?: string;
   isAdmin: boolean;
   isActive: boolean;
   lastLoginAt: string | null;

@@ -150,6 +150,9 @@ export class AuthService {
         ...(dto.firstName !== undefined && { firstName: dto.firstName }),
         ...(dto.lastName !== undefined && { lastName: dto.lastName }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
+        ...(dto.preferredCurrency !== undefined && {
+          preferredCurrency: dto.preferredCurrency,
+        }),
       },
     });
     return this.getProfile(userId);

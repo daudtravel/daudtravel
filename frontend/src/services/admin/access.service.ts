@@ -84,6 +84,7 @@ export const profileApi = {
     firstName?: string;
     lastName?: string;
     phone?: string | null;
+    preferredCurrency?: string;
   }) =>
     (await axiosInstance.put<{ user: AuthProfile }>("/auth/me", payload)).data
       .user,

@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -8,6 +9,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Currency } from '@prisma/client';
 import { trimString, trimToNull } from '@/common/dto/transforms';
 import { PASSWORD_MESSAGE, PASSWORD_REGEX } from '@/users/users.constants';
 
@@ -37,6 +39,14 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(40)
   phone?: string | null;
+
+  @ApiPropertyOptional({
+    enum: Currency,
+    description: 'Currency the back-office reports default to',
+  })
+  @IsOptional()
+  @IsEnum(Currency)
+  preferredCurrency?: Currency;
 }
 
 export class ChangePasswordDto {

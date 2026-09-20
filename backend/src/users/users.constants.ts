@@ -17,6 +17,7 @@ export const USER_PUBLIC_SELECT = {
   isAdmin: true,
   isActive: true,
   lastLoginAt: true,
+  preferredCurrency: true,
   createdAt: true,
   updatedAt: true,
   roles: {

@@ -312,6 +312,8 @@ model User {
   phone      String?
   position   String?
   lastLoginAt       DateTime? @map("last_login_at")
+  /// Currency the back-office reports default to for this user.
+  preferredCurrency Currency  @default(GEL) @map("preferred_currency")
   // Tokens issued before this moment are rejected (password change/reset, deactivation)
   sessionsRevokedAt DateTime? @map("sessions_revoked_at")
   createdAt  DateTime @default(now()) @map("created_at")
@@ -321,6 +323,42 @@ model User {
 
   @@index([email])
   @@map("users")
+}
+
+// ─── Currencies & exchange rates ─────────────────────────────────────────────
+
+/// GEL is the base currency: every rate is "how many GEL one unit costs".
+enum Currency {
+  GEL
+  USD
+  EUR
+  TRY
+  RUB
+  AED
+  SAR
+}
+
+enum RateSource {
+  NBG /// National Bank of Georgia (official)
+  EXCHANGERATE_API /// fallback provider
+  MANUAL /// entered by an administrator
+}
+
+model ExchangeRate {
+  id        String     @id @default(cuid())
+  currency  Currency
+  /// Day the rate is valid for (date only).
+  date      DateTime   @db.Date
+  /// GEL per 1 unit of `currency`.
+  rate      Decimal    @db.Decimal(18, 8)
+  source    RateSource
+  fetchedAt DateTime   @default(now()) @map("fetched_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@unique([currency, date])
+  @@index([date])
+  @@map("exchange_rates")
 }
 
 // ─── Access control (admin-managed roles) ────────────────────────────────────

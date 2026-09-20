@@ -12,6 +12,17 @@ import { Form } from "@/src/components/ui/form";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { Input } from "@/src/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import {
+  BASE_CURRENCY,
+  CURRENCIES,
+} from "@/src/types/admin/currency.types";
 import PageHeader from "@/src/components/admin/common/PageHeader";
 import Panel from "@/src/components/admin/common/Panel";
 import { TextField, adminInputClass } from "@/src/components/admin/form/FormFields";
@@ -25,7 +36,12 @@ import type {
   RolePermission,
 } from "@/src/types/admin/access.types";
 
-type DetailsValues = { firstName: string; lastName: string; phone: string };
+type DetailsValues = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  preferredCurrency: string;
+};
 
 function effectiveToRows(perms: EffectivePermissions): RolePermission[] {
   return (Object.keys(perms) as PermissionModule[]).map((module) => {
@@ -55,12 +71,18 @@ export default function ProfileView() {
         firstName: z.string().trim().min(1, t("form.required")).max(50, t("form.tooLong", { max: 50 })),
         lastName: z.string().trim().min(1, t("form.required")).max(50, t("form.tooLong", { max: 50 })),
         phone: z.string().trim().max(40, t("form.tooLong", { max: 40 })),
+        preferredCurrency: z.string(),
       }),
     [t]
   );
   const form = useForm<DetailsValues>({
     resolver: zodResolver(detailsSchema),
-    defaultValues: { firstName: "", lastName: "", phone: "" },
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      preferredCurrency: BASE_CURRENCY,
+    },
   });
   const [savingDetails, setSavingDetails] = useState(false);
 
@@ -70,6 +92,7 @@ export default function ProfileView() {
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone ?? "",
+        preferredCurrency: user.preferredCurrency ?? BASE_CURRENCY,
       });
     }
   }, [user, form]);
@@ -81,6 +104,7 @@ export default function ProfileView() {
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
         phone: values.phone.trim() || null,
+        preferredCurrency: values.preferredCurrency,
       });
       setProfile(profile);
       toast.success(t("profile.saved"));
@@ -142,6 +166,33 @@ export default function ProfileView() {
                   <label className="text-sm font-semibold text-gray-700">{t("users.email")}</label>
                   <Input value={user.email} disabled dir="ltr" className={adminInputClass} />
                   <p className="text-xs text-gray-500">{t("profile.emailHint")}</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("profile.reportCurrency")}
+                  </label>
+                  <Select
+                    value={form.watch("preferredCurrency")}
+                    onValueChange={(value) =>
+                      form.setValue("preferredCurrency", value, {
+                        shouldDirty: true,
+                      })
+                    }
+                  >
+                    <SelectTrigger className="h-11 rounded-xl border-gray-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CURRENCIES.map((code) => (
+                        <SelectItem key={code} value={code}>
+                          {code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500">
+                    {t("profile.reportCurrencyHint")}
+                  </p>
                 </div>
               </div>
               <div className="flex justify-end">

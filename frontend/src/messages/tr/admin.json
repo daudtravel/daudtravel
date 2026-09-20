@@ -691,7 +691,8 @@
     "insuranceSubmissions": "Sigorta başvuruları",
     "users": "Kullanıcılar",
     "roles": "Roller ve yetkiler",
-    "profile": "Profilim"
+    "profile": "Profilim",
+    "currency": "Döviz kurları"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -798,7 +799,9 @@
     "PASSWORD_UNCHANGED": "Yeni şifre mevcut şifreden farklı olmalıdır.",
     "PASSWORD_TOO_WEAK": "Şifre en az 8 karakter olmalı ve harf ile rakam içermelidir.",
     "INVALID_DATE_RANGE": "Başlangıç tarihi bitiş tarihinden önce olmalıdır.",
-    "INVALID_EMAIL": "Geçerli bir e-posta girin."
+    "INVALID_EMAIL": "Geçerli bir e-posta girin.",
+    "RATE_UNAVAILABLE": "Bu para birimi için kur yok. Kurları güncelleyin veya elle girin.",
+    "BASE_CURRENCY_RATE": "Ana para biriminin kuru her zaman 1'dir."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -949,7 +952,9 @@
     "currentRequired": "Mevcut şifrenizi girin",
     "saved": "Profil kaydedildi",
     "emailHint": "E-postayı yalnızca yönetici değiştirebilir",
-    "superAdminText": "Süper yöneticisiniz ve tüm bölümlere tam erişiminiz var."
+    "superAdminText": "Süper yöneticisiniz ve tüm bölümlere tam erişiminiz var.",
+    "reportCurrency": "Rapor para birimi",
+    "reportCurrencyHint": "Raporlarda varsayılan olarak kullanılan para birimi"
   },
   "website": {
     "visibility": "Görünürlük",
@@ -990,5 +995,37 @@
     "paymentMethod": "Ödeme yöntemi",
     "paidAt": "Ödeme zamanı",
     "orderNumber": "Sipariş numarası"
+  },
+  "currency": {
+    "subtitle": "Gürcistan larisine göre resmî kurlar",
+    "currency": "Para birimi",
+    "rateColumn": "Kur (birim başına GEL)",
+    "source": "Kaynak",
+    "fetchedAt": "Güncellendi",
+    "history": "Kur geçmişi",
+    "refreshNow": "Şimdi güncelle",
+    "refreshed": "{count, plural, =0 {Kur değişmedi} other {# kur güncellendi}}",
+    "someMissing": "Şu para birimleri için kur alınamadı: {list}",
+    "baseCurrency": "Ana para birimi",
+    "noRate": "Henüz kur yok",
+    "stale": "Bugünün değil",
+    "staleHint": "Bilinen en son kur bugünden eski",
+    "setManual": "Kuru elle gir",
+    "manualHint": "Elle girilen kur korunur ve otomatik güncellemeyle değiştirilmez.",
+    "rateFor": "1 {currency} kaç {base} eder?",
+    "rateSaved": "Kur kaydedildi",
+    "invalidRate": "Sıfırdan büyük bir kur girin",
+    "converter": "Çevirici",
+    "converterHint": "Bilinen en son kurları kullanır",
+    "from": "Kaynak",
+    "to": "Hedef",
+    "swap": "Para birimlerini değiştir",
+    "result": "Sonuç",
+    "attribution": "Kurlar: Gürcistan Ulusal Bankası; eksik olanlar exchangerate-api.com.",
+    "sources": {
+      "NBG": "Ulusal Banka",
+      "EXCHANGERATE_API": "Exchangerate API",
+      "MANUAL": "Elle"
+    }
   }
 }
