@@ -86,7 +86,9 @@
       "ru": "Rusça",
       "tr": "Türkçe",
       "ar": "Arapça"
-    }
+    },
+    "owner": "Sahibi",
+    "me": "Ben"
   },
   "status": {
     "paid": "Ödendi",
@@ -692,7 +694,8 @@
     "users": "Kullanıcılar",
     "roles": "Roller ve yetkiler",
     "profile": "Profilim",
-    "currency": "Döviz kurları"
+    "currency": "Döviz kurları",
+    "partners": "Ortaklar"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -1026,6 +1029,33 @@
       "NBG": "Ulusal Banka",
       "EXCHANGERATE_API": "Exchangerate API",
       "MANUAL": "Elle"
+    }
+  },
+  "partners": {
+    "subtitle": "Müşteri veya şoför getiren kişiler ve acenteler",
+    "new": "Yeni ortak",
+    "edit": "Ortağı düzenle",
+    "formHint": "Komisyon oranı rezervasyonlara otomatik olarak aktarılır.",
+    "searchPlaceholder": "Ad, telefon, e-posta veya nota göre ara…",
+    "contact": "İletişim",
+    "commissionRate": "Komisyon",
+    "commissionHint": "Rezervasyon toplamının yüzdesi; her rezervasyonda değiştirilebilir",
+    "rateRange": "0 ile 100 arasında bir yüzde girin",
+    "notes": "Notlar",
+    "isActive": "Aktif ortak",
+    "isActiveHint": "Pasif ortaklar rezervasyonlarda önerilmez",
+    "created": "Ortak oluşturuldu",
+    "updated": "Ortak kaydedildi",
+    "deleted": "Ortak silindi",
+    "deleteTitle": "Ortak silinsin mi?",
+    "deleteText": "“{name}” silinecek. Bu işlem geri alınamaz.",
+    "types": {
+      "AGENT": "Acente temsilcisi",
+      "TOUR_AGENCY": "Tur acentesi",
+      "HOTEL_STAFF": "Otel çalışanı",
+      "DRIVER": "Şoför",
+      "INDIVIDUAL": "Bireysel",
+      "OTHER": "Diğer"
     }
   }
 }

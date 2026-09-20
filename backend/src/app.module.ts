@@ -23,6 +23,7 @@ import { AccessModule } from './access/access.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { CurrencyModule } from './currency/currency.module';
+import { PartnersModule } from './partners/partners.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CurrencyModule } from './currency/currency.module';
     UsersModule,
     RolesModule,
     CurrencyModule,
+    PartnersModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

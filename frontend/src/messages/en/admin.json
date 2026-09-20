@@ -86,7 +86,9 @@
       "ru": "Russian",
       "tr": "Turkish",
       "ar": "Arabic"
-    }
+    },
+    "owner": "Owner",
+    "me": "Me"
   },
   "status": {
     "paid": "Paid",
@@ -692,7 +694,8 @@
     "users": "Users",
     "roles": "Roles & permissions",
     "profile": "My profile",
-    "currency": "Exchange rates"
+    "currency": "Exchange rates",
+    "partners": "Partners"
   },
   "login": {
     "eyebrow": "Back office",
@@ -1026,6 +1029,33 @@
       "NBG": "National Bank",
       "EXCHANGERATE_API": "Exchangerate API",
       "MANUAL": "Manual"
+    }
+  },
+  "partners": {
+    "subtitle": "People and agencies that bring clients or drivers",
+    "new": "New partner",
+    "edit": "Edit partner",
+    "formHint": "The commission rate is used to prefill bookings.",
+    "searchPlaceholder": "Search by name, phone, email or notes…",
+    "contact": "Contact",
+    "commissionRate": "Commission",
+    "commissionHint": "Percent of the booking total; can be changed per booking",
+    "rateRange": "Enter a percentage between 0 and 100",
+    "notes": "Notes",
+    "isActive": "Active partner",
+    "isActiveHint": "Inactive partners are not offered in bookings",
+    "created": "Partner created",
+    "updated": "Partner saved",
+    "deleted": "Partner deleted",
+    "deleteTitle": "Delete partner?",
+    "deleteText": "“{name}” will be removed. This cannot be undone.",
+    "types": {
+      "AGENT": "Agent",
+      "TOUR_AGENCY": "Tour agency",
+      "HOTEL_STAFF": "Hotel staff",
+      "DRIVER": "Driver",
+      "INDIVIDUAL": "Individual",
+      "OTHER": "Other"
     }
   }
 }

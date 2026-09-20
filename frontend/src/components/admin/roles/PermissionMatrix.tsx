@@ -45,9 +45,18 @@ export function toPermissionMap(rows: RolePermission[] = []): PermissionMap {
 }
 
 export function fromPermissionMap(map: PermissionMap): RolePermission[] {
-  return Object.values(map).filter(
-    (p) => p.canView || p.canCreate || p.canEdit || p.canDelete
-  );
+  return Object.values(map)
+    .filter((p) => p.canView || p.canCreate || p.canEdit || p.canDelete)
+    // Only the fields the API accepts: rows loaded from it also carry roleId,
+    // which the strict validation pipe would reject.
+    .map(({ module, canView, canCreate, canEdit, canDelete, scope }) => ({
+      module,
+      canView,
+      canCreate,
+      canEdit,
+      canDelete,
+      scope,
+    }));
 }
 
 /** Applies a checkbox change with the same rules as the API. */

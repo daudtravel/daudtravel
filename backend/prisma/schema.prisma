@@ -321,6 +321,8 @@ model User {
 
   roles Role[]
 
+  createdPartners Partner[] @relation("PartnerCreatedBy")
+
   @@index([email])
   @@map("users")
 }
@@ -359,6 +361,40 @@ model ExchangeRate {
   @@unique([currency, date])
   @@index([date])
   @@map("exchange_rates")
+}
+
+// ─── Partners / referrers ────────────────────────────────────────────────────
+
+enum PartnerType {
+  AGENT
+  TOUR_AGENCY
+  HOTEL_STAFF
+  DRIVER
+  INDIVIDUAL
+  OTHER
+}
+
+/// Someone who brings clients or drivers and is paid a commission.
+model Partner {
+  id             String      @id @default(cuid())
+  name           String
+  type           PartnerType @default(AGENT)
+  phone          String?
+  email          String?
+  /// Default commission in percent, used to prefill bookings.
+  commissionRate Decimal     @default(0) @db.Decimal(5, 2) @map("commission_rate")
+  notes          String?     @db.Text
+  isActive       Boolean     @default(true) @map("is_active")
+  createdById    String?     @map("created_by_id")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  createdBy User? @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([isActive])
+  @@index([createdById])
+  @@index([name])
+  @@map("partners")
 }
 
 // ─── Access control (admin-managed roles) ────────────────────────────────────

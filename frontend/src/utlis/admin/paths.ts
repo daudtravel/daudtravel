@@ -17,6 +17,7 @@ export const adminPaths = {
   drivers: "/admin/drivers",
   driverNew: "/admin/drivers/new",
   currency: "/admin/currency",
+  partners: "/admin/partners",
 
   websiteTours: "/admin/website/tours",
   websiteTourNew: "/admin/website/tours/new",
