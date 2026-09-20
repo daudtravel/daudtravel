@@ -8,6 +8,7 @@ import {
 } from "@/src/components/ui/accordion";
 import { faqApi } from "@/src/services/faq.service";
 import { getFAQ } from "@/src/types/faq.types";
+import { pickLocalization } from "@/src/types/admin/website.types";
 
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -25,7 +26,14 @@ export default function FaqSection() {
     queryFn: () => faqApi.get(locale),
   });
 
-  const faqs = data?.data || [];
+  const faqs: getFAQ[] = data?.data || [];
+
+  // Pair each FAQ with its text for this locale. The API filters localizations by
+  // locale, so a FAQ not yet translated arrives empty and has nothing to show.
+  const visibleFaqs = faqs.flatMap((faq) => {
+    const localization = pickLocalization(faq.localizations, locale);
+    return localization ? [{ faq, localization }] : [];
+  });
 
   const handleClick = (value: string) => {
     setOpenItems((prevOpenItems) => ({
@@ -58,41 +66,38 @@ export default function FaqSection() {
     );
   }
 
+  // Nothing translated for this locale yet: drop the section rather than leave a bare heading.
+  if (visibleFaqs.length === 0) {
+    return null;
+  }
+
   return (
     <section className="bg-brand-green-50 w-full px-6 py-12 sm:px-16 md:px-20">
       <h2 className="text-xl">{t("faq")}</h2>
-      {faqs.length === 0
-        ? null
-        : faqs.map((faq: getFAQ) => {
-            const localization =
-              faq.localizations.find((l) => l.locale === locale) ||
-              faq.localizations[0];
-
-            return (
-              <Accordion
-                key={faq.id}
-                type="single"
-                collapsible
-                className="mt-6 w-full rounded-lg"
-                onValueChange={(value) =>
-                  setOpenItems((prev) => ({ ...prev, [faq.id]: !!value }))
-                }
-              >
-                <AccordionItem
-                  value={faq.id}
-                  style={{ backgroundColor: bgColor(faq.id) }}
-                  className="rounded-lg border w-full border-brand-green-100"
-                >
-                  <AccordionTrigger className="items-start justify-between text-left flex w-full text-[14px] font-semibold px-4">
-                    {localization.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="p-2 pt-0 text-left text-xs leading-5 md:pl-6">
-                    {localization.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            );
-          })}
+      {visibleFaqs.map(({ faq, localization }) => (
+        <Accordion
+          key={faq.id}
+          type="single"
+          collapsible
+          className="mt-6 w-full rounded-lg"
+          onValueChange={(value) =>
+            setOpenItems((prev) => ({ ...prev, [faq.id]: !!value }))
+          }
+        >
+          <AccordionItem
+            value={faq.id}
+            style={{ backgroundColor: bgColor(faq.id) }}
+            className="rounded-lg border w-full border-brand-green-100"
+          >
+            <AccordionTrigger className="items-start justify-between text-left flex w-full text-[14px] font-semibold px-4">
+              {localization.question}
+            </AccordionTrigger>
+            <AccordionContent className="p-2 pt-0 text-left text-xs leading-5 md:pl-6">
+              {localization.answer}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      ))}
     </section>
   );
 }
