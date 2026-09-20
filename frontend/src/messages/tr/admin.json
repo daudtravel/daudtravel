@@ -796,7 +796,8 @@
     "bookings": "Rezervasyonlar",
     "transactions": "Gelir ve gider",
     "finance": "Mali rapor",
-    "catalog": "Fiyat kataloğu"
+    "catalog": "Fiyat kataloğu",
+    "calendar": "Takvim"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -928,7 +929,8 @@
     "NO_PHOTOS": "Fotoğraf seçilmedi.",
     "PHOTO_NOT_FOUND": "Fotoğraf bulunamadı.",
     "CATEGORY_TYPE_MISMATCH": "Bu kategori kaydın diğer tarafına ait.",
-    "BOOKING_NOT_FOUND": "Rezervasyon bulunamadı."
+    "BOOKING_NOT_FOUND": "Rezervasyon bulunamadı.",
+    "RANGE_TOO_LONG": "Bu dönem çok uzun (en fazla 62 gün)."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -1494,6 +1496,38 @@
       "ALL_YEAR": "Tüm yıl",
       "HIGH": "Yüksek sezon",
       "LOW": "Düşük sezon"
+    }
+  },
+  "calendar": {
+    "subtitle": "Rezervasyonlar, siparişler ve notlar gün gün",
+    "today": "Bugün",
+    "previousMonth": "Önceki ay",
+    "nextMonth": "Sonraki ay",
+    "newNote": "Yeni not",
+    "editNote": "Notu düzenle",
+    "noteHint": "Not, o günün karesinde görünür.",
+    "noteTitle": "Başlık",
+    "titleRequired": "Başlık gerekli",
+    "noteCreated": "Not eklendi",
+    "noteUpdated": "Not güncellendi",
+    "noteDeleted": "Not silindi",
+    "deleteTitle": "Not silinsin mi?",
+    "deleteText": "“{title}” silinecek. Bu işlem geri alınamaz.",
+    "notes": "Notlar",
+    "events": "Neler oluyor",
+    "nothingOnThisDay": "Bu günde bir şey yok",
+    "time": "Saat",
+    "color": "Renk",
+    "done": "Tamamlandı",
+    "markDone": "Tamamlandı olarak işaretle",
+    "eventTypes": {
+      "BOOKING_START": "Rezervasyon başlangıcı",
+      "BOOKING_END": "Rezervasyon bitişi",
+      "SERVICE": "Hizmet",
+      "CHECK_IN": "Giriş",
+      "CHECK_OUT": "Çıkış",
+      "TOUR_ORDER": "Tur siparişi",
+      "TRANSFER_ORDER": "Transfer siparişi"
     }
   }
 }

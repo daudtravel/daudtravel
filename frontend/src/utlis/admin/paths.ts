@@ -14,6 +14,7 @@ export const adminPaths = {
   roleNew: "/admin/roles/new",
   role: (id: string) => `/admin/roles/${encodeURIComponent(id)}`,
 
+  calendar: "/admin/calendar",
   bookings: "/admin/bookings",
   bookingNew: "/admin/bookings/new",
   booking: (id: string) => `/admin/bookings/${encodeURIComponent(id)}`,

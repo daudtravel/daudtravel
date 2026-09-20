@@ -325,14 +325,15 @@ model User {
 
   roles Role[]
 
-  createdPartners     Partner[]     @relation("PartnerCreatedBy")
-  createdDrivers      Driver[]      @relation("DriverCreatedBy")
-  createdVehicles     Vehicle[]     @relation("VehicleCreatedBy")
-  createdHotels       Hotel[]       @relation("HotelCreatedBy")
-  createdBookings     Booking[]     @relation("BookingCreatedBy")
-  transactions        Transaction[] @relation("TransactionEmployee")
-  createdTransactions Transaction[] @relation("TransactionCreatedBy")
-  catalogItems        CatalogItem[] @relation("CatalogCreatedBy")
+  createdPartners     Partner[]      @relation("PartnerCreatedBy")
+  createdDrivers      Driver[]       @relation("DriverCreatedBy")
+  createdVehicles     Vehicle[]      @relation("VehicleCreatedBy")
+  createdHotels       Hotel[]        @relation("HotelCreatedBy")
+  createdBookings     Booking[]      @relation("BookingCreatedBy")
+  transactions        Transaction[]  @relation("TransactionEmployee")
+  createdTransactions Transaction[]  @relation("TransactionCreatedBy")
+  catalogItems        CatalogItem[]  @relation("CatalogCreatedBy")
+  calendarNotes       CalendarNote[] @relation("CalendarCreatedBy")
 
   @@index([email])
   @@map("users")
@@ -1154,4 +1155,29 @@ model CatalogItem {
   @@index([city])
   @@index([createdById])
   @@map("catalog_items")
+}
+
+// ─── Calendar ────────────────────────────────────────────────────────────────
+
+/// A note pinned to a day: a reminder, a meeting, anything the office writes down.
+model CalendarNote {
+  id      String   @id @default(cuid())
+  date    DateTime @db.Date
+  /// Optional time of day, "HH:mm".
+  time    String?
+  title   String
+  content String?  @db.Text
+  /// Colour of the chip in the month view.
+  color   String   @default("green")
+  isDone  Boolean  @default(false) @map("is_done")
+
+  createdById String?  @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("CalendarCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([createdById])
+  @@map("calendar_notes")
 }

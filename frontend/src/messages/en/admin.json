@@ -796,7 +796,8 @@
     "bookings": "Bookings",
     "transactions": "Income & expenses",
     "finance": "Finance report",
-    "catalog": "Price catalog"
+    "catalog": "Price catalog",
+    "calendar": "Calendar"
   },
   "login": {
     "eyebrow": "Back office",
@@ -928,7 +929,8 @@
     "NO_PHOTOS": "No photos were selected.",
     "PHOTO_NOT_FOUND": "That photo no longer exists.",
     "CATEGORY_TYPE_MISMATCH": "That category belongs to the other side of the ledger.",
-    "BOOKING_NOT_FOUND": "That booking no longer exists."
+    "BOOKING_NOT_FOUND": "That booking no longer exists.",
+    "RANGE_TOO_LONG": "That period is too long (62 days at most)."
   },
   "users": {
     "title": "Users",
@@ -1494,6 +1496,38 @@
       "ALL_YEAR": "All year",
       "HIGH": "High season",
       "LOW": "Low season"
+    }
+  },
+  "calendar": {
+    "subtitle": "Bookings, orders and notes, day by day",
+    "today": "Today",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "newNote": "New note",
+    "editNote": "Edit note",
+    "noteHint": "The note appears in that day's square.",
+    "noteTitle": "Title",
+    "titleRequired": "A title is required",
+    "noteCreated": "Note added",
+    "noteUpdated": "Note updated",
+    "noteDeleted": "Note deleted",
+    "deleteTitle": "Delete note?",
+    "deleteText": "“{title}” will be removed. This cannot be undone.",
+    "notes": "Notes",
+    "events": "What is happening",
+    "nothingOnThisDay": "Nothing on this day",
+    "time": "Time",
+    "color": "Colour",
+    "done": "Done",
+    "markDone": "Mark as done",
+    "eventTypes": {
+      "BOOKING_START": "Booking starts",
+      "BOOKING_END": "Booking ends",
+      "SERVICE": "Service",
+      "CHECK_IN": "Check-in",
+      "CHECK_OUT": "Check-out",
+      "TOUR_ORDER": "Tour order",
+      "TRANSFER_ORDER": "Transfer order"
     }
   }
 }

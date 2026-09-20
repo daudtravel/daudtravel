@@ -2,6 +2,7 @@ import {
   ArrowLeftRight,
   BarChart3,
   BedDouble,
+  CalendarDays,
   Building2,
   Car,
   ClipboardList,
@@ -60,6 +61,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
   {
     key: "operations",
     items: [
+      {
+        key: "calendar",
+        href: adminPaths.calendar,
+        icon: CalendarDays,
+        requires: { module: "CALENDAR" },
+      },
       {
         key: "bookings",
         href: adminPaths.bookings,

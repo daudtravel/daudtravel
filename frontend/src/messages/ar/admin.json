@@ -796,7 +796,8 @@
     "bookings": "الحجوزات",
     "transactions": "الإيرادات والمصروفات",
     "finance": "التقرير المالي",
-    "catalog": "قائمة الأسعار"
+    "catalog": "قائمة الأسعار",
+    "calendar": "التقويم"
   },
   "login": {
     "eyebrow": "لوحة الإدارة",
@@ -928,7 +929,8 @@
     "NO_PHOTOS": "لم يتم اختيار صور.",
     "PHOTO_NOT_FOUND": "الصورة غير موجودة.",
     "CATEGORY_TYPE_MISMATCH": "هذه الفئة تخص الجانب الآخر من السجل.",
-    "BOOKING_NOT_FOUND": "الحجز غير موجود."
+    "BOOKING_NOT_FOUND": "الحجز غير موجود.",
+    "RANGE_TOO_LONG": "الفترة طويلة جدًا (62 يومًا كحد أقصى)."
   },
   "users": {
     "title": "المستخدمون",
@@ -1494,6 +1496,38 @@
       "ALL_YEAR": "طوال السنة",
       "HIGH": "الموسم المرتفع",
       "LOW": "الموسم المنخفض"
+    }
+  },
+  "calendar": {
+    "subtitle": "الحجوزات والطلبات والملاحظات يومًا بيوم",
+    "today": "اليوم",
+    "previousMonth": "الشهر السابق",
+    "nextMonth": "الشهر التالي",
+    "newNote": "ملاحظة جديدة",
+    "editNote": "تعديل الملاحظة",
+    "noteHint": "تظهر الملاحظة في خانة ذلك اليوم.",
+    "noteTitle": "العنوان",
+    "titleRequired": "العنوان مطلوب",
+    "noteCreated": "تمت إضافة الملاحظة",
+    "noteUpdated": "تم تحديث الملاحظة",
+    "noteDeleted": "تم حذف الملاحظة",
+    "deleteTitle": "حذف الملاحظة؟",
+    "deleteText": "سيتم حذف «{title}». لا يمكن التراجع.",
+    "notes": "الملاحظات",
+    "events": "ما يجري",
+    "nothingOnThisDay": "لا يوجد شيء في هذا اليوم",
+    "time": "الوقت",
+    "color": "اللون",
+    "done": "منجزة",
+    "markDone": "تعليم كمنجزة",
+    "eventTypes": {
+      "BOOKING_START": "بداية الحجز",
+      "BOOKING_END": "نهاية الحجز",
+      "SERVICE": "خدمة",
+      "CHECK_IN": "تسجيل الدخول",
+      "CHECK_OUT": "المغادرة",
+      "TOUR_ORDER": "طلب جولة",
+      "TRANSFER_ORDER": "طلب نقل"
     }
   }
 }

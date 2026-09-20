@@ -30,6 +30,7 @@ import { BookingsModule } from './bookings/bookings.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { FinanceModule } from './finance/finance.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { CalendarModule } from './calendar/calendar.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CatalogModule } from './catalog/catalog.module';
     TransactionsModule,
     FinanceModule,
     CatalogModule,
+    CalendarModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,
