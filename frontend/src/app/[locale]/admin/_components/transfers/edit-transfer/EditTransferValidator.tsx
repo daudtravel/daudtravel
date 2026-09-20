@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { VehicleType } from "@/src/types/transfers.types";
+import { SUPPORTED_LOCALES } from "../../tours/edit-tour/EditTourValidator";
 
 // Translator for the "admin" namespace (validation messages are localized)
 type Translate = (key: string) => string;
@@ -53,9 +54,20 @@ export const useEditTransferValidator = () => {
 
   return useForm<UpdateTransferFormData>({
     resolver: zodResolver(schema),
+    // Seeded with the same shape (and ordering) the load effect resets to, so
+    // every input is controlled from its first render. Leaving these undefined
+    // mounts the inputs uncontrolled and React warns when reset() fills them in.
     defaultValues: {
-      localizations: undefined, // 🔥 IMPORTANT
-      vehicleTypes: undefined,
+      localizations: SUPPORTED_LOCALES.map((locale) => ({
+        locale,
+        startLocation: "",
+        endLocation: "",
+      })),
+      vehicleTypes: Object.values(VehicleType).map((type) => ({
+        type,
+        price: 0,
+        maxPersons: 4,
+      })),
       isPublic: false,
     },
     mode: "onChange",
