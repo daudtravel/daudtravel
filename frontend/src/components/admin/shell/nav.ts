@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BedDouble,
+  Building2,
   Car,
   Coins,
   CreditCard,
@@ -66,6 +67,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         href: adminPaths.vehicles,
         icon: Car,
         requires: { module: "DRIVERS" },
+      },
+      {
+        key: "hotels",
+        href: adminPaths.hotels,
+        icon: Building2,
+        requires: { module: "HOTELS" },
       },
       {
         key: "partners",

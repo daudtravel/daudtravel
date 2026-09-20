@@ -17,6 +17,8 @@ export const adminPaths = {
   drivers: "/admin/drivers",
   driver: (id: string) => `/admin/drivers/${encodeURIComponent(id)}`,
   vehicles: "/admin/vehicles",
+  hotels: "/admin/hotels",
+  hotel: (id: string) => `/admin/hotels/${encodeURIComponent(id)}`,
   currency: "/admin/currency",
   partners: "/admin/partners",
 

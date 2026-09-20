@@ -25,6 +25,7 @@ import { RolesModule } from './roles/roles.module';
 import { CurrencyModule } from './currency/currency.module';
 import { PartnersModule } from './partners/partners.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
+import { HotelsModule } from './hotels/hotels.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
     CurrencyModule,
     PartnersModule,
     VehiclesModule,
+    HotelsModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

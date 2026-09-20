@@ -791,7 +791,8 @@
     "profile": "Profilim",
     "currency": "Döviz kurları",
     "partners": "Ortaklar",
-    "vehicles": "Araçlar"
+    "vehicles": "Araçlar",
+    "hotels": "Oteller"
   },
   "login": {
     "eyebrow": "Yönetim paneli",
@@ -908,7 +909,8 @@
     "INVALID_DATE_RANGE": "Başlangıç tarihi bitiş tarihinden önce olmalıdır.",
     "INVALID_EMAIL": "Geçerli bir e-posta girin.",
     "RATE_UNAVAILABLE": "Bu para birimi için kur yok. Kurları güncelleyin veya elle girin.",
-    "BASE_CURRENCY_RATE": "Ana para biriminin kuru her zaman 1'dir."
+    "BASE_CURRENCY_RATE": "Ana para biriminin kuru her zaman 1'dir.",
+    "CONTACT_NEEDS_PHONE_OR_EMAIL": "Her iletişim kaydında telefon veya e-posta bulunmalı."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -1161,5 +1163,63 @@
       "INDIVIDUAL": "Bireysel",
       "OTHER": "Diğer"
     }
+  },
+  "hotels": {
+    "subtitle": "Otel rehberi: fiyatlar, komisyon ve iletişim numaraları",
+    "new": "Yeni otel",
+    "edit": "Oteli düzenle",
+    "formHint": "Kullandığınız tüm numaraları girin: resepsiyon, satış, müdür.",
+    "created": "Otel eklendi",
+    "updated": "Otel güncellendi",
+    "deleted": "Otel silindi",
+    "deleteTitle": "Otel silinsin mi?",
+    "deleteText": "“{name}” ve iletişim bilgileri silinecek. Bu işlem geri alınamaz.",
+    "searchPlaceholder": "Ad, şehir, adres veya iletişime göre ara…",
+    "hotel": "Otel",
+    "name": "Ad",
+    "city": "Şehir",
+    "region": "Bölge",
+    "regionHint": "örn. Acara, Svaneti",
+    "address": "Adres",
+    "category": "Kategori",
+    "categories": {
+      "ECONOMY": "Ekonomik",
+      "STANDARD": "Standart",
+      "COMFORT": "Konfor",
+      "LUXURY": "Lüks"
+    },
+    "stars": "Yıldız",
+    "starsRange": "Yıldız sayısı 1 ile 5 arasında olmalı",
+    "priceFrom": "Başlangıç fiyatı",
+    "priceHint": "Gecelik yaklaşık fiyat",
+    "priceInvalid": "Geçerli bir fiyat girin",
+    "currency": "Para birimi",
+    "commissionRate": "Komisyonumuz",
+    "commissionHint": "Rezervasyonlara otomatik aktarılan yüzde",
+    "withCommission": "Komisyonlu",
+    "withoutCommission": "Komisyonsuz",
+    "website": "Web sitesi",
+    "openWebsite": "Web sitesini aç",
+    "isActive": "Aktif otel",
+    "isActiveHint": "Pasif oteller rezervasyonlarda önerilmez",
+    "contacts": "İletişim",
+    "contactsHint": "Bu otelde kimi arayacağınız",
+    "addContact": "İletişim ekle",
+    "noContacts": "Henüz iletişim yok",
+    "contactName": "İlgili kişi",
+    "contactNote": "Not",
+    "contactNeedsPhoneOrEmail": "Telefon veya e-posta girin",
+    "contactTypes": {
+      "RECEPTION": "Resepsiyon",
+      "RESERVATION": "Rezervasyon",
+      "SALES": "Satış",
+      "MANAGER": "Müdür",
+      "ACCOUNTING": "Muhasebe",
+      "OTHER": "Diğer"
+    },
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı",
+    "detailSubtitle": "İletişim, fiyatlar ve koşullar",
+    "details": "Ayrıntılar"
   }
 }

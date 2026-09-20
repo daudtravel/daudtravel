@@ -791,7 +791,8 @@
     "profile": "ملفي الشخصي",
     "currency": "أسعار الصرف",
     "partners": "الشركاء",
-    "vehicles": "المركبات"
+    "vehicles": "المركبات",
+    "hotels": "الفنادق"
   },
   "login": {
     "eyebrow": "لوحة الإدارة",
@@ -908,7 +909,8 @@
     "INVALID_DATE_RANGE": "يجب أن يكون تاريخ البداية قبل تاريخ النهاية.",
     "INVALID_EMAIL": "أدخل بريدًا إلكترونيًا صالحًا.",
     "RATE_UNAVAILABLE": "لا يتوفر سعر صرف لهذه العملة. حدّث الأسعار أو أدخل سعرًا يدويًا.",
-    "BASE_CURRENCY_RATE": "سعر العملة الأساسية يساوي 1 دائمًا."
+    "BASE_CURRENCY_RATE": "سعر العملة الأساسية يساوي 1 دائمًا.",
+    "CONTACT_NEEDS_PHONE_OR_EMAIL": "يجب أن يحتوي كل جهة اتصال على رقم هاتف أو بريد إلكتروني."
   },
   "users": {
     "title": "المستخدمون",
@@ -1161,5 +1163,63 @@
       "INDIVIDUAL": "فرد",
       "OTHER": "أخرى"
     }
+  },
+  "hotels": {
+    "subtitle": "دليل الفنادق: الأسعار والعمولة وأرقام التواصل",
+    "new": "فندق جديد",
+    "edit": "تعديل الفندق",
+    "formHint": "سجّل كل الأرقام التي تستخدمها: الاستقبال والمبيعات والمدير.",
+    "created": "تمت إضافة الفندق",
+    "updated": "تم تحديث الفندق",
+    "deleted": "تم حذف الفندق",
+    "deleteTitle": "حذف الفندق؟",
+    "deleteText": "سيتم حذف «{name}» وجهات الاتصال الخاصة به. لا يمكن التراجع.",
+    "searchPlaceholder": "ابحث بالاسم أو المدينة أو العنوان أو جهة الاتصال…",
+    "hotel": "الفندق",
+    "name": "الاسم",
+    "city": "المدينة",
+    "region": "المنطقة",
+    "regionHint": "مثل أدجارا أو سفانيتي",
+    "address": "العنوان",
+    "category": "الفئة",
+    "categories": {
+      "ECONOMY": "اقتصادي",
+      "STANDARD": "قياسي",
+      "COMFORT": "مريح",
+      "LUXURY": "فاخر"
+    },
+    "stars": "النجوم",
+    "starsRange": "عدد النجوم بين 1 و5",
+    "priceFrom": "السعر من",
+    "priceHint": "سعر تقريبي لليلة",
+    "priceInvalid": "أدخل سعرًا صحيحًا",
+    "currency": "العملة",
+    "commissionRate": "عمولتنا",
+    "commissionHint": "النسبة التي تُستخدم لتعبئة الحجوزات",
+    "withCommission": "مع عمولة",
+    "withoutCommission": "بدون عمولة",
+    "website": "الموقع الإلكتروني",
+    "openWebsite": "فتح الموقع",
+    "isActive": "فندق نشط",
+    "isActiveHint": "الفنادق غير النشطة لا تظهر في الحجوزات",
+    "contacts": "جهات الاتصال",
+    "contactsHint": "بمن نتصل في هذا الفندق",
+    "addContact": "إضافة جهة اتصال",
+    "noContacts": "لا توجد جهات اتصال",
+    "contactName": "الشخص المسؤول",
+    "contactNote": "ملاحظة",
+    "contactNeedsPhoneOrEmail": "أضف رقم هاتف أو بريدًا إلكترونيًا",
+    "contactTypes": {
+      "RECEPTION": "الاستقبال",
+      "RESERVATION": "الحجوزات",
+      "SALES": "المبيعات",
+      "MANAGER": "المدير",
+      "ACCOUNTING": "المحاسبة",
+      "OTHER": "أخرى"
+    },
+    "moveUp": "تحريك لأعلى",
+    "moveDown": "تحريك لأسفل",
+    "detailSubtitle": "جهات الاتصال والأسعار والشروط",
+    "details": "التفاصيل"
   }
 }
