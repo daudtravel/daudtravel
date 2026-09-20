@@ -390,7 +390,11 @@
     "addFailed": "تعذّرت إضافة الفيديو",
     "urlHint": "أدخل رابط يوتيوب أو منصة فيديو أخرى",
     "categoryPlaceholder": "مثال: النقل، الجولات، عام (اختياري)",
-    "titleDescByLanguage": "العنوان والوصف حسب اللغة"
+    "titleDescByLanguage": "العنوان والوصف حسب اللغة",
+    "details": "تفاصيل الفيديو",
+    "editTitle": "تعديل الفيديو",
+    "updated": "تم تحديث الفيديو",
+    "openVideo": "فتح الفيديو"
   },
   "tourOrders": {
     "title": "طلبات الجولات",
@@ -407,7 +411,12 @@
     "remaining": "المتبقي:",
     "paymentCompleted": "اكتمل الدفع",
     "loadingOrders": "جارٍ تحميل الطلبات...",
-    "deleteFailedConfirm": "هل أنت متأكد؟ سيتم حذف جميع الطلبات ذات الحالة الفاشلة نهائيًا."
+    "deleteFailedConfirm": "هل أنت متأكد؟ سيتم حذف جميع الطلبات ذات الحالة الفاشلة نهائيًا.",
+    "tour": "الجولة",
+    "tourDate": "تاريخ الجولة",
+    "ordered": "تاريخ الطلب",
+    "totalPrice": "السعر الإجمالي",
+    "remainingLabel": "المتبقي"
   },
   "transferOrders": {
     "title": "طلبات النقل",
@@ -423,7 +432,14 @@
     "statFailed": "فشل: {count}",
     "colRouteDate": "المسار / التاريخ",
     "colVehicle": "المركبة",
-    "colDriver": "السائق"
+    "colDriver": "السائق",
+    "transferDate": "تاريخ النقل",
+    "driver": "السائق",
+    "noDriver": "بدون سائق",
+    "assignDriver": "تعيين سائق",
+    "driverAssigned": "تم تعيين السائق",
+    "deleteExpired": "حذف المنتهية",
+    "deleteExpiredTitle": "حذف الطلبات المنتهية؟"
   },
   "quickLinks": {
     "title": "روابط الدفع",
@@ -489,12 +505,22 @@
     "image": "الصورة",
     "changeImage": "تغيير الصورة",
     "uploadImage": "ارفع صورة",
-    "maxSize5": "الحجم الأقصى: 5 ميغابايت"
+    "maxSize5": "الحجم الأقصى: 5 ميغابايت",
+    "create": "رابط جديد",
+    "copyLink": "نسخ الرابط",
+    "openLink": "فتح الرابط",
+    "linkCopied": "تم نسخ الرابط",
+    "paidOrders": "الطلبات المدفوعة",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "activated": "تم تفعيل الرابط",
+    "deactivated": "تم تعطيل الرابط"
   },
   "quickOrders": {
     "linkDeleted": "تم حذف الرابط",
     "cannotDeletePaid": "لا يمكن حذف الطلبات المدفوعة",
-    "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الطلب؟"
+    "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا الطلب؟",
+    "quantity": "الكمية"
   },
   "insurance": {
     "title": "طلبات التأمين",
@@ -540,7 +566,11 @@
     "createdAt": "تاريخ الإنشاء",
     "paidAt": "تاريخ الدفع",
     "failedAt": "تاريخ الفشل",
-    "updatedAt": "آخر تحديث"
+    "updatedAt": "آخر تحديث",
+    "submitter": "مقدم الطلب",
+    "people": "الأشخاص",
+    "deleted": "تم حذف الطلب",
+    "deleteTitle": "حذف الطلب؟"
   },
   "insuranceSettings": {
     "title": "إعدادات التأمين",
@@ -920,5 +950,45 @@
     "saved": "تم حفظ الملف الشخصي",
     "emailHint": "يمكن للمسؤول فقط تغيير البريد الإلكتروني",
     "superAdminText": "أنت مدير عام ولديك وصول كامل إلى جميع الأقسام."
+  },
+  "website": {
+    "visibility": "الظهور",
+    "published": "منشور",
+    "hidden": "مخفي",
+    "daily": "يومي",
+    "dailyOnly": "الجولات اليومية",
+    "notDaily": "غير يومية",
+    "capacity": "السعة",
+    "vehicleType": "نوع المركبة",
+    "noVehicles": "بدون مركبات",
+    "onWebsite": "على الموقع",
+    "notOnWebsite": "ليس على الموقع",
+    "addAccommodation": "إضافة مكان إقامة",
+    "deleteText": "سيتم حذف «{name}» من الموقع. لا يمكن التراجع عن هذا الإجراء.",
+    "toursSubtitle": "الجولات المعروضة على الموقع",
+    "transfersSubtitle": "مسارات النقل وأسعار المركبات",
+    "accommodationsSubtitle": "الفنادق والشقق المعروضة على الموقع",
+    "faqsSubtitle": "الأسئلة والأجوبة المعروضة على الموقع",
+    "videosSubtitle": "مقاطع الفيديو المعروضة على الموقع",
+    "paymentLinksSubtitle": "روابط دفع مخصصة للعملاء",
+    "searchTours": "ابحث في الجولات…",
+    "searchTransfers": "ابحث بنقطة الانطلاق أو الوصول…",
+    "searchAccommodations": "ابحث بالاسم أو العنوان أو الوصف…",
+    "searchFaqs": "ابحث في الأسئلة والأجوبة…",
+    "searchVideos": "ابحث بالعنوان أو الرابط…",
+    "searchPaymentLinks": "ابحث بالاسم أو الرابط…"
+  },
+  "orders": {
+    "tourOrdersSubtitle": "حجوزات الجولات المدفوعة عبر الموقع",
+    "transferOrdersSubtitle": "حجوزات النقل المدفوعة عبر الموقع",
+    "quickOrdersSubtitle": "المدفوعات التي تمت عبر روابط الدفع",
+    "insuranceSubtitle": "طلبات تأمين السفر الواردة من الموقع",
+    "statusesSubtitle": "جميع مدفوعات الموقع في قائمة واحدة",
+    "searchOrders": "ابحث بالاسم أو البريد أو الهاتف أو رقم الطلب…",
+    "searchInsurance": "ابحث بالبريد الإلكتروني أو الاسم أو رقم الطلب…",
+    "orderDate": "تاريخ الطلب",
+    "paymentMethod": "طريقة الدفع",
+    "paidAt": "وقت الدفع",
+    "orderNumber": "رقم الطلب"
   }
 }

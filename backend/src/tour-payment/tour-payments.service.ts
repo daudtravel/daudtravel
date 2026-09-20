@@ -16,6 +16,16 @@ import {
 import { MailService } from '@/mail/mail.service';
 import { Prisma, PaymentStatus } from '@prisma/client';
 import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
+import {
+  TOUR_ORDER_SORT_FIELDS,
+  TourOrdersQueryDto,
+} from '@/common/dto/order-list-query.dto';
+import {
+  buildMeta,
+  resolvePagination,
+  resolveSort,
+} from '@/common/utils/pagination.util';
+import { parseDateRange } from '@/common/utils/date-only.util';
 
 interface TourBookingData {
   tourId: string;
@@ -778,16 +788,42 @@ export class TourPaymentsService {
     }
   }
 
-  async getOrders(page: number = 1, limit: number = 10) {
-    const pageNum = Math.max(1, page);
-    const limitNum = Math.max(1, Math.min(100, limit));
-    const skip = (pageNum - 1) * limitNum;
+  async getOrders(query: TourOrdersQueryDto = {}) {
+    const { page, limit, skip } = resolvePagination(query.page, query.limit);
+    const { field, order } = resolveSort(
+      query.sortBy,
+      query.sortOrder,
+      TOUR_ORDER_SORT_FIELDS,
+      'createdAt',
+    );
+
+    const createdRange = parseDateRange(query.dateFrom, query.dateTo);
+    const serviceRange = parseDateRange(query.serviceFrom, query.serviceTo);
+    const search = query.search?.trim();
+
+    const whereClause: Prisma.TourPaymentOrderWhereInput = {
+      ...(query.status && { status: query.status }),
+      ...(query.tourId && { tourId: query.tourId }),
+      ...(createdRange && { createdAt: createdRange }),
+      ...(serviceRange && { selectedDate: serviceRange }),
+      ...(search && {
+        OR: [
+          { customerFirstName: { contains: search, mode: 'insensitive' } },
+          { customerLastName: { contains: search, mode: 'insensitive' } },
+          { customerEmail: { contains: search, mode: 'insensitive' } },
+          { customerPhone: { contains: search, mode: 'insensitive' } },
+          { externalOrderId: { contains: search, mode: 'insensitive' } },
+          { tourName: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+    };
 
     const [orders, totalRecords] = await Promise.all([
       this.prisma.tourPaymentOrder.findMany({
+        where: whereClause,
         skip,
-        take: limitNum,
-        orderBy: { createdAt: 'desc' },
+        take: limit,
+        orderBy: { [field]: order },
         include: {
           tour: {
             include: {
@@ -796,8 +832,10 @@ export class TourPaymentsService {
           },
         },
       }),
-      this.prisma.tourPaymentOrder.count(),
+      this.prisma.tourPaymentOrder.count({ where: whereClause }),
     ]);
+    const pageNum = page;
+    const limitNum = limit;
 
     const formattedOrders = orders.map((order) =>
       this.formatOrder(order, false),
@@ -816,6 +854,8 @@ export class TourPaymentsService {
         hasNextPage: pageNum < totalPages,
         hasPreviousPage: pageNum > 1,
       },
+      // Same shape as the newer endpoints so the admin list kit can read it
+      meta: buildMeta(totalRecords, pageNum, limitNum),
     };
   }
 

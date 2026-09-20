@@ -39,12 +39,22 @@ export class PaymentStatsController {
   })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'dateFrom', required: false, example: '2026-01-01' })
+  @ApiQuery({ name: 'dateTo', required: false, example: '2026-12-31' })
   async getOrders(
     @Query('type') type?: PaymentType,
     @Query('status') status?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
   ) {
-    return this.service.getOrders(type, status, page, limit);
+    return this.service.getOrders(type, status, page, limit, {
+      search,
+      dateFrom,
+      dateTo,
+    });
   }
 }

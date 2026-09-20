@@ -12,7 +12,8 @@ import {
   verifyBOGSignature,
   extractBogFailureReason,
 } from '@/common/utils/bog-payments';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, Prisma } from '@prisma/client';
+import { parseDateRange } from '@/common/utils/date-only.util';
 import {
   CreateQuickLinkDto,
   UpdateQuickLinkDto,
@@ -506,12 +507,45 @@ export class QuickPaymentService {
     };
   }
 
-  async getAllLinks(locale?: string, page: number = 1, limit: number = 20) {
+  async getAllLinks(
+    locale?: string,
+    page: number = 1,
+    limit: number = 20,
+    filters: {
+      search?: string;
+      isActive?: boolean;
+      showOnWebsite?: boolean;
+    } = {},
+  ) {
     const skip = (page - 1) * limit;
     const requestedLocale = locale || this.getDefaultLocale();
+    const search = filters.search?.trim();
+
+    const where: Prisma.QuickPaymentLinkWhereInput = {
+      ...(filters.isActive !== undefined && { isActive: filters.isActive }),
+      ...(filters.showOnWebsite !== undefined && {
+        showOnWebsite: filters.showOnWebsite,
+      }),
+      ...(search && {
+        OR: [
+          { slug: { contains: search, mode: 'insensitive' } },
+          {
+            localizations: {
+              some: {
+                OR: [
+                  { name: { contains: search, mode: 'insensitive' } },
+                  { description: { contains: search, mode: 'insensitive' } },
+                ],
+              },
+            },
+          },
+        ],
+      }),
+    };
 
     const [links, total] = await Promise.all([
       this.prisma.quickPaymentLink.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -526,7 +560,7 @@ export class QuickPaymentService {
           },
         },
       }),
-      this.prisma.quickPaymentLink.count(),
+      this.prisma.quickPaymentLink.count({ where }),
     ]);
 
     const frontendUrl = getPrimaryFrontendUrl();
@@ -773,12 +807,26 @@ export class QuickPaymentService {
     status?: PaymentStatus,
     page: number = 1,
     limit: number = 50,
+    filters: { search?: string; dateFrom?: string; dateTo?: string } = {},
   ) {
     const skip = (page - 1) * limit;
+    const search = filters.search?.trim();
+    const createdRange = parseDateRange(filters.dateFrom, filters.dateTo);
 
-    const whereClause: any = {};
-    if (linkId) whereClause.linkId = linkId;
-    if (status) whereClause.status = status;
+    const whereClause: Prisma.QuickPaymentOrderWhereInput = {
+      ...(linkId && { linkId }),
+      ...(status && { status }),
+      ...(createdRange && { createdAt: createdRange }),
+      ...(search && {
+        OR: [
+          { customerFullName: { contains: search, mode: 'insensitive' } },
+          { customerEmail: { contains: search, mode: 'insensitive' } },
+          { customerPhone: { contains: search, mode: 'insensitive' } },
+          { productName: { contains: search, mode: 'insensitive' } },
+          { externalOrderId: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+    };
 
     const [orders, total] = await Promise.all([
       this.prisma.quickPaymentOrder.findMany({

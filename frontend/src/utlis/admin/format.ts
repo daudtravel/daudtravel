@@ -103,6 +103,8 @@ export function formatMoney(
     return new Intl.NumberFormat(intlLocale(locale), {
       style: "currency",
       currency,
+      // "₾120.00" rather than "GEL 120.00"
+      currencyDisplay: "narrowSymbol",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);

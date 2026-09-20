@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import PaymentOrdersList from "@/src/app/[locale]/admin/_components/stats/PaymentOrdersList";
+import PaymentStatusesView from "@/src/components/admin/orders/PaymentStatusesView";
 
 export default function Page() {
   return (
     <AdminPage requires={{ module: "ONLINE_ORDERS", action: "view" }}>
-      <PaymentOrdersList />
+      <PaymentStatusesView />
     </AdminPage>
   );
 }

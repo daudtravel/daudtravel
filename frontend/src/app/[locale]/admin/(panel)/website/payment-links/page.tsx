@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import { QuickLinksList } from "@/src/app/[locale]/admin/_components/quick-payment/QuickPaymentList";
+import PaymentLinksListView from "@/src/components/admin/website/PaymentLinksListView";
 
 export default function Page() {
   return (
     <AdminPage requires={{ module: "WEBSITE", action: "view" }}>
-      <QuickLinksList />
+      <PaymentLinksListView />
     </AdminPage>
   );
 }

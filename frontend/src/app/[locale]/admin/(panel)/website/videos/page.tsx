@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import VideoList from "@/src/app/[locale]/admin/_components/video/video-list/VideoList";
+import VideosListView from "@/src/components/admin/website/VideosListView";
 
 export default function Page() {
   return (
     <AdminPage requires={{ module: "WEBSITE", action: "view" }}>
-      <VideoList />
+      <VideosListView />
     </AdminPage>
   );
 }

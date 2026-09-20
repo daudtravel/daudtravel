@@ -390,7 +390,11 @@
     "addFailed": "Не удалось добавить видео",
     "urlHint": "Введите ссылку на YouTube или другую видеоплатформу",
     "categoryPlaceholder": "напр.: Трансферы, Туры, Общее (необязательно)",
-    "titleDescByLanguage": "Заголовок и описание по языкам"
+    "titleDescByLanguage": "Заголовок и описание по языкам",
+    "details": "Данные видео",
+    "editTitle": "Редактирование видео",
+    "updated": "Видео обновлено",
+    "openVideo": "Открыть видео"
   },
   "tourOrders": {
     "title": "Заказы туров",
@@ -407,7 +411,12 @@
     "remaining": "Осталось:",
     "paymentCompleted": "Оплата завершена",
     "loadingOrders": "Загрузка заказов...",
-    "deleteFailedConfirm": "Вы уверены? Все заказы со статусом «Неуспешно» будут удалены навсегда."
+    "deleteFailedConfirm": "Вы уверены? Все заказы со статусом «Неуспешно» будут удалены навсегда.",
+    "tour": "Тур",
+    "tourDate": "Дата тура",
+    "ordered": "Дата заказа",
+    "totalPrice": "Полная стоимость",
+    "remainingLabel": "Остаток"
   },
   "transferOrders": {
     "title": "Заказы трансферов",
@@ -423,7 +432,14 @@
     "statFailed": "Неуспешно: {count}",
     "colRouteDate": "Маршрут / Дата",
     "colVehicle": "Авто",
-    "colDriver": "Водитель"
+    "colDriver": "Водитель",
+    "transferDate": "Дата трансфера",
+    "driver": "Водитель",
+    "noDriver": "Без водителя",
+    "assignDriver": "Назначить водителя",
+    "driverAssigned": "Водитель назначен",
+    "deleteExpired": "Удалить просроченные",
+    "deleteExpiredTitle": "Удалить просроченные заказы?"
   },
   "quickLinks": {
     "title": "Платёжные ссылки",
@@ -489,12 +505,22 @@
     "image": "Изображение",
     "changeImage": "Изменить изображение",
     "uploadImage": "Загрузите изображение",
-    "maxSize5": "Максимальный размер: 5 МБ"
+    "maxSize5": "Максимальный размер: 5 МБ",
+    "create": "Новая ссылка",
+    "copyLink": "Скопировать ссылку",
+    "openLink": "Открыть ссылку",
+    "linkCopied": "Ссылка скопирована",
+    "paidOrders": "Оплаченные заказы",
+    "activate": "Активировать",
+    "deactivate": "Деактивировать",
+    "activated": "Ссылка активирована",
+    "deactivated": "Ссылка деактивирована"
   },
   "quickOrders": {
     "linkDeleted": "Ссылка удалена",
     "cannotDeletePaid": "Оплаченные заказы нельзя удалить",
-    "deleteConfirm": "Вы уверены, что хотите удалить этот заказ?"
+    "deleteConfirm": "Вы уверены, что хотите удалить этот заказ?",
+    "quantity": "Количество"
   },
   "insurance": {
     "title": "Заказы страховок",
@@ -540,7 +566,11 @@
     "createdAt": "Дата создания",
     "paidAt": "Дата оплаты",
     "failedAt": "Дата отказа",
-    "updatedAt": "Последнее обновление"
+    "updatedAt": "Последнее обновление",
+    "submitter": "Заявитель",
+    "people": "Люди",
+    "deleted": "Заявка удалена",
+    "deleteTitle": "Удалить заявку?"
   },
   "insuranceSettings": {
     "title": "Настройки страхования",
@@ -920,5 +950,45 @@
     "saved": "Профиль сохранён",
     "emailHint": "Изменить эл. почту может только администратор",
     "superAdminText": "Вы суперадминистратор и имеете полный доступ ко всем разделам."
+  },
+  "website": {
+    "visibility": "Видимость",
+    "published": "Опубликовано",
+    "hidden": "Скрыто",
+    "daily": "Ежедневный",
+    "dailyOnly": "Ежедневные туры",
+    "notDaily": "Не ежедневные",
+    "capacity": "Вместимость",
+    "vehicleType": "Тип автомобиля",
+    "noVehicles": "Без автомобилей",
+    "onWebsite": "На сайте",
+    "notOnWebsite": "Не на сайте",
+    "addAccommodation": "Добавить объект",
+    "deleteText": "«{name}» будет удалён с сайта. Действие необратимо.",
+    "toursSubtitle": "Туры, размещённые на сайте",
+    "transfersSubtitle": "Маршруты трансферов и цены по автомобилям",
+    "accommodationsSubtitle": "Отели и апартаменты, размещённые на сайте",
+    "faqsSubtitle": "Вопросы и ответы на сайте",
+    "videosSubtitle": "Видео, размещённые на сайте",
+    "paymentLinksSubtitle": "Ссылки на оплату для клиентов",
+    "searchTours": "Поиск туров…",
+    "searchTransfers": "Поиск по пункту отправления или назначения…",
+    "searchAccommodations": "Поиск по названию, адресу или описанию…",
+    "searchFaqs": "Поиск по вопросам и ответам…",
+    "searchVideos": "Поиск по названию или ссылке…",
+    "searchPaymentLinks": "Поиск по названию или ссылке…"
+  },
+  "orders": {
+    "tourOrdersSubtitle": "Бронирования туров, оплаченные на сайте",
+    "transferOrdersSubtitle": "Бронирования трансферов, оплаченные на сайте",
+    "quickOrdersSubtitle": "Платежи по ссылкам на оплату",
+    "insuranceSubtitle": "Заявки на страхование с сайта",
+    "statusesSubtitle": "Все платежи сайта в одном списке",
+    "searchOrders": "Поиск по имени, эл. почте, телефону или номеру заказа…",
+    "searchInsurance": "Поиск по эл. почте, имени или номеру заказа…",
+    "orderDate": "Дата заказа",
+    "paymentMethod": "Способ оплаты",
+    "paidAt": "Время оплаты",
+    "orderNumber": "Номер заказа"
   }
 }

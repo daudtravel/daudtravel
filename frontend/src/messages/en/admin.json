@@ -390,7 +390,11 @@
     "addFailed": "Failed to add video",
     "urlHint": "Enter a YouTube or other video platform link",
     "categoryPlaceholder": "e.g. Transfers, Tours, General (optional)",
-    "titleDescByLanguage": "Title and description by language"
+    "titleDescByLanguage": "Title and description by language",
+    "details": "Video details",
+    "editTitle": "Edit video",
+    "updated": "Video updated",
+    "openVideo": "Open video"
   },
   "tourOrders": {
     "title": "Tour orders",
@@ -407,7 +411,12 @@
     "remaining": "Remaining:",
     "paymentCompleted": "Payment completed",
     "loadingOrders": "Loading orders...",
-    "deleteFailedConfirm": "Are you sure? All orders with a failed status will be permanently deleted."
+    "deleteFailedConfirm": "Are you sure? All orders with a failed status will be permanently deleted.",
+    "tour": "Tour",
+    "tourDate": "Tour date",
+    "ordered": "Ordered",
+    "totalPrice": "Total price",
+    "remainingLabel": "Remaining"
   },
   "transferOrders": {
     "title": "Transfer orders",
@@ -423,7 +432,14 @@
     "statFailed": "Failed: {count}",
     "colRouteDate": "Route / Date",
     "colVehicle": "Vehicle",
-    "colDriver": "Driver"
+    "colDriver": "Driver",
+    "transferDate": "Transfer date",
+    "driver": "Driver",
+    "noDriver": "No driver",
+    "assignDriver": "Assign driver",
+    "driverAssigned": "Driver assigned",
+    "deleteExpired": "Delete expired",
+    "deleteExpiredTitle": "Delete expired orders?"
   },
   "quickLinks": {
     "title": "Payment links",
@@ -489,12 +505,22 @@
     "image": "Image",
     "changeImage": "Change image",
     "uploadImage": "Upload an image",
-    "maxSize5": "Maximum size: 5MB"
+    "maxSize5": "Maximum size: 5MB",
+    "create": "New link",
+    "copyLink": "Copy link",
+    "openLink": "Open link",
+    "linkCopied": "Link copied",
+    "paidOrders": "Paid orders",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "activated": "Link activated",
+    "deactivated": "Link deactivated"
   },
   "quickOrders": {
     "linkDeleted": "Link deleted",
     "cannotDeletePaid": "Paid orders cannot be deleted",
-    "deleteConfirm": "Are you sure you want to delete this order?"
+    "deleteConfirm": "Are you sure you want to delete this order?",
+    "quantity": "Quantity"
   },
   "insurance": {
     "title": "Insurance orders",
@@ -540,7 +566,11 @@
     "createdAt": "Created",
     "paidAt": "Payment date",
     "failedAt": "Failure date",
-    "updatedAt": "Last updated"
+    "updatedAt": "Last updated",
+    "submitter": "Applicant",
+    "people": "People",
+    "deleted": "Application deleted",
+    "deleteTitle": "Delete application?"
   },
   "insuranceSettings": {
     "title": "Insurance settings",
@@ -920,5 +950,45 @@
     "saved": "Profile saved",
     "emailHint": "Only an administrator can change the email",
     "superAdminText": "You are a super admin and have full access to every section."
+  },
+  "website": {
+    "visibility": "Visibility",
+    "published": "Published",
+    "hidden": "Hidden",
+    "daily": "Daily",
+    "dailyOnly": "Daily tours",
+    "notDaily": "Not daily",
+    "capacity": "Capacity",
+    "vehicleType": "Vehicle type",
+    "noVehicles": "No vehicles",
+    "onWebsite": "On website",
+    "notOnWebsite": "Not on website",
+    "addAccommodation": "Add listing",
+    "deleteText": "“{name}” will be removed from the website. This cannot be undone.",
+    "toursSubtitle": "Tours shown on the website",
+    "transfersSubtitle": "Transfer routes and their vehicle prices",
+    "accommodationsSubtitle": "Hotels and apartments shown on the website",
+    "faqsSubtitle": "Questions and answers shown on the website",
+    "videosSubtitle": "Videos shown on the website",
+    "paymentLinksSubtitle": "Custom payment links for clients",
+    "searchTours": "Search tours…",
+    "searchTransfers": "Search by start or end location…",
+    "searchAccommodations": "Search by name, address or description…",
+    "searchFaqs": "Search questions and answers…",
+    "searchVideos": "Search by title or link…",
+    "searchPaymentLinks": "Search by name or link…"
+  },
+  "orders": {
+    "tourOrdersSubtitle": "Tour bookings paid on the website",
+    "transferOrdersSubtitle": "Transfer bookings paid on the website",
+    "quickOrdersSubtitle": "Payments made through payment links",
+    "insuranceSubtitle": "Travel insurance applications from the website",
+    "statusesSubtitle": "All website payments in one list",
+    "searchOrders": "Search by name, email, phone or order number…",
+    "searchInsurance": "Search by email, name or order number…",
+    "orderDate": "Order date",
+    "paymentMethod": "Payment method",
+    "paidAt": "Paid at",
+    "orderNumber": "Order number"
   }
 }

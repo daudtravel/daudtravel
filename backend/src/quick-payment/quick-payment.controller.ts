@@ -16,6 +16,7 @@ import {
 import { QuickPaymentService } from './quick-payment.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { RequirePermission } from '@/access/access.decorators';
+import { parseBooleanParam } from '@/common/dto/transforms';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import {
   CreateQuickLinkDto,
@@ -103,12 +104,22 @@ export class QuickPaymentController {
   @RequirePermission(PermissionModule.WEBSITE, 'view')
   @ApiOperation({ summary: 'Get all payment links (Admin)' })
   @ApiQuery({ name: 'locale', required: false, example: 'ka' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+  @ApiQuery({ name: 'showOnWebsite', required: false, type: Boolean })
   async getAllLinks(
     @Query('locale') locale?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('isActive') isActive?: string,
+    @Query('showOnWebsite') showOnWebsite?: string,
   ) {
-    return this.service.getAllLinks(locale, page, limit);
+    return this.service.getAllLinks(locale, page, limit, {
+      search,
+      isActive: parseBooleanParam(isActive),
+      showOnWebsite: parseBooleanParam(showOnWebsite),
+    });
   }
 
   @Put('links/:slug')
@@ -148,13 +159,23 @@ export class QuickPaymentController {
   @ApiQuery({ name: 'status', required: false, enum: PaymentStatus })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'dateFrom', required: false, example: '2026-01-01' })
+  @ApiQuery({ name: 'dateTo', required: false, example: '2026-12-31' })
   async getAllOrders(
     @Query('linkId') linkId?: string,
     @Query('status') status?: PaymentStatus,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
   ) {
-    return this.service.getAllOrders(linkId, status, page, limit);
+    return this.service.getAllOrders(linkId, status, page, limit, {
+      search,
+      dateFrom,
+      dateTo,
+    });
   }
 
   @Get('orders/:orderId')

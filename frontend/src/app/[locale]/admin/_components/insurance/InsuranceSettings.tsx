@@ -68,8 +68,14 @@ export default function InsuranceSettings() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const pricePerDay = parseFloat(formData.pricePerDay);
     const discount30 = parseFloat(formData.discount30Days);
     const discount90 = parseFloat(formData.discount90Days);
+
+    if (isNaN(pricePerDay) || pricePerDay < 0) {
+      toast.error(t("common.enterValidPrice"));
+      return;
+    }
 
     if (isNaN(discount30) || discount30 < 0 || discount30 > 100) {
       toast.error(t("insuranceSettings.discountRange"));
@@ -100,6 +106,8 @@ export default function InsuranceSettings() {
 
     try {
       await updateSettings.mutateAsync({
+        // was missing: editing the price had no effect
+        pricePerDay,
         discount30Days: discount30,
         discount90Days: discount90,
         adminEmail: formData.adminEmail,

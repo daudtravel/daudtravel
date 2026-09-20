@@ -105,12 +105,22 @@ export class InsuranceController {
   @ApiQuery({ name: 'status', required: false, enum: PaymentStatus })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'dateFrom', required: false, example: '2026-01-01' })
+  @ApiQuery({ name: 'dateTo', required: false, example: '2026-12-31' })
   async getAllSubmissions(
     @Query('status') status?: PaymentStatus,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
   ) {
-    return this.service.getAllSubmissions(status, page, limit);
+    return this.service.getAllSubmissions(status, page, limit, {
+      search,
+      dateFrom,
+      dateTo,
+    });
   }
 
   @Get('submissions/:submissionId')

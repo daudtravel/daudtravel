@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { humanizeBogRejectReason } from '@/common/utils/bog-payments';
+import { parseDateRange } from '@/common/utils/date-only.util';
+import { buildMeta } from '@/common/utils/pagination.util';
 
 export type PaymentType = 'tours' | 'transfers' | 'quick' | 'insurance';
 
@@ -141,14 +143,29 @@ export class PaymentStatsService {
     status?: string,
     page: number = 1,
     limit: number = 20,
+    filters: { search?: string; dateFrom?: string; dateTo?: string } = {},
   ) {
     const safePage = Math.max(1, Number(page) || 1);
-    const safeLimit = Math.max(1, Math.min(100, Number(limit) || 20));
+    const safeLimit = Math.max(1, Math.min(500, Number(limit) || 20));
     const offset = (safePage - 1) * safeLimit;
+    const createdRange = parseDateRange(filters.dateFrom, filters.dateTo);
+    const search = filters.search?.trim();
 
     const conditions: Prisma.Sql[] = [];
     if (type) conditions.push(Prisma.sql`type = ${type}`);
     if (status) conditions.push(Prisma.sql`status = ${status}`);
+    if (createdRange?.gte) {
+      conditions.push(Prisma.sql`created_at >= ${createdRange.gte}`);
+    }
+    if (createdRange?.lt) {
+      conditions.push(Prisma.sql`created_at < ${createdRange.lt}`);
+    }
+    if (search) {
+      const like = `%${search}%`;
+      conditions.push(
+        Prisma.sql`(customer ILIKE ${like} OR email ILIKE ${like} OR external_order_id ILIKE ${like})`,
+      );
+    }
     const where = conditions.length
       ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
       : Prisma.empty;
@@ -240,6 +257,7 @@ export class PaymentStatsService {
         total,
         totalPages: Math.ceil(total / safeLimit),
       },
+      meta: buildMeta(total, safePage, safeLimit),
     };
   }
 }

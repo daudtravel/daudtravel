@@ -390,7 +390,11 @@
     "addFailed": "Video eklenemedi",
     "urlHint": "YouTube veya başka bir video platformu bağlantısı girin",
     "categoryPlaceholder": "örn: Transferler, Turlar, Genel (isteğe bağlı)",
-    "titleDescByLanguage": "Dile göre başlık ve açıklama"
+    "titleDescByLanguage": "Dile göre başlık ve açıklama",
+    "details": "Video bilgileri",
+    "editTitle": "Videoyu düzenle",
+    "updated": "Video güncellendi",
+    "openVideo": "Videoyu aç"
   },
   "tourOrders": {
     "title": "Tur siparişleri",
@@ -407,7 +411,12 @@
     "remaining": "Kalan:",
     "paymentCompleted": "Ödeme tamamlandı",
     "loadingOrders": "Siparişler yükleniyor...",
-    "deleteFailedConfirm": "Emin misiniz? Başarısız durumdaki tüm siparişler kalıcı olarak silinecek."
+    "deleteFailedConfirm": "Emin misiniz? Başarısız durumdaki tüm siparişler kalıcı olarak silinecek.",
+    "tour": "Tur",
+    "tourDate": "Tur tarihi",
+    "ordered": "Sipariş tarihi",
+    "totalPrice": "Toplam fiyat",
+    "remainingLabel": "Kalan"
   },
   "transferOrders": {
     "title": "Transfer siparişleri",
@@ -423,7 +432,14 @@
     "statFailed": "Başarısız: {count}",
     "colRouteDate": "Güzergah / Tarih",
     "colVehicle": "Araç",
-    "colDriver": "Sürücü"
+    "colDriver": "Sürücü",
+    "transferDate": "Transfer tarihi",
+    "driver": "Şoför",
+    "noDriver": "Şoför yok",
+    "assignDriver": "Şoför ata",
+    "driverAssigned": "Şoför atandı",
+    "deleteExpired": "Süresi dolanları sil",
+    "deleteExpiredTitle": "Süresi dolan siparişler silinsin mi?"
   },
   "quickLinks": {
     "title": "Ödeme linkleri",
@@ -489,12 +505,22 @@
     "image": "Görsel",
     "changeImage": "Görseli değiştir",
     "uploadImage": "Bir görsel yükleyin",
-    "maxSize5": "Maksimum boyut: 5 MB"
+    "maxSize5": "Maksimum boyut: 5 MB",
+    "create": "Yeni bağlantı",
+    "copyLink": "Bağlantıyı kopyala",
+    "openLink": "Bağlantıyı aç",
+    "linkCopied": "Bağlantı kopyalandı",
+    "paidOrders": "Ödenen siparişler",
+    "activate": "Aktifleştir",
+    "deactivate": "Pasifleştir",
+    "activated": "Bağlantı aktifleştirildi",
+    "deactivated": "Bağlantı pasifleştirildi"
   },
   "quickOrders": {
     "linkDeleted": "Link silindi",
     "cannotDeletePaid": "Ödenmiş siparişler silinemez",
-    "deleteConfirm": "Bu siparişi silmek istediğinizden emin misiniz?"
+    "deleteConfirm": "Bu siparişi silmek istediğinizden emin misiniz?",
+    "quantity": "Adet"
   },
   "insurance": {
     "title": "Sigorta siparişleri",
@@ -540,7 +566,11 @@
     "createdAt": "Oluşturulma tarihi",
     "paidAt": "Ödeme tarihi",
     "failedAt": "Başarısızlık tarihi",
-    "updatedAt": "Son güncelleme"
+    "updatedAt": "Son güncelleme",
+    "submitter": "Başvuran",
+    "people": "Kişiler",
+    "deleted": "Başvuru silindi",
+    "deleteTitle": "Başvuru silinsin mi?"
   },
   "insuranceSettings": {
     "title": "Sigorta ayarları",
@@ -920,5 +950,45 @@
     "saved": "Profil kaydedildi",
     "emailHint": "E-postayı yalnızca yönetici değiştirebilir",
     "superAdminText": "Süper yöneticisiniz ve tüm bölümlere tam erişiminiz var."
+  },
+  "website": {
+    "visibility": "Görünürlük",
+    "published": "Yayında",
+    "hidden": "Gizli",
+    "daily": "Günlük",
+    "dailyOnly": "Günlük turlar",
+    "notDaily": "Günlük değil",
+    "capacity": "Kapasite",
+    "vehicleType": "Araç tipi",
+    "noVehicles": "Araç yok",
+    "onWebsite": "Sitede",
+    "notOnWebsite": "Sitede değil",
+    "addAccommodation": "Konaklama ekle",
+    "deleteText": "“{name}” siteden kaldırılacak. Bu işlem geri alınamaz.",
+    "toursSubtitle": "Sitede yayınlanan turlar",
+    "transfersSubtitle": "Transfer güzergâhları ve araç fiyatları",
+    "accommodationsSubtitle": "Sitede yayınlanan oteller ve daireler",
+    "faqsSubtitle": "Sitede yayınlanan sorular ve cevaplar",
+    "videosSubtitle": "Sitede yayınlanan videolar",
+    "paymentLinksSubtitle": "Müşteriler için özel ödeme bağlantıları",
+    "searchTours": "Turlarda ara…",
+    "searchTransfers": "Başlangıç veya varış noktasına göre ara…",
+    "searchAccommodations": "Ad, adres veya açıklamaya göre ara…",
+    "searchFaqs": "Soru ve cevaplarda ara…",
+    "searchVideos": "Başlık veya bağlantıya göre ara…",
+    "searchPaymentLinks": "Ad veya bağlantıya göre ara…"
+  },
+  "orders": {
+    "tourOrdersSubtitle": "Sitede ödenen tur rezervasyonları",
+    "transferOrdersSubtitle": "Sitede ödenen transfer rezervasyonları",
+    "quickOrdersSubtitle": "Ödeme bağlantılarıyla yapılan ödemeler",
+    "insuranceSubtitle": "Siteden gelen seyahat sigortası başvuruları",
+    "statusesSubtitle": "Sitedeki tüm ödemeler tek listede",
+    "searchOrders": "Ad, e-posta, telefon veya sipariş numarasına göre ara…",
+    "searchInsurance": "E-posta, ad veya sipariş numarasına göre ara…",
+    "orderDate": "Sipariş tarihi",
+    "paymentMethod": "Ödeme yöntemi",
+    "paidAt": "Ödeme zamanı",
+    "orderNumber": "Sipariş numarası"
   }
 }

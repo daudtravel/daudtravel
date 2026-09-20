@@ -89,6 +89,14 @@ export class AccommodationsController {
     };
   }
 
+  @Get('filter-options')
+  @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
+  @ApiOperation({ summary: 'Distinct cities for the admin filters' })
+  async filterOptions() {
+    return { data: await this.accommodationsService.getFilterOptions() };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get accommodation by ID' })
   @ApiQuery({ name: 'locale', required: false, type: String })

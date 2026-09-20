@@ -14,6 +14,7 @@ import {
   extractBogFailureReason,
 } from '@/common/utils/bog-payments';
 import { PaymentStatus, Prisma } from '@prisma/client';
+import { parseDateRange } from '@/common/utils/date-only.util';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { Response } from 'express';
 
@@ -499,10 +500,32 @@ export class InsuranceService {
     status?: PaymentStatus,
     page: number = 1,
     limit: number = 50,
+    filters: { search?: string; dateFrom?: string; dateTo?: string } = {},
   ) {
     const skip = (page - 1) * limit;
-    const whereClause: Prisma.InsuranceSubmissionWhereInput = {};
-    if (status) whereClause.status = status;
+    const search = filters.search?.trim();
+    const createdRange = parseDateRange(filters.dateFrom, filters.dateTo);
+
+    const whereClause: Prisma.InsuranceSubmissionWhereInput = {
+      ...(status && { status }),
+      ...(createdRange && { createdAt: createdRange }),
+      ...(search && {
+        OR: [
+          { submitterEmail: { contains: search, mode: 'insensitive' } },
+          { externalOrderId: { contains: search, mode: 'insensitive' } },
+          {
+            people: {
+              some: {
+                OR: [
+                  { fullName: { contains: search, mode: 'insensitive' } },
+                  { phoneNumber: { contains: search, mode: 'insensitive' } },
+                ],
+              },
+            },
+          },
+        ],
+      }),
+    };
 
     const [submissions, total] = await Promise.all([
       this.prisma.insuranceSubmission.findMany({

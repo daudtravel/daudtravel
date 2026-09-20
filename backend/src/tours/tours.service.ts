@@ -8,9 +8,11 @@ import { Prisma } from '@prisma/client';
 import {
   CreateTourDto,
   GetToursQueryDto,
+  TOUR_SORT_FIELDS,
   TourType,
   UpdateTourDto,
 } from './dto/tours.dto';
+import { resolveSort } from '@/common/utils/pagination.util';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 
 @Injectable()
@@ -62,6 +64,8 @@ export class ToursService {
       locale,
       search,
       startLocation,
+      isPublic,
+      isDaily,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = query;
@@ -71,6 +75,8 @@ export class ToursService {
       type,
       search,
       startLocation,
+      isPublic,
+      isDaily,
       publicOnly,
     });
     const orderBy = this.buildOrderBy(sortBy, sortOrder);
@@ -368,13 +374,23 @@ export class ToursService {
     type?: TourType;
     search?: string;
     startLocation?: string;
+    isPublic?: boolean;
+    isDaily?: boolean;
     publicOnly: boolean;
   }): Prisma.TourWhereInput {
-    const { type, search, startLocation, publicOnly } = params;
+    const { type, search, startLocation, isPublic, isDaily, publicOnly } =
+      params;
     const where: Prisma.TourWhereInput = {};
 
     if (publicOnly) {
       where.isPublic = true;
+    } else if (isPublic !== undefined) {
+      // Admin list can filter published vs hidden tours
+      where.isPublic = isPublic;
+    }
+
+    if (isDaily !== undefined) {
+      where.isDaily = isDaily;
     }
 
     if (type) {
@@ -401,9 +417,18 @@ export class ToursService {
     return where;
   }
 
-  private buildOrderBy(sortBy: string, sortOrder: string) {
-    const orderByField = sortBy as keyof Prisma.TourOrderByWithRelationInput;
-    return { [orderByField]: sortOrder };
+  /** Whitelisted so an unknown sort field can't reach Prisma (500). */
+  private buildOrderBy(
+    sortBy: string,
+    sortOrder: string,
+  ): Prisma.TourOrderByWithRelationInput {
+    const { field, order } = resolveSort(
+      sortBy,
+      sortOrder as 'asc' | 'desc',
+      TOUR_SORT_FIELDS,
+      'createdAt',
+    );
+    return { [field]: order };
   }
 
   /**

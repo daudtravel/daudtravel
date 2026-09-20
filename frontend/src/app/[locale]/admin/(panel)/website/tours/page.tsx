@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import { ToursList } from "@/src/app/[locale]/admin/_components/tours/tour-list/ToursList";
+import ToursListView from "@/src/components/admin/website/ToursListView";
 
 export default function Page() {
   return (
     <AdminPage requires={{ module: "WEBSITE", action: "view" }}>
-      <ToursList />
+      <ToursListView />
     </AdminPage>
   );
 }

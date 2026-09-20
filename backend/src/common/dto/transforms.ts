@@ -1,4 +1,4 @@
-type TransformArgs = { value: unknown };
+type TransformArgs = { value: unknown; obj?: unknown; key?: string };
 
 /** Trims strings; empty → undefined ("not provided"). */
 export const trimToUndefined = ({ value }: TransformArgs) => {
@@ -18,8 +18,25 @@ export const trimToNull = ({ value }: TransformArgs) => {
 export const trimString = ({ value }: TransformArgs) =>
   typeof value === 'string' ? value.trim() : value;
 
-/** Parses "true"/"false" query strings; anything else → undefined. */
-export const toOptionalBoolean = ({ value }: TransformArgs) => {
+/**
+ * Parses "true"/"false" query strings; anything else → undefined.
+ *
+ * Reads the RAW value from the incoming object: the global ValidationPipe runs
+ * with `enableImplicitConversion`, which would otherwise coerce the string
+ * "false" to boolean `true` before this transform sees it.
+ */
+export const toOptionalBoolean = ({ value, obj, key }: TransformArgs) => {
+  const raw =
+    obj && key && typeof obj === 'object'
+      ? (obj as Record<string, unknown>)[key]
+      : value;
+  if (raw === true || raw === 'true') return true;
+  if (raw === false || raw === 'false') return false;
+  return undefined;
+};
+
+/** For loose `@Query('flag')` params: "true"/"false" → boolean, else undefined. */
+export const parseBooleanParam = (value: unknown): boolean | undefined => {
   if (value === true || value === 'true') return true;
   if (value === false || value === 'false') return false;
   return undefined;

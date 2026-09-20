@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -15,6 +16,8 @@ import {
 } from '@nestjs/common';
 import { TransferPaymentsService } from './transfer-payments.service';
 import { CreateTransferPaymentDto } from './dto/create-transfer-payment.dto';
+import { AssignDriverDto } from './dto/assign-driver.dto';
+import { TransferOrdersQueryDto } from '@/common/dto/order-list-query.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { RequirePermission } from '@/access/access.decorators';
 import { PermissionModule } from '@prisma/client';
@@ -68,17 +71,25 @@ export class TransferPaymentsController {
   @Get('orders')
   @UseGuards(AuthGuard)
   @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
-  @ApiOperation({ summary: 'Get all transfer payment orders (Admin)' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiOperation({
+    summary: 'Get all transfer payment orders with filters (Admin)',
+  })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
-  async getOrders(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('status') status?: string,
+  async getOrders(@Query() query: TransferOrdersQueryDto) {
+    return this.transferPaymentsService.getOrders(query);
+  }
+
+  @Patch('orders/:id/driver')
+  @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'edit')
+  @ApiOperation({ summary: 'Assign or change the driver of an order (Admin)' })
+  @ApiResponse({ status: 200, description: 'Driver assigned' })
+  @ApiResponse({ status: 404, description: 'Order or driver not found' })
+  async assignDriver(
+    @Param('id') id: string,
+    @Body() dto: AssignDriverDto,
   ) {
-    return this.transferPaymentsService.getOrders(page, limit, status);
+    return this.transferPaymentsService.assignDriver(id, dto.driverId ?? null);
   }
 
   @Get('orders/:id')

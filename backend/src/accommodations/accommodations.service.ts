@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
+  ACCOMMODATION_SORT_FIELDS,
   CreateAccommodationDto,
   GetAccommodationsQueryDto,
   UpdateAccommodationDto,
   AccommodationType,
 } from './dto/accommodations.dto';
 import { FileUploadService } from '@/common/utils/file-upload.util';
+import { resolveSort } from '@/common/utils/pagination.util';
 
 @Injectable()
 export class AccommodationsService {
@@ -78,6 +80,9 @@ export class AccommodationsService {
       locale,
       search,
       city,
+      isPublic,
+      minPrice,
+      maxPrice,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = query;
@@ -87,6 +92,9 @@ export class AccommodationsService {
       type,
       search,
       city,
+      isPublic,
+      minPrice,
+      maxPrice,
       publicOnly,
     });
     const orderBy = this.buildOrderBy(sortBy, sortOrder);
@@ -247,13 +255,20 @@ export class AccommodationsService {
     type?: AccommodationType;
     search?: string;
     city?: string;
+    isPublic?: boolean;
+    minPrice?: number;
+    maxPrice?: number;
     publicOnly: boolean;
   }): Prisma.AccommodationWhereInput {
-    const { type, search, city, publicOnly } = params;
+    const { type, search, city, isPublic, minPrice, maxPrice, publicOnly } =
+      params;
     const where: Prisma.AccommodationWhereInput = {};
 
     if (publicOnly) {
       where.isPublic = true;
+    } else if (isPublic !== undefined) {
+      // Admin list can filter published vs hidden items
+      where.isPublic = isPublic;
     }
 
     if (type) {
@@ -262,6 +277,13 @@ export class AccommodationsService {
 
     if (city) {
       where.city = { contains: city, mode: 'insensitive' };
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {
+        ...(minPrice !== undefined && { gte: minPrice }),
+        ...(maxPrice !== undefined && { lte: maxPrice }),
+      };
     }
 
     // Match against any localization so items stay visible regardless of
@@ -281,10 +303,31 @@ export class AccommodationsService {
     return where;
   }
 
-  private buildOrderBy(sortBy: string, sortOrder: string) {
-    const orderByField =
-      sortBy as keyof Prisma.AccommodationOrderByWithRelationInput;
-    return { [orderByField]: sortOrder };
+  /** Whitelisted so an unknown sort field can't reach Prisma (500). */
+  private buildOrderBy(
+    sortBy: string,
+    sortOrder: string,
+  ): Prisma.AccommodationOrderByWithRelationInput {
+    const { field, order } = resolveSort(
+      sortBy,
+      sortOrder as 'asc' | 'desc',
+      ACCOMMODATION_SORT_FIELDS,
+      'createdAt',
+    );
+    return { [field]: order };
+  }
+
+  /** Distinct cities for the admin filter dropdown. */
+  async getFilterOptions(publicOnly = false) {
+    const rows = await this.prisma.accommodation.findMany({
+      where: publicOnly ? { isPublic: true } : {},
+      select: { city: true },
+      distinct: ['city'],
+      orderBy: { city: 'asc' },
+    });
+    return {
+      cities: rows.map((r) => r.city).filter((city) => !!city?.trim()),
+    };
   }
 
   /**

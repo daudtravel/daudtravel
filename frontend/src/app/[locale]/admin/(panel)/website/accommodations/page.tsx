@@ -1,10 +1,10 @@
 import AdminPage from "@/src/components/admin/access/AdminPage";
-import { AccommodationsList } from "@/src/app/[locale]/admin/_components/accommodations/accommodation-list/AccommodationsList";
+import AccommodationsListView from "@/src/components/admin/website/AccommodationsListView";
 
 export default function Page() {
   return (
     <AdminPage requires={{ module: "WEBSITE", action: "view" }}>
-      <AccommodationsList />
+      <AccommodationsListView />
     </AdminPage>
   );
 }
