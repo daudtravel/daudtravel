@@ -16,6 +16,9 @@ import {
 import { TourPaymentsService } from './tour-payments.service';
 import { CreateTourPaymentDto } from './dto/create-tour-payment.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { TourOrdersQueryDto } from '@/common/dto/order-list-query.dto';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 
@@ -63,15 +66,13 @@ export class TourPaymentsController {
 
   @Get('orders')
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'Get all tour payment orders (Admin)' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
+  @ApiOperation({
+    summary: 'Get all tour payment orders with filters (Admin)',
+  })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
-  async getOrders(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    return this.tourPaymentsService.getOrders(page, limit);
+  async getOrders(@Query() query: TourOrdersQueryDto) {
+    return this.tourPaymentsService.getOrders(query);
   }
 
   @Get('orders/:id')
@@ -84,6 +85,7 @@ export class TourPaymentsController {
 
   @Delete('orders/failed')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete all failed payment orders (Admin)' })
   @ApiResponse({ status: 200, description: 'Failed orders deleted' })

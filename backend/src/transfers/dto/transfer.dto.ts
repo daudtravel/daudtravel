@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { VehicleType } from '@prisma/client';
+import { toOptionalBoolean } from '@/common/dto/transforms';
 
 export class TransferLocalizationDto {
   @IsString()
@@ -105,8 +106,8 @@ export class GetTransfersQueryDto {
   locale?: string;
 
   @IsOptional()
+  @Transform(toOptionalBoolean)
   @IsBoolean()
-  @Transform(({ value }) => value === true || value === 'true')
   publicOnly?: boolean;
 
   @IsOptional()
@@ -136,6 +137,12 @@ export class GetTransfersQueryDto {
   @Min(0)
   @Type(() => Number)
   maxPrice?: number;
+
+  /** Admin list only: published vs hidden. */
+  @IsOptional()
+  @Transform(toOptionalBoolean)
+  @IsBoolean()
+  isPublic?: boolean;
 }
 
 export class GetTransferByIdQueryDto {

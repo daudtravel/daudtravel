@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import {
   CreateAccommodationDto,
@@ -29,6 +31,7 @@ export class AccommodationsController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new accommodation' })
   @ApiResponse({ status: 201, description: 'Accommodation created successfully' })
@@ -64,6 +67,7 @@ export class AccommodationsController {
 
   @Get('all')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
   @ApiOperation({ summary: 'Get all accommodations (admin)' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -85,6 +89,14 @@ export class AccommodationsController {
     };
   }
 
+  @Get('filter-options')
+  @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
+  @ApiOperation({ summary: 'Distinct cities for the admin filters' })
+  async filterOptions() {
+    return { data: await this.accommodationsService.getFilterOptions() };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get accommodation by ID' })
   @ApiQuery({ name: 'locale', required: false, type: String })
@@ -100,6 +112,7 @@ export class AccommodationsController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update accommodation' })
   @ApiResponse({ status: 200, description: 'Accommodation updated successfully' })
   @ApiResponse({ status: 404, description: 'Accommodation not found' })
@@ -113,6 +126,7 @@ export class AccommodationsController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete accommodation' })
   @ApiResponse({ status: 204, description: 'Accommodation deleted successfully' })

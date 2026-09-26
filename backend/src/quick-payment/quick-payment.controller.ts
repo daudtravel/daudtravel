@@ -15,13 +15,15 @@ import {
 } from '@nestjs/common';
 import { QuickPaymentService } from './quick-payment.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { parseBooleanParam } from '@/common/dto/transforms';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import {
   CreateQuickLinkDto,
   UpdateQuickLinkDto,
   InitiatePaymentDto,
 } from './dto/quick-payment.dto';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, PermissionModule } from '@prisma/client';
 
 @ApiTags('Quick Payment')
 @Controller('quick-payment')
@@ -91,6 +93,7 @@ export class QuickPaymentController {
 
   @Post('links')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @ApiOperation({ summary: 'Create payment link (Admin)' })
   async createLink(@Body() dto: CreateQuickLinkDto) {
     return this.service.createQuickLink(dto);
@@ -98,18 +101,30 @@ export class QuickPaymentController {
 
   @Get('links')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
   @ApiOperation({ summary: 'Get all payment links (Admin)' })
   @ApiQuery({ name: 'locale', required: false, example: 'ka' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+  @ApiQuery({ name: 'showOnWebsite', required: false, type: Boolean })
   async getAllLinks(
     @Query('locale') locale?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('isActive') isActive?: string,
+    @Query('showOnWebsite') showOnWebsite?: string,
   ) {
-    return this.service.getAllLinks(locale, page, limit);
+    return this.service.getAllLinks(locale, page, limit, {
+      search,
+      isActive: parseBooleanParam(isActive),
+      showOnWebsite: parseBooleanParam(showOnWebsite),
+    });
   }
 
   @Put('links/:slug')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update payment link (Admin)' })
   async updateLink(
     @Param('slug') slug: string,
@@ -120,6 +135,7 @@ export class QuickPaymentController {
 
   @Post('links/:slug/toggle')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Toggle link active status (Admin)' })
   async toggleLink(@Param('slug') slug: string) {
     return this.service.toggleLinkStatus(slug);
@@ -127,6 +143,7 @@ export class QuickPaymentController {
 
   @Delete('links/:slug')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @ApiOperation({ summary: 'Delete payment link (Admin)' })
   async deleteLink(@Param('slug') slug: string) {
     return this.service.deleteLink(slug);
@@ -136,22 +153,34 @@ export class QuickPaymentController {
 
   @Get('orders')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get all payment orders (Admin)' })
   @ApiQuery({ name: 'linkId', required: false })
   @ApiQuery({ name: 'status', required: false, enum: PaymentStatus })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'dateFrom', required: false, example: '2026-01-01' })
+  @ApiQuery({ name: 'dateTo', required: false, example: '2026-12-31' })
   async getAllOrders(
     @Query('linkId') linkId?: string,
     @Query('status') status?: PaymentStatus,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
   ) {
-    return this.service.getAllOrders(linkId, status, page, limit);
+    return this.service.getAllOrders(linkId, status, page, limit, {
+      search,
+      dateFrom,
+      dateTo,
+    });
   }
 
   @Get('orders/:orderId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get order details by ID (Admin)' })
   async getOrderById(@Param('orderId') orderId: string) {
     return this.service.getOrderById(orderId);
@@ -159,6 +188,7 @@ export class QuickPaymentController {
 
   @Delete('orders/:orderId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @ApiOperation({ summary: 'Delete order by ID (Admin)' })
   async deleteOrder(@Param('orderId') orderId: string) {
     return this.service.deleteOrder(orderId);

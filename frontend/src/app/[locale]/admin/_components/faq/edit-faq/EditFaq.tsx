@@ -20,7 +20,8 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -96,7 +97,7 @@ export function EditFaq({ params }: { params: { id: string } }) {
 
       toast.success(t("faq.updated"));
       await queryClient.invalidateQueries({ queryKey: ["faqs"] });
-      router.push("?faqs=all");
+      router.push(adminPaths.websiteFaqs);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || t("faq.updateFailed"));

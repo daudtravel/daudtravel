@@ -1,11 +1,11 @@
 import {
   Controller,
   Post,
+  Put,
   Body,
   HttpCode,
   HttpStatus,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -25,6 +25,9 @@ import {
   SignUpResponseDto,
 } from './dto/auth.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { AuthenticatedOnly, CurrentUser } from '@/access/access.decorators';
+import type { AuthUser } from '@/access/access.types';
+import { ChangePasswordDto, UpdateProfileDto } from './dto/profile.dto';
 
 @ApiTags('Authentication')
 @Controller('')
@@ -174,11 +177,13 @@ export class AuthController {
 
   @Post('auth/status')
   @UseGuards(AuthGuard)
+  @AuthenticatedOnly()
   @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Check authentication status',
-    description: 'Returns current authenticated user information',
+    description:
+      'Returns the signed-in user (fresh from the DB) with effective permissions',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -195,7 +200,39 @@ export class AuthController {
       },
     },
   })
-  async checkAuthStatus(@Request() req: { user: AuthStatusResponseDto['user'] }): Promise<AuthStatusResponseDto> {
-    return { user: req.user };
+  async checkAuthStatus(@CurrentUser() user: AuthUser) {
+    return { user: await this.authService.getProfile(user.userId) };
+  }
+
+  @Put('auth/me')
+  @UseGuards(AuthGuard)
+  @AuthenticatedOnly()
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update own profile (name, phone)' })
+  async updateProfile(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return {
+      message: 'PROFILE_UPDATED',
+      user: await this.authService.updateProfile(user.userId, dto),
+    };
+  }
+
+  @Put('auth/me/password')
+  @UseGuards(AuthGuard)
+  @AuthenticatedOnly()
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Change own password',
+    description:
+      'Signs out every other session and returns a new token for this one',
+  })
+  async changePassword(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    const { token } = await this.authService.changePassword(user.userId, dto);
+    return { message: 'PASSWORD_CHANGED', token };
   }
 }

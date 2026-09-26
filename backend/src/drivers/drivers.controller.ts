@@ -1,94 +1,131 @@
 import {
-  Controller,
-  Post,
-  Patch,
   Body,
-  Get,
+  Controller,
   Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
   Param,
-  UseGuards,
-  UseInterceptors,
+  Patch,
+  Post,
+  Query,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { DriversService } from './drivers.service';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PermissionModule } from '@prisma/client';
 import { AuthGuard } from '@/common/guards/auth.guard';
-import { CreateDriverDto } from './dto/create-driver.dto';
+import {
+  CurrentUser,
+  LOOKUP_CONSUMERS,
+  RequireAnyPermission,
+  RequirePermission,
+} from '@/access/access.decorators';
+import type { AuthUser } from '@/access/access.types';
+import { DriversService } from './drivers.service';
 import { CreateDriverReviewDto } from './dto/create-driver-review.dto';
-import { UpdateDriverDto, RemoveCarPhotoDto } from './dto/update-driver.dto';
+import {
+  CreateDriverDto,
+  DriverMonthlyQueryDto,
+  ListDriverOptionsQueryDto,
+  ListDriversQueryDto,
+  RemoveCarPhotoDto,
+  UpdateDriverDto,
+} from './dto/drivers.dto';
 
+@ApiTags('Drivers')
 @Controller('drivers')
 export class DriversController {
   constructor(private readonly driversService: DriversService) {}
 
-  @Post('add_driver')
+  // --- back office (declared before ":id" so "admin" is not read as an id) ---
+
+  @Get('admin')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('photo'))
-  async create(
-    @Body() body: CreateDriverDto,
-    @UploadedFile() file?: Express.Multer.File,
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'view')
+  @ApiOperation({ summary: 'List drivers (filters + pagination)' })
+  findAllAdmin(
+    @CurrentUser() user: AuthUser,
+    @Query() query: ListDriversQueryDto,
   ) {
-    const driver = await this.driversService.create(body, file);
-    return { message: 'Driver created successfully', data: driver };
+    return this.driversService.findAllAdmin(user, query);
   }
 
+  @Get('admin/options')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  // Also for whoever assigns a driver to a website transfer order
+  @RequireAnyPermission(...LOOKUP_CONSUMERS, {
+    module: PermissionModule.ONLINE_ORDERS,
+    action: 'edit',
+  })
+  @ApiOperation({ summary: 'Active drivers for pickers' })
+  options(
+    @CurrentUser() user: AuthUser,
+    @Query() query: ListDriverOptionsQueryDto,
+  ) {
+    return this.driversService.options(user, query.search);
+  }
+
+  @Get('admin/filter-options')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'view')
+  @ApiOperation({ summary: 'Distinct languages for the filter bar' })
+  filterOptions(@CurrentUser() user: AuthUser) {
+    return this.driversService.filterOptions(user);
+  }
+
+  @Get('admin/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'view')
+  async findOneAdmin(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return { data: await this.driversService.findOneAdmin(user, id) };
+  }
+
+  @Get('admin/:id/monthly')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'view')
+  @ApiOperation({ summary: 'Transfer jobs per month' })
+  async monthly(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Query() query: DriverMonthlyQueryDto,
+  ) {
+    return { data: await this.driversService.monthly(user, id, query.year) };
+  }
+
+  @Get('admin/:id/reviews')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'view')
+  async adminReviews(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return { data: await this.driversService.adminReviews(user, id) };
+  }
+
+  // ------------------------------- public ----------------------------------
+
   @Get()
+  @ApiOperation({ summary: 'Drivers shown on the website' })
   async findAll() {
-    const result = await this.driversService.findAll();
-    return { message: 'Drivers retrieved successfully', count: result.count, data: result.drivers };
+    const result = await this.driversService.findAllPublic();
+    return {
+      message: 'Drivers retrieved successfully',
+      count: result.count,
+      data: result.drivers,
+    };
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const driver = await this.driversService.findOne(id);
+    const driver = await this.driversService.findOnePublic(id);
     return { message: 'Driver retrieved successfully', data: driver };
-  }
-
-  @Patch(':id')
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('photo'))
-  async update(
-    @Param('id') id: string,
-    @Body() body: UpdateDriverDto,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    const driver = await this.driversService.update(id, body, file);
-    return { message: 'Driver updated successfully', data: driver };
-  }
-
-  @Post(':id/car-photos')
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FilesInterceptor('photos', 10))
-  async addCarPhotos(
-    @Param('id') id: string,
-    @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    const carPhotos = await this.driversService.addCarPhotos(id, files);
-    return { message: 'Car photos uploaded successfully', data: carPhotos };
-  }
-
-  @Delete(':id/car-photos')
-  @UseGuards(AuthGuard)
-  async removeCarPhoto(
-    @Param('id') id: string,
-    @Body() dto: RemoveCarPhotoDto,
-  ) {
-    const carPhotos = await this.driversService.removeCarPhoto(id, dto.url);
-    return { message: 'Car photo removed successfully', data: carPhotos };
-  }
-
-  @Delete(':id')
-  @UseGuards(AuthGuard)
-  async delete(@Param('id') id: string) {
-    await this.driversService.delete(id);
-    return { message: 'Driver deleted successfully' };
-  }
-
-  @Post(':id/reviews')
-  async createReview(@Param('id') id: string, @Body() dto: CreateDriverReviewDto) {
-    const review = await this.driversService.createReview(id, dto);
-    return { message: 'Review submitted successfully', data: review };
   }
 
   @Get(':id/reviews')
@@ -97,10 +134,96 @@ export class DriversController {
     return { message: 'Reviews retrieved successfully', data: result };
   }
 
+  @Post(':id/reviews')
+  async createReview(
+    @Param('id') id: string,
+    @Body() dto: CreateDriverReviewDto,
+  ) {
+    const review = await this.driversService.createReview(id, dto);
+    return { message: 'Review submitted successfully', data: review };
+  }
+
+  // ------------------------------- writes ----------------------------------
+
+  @Post('add_driver')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'create')
+  @UseInterceptors(FileInterceptor('photo'))
+  async create(
+    @CurrentUser() user: AuthUser,
+    @Body() body: CreateDriverDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const driver = await this.driversService.create(user, body, file);
+    return { message: 'DRIVER_CREATED', data: driver };
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
+  @UseInterceptors(FileInterceptor('photo'))
+  async update(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() body: UpdateDriverDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const driver = await this.driversService.update(user, id, body, file);
+    return { message: 'DRIVER_UPDATED', data: driver };
+  }
+
+  @Post(':id/car-photos')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
+  @UseInterceptors(FilesInterceptor('photos', 10))
+  async addCarPhotos(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const carPhotos = await this.driversService.addCarPhotos(user, id, files);
+    return { message: 'CAR_PHOTOS_UPLOADED', data: carPhotos };
+  }
+
   @Delete('reviews/:reviewId')
   @UseGuards(AuthGuard)
-  async deleteReview(@Param('reviewId') reviewId: string) {
-    await this.driversService.deleteReview(reviewId);
-    return { message: 'Review deleted successfully' };
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
+  @HttpCode(HttpStatus.OK)
+  async deleteReview(
+    @CurrentUser() user: AuthUser,
+    @Param('reviewId') reviewId: string,
+  ) {
+    await this.driversService.deleteReview(user, reviewId);
+    return { message: 'REVIEW_DELETED' };
+  }
+
+  @Delete(':id/car-photos')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'edit')
+  async removeCarPhoto(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: RemoveCarPhotoDto,
+  ) {
+    const carPhotos = await this.driversService.removeCarPhoto(
+      user,
+      id,
+      dto.url,
+    );
+    return { message: 'CAR_PHOTO_REMOVED', data: carPhotos };
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequirePermission(PermissionModule.DRIVERS, 'delete')
+  async delete(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    await this.driversService.remove(user, id);
+    return { message: 'DRIVER_DELETED' };
   }
 }

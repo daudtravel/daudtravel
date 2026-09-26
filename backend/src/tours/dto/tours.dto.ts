@@ -15,6 +15,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { toOptionalBoolean } from '@/common/dto/transforms';
 
 export enum TourType {
   GROUP = 'GROUP',
@@ -227,6 +228,15 @@ export class UpdateTourDto {
   maxPersons?: number;
 }
 
+/** Sortable columns of the admin tours list. */
+export const TOUR_SORT_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'startDate',
+  'days',
+  'type',
+] as const;
+
 // Query DTO
 export class GetToursQueryDto {
   @IsOptional()
@@ -265,4 +275,15 @@ export class GetToursQueryDto {
   @IsOptional()
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc';
+
+  /** Admin list only: published vs hidden. */
+  @IsOptional()
+  @Transform(toOptionalBoolean)
+  @IsBoolean()
+  isPublic?: boolean;
+
+  @IsOptional()
+  @Transform(toOptionalBoolean)
+  @IsBoolean()
+  isDaily?: boolean;
 }

@@ -12,7 +12,8 @@ import {
 import { Input } from "@/src/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   UpdateTransferFormData,
   useEditTransferValidator,
@@ -84,7 +85,7 @@ export function EditTransfer({ params }: { params: { id: string } }) {
       {
         onSuccess: () => {
           toast.success(t("transfers.updated"));
-          router.push("?transfers=all");
+          router.push(adminPaths.websiteTransfers);
         },
         onError: (error: unknown) => {
           const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;

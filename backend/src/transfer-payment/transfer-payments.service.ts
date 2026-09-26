@@ -16,6 +16,16 @@ import {
 import { MailService } from '@/mail/mail.service';
 import { Prisma, PaymentStatus, VehicleType } from '@prisma/client';
 import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
+import {
+  TRANSFER_ORDER_SORT_FIELDS,
+  TransferOrdersQueryDto,
+} from '@/common/dto/order-list-query.dto';
+import {
+  buildMeta,
+  resolvePagination,
+  resolveSort,
+} from '@/common/utils/pagination.util';
+import { parseDateRange } from '@/common/utils/date-only.util';
 
 interface TransferBookingData {
   transferId: string;
@@ -797,25 +807,51 @@ export class TransferPaymentsService {
     }
   }
 
-  async getOrders(page: number = 1, limit: number = 10, status?: string) {
-    const pageNum = Math.max(1, page);
-    const limitNum = Math.max(1, Math.min(100, limit));
-    const skip = (pageNum - 1) * limitNum;
+  async getOrders(query: TransferOrdersQueryDto = {}) {
+    const { page, limit, skip } = resolvePagination(query.page, query.limit);
+    const { field, order } = resolveSort(
+      query.sortBy,
+      query.sortOrder,
+      TRANSFER_ORDER_SORT_FIELDS,
+      'createdAt',
+    );
 
-    const whereClause: any = {};
-    if (
-      status &&
-      Object.values(PaymentStatus).includes(status as PaymentStatus)
-    ) {
-      whereClause.status = status as PaymentStatus;
-    }
+    const createdRange = parseDateRange(query.dateFrom, query.dateTo);
+    const serviceRange = parseDateRange(query.serviceFrom, query.serviceTo);
+    const search = query.search?.trim();
+    const status = query.status;
+
+    const whereClause: Prisma.TransferPaymentOrderWhereInput = {
+      ...(status && { status }),
+      ...(query.transferId && { transferId: query.transferId }),
+      ...(query.driverId && { driverId: query.driverId }),
+      ...(query.vehicleType && { vehicleType: query.vehicleType }),
+      ...(createdRange && { createdAt: createdRange }),
+      ...(serviceRange && { transferDate: serviceRange }),
+      ...(search && {
+        OR: [
+          { customerFirstName: { contains: search, mode: 'insensitive' } },
+          { customerLastName: { contains: search, mode: 'insensitive' } },
+          { customerEmail: { contains: search, mode: 'insensitive' } },
+          { customerPhone: { contains: search, mode: 'insensitive' } },
+          { externalOrderId: { contains: search, mode: 'insensitive' } },
+          {
+            transferStartLocation: { contains: search, mode: 'insensitive' },
+          },
+          { transferEndLocation: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+    };
+
+    const pageNum = page;
+    const limitNum = limit;
 
     const [orders, totalRecords] = await Promise.all([
       this.prisma.transferPaymentOrder.findMany({
         where: whereClause,
         skip,
-        take: limitNum,
-        orderBy: { createdAt: 'desc' },
+        take: limit,
+        orderBy: { [field]: order },
         include: {
           transfer: {
             include: {
@@ -843,10 +879,47 @@ export class TransferPaymentsService {
         hasNextPage: pageNum < totalPages,
         hasPreviousPage: pageNum > 1,
       },
+      // Same shape as the newer endpoints so the admin list kit can read it
+      meta: buildMeta(totalRecords, pageNum, limitNum),
       filters: {
         status: status || null,
       },
     };
+  }
+
+  /**
+   * Assigns (or clears with null) the driver of a transfer order — the admin
+   * equivalent of the customer's optional choice at booking time.
+   */
+  async assignDriver(orderId: string, driverId: string | null) {
+    const order = await this.prisma.transferPaymentOrder.findUnique({
+      where: { id: orderId },
+      select: { id: true },
+    });
+    if (!order) {
+      throw new NotFoundException('ORDER_NOT_FOUND');
+    }
+
+    if (driverId) {
+      const driver = await this.prisma.driver.findUnique({
+        where: { id: driverId },
+        select: { id: true },
+      });
+      if (!driver) {
+        throw new NotFoundException('DRIVER_NOT_FOUND');
+      }
+    }
+
+    const updated = await this.prisma.transferPaymentOrder.update({
+      where: { id: orderId },
+      data: { driverId },
+      include: {
+        transfer: { include: { localizations: true } },
+        driver: true,
+      },
+    });
+
+    return { success: true, data: this.formatOrder(updated) };
   }
 
   async getOrderById(id: string) {

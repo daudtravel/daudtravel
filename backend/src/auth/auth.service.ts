@@ -9,7 +9,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import * as bcrypt from 'bcrypt';
 import { SendCodeDto, SignInDto, SignUpDto } from './dto/auth.dto';
- 
+import { ChangePasswordDto, UpdateProfileDto } from './dto/profile.dto';
+import { AccessService } from '../access/access.service';
+import { USER_PUBLIC_SELECT } from '../users/users.constants';
 
 interface VerificationCheckResult {
   isValid: boolean;
@@ -32,6 +34,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly accessService: AccessService,
   ) {}
 
   async sendVerificationCode(dto: SendCodeDto): Promise<void> {
@@ -101,13 +104,87 @@ export class AuthService {
     const user = await this.findUserByEmail(dto.email);
     await this.validatePassword(dto.password, user.password);
 
-    const { password, ...userWithoutPassword } = user;
+    // Checked after the password so disabled accounts can't be probed.
+    if (!user.isActive) {
+      throw new UnauthorizedException('ACCOUNT_DISABLED');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
     const token = this.generateAccessToken(user);
 
     return {
-      user: userWithoutPassword,
+      user: await this.getProfile(user.id),
       token,
     };
+  }
+
+  /** Fresh profile + effective permissions for the signed-in user. */
+  async getProfile(userId: string) {
+    const [user, authUser] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: USER_PUBLIC_SELECT,
+      }),
+      this.accessService.loadAuthUser(userId),
+    ]);
+
+    if (!user || !authUser) {
+      throw new UnauthorizedException('SESSION_INVALID');
+    }
+
+    return {
+      ...user,
+      userId: user.id,
+      permissions: authUser.permissions,
+    };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(dto.firstName !== undefined && { firstName: dto.firstName }),
+        ...(dto.lastName !== undefined && { lastName: dto.lastName }),
+        ...(dto.phone !== undefined && { phone: dto.phone }),
+        ...(dto.preferredCurrency !== undefined && {
+          preferredCurrency: dto.preferredCurrency,
+        }),
+      },
+    });
+    return this.getProfile(userId);
+  }
+
+  /**
+   * Changes the own password, revokes every other session and returns a fresh
+   * token so the current browser stays signed in.
+   */
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('SESSION_INVALID');
+    }
+
+    const matches = await bcrypt.compare(dto.currentPassword, user.password);
+    if (!matches) {
+      throw new BadRequestException('CURRENT_PASSWORD_INVALID');
+    }
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException('PASSWORD_UNCHANGED');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: await this.hashPassword(dto.newPassword),
+        sessionsRevokedAt: new Date(),
+      },
+    });
+
+    return { token: this.generateAccessToken(updated) };
   }
 
   async cleanupExpiredCodes(): Promise<void> {
@@ -181,9 +258,11 @@ export class AuthService {
     }
   }
 
-  private async findUserByEmail(email: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+  private async findUserByEmail(email: string) {
+    // Case-insensitive: staff emails are stored lower-case, older rows may not be.
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email.trim(), mode: 'insensitive' } },
+      orderBy: { createdAt: 'asc' },
     });
 
     if (!user) {

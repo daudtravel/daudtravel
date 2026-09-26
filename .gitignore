@@ -15,3 +15,6 @@ uploads/
 !.env.example
 # Local Netlify folder
 .netlify
+
+# Playwright MCP output (local browser testing)
+.playwright-mcp/

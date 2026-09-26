@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module';
 
 import { ToursModule } from './tours/tours.module';
@@ -18,13 +19,39 @@ import { InsuranceModule } from './insurance/insurance.module';
 import { AccommodationsModule } from './accommodations/accommodations.module';
 import { PaymentStatsModule } from './payment-stats/payment-stats.module';
 import { HealthController } from './health.controller';
+import { AccessModule } from './access/access.module';
+import { UsersModule } from './users/users.module';
+import { RolesModule } from './roles/roles.module';
+import { CurrencyModule } from './currency/currency.module';
+import { PartnersModule } from './partners/partners.module';
+import { VehiclesModule } from './vehicles/vehicles.module';
+import { HotelsModule } from './hotels/hotels.module';
+import { BookingsModule } from './bookings/bookings.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { FinanceModule } from './finance/finance.module';
+import { CatalogModule } from './catalog/catalog.module';
+import { CalendarModule } from './calendar/calendar.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    // Needed by the daily exchange-rate refresh
+    ScheduleModule.forRoot(),
     PrismaModule,
+    AccessModule,
+    UsersModule,
+    RolesModule,
+    CurrencyModule,
+    PartnersModule,
+    VehiclesModule,
+    HotelsModule,
+    BookingsModule,
+    TransactionsModule,
+    FinanceModule,
+    CatalogModule,
+    CalendarModule,
     TourPaymentsModule,
     ToursModule,
     MailModule,

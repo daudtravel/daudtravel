@@ -17,12 +17,13 @@ import {
 import { Response } from 'express';
 import { InsuranceService } from './insurance.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import {
   CreateInsuranceSubmissionDto,
   UpdateInsuranceSettingsDto,
 } from './dto/insurance.dto';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, PermissionModule } from '@prisma/client';
 
 @ApiTags('Insurance')
 @Controller('insurance')
@@ -91,6 +92,7 @@ export class InsuranceController {
 
   @Put('settings')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update insurance settings (Admin)' })
   async updateSettings(@Body() dto: UpdateInsuranceSettingsDto) {
     return this.service.updateSettings(dto);
@@ -98,20 +100,32 @@ export class InsuranceController {
 
   @Get('submissions')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get all insurance submissions (Admin)' })
   @ApiQuery({ name: 'status', required: false, enum: PaymentStatus })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'dateFrom', required: false, example: '2026-01-01' })
+  @ApiQuery({ name: 'dateTo', required: false, example: '2026-12-31' })
   async getAllSubmissions(
     @Query('status') status?: PaymentStatus,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('search') search?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
   ) {
-    return this.service.getAllSubmissions(status, page, limit);
+    return this.service.getAllSubmissions(status, page, limit, {
+      search,
+      dateFrom,
+      dateTo,
+    });
   }
 
   @Get('submissions/:submissionId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
   @ApiOperation({ summary: 'Get submission details by ID (Admin)' })
   async getSubmissionById(@Param('submissionId') submissionId: string) {
     return this.service.getSubmissionById(submissionId);
@@ -119,6 +133,7 @@ export class InsuranceController {
 
   @Delete('submissions/:submissionId')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'delete')
   @ApiOperation({ summary: 'Delete insurance submission (Admin)' })
   async deleteSubmission(@Param('submissionId') submissionId: string) {
     return this.service.deleteSubmission(submissionId);

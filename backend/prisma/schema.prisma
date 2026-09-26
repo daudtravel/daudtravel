@@ -35,39 +35,41 @@ enum PaymentStatus {
 
 // Tour Models
 model Tour {
-  id               String             @id @default(cuid()) // ✅ Changed
-  type             TourType           @default(GROUP)
-  days             Int                @default(1)
-  nights           Int                @default(0)
-  maxPersons       Int?               @map("max_persons")
-  startDate        DateTime?          @map("start_date")
-  isPublic         Boolean            @default(false) @map("is_public")
-  isDaily          Boolean            @default(false) @map("is_daily")
-  mainImage        String             @map("main_image")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  
-  localizations    TourLocalization[]
-  images           TourImage[]
-  groupPricing     GroupPricing?
+  id         String    @id @default(cuid()) // ✅ Changed
+  type       TourType  @default(GROUP)
+  days       Int       @default(1)
+  nights     Int       @default(0)
+  maxPersons Int?      @map("max_persons")
+  startDate  DateTime? @map("start_date")
+  isPublic   Boolean   @default(false) @map("is_public")
+  isDaily    Boolean   @default(false) @map("is_daily")
+  mainImage  String    @map("main_image")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  localizations     TourLocalization[]
+  images            TourImage[]
+  groupPricing      GroupPricing?
   individualPricing IndividualPricing?
-  paymentOrders    TourPaymentOrder[]
+  paymentOrders     TourPaymentOrder[]
+  bookingItems      BookingItem[]
+  transactions      Transaction[]
 
   @@index([type, isPublic, isDaily])
   @@map("tours")
 }
 
 model TourLocalization {
-  id              String   @id @default(cuid()) // ✅ Changed
-  tourId          String   @map("tour_id")
-  locale          String   @default("ka")
-  name            String
-  description     String   @db.Text
-  startLocation   String   @map("start_location")
-  locations       String[] @default([])
-  
-  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  
+  id            String   @id @default(cuid()) // ✅ Changed
+  tourId        String   @map("tour_id")
+  locale        String   @default("ka")
+  name          String
+  description   String   @db.Text
+  startLocation String   @map("start_location")
+  locations     String[] @default([])
+
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
   @@unique([tourId, locale])
   @@index([locale])
   @@map("tour_localizations")
@@ -79,39 +81,39 @@ model TourImage {
   url       String
   order     Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
-  
-  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  
+
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
   @@index([tourId])
   @@map("tour_images")
 }
 
 model GroupPricing {
-  id                String   @id @default(cuid()) // ✅ Changed
-  tourId            String   @unique @map("tour_id")
-  totalPrice        Decimal  @map("total_price") @db.Decimal(10, 2)
-  reservationPrice  Decimal  @map("reservation_price") @db.Decimal(10, 2)
-  discountedPrice   Decimal? @map("discounted_price") @db.Decimal(10, 2)
-  
-  tour              Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  
+  id               String   @id @default(cuid()) // ✅ Changed
+  tourId           String   @unique @map("tour_id")
+  totalPrice       Decimal  @map("total_price") @db.Decimal(10, 2)
+  reservationPrice Decimal  @map("reservation_price") @db.Decimal(10, 2)
+  discountedPrice  Decimal? @map("discounted_price") @db.Decimal(10, 2)
+
+  tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
   @@map("group_pricing")
 }
 
 model IndividualPricing {
   id     String @id @default(cuid()) // ✅ Changed
   tourId String @unique @map("tour_id")
-  
-  seasonTotalPrice        Decimal @map("season_total_price") @db.Decimal(10, 2)
-  seasonReservationPrice  Decimal @map("season_reservation_price") @db.Decimal(10, 2)
-  seasonDiscountedPrice   Decimal @map("season_discounted_price") @db.Decimal(10, 2)
-  
+
+  seasonTotalPrice       Decimal @map("season_total_price") @db.Decimal(10, 2)
+  seasonReservationPrice Decimal @map("season_reservation_price") @db.Decimal(10, 2)
+  seasonDiscountedPrice  Decimal @map("season_discounted_price") @db.Decimal(10, 2)
+
   offSeasonTotalPrice       Decimal @map("off_season_total_price") @db.Decimal(10, 2)
   offSeasonReservationPrice Decimal @map("off_season_reservation_price") @db.Decimal(10, 2)
   offSeasonDiscountedPrice  Decimal @map("off_season_discounted_price") @db.Decimal(10, 2)
-  
+
   tour Tour @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  
+
   @@map("individual_pricing")
 }
 
@@ -167,27 +169,27 @@ model AccommodationImage {
 }
 
 model Transfer {
-  id            String                 @id @default(cuid()) // ✅ Changed
-  isPublic      Boolean                @default(false) @map("is_public")
-  createdAt     DateTime               @default(now()) @map("created_at")
-  updatedAt     DateTime               @updatedAt @map("updated_at")
-  
+  id        String   @id @default(cuid()) // ✅ Changed
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   localizations TransferLocalization[]
   vehicleTypes  TransferVehicleType[]
   paymentOrders TransferPaymentOrder[]
-  
+
   @@map("transfers")
 }
 
 model TransferLocalization {
-  id            String   @id @default(cuid()) // ✅ Changed
-  transferId    String   @map("transfer_id")
-  locale        String   @default("ka")
-  startLocation String   @map("start_location")
-  endLocation   String   @map("end_location")
-  
+  id            String @id @default(cuid()) // ✅ Changed
+  transferId    String @map("transfer_id")
+  locale        String @default("ka")
+  startLocation String @map("start_location")
+  endLocation   String @map("end_location")
+
   transfer Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
-  
+
   @@unique([transferId, locale])
   @@index([locale])
   @@map("transfer_localizations")
@@ -199,100 +201,102 @@ model TransferVehicleType {
   type       VehicleType
   price      Decimal     @db.Decimal(10, 2)
   maxPersons Int         @map("max_persons")
-  
+
   transfer Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
-  
+
   @@index([transferId])
   @@map("transfer_vehicle_types")
 }
 
 model TourPaymentOrder {
-  id                  String        @id @default(cuid()) // ✅ Changed
-  tourId              String        @map("tour_id")
-  externalOrderId     String        @unique @map("external_order_id")
-  bogOrderId          String        @unique @map("bog_order_id")
-  
-  customerFirstName   String        @map("customer_first_name")
-  customerLastName    String        @map("customer_last_name")
-  customerEmail       String        @map("customer_email")
-  customerPhone       String        @map("customer_phone")
-  
-  peopleCount         Int           @map("people_count")
-  selectedDate        DateTime      @map("selected_date")
-  
-  tourLocale          String        @default("ka") @map("tour_locale")
-  tourName            String        @map("tour_name")
-  tourDescription     String?       @map("tour_description") @db.Text
-  tourDurationDays    Int           @default(1) @map("tour_duration_days")
-  tourDurationNights  Int           @default(0) @map("tour_duration_nights")
-  startLocation       String        @map("start_location")
-  endLocation         String        @map("end_location")
-  locations           String[]      @default([])
-  
-  isFullPayment       Boolean       @map("is_full_payment")
-  totalPrice          Decimal       @map("total_price") @db.Decimal(10, 2)
-  paidAmount          Decimal       @map("paid_amount") @db.Decimal(10, 2)
-  remainingAmount     Decimal?      @map("remaining_amount") @db.Decimal(10, 2)
-  
-  status              PaymentStatus @default(PENDING)
-  paymentUrl          String?       @map("payment_url")
-  transactionId       String?       @map("transaction_id")
-  paymentMethod       String?       @map("payment_method")
-  rejectionReason     String?       @map("rejection_reason")
-  callbackData        Json?         @map("callback_data")
-  
-  expiresAt           DateTime?     @map("expires_at")
-  paidAt              DateTime?     @map("paid_at")
-  failedAt            DateTime?     @map("failed_at")
-  createdAt           DateTime      @default(now()) @map("created_at")
-  updatedAt           DateTime      @updatedAt @map("updated_at")
-  
-  tour Tour @relation(fields: [tourId], references: [id])
-  
+  id              String @id @default(cuid()) // ✅ Changed
+  tourId          String @map("tour_id")
+  externalOrderId String @unique @map("external_order_id")
+  bogOrderId      String @unique @map("bog_order_id")
+
+  customerFirstName String @map("customer_first_name")
+  customerLastName  String @map("customer_last_name")
+  customerEmail     String @map("customer_email")
+  customerPhone     String @map("customer_phone")
+
+  peopleCount  Int      @map("people_count")
+  selectedDate DateTime @map("selected_date")
+
+  tourLocale         String   @default("ka") @map("tour_locale")
+  tourName           String   @map("tour_name")
+  tourDescription    String?  @map("tour_description") @db.Text
+  tourDurationDays   Int      @default(1) @map("tour_duration_days")
+  tourDurationNights Int      @default(0) @map("tour_duration_nights")
+  startLocation      String   @map("start_location")
+  endLocation        String   @map("end_location")
+  locations          String[] @default([])
+
+  isFullPayment   Boolean  @map("is_full_payment")
+  totalPrice      Decimal  @map("total_price") @db.Decimal(10, 2)
+  paidAmount      Decimal  @map("paid_amount") @db.Decimal(10, 2)
+  remainingAmount Decimal? @map("remaining_amount") @db.Decimal(10, 2)
+
+  status          PaymentStatus @default(PENDING)
+  paymentUrl      String?       @map("payment_url")
+  transactionId   String?       @map("transaction_id")
+  paymentMethod   String?       @map("payment_method")
+  rejectionReason String?       @map("rejection_reason")
+  callbackData    Json?         @map("callback_data")
+
+  expiresAt DateTime? @map("expires_at")
+  paidAt    DateTime? @map("paid_at")
+  failedAt  DateTime? @map("failed_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  tour    Tour     @relation(fields: [tourId], references: [id])
+  booking Booking?
+
   @@index([status, createdAt])
   @@index([tourLocale])
   @@map("tour_payment_orders")
 }
 
 model TransferPaymentOrder {
-  id                String        @id @default(cuid()) // ✅ Changed
-  transferId        String        @map("transfer_id")
-  externalOrderId   String        @unique @map("external_order_id")
-  bogOrderId        String        @unique @map("bog_order_id")
-  
-  customerFirstName String        @map("customer_first_name")
-  customerLastName  String        @map("customer_last_name")
-  customerEmail     String        @map("customer_email")
-  customerPhone     String        @map("customer_phone")
-  
-  passengerCount    Int           @map("passenger_count")
-  transferDate      DateTime      @map("transfer_date")
-  transferTime      DateTime      @map("transfer_time")
-  vehicleType       VehicleType   @map("vehicle_type")
-  driverId          String?       @map("driver_id")
-  
-  transferLocale         String   @default("ka") @map("transfer_locale")
-  transferStartLocation  String   @map("transfer_start_location")
-  transferEndLocation    String   @map("transfer_end_location")
-  
-  paymentAmount     Decimal       @map("payment_amount") @db.Decimal(10, 2)
-  status            PaymentStatus @default(PENDING)
-  paymentUrl        String?       @map("payment_url")
-  transactionId     String?       @map("transaction_id")
-  paymentMethod     String?       @map("payment_method")
-  rejectionReason   String?       @map("rejection_reason")
-  callbackData      Json?         @map("callback_data")
-  
-  refundedAmount    Decimal?      @map("refunded_amount") @db.Decimal(10, 2)
-  refundedAt        DateTime?     @map("refunded_at")
-  expiresAt         DateTime?     @map("expires_at")
-  paidAt            DateTime?     @map("paid_at")
-  failedAt          DateTime?     @map("failed_at")
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
-  
+  id              String @id @default(cuid()) // ✅ Changed
+  transferId      String @map("transfer_id")
+  externalOrderId String @unique @map("external_order_id")
+  bogOrderId      String @unique @map("bog_order_id")
+
+  customerFirstName String @map("customer_first_name")
+  customerLastName  String @map("customer_last_name")
+  customerEmail     String @map("customer_email")
+  customerPhone     String @map("customer_phone")
+
+  passengerCount Int         @map("passenger_count")
+  transferDate   DateTime    @map("transfer_date")
+  transferTime   DateTime    @map("transfer_time")
+  vehicleType    VehicleType @map("vehicle_type")
+  driverId       String?     @map("driver_id")
+
+  transferLocale        String @default("ka") @map("transfer_locale")
+  transferStartLocation String @map("transfer_start_location")
+  transferEndLocation   String @map("transfer_end_location")
+
+  paymentAmount   Decimal       @map("payment_amount") @db.Decimal(10, 2)
+  status          PaymentStatus @default(PENDING)
+  paymentUrl      String?       @map("payment_url")
+  transactionId   String?       @map("transaction_id")
+  paymentMethod   String?       @map("payment_method")
+  rejectionReason String?       @map("rejection_reason")
+  callbackData    Json?         @map("callback_data")
+
+  refundedAmount Decimal?  @map("refunded_amount") @db.Decimal(10, 2)
+  refundedAt     DateTime? @map("refunded_at")
+  expiresAt      DateTime? @map("expires_at")
+  paidAt         DateTime? @map("paid_at")
+  failedAt       DateTime? @map("failed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
   transfer Transfer @relation(fields: [transferId], references: [id])
   driver   Driver?  @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  booking  Booking?
 
   @@index([status, createdAt])
   @@index([transferLocale])
@@ -300,18 +304,164 @@ model TransferPaymentOrder {
 }
 
 model User {
-  id         String   @id @default(cuid()) // ✅ Changed
-  firstName  String   @map("first_name")
-  lastName   String   @map("last_name")
-  email      String   @unique
-  password   String
-  isVerified Boolean  @default(false) @map("is_verified")
-  isAdmin    Boolean  @default(false) @map("is_admin")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  
+  id                String    @id @default(cuid()) // ✅ Changed
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  email             String    @unique
+  password          String
+  isVerified        Boolean   @default(false) @map("is_verified")
+  // Super admin: every permission, and the only one who manages users/roles
+  isAdmin           Boolean   @default(false) @map("is_admin")
+  isActive          Boolean   @default(true) @map("is_active")
+  phone             String?
+  position          String?
+  lastLoginAt       DateTime? @map("last_login_at")
+  /// Currency the back-office reports default to for this user.
+  preferredCurrency Currency  @default(GEL) @map("preferred_currency")
+  // Tokens issued before this moment are rejected (password change/reset, deactivation)
+  sessionsRevokedAt DateTime? @map("sessions_revoked_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  roles Role[]
+
+  createdPartners     Partner[]      @relation("PartnerCreatedBy")
+  createdDrivers      Driver[]       @relation("DriverCreatedBy")
+  createdVehicles     Vehicle[]      @relation("VehicleCreatedBy")
+  createdHotels       Hotel[]        @relation("HotelCreatedBy")
+  createdBookings     Booking[]      @relation("BookingCreatedBy")
+  transactions        Transaction[]  @relation("TransactionEmployee")
+  createdTransactions Transaction[]  @relation("TransactionCreatedBy")
+  catalogItems        CatalogItem[]  @relation("CatalogCreatedBy")
+  calendarNotes       CalendarNote[] @relation("CalendarCreatedBy")
+
   @@index([email])
   @@map("users")
+}
+
+// ─── Currencies & exchange rates ─────────────────────────────────────────────
+
+/// GEL is the base currency: every rate is "how many GEL one unit costs".
+enum Currency {
+  GEL
+  USD
+  EUR
+  TRY
+  RUB
+  AED
+  SAR
+}
+
+enum RateSource {
+  NBG /// National Bank of Georgia (official)
+  EXCHANGERATE_API /// fallback provider
+  MANUAL /// entered by an administrator
+}
+
+model ExchangeRate {
+  id        String     @id @default(cuid())
+  currency  Currency
+  /// Day the rate is valid for (date only).
+  date      DateTime   @db.Date
+  /// GEL per 1 unit of `currency`.
+  rate      Decimal    @db.Decimal(18, 8)
+  source    RateSource
+  fetchedAt DateTime   @default(now()) @map("fetched_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@unique([currency, date])
+  @@index([date])
+  @@map("exchange_rates")
+}
+
+// ─── Partners / referrers ────────────────────────────────────────────────────
+
+enum PartnerType {
+  AGENT
+  TOUR_AGENCY
+  HOTEL_STAFF
+  DRIVER
+  INDIVIDUAL
+  OTHER
+}
+
+/// Someone who brings clients or drivers and is paid a commission.
+model Partner {
+  id             String      @id @default(cuid())
+  name           String
+  type           PartnerType @default(AGENT)
+  phone          String?
+  email          String?
+  /// Default commission in percent, used to prefill bookings.
+  commissionRate Decimal     @default(0) @map("commission_rate") @db.Decimal(5, 2)
+  notes          String?     @db.Text
+  isActive       Boolean     @default(true) @map("is_active")
+  createdById    String?     @map("created_by_id")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  createdBy       User?               @relation("PartnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  referredDrivers Driver[]            @relation("DriverReferrer")
+  bookings        Booking[]           @relation("BookingReferrer")
+  commissions     BookingCommission[] @relation("CommissionPartner")
+  transactions    Transaction[]       @relation("TransactionPartner")
+
+  @@index([isActive])
+  @@index([createdById])
+  @@index([name])
+  @@map("partners")
+}
+
+// ─── Access control (admin-managed roles) ────────────────────────────────────
+
+enum PermissionModule {
+  BOOKINGS_HOTEL
+  BOOKINGS_TOUR
+  BOOKINGS_PACKAGE
+  DRIVERS
+  HOTELS
+  PARTNERS
+  TRANSACTIONS
+  FINANCE
+  CATALOG
+  CALENDAR
+  CURRENCY
+  WEBSITE
+  ONLINE_ORDERS
+}
+
+enum AccessScope {
+  OWN
+  ALL
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId    String           @map("role_id")
+  module    PermissionModule
+  canView   Boolean          @default(false) @map("can_view")
+  canCreate Boolean          @default(false) @map("can_create")
+  canEdit   Boolean          @default(false) @map("can_edit")
+  canDelete Boolean          @default(false) @map("can_delete")
+  scope     AccessScope      @default(OWN)
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, module])
+  @@map("role_permissions")
 }
 
 model EmailVerification {
@@ -319,9 +469,14 @@ model EmailVerification {
   code      String
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
-  
+
   @@index([expiresAt])
   @@map("email_verifications")
+}
+
+enum VehicleOwnership {
+  DRIVER
+  COMPANY
 }
 
 model Driver {
@@ -333,23 +488,74 @@ model Driver {
   dailyRentPrice Decimal? @map("daily_rent_price") @db.Decimal(10, 2)
   carPhotos      String[] @default([]) @map("car_photos")
 
+  // Back-office fields (not shown on the website)
+  phone                  String?
+  email                  String?
+  notes                  String?  @db.Text
+  isActive               Boolean  @default(true) @map("is_active")
+  /// Whether the driver appears on the public website.
+  showOnWebsite          Boolean  @default(true) @map("show_on_website")
+  /// Who brought this driver to us, and their cut.
+  referrerId             String?  @map("referrer_id")
+  referrerCommissionRate Decimal? @map("referrer_commission_rate") @db.Decimal(5, 2)
+  createdById            String?  @map("created_by_id")
+
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt      @map("updated_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   reviews       DriverReview[]
   paymentOrders TransferPaymentOrder[]
+  vehicles      Vehicle[]
+  bookingItems  BookingItem[]
+  commissions   BookingCommission[]    @relation("CommissionDriver")
+  referrer      Partner?               @relation("DriverReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
+  createdBy     User?                  @relation("DriverCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  transactions  Transaction[]          @relation("TransactionDriver")
 
+  @@index([isActive])
+  @@index([showOnWebsite])
+  @@index([createdById])
   @@map("drivers")
 }
 
-model DriverReview {
-  id           String   @id @default(cuid())
-  driverId     String   @map("driver_id")
-  rating       Int
-  comment      String?  @db.Text
-  reviewerName String   @map("reviewer_name")
+/// A car: type, brand, model and model year ("kaç model"), seats, plate.
+model Vehicle {
+  id          String           @id @default(cuid())
+  driverId    String?          @map("driver_id")
+  type        VehicleType
+  brand       String
+  model       String
+  /// Model year.
+  year        Int?
+  seats       Int              @default(4)
+  plateNumber String?          @map("plate_number")
+  color       String?
+  ownership   VehicleOwnership @default(DRIVER)
+  isActive    Boolean          @default(true) @map("is_active")
+  notes       String?          @db.Text
+  createdById String?          @map("created_by_id")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
-  createdAt    DateTime @default(now()) @map("created_at")
+  driver       Driver?       @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  createdBy    User?         @relation("VehicleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  bookingItems BookingItem[]
+  transactions Transaction[]
+
+  @@index([driverId])
+  @@index([type])
+  @@index([isActive])
+  @@map("vehicles")
+}
+
+model DriverReview {
+  id           String  @id @default(cuid())
+  driverId     String  @map("driver_id")
+  rating       Int
+  comment      String? @db.Text
+  reviewerName String  @map("reviewer_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
 
   driver Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
@@ -358,11 +564,11 @@ model DriverReview {
 }
 
 model FAQ {
-  id             String              @id @default(cuid()) // ✅ Changed
-  category       String?
-  localizations  FAQLocalization[]
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id            String            @id @default(cuid()) // ✅ Changed
+  category      String?
+  localizations FAQLocalization[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@map("faqs")
 }
@@ -385,11 +591,11 @@ model Video {
   id            String              @id @default(cuid()) // ✅ Changed
   url           String
   title         String?
-  description   String?  @db.Text
+  description   String?             @db.Text
   category      String?
   localizations VideoLocalization[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
   @@map("videos")
 }
@@ -408,22 +614,22 @@ model VideoLocalization {
 }
 
 model QuickPaymentLink {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  
+  id   String @id @default(cuid())
+  slug String @unique
+
   // Remove name and description - they'll be in localizations
-  image         String?
-  price         Decimal  @db.Decimal(10, 2)
-  
-  isActive      Boolean  @default(true)
-  showOnWebsite Boolean  @default(false) @map("show_on_website")
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  image String?
+  price Decimal @db.Decimal(10, 2)
+
+  isActive      Boolean @default(true)
+  showOnWebsite Boolean @default(false) @map("show_on_website")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   localizations QuickPaymentLinkLocalization[] // ✅ NEW
   orders        QuickPaymentOrder[]
-  
+
   @@index([slug])
   @@index([showOnWebsite])
   @@map("quick_payment_links")
@@ -431,55 +637,55 @@ model QuickPaymentLink {
 
 // ✅ NEW MODEL
 model QuickPaymentLinkLocalization {
-  id          String   @id @default(cuid())
-  linkId      String   @map("link_id")
-  locale      String   @default("ka")
-  
+  id     String @id @default(cuid())
+  linkId String @map("link_id")
+  locale String @default("ka")
+
   name        String
-  description String?  @db.Text
-  
-  link        QuickPaymentLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  
+  description String? @db.Text
+
+  link QuickPaymentLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
   @@unique([linkId, locale])
   @@index([locale])
   @@map("quick_payment_link_localizations")
 }
 
 model QuickPaymentOrder {
-  id                String   @id @default(cuid())
-  linkId            String?
-  link              QuickPaymentLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
-  
-  customerFullName  String
-  customerEmail     String
-  customerPhone     String?
-  
-  productName       String
+  id     String            @id @default(cuid())
+  linkId String?
+  link   QuickPaymentLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
+
+  customerFullName String
+  customerEmail    String
+  customerPhone    String?
+
+  productName        String
   productDescription String? @db.Text
-  productUnitPrice  Decimal @db.Decimal(10, 2) @map("product_unit_price")
-  productQuantity   Int     @default(1) @map("product_quantity")
-  productTotalPrice Decimal @db.Decimal(10, 2) @map("product_total_price")
-  productLocale     String  @default("ka") @map("product_locale")
-  
-  externalOrderId   String   @unique
-  bogOrderId        String   @unique
-  paymentUrl        String?
-  
-  status            PaymentStatus @default(PENDING)
-  transactionId     String?
-  paymentMethod     String?
-  callbackData      Json?
-  
+  productUnitPrice   Decimal @map("product_unit_price") @db.Decimal(10, 2)
+  productQuantity    Int     @default(1) @map("product_quantity")
+  productTotalPrice  Decimal @map("product_total_price") @db.Decimal(10, 2)
+  productLocale      String  @default("ka") @map("product_locale")
+
+  externalOrderId String  @unique
+  bogOrderId      String  @unique
+  paymentUrl      String?
+
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  paymentMethod String?
+  callbackData  Json?
+
   // ✅ ADD THESE TWO FIELDS:
-  emailSent         Boolean  @default(false) @map("email_sent")
-  emailSentAt       DateTime? @map("email_sent_at")
-  
-  expiresAt         DateTime
-  paidAt            DateTime?
-  failedAt          DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  emailSent   Boolean   @default(false) @map("email_sent")
+  emailSentAt DateTime? @map("email_sent_at")
+
+  expiresAt DateTime
+  paidAt    DateTime?
+  failedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   @@index([linkId])
   @@index([externalOrderId])
   @@index([status, createdAt])
@@ -489,48 +695,48 @@ model QuickPaymentOrder {
 }
 
 model InsuranceSettings {
-  id                String   @id @default(cuid())
-  pricePerDay Decimal @default(0) @db.Decimal(10,2) @map("price_per_day")
+  id          String  @id @default(cuid())
+  pricePerDay Decimal @default(0) @map("price_per_day") @db.Decimal(10, 2)
 
-  discount30Days    Decimal  @default(0) @db.Decimal(5, 2) @map("discount_30_days") // Percentage discount for 30+ days
-  discount90Days    Decimal  @default(0) @db.Decimal(5, 2) @map("discount_90_days") // Percentage discount for 90+ days
-  adminEmail        String
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  discount30Days Decimal  @default(0) @map("discount_30_days") @db.Decimal(5, 2) // Percentage discount for 30+ days
+  discount90Days Decimal  @default(0) @map("discount_90_days") @db.Decimal(5, 2) // Percentage discount for 90+ days
+  adminEmail     String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("insurance_settings")
 }
 
 model InsuranceSubmission {
-  id              String        @id @default(cuid())
-  
-  submitterEmail  String        @map("submitter_email")
-  
-  externalOrderId String        @unique @map("external_order_id")
-  bogOrderId      String        @unique @map("bog_order_id")
-  paymentUrl      String?       @map("payment_url")
-  
-  totalAmount     Decimal       @db.Decimal(10, 2) @map("total_amount")
-  totalDays       Int           @map("total_days") // Total days across all people
-  peopleCount     Int           @map("people_count")
-  
-  status          PaymentStatus @default(PENDING)
-  transactionId   String?       @map("transaction_id")
-  paymentMethod   String?       @map("payment_method")
-  callbackData    Json?         @map("callback_data")
-  
-  emailSent       Boolean       @default(false) @map("email_sent")
-  emailSentAt     DateTime?     @map("email_sent_at")
-  
-  expiresAt       DateTime      @map("expires_at")
-  paidAt          DateTime?     @map("paid_at")
-  failedAt        DateTime?     @map("failed_at")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  
-  people          InsurancePerson[]
-  
+  id String @id @default(cuid())
+
+  submitterEmail String @map("submitter_email")
+
+  externalOrderId String  @unique @map("external_order_id")
+  bogOrderId      String  @unique @map("bog_order_id")
+  paymentUrl      String? @map("payment_url")
+
+  totalAmount Decimal @map("total_amount") @db.Decimal(10, 2)
+  totalDays   Int     @map("total_days") // Total days across all people
+  peopleCount Int     @map("people_count")
+
+  status        PaymentStatus @default(PENDING)
+  transactionId String?       @map("transaction_id")
+  paymentMethod String?       @map("payment_method")
+  callbackData  Json?         @map("callback_data")
+
+  emailSent   Boolean   @default(false) @map("email_sent")
+  emailSentAt DateTime? @map("email_sent_at")
+
+  expiresAt DateTime  @map("expires_at")
+  paidAt    DateTime? @map("paid_at")
+  failedAt  DateTime? @map("failed_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  people InsurancePerson[]
+
   @@index([submitterEmail])
   @@index([status, createdAt])
   @@index([externalOrderId])
@@ -538,28 +744,440 @@ model InsuranceSubmission {
 }
 
 model InsurancePerson {
-  id           String              @id @default(cuid())
-  submissionId String              @map("submission_id")
-  
-  fullName     String              @map("full_name")
-  phoneNumber  String              @map("phone_number")
-  passportPhoto String             @map("passport_photo")
-  
+  id           String @id @default(cuid())
+  submissionId String @map("submission_id")
+
+  fullName      String @map("full_name")
+  phoneNumber   String @map("phone_number")
+  passportPhoto String @map("passport_photo")
+
   // New fields for date ranges
-  startDate    DateTime            @map("start_date") // Insurance start date
-  endDate      DateTime            @map("end_date")   // Insurance end date
-  totalDays    Int                 @map("total_days") // Number of days for this person
-  
+  startDate DateTime @map("start_date") // Insurance start date
+  endDate   DateTime @map("end_date") // Insurance end date
+  totalDays Int      @map("total_days") // Number of days for this person
+
   // Pricing details for this person
-  pricePerDay  Decimal             @db.Decimal(10, 2) @map("price_per_day")
-  baseAmount   Decimal             @db.Decimal(10, 2) @map("base_amount") // Days * pricePerDay
-  discount     Decimal             @default(0) @db.Decimal(5, 2) // Applied discount percentage
-  finalAmount  Decimal             @db.Decimal(10, 2) @map("final_amount") // After discount
-  
-  createdAt    DateTime            @default(now()) @map("created_at")
-  
-  submission   InsuranceSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  
+  pricePerDay Decimal @map("price_per_day") @db.Decimal(10, 2)
+  baseAmount  Decimal @map("base_amount") @db.Decimal(10, 2) // Days * pricePerDay
+  discount    Decimal @default(0) @db.Decimal(5, 2) // Applied discount percentage
+  finalAmount Decimal @map("final_amount") @db.Decimal(10, 2) // After discount
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  submission InsuranceSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
   @@index([submissionId])
   @@map("insurance_people")
+}
+
+// ─── Hotel directory (back office) ───────────────────────────────────────────
+
+/// Price bracket used to filter the directory ("ekonomik", "lüks"…).
+enum HotelCategory {
+  ECONOMY
+  STANDARD
+  COMFORT
+  LUXURY
+}
+
+enum HotelContactType {
+  MANAGER
+  SALES
+  RESERVATION
+  RECEPTION
+  ACCOUNTING
+  OTHER
+}
+
+/// A hotel we work with: where it is, what it costs and who to call there.
+model Hotel {
+  id             String        @id @default(cuid())
+  name           String
+  city           String
+  region         String?
+  address        String?
+  /// 1–5 stars.
+  stars          Int?
+  category       HotelCategory @default(STANDARD)
+  /// Indicative price per night, in `priceCurrency`.
+  priceFrom      Decimal?      @map("price_from") @db.Decimal(10, 2)
+  priceCurrency  Currency?     @map("price_currency")
+  website        String?
+  /// Our usual commission on this hotel's rooms, in percent.
+  commissionRate Decimal?      @map("commission_rate") @db.Decimal(5, 2)
+  notes          String?       @db.Text
+  isActive       Boolean       @default(true) @map("is_active")
+  createdById    String?       @map("created_by_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  contacts     HotelContact[]
+  createdBy    User?          @relation("HotelCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  bookingItems BookingItem[]
+  transactions Transaction[]
+
+  @@index([city])
+  @@index([region])
+  @@index([category])
+  @@index([isActive])
+  @@index([createdById])
+  @@map("hotels")
+}
+
+/// One of the several numbers a hotel has (reception, sales, manager…).
+model HotelContact {
+  id        String           @id @default(cuid())
+  hotelId   String           @map("hotel_id")
+  type      HotelContactType @default(RECEPTION)
+  name      String?
+  phone     String?
+  email     String?
+  note      String?
+  sortOrder Int              @default(0) @map("sort_order")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@index([hotelId])
+  @@map("hotel_contacts")
+}
+
+// ─── Bookings (the ledger the office works from) ─────────────────────────────
+
+enum BookingType {
+  HOTEL
+  TOUR
+  TRANSFER
+  /// Hotel + vehicle + extras agreed as one price.
+  PACKAGE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingItemType {
+  HOTEL
+  TOUR
+  TRANSFER
+  VEHICLE
+  INSURANCE
+  SIM_CARD
+  GUIDE
+  OTHER
+}
+
+enum CommissionKind {
+  /// Whoever brought the client.
+  CLIENT_REFERRAL
+  /// Whoever brought the driver working this booking.
+  DRIVER_REFERRAL
+  OTHER
+}
+
+model Booking {
+  /// Shown as BK-000123.
+  number Int           @unique @default(autoincrement())
+  id     String        @id @default(cuid())
+  type   BookingType
+  status BookingStatus @default(PENDING)
+
+  touristName    String  @map("tourist_name")
+  touristPhone   String? @map("tourist_phone")
+  touristEmail   String? @map("tourist_email")
+  touristCountry String? @map("tourist_country")
+  adults         Int     @default(1)
+  children       Int     @default(0)
+
+  /// Service dates (date only, no time zone).
+  startDate DateTime  @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+
+  currency Currency @default(GEL)
+  /// GEL per 1 unit of `currency`, snapshotted when the booking was saved.
+  fxRate   Decimal  @default(1) @map("fx_rate") @db.Decimal(18, 8)
+
+  /// Sums of the items; always recomputed on the server.
+  totalPrice      Decimal @default(0) @map("total_price") @db.Decimal(12, 2)
+  totalCost       Decimal @default(0) @map("total_cost") @db.Decimal(12, 2)
+  totalCommission Decimal @default(0) @map("total_commission") @db.Decimal(12, 2)
+  /// How much the client has paid us so far.
+  paidAmount      Decimal @default(0) @map("paid_amount") @db.Decimal(12, 2)
+  /// totalPrice − paidAmount, kept in a column so "still due" can be filtered
+  /// and sorted (Prisma cannot compare two columns in a where clause).
+  balanceDue      Decimal @default(0) @map("balance_due") @db.Decimal(12, 2)
+
+  paymentMethod String? @map("payment_method")
+  referrerId    String? @map("referrer_id")
+
+  /// Website orders this booking was created from (one booking each).
+  tourOrderId     String? @unique @map("tour_order_id")
+  transferOrderId String? @unique @map("transfer_order_id")
+
+  notes       String? @db.Text
+  createdById String? @map("created_by_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items         BookingItem[]
+  commissions   BookingCommission[]
+  referrer      Partner?              @relation("BookingReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
+  tourOrder     TourPaymentOrder?     @relation(fields: [tourOrderId], references: [id], onDelete: SetNull)
+  transferOrder TransferPaymentOrder? @relation(fields: [transferOrderId], references: [id], onDelete: SetNull)
+  createdBy     User?                 @relation("BookingCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  transactions  Transaction[]
+
+  @@index([type, status])
+  @@index([startDate])
+  @@index([createdById])
+  @@index([referrerId])
+  @@index([touristName])
+  @@index([balanceDue])
+  @@map("bookings")
+}
+
+/// One line of a booking: the hotel room, the car, the insurance…
+model BookingItem {
+  id        String          @id @default(cuid())
+  bookingId String          @map("booking_id")
+  type      BookingItemType
+  title     String
+
+  hotelId    String?   @map("hotel_id")
+  roomNumber String?   @map("room_number")
+  roomType   String?   @map("room_type")
+  checkIn    DateTime? @map("check_in") @db.Date
+  checkOut   DateTime? @map("check_out") @db.Date
+
+  tourId      String?   @map("tour_id")
+  driverId    String?   @map("driver_id")
+  vehicleId   String?   @map("vehicle_id")
+  serviceDate DateTime? @map("service_date") @db.Date
+
+  /// What the client pays us for this line.
+  salePrice      Decimal   @default(0) @map("sale_price") @db.Decimal(12, 2)
+  /// What we pay the hotel / driver / supplier for it.
+  costPrice      Decimal   @default(0) @map("cost_price") @db.Decimal(12, 2)
+  /// Whether the supplier has been paid.
+  supplierPaid   Boolean   @default(false) @map("supplier_paid")
+  supplierPaidAt DateTime? @map("supplier_paid_at")
+
+  notes     String? @db.Text
+  sortOrder Int     @default(0) @map("sort_order")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  booking Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  hotel   Hotel?   @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  tour    Tour?    @relation(fields: [tourId], references: [id], onDelete: SetNull)
+  driver  Driver?  @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([hotelId])
+  @@index([driverId])
+  @@index([vehicleId])
+  @@index([tourId])
+  @@index([serviceDate])
+  @@map("booking_items")
+}
+
+/// What a referrer earns on a booking.
+model BookingCommission {
+  id            String         @id @default(cuid())
+  bookingId     String         @map("booking_id")
+  partnerId     String?        @map("partner_id")
+  /// Name kept even if the partner record is deleted later.
+  recipientName String         @map("recipient_name")
+  kind          CommissionKind @default(CLIENT_REFERRAL)
+  /// Set for a driver referral: whose work the commission is based on.
+  driverId      String?        @map("driver_id")
+  /// Percent; when set, the amount is computed from it.
+  rate          Decimal?       @db.Decimal(5, 2)
+  amount        Decimal        @default(0) @db.Decimal(12, 2)
+  paid          Boolean        @default(false)
+  paidAt        DateTime?      @map("paid_at")
+  note          String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  booking Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  partner Partner? @relation("CommissionPartner", fields: [partnerId], references: [id], onDelete: SetNull)
+  driver  Driver?  @relation("CommissionDriver", fields: [driverId], references: [id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([partnerId])
+  @@index([paid])
+  @@map("booking_commissions")
+}
+
+// ─── Money in and out (office ledger) ────────────────────────────────────────
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+/// Expense categories come from the brief: office, salaries, fuel, repairs…
+enum TransactionCategory {
+  OFFICE
+  SALARY
+  FUEL
+  VEHICLE_REPAIR
+  VEHICLE_SERVICE
+  RENT
+  UTILITIES
+  MARKETING
+  TAX
+  COMMUNICATION
+  OTHER_EXPENSE
+  HOTEL_COMMISSION
+  SERVICE_INCOME
+  OTHER_INCOME
+}
+
+model Transaction {
+  id       String              @id @default(cuid())
+  type     TransactionType
+  category TransactionCategory
+  /// Day the money moved (date only).
+  date     DateTime            @db.Date
+
+  amount   Decimal  @db.Decimal(12, 2)
+  currency Currency @default(GEL)
+  /// GEL per 1 unit of `currency`, snapshotted when it was saved.
+  fxRate   Decimal  @default(1) @map("fx_rate") @db.Decimal(18, 8)
+
+  title         String
+  description   String? @db.Text
+  paymentMethod String? @map("payment_method")
+
+  // What the money was for; each one is also a filter in the finance report
+  vehicleId  String? @map("vehicle_id")
+  driverId   String? @map("driver_id")
+  hotelId    String? @map("hotel_id")
+  tourId     String? @map("tour_id")
+  bookingId  String? @map("booking_id")
+  /// Staff member a salary was paid to.
+  employeeId String? @map("employee_id")
+  partnerId  String? @map("partner_id")
+
+  createdById String?  @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  driver    Driver?  @relation("TransactionDriver", fields: [driverId], references: [id], onDelete: SetNull)
+  hotel     Hotel?   @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  tour      Tour?    @relation(fields: [tourId], references: [id], onDelete: SetNull)
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  employee  User?    @relation("TransactionEmployee", fields: [employeeId], references: [id], onDelete: SetNull)
+  partner   Partner? @relation("TransactionPartner", fields: [partnerId], references: [id], onDelete: SetNull)
+  createdBy User?    @relation("TransactionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([type, date])
+  @@index([category])
+  @@index([date])
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([hotelId])
+  @@index([bookingId])
+  @@index([createdById])
+  @@map("transactions")
+}
+
+// ─── Price catalog ───────────────────────────────────────────────────────────
+
+enum CatalogCategory {
+  TOUR
+  TRANSFER
+  HOTEL
+  VEHICLE
+  INSURANCE
+  SIM_CARD
+  PACKAGE
+  OTHER
+}
+
+/// How the price is charged.
+enum CatalogUnit {
+  PER_PERSON
+  PER_GROUP
+  PER_NIGHT
+  PER_DAY
+  PER_TRIP
+  PER_ITEM
+}
+
+enum CatalogSeason {
+  ALL_YEAR
+  HIGH
+  LOW
+}
+
+/// The price list the office quotes from and hands to clients.
+model CatalogItem {
+  id          String          @id @default(cuid())
+  name        String
+  category    CatalogCategory @default(OTHER)
+  description String?         @db.Text
+  unit        CatalogUnit     @default(PER_PERSON)
+
+  price    Decimal  @db.Decimal(12, 2)
+  /// What it costs us (never shown on the client version).
+  cost     Decimal? @db.Decimal(12, 2)
+  currency Currency @default(GEL)
+
+  vehicleType VehicleType?
+  city        String?
+  season      CatalogSeason @default(ALL_YEAR)
+  validFrom   DateTime?     @map("valid_from") @db.Date
+  validTo     DateTime?     @map("valid_to") @db.Date
+
+  isActive    Boolean @default(true) @map("is_active")
+  sortOrder   Int     @default(0) @map("sort_order")
+  createdById String? @map("created_by_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("CatalogCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@index([isActive])
+  @@index([city])
+  @@index([createdById])
+  @@map("catalog_items")
+}
+
+// ─── Calendar ────────────────────────────────────────────────────────────────
+
+/// A note pinned to a day: a reminder, a meeting, anything the office writes down.
+model CalendarNote {
+  id      String   @id @default(cuid())
+  date    DateTime @db.Date
+  /// Optional time of day, "HH:mm".
+  time    String?
+  title   String
+  content String?  @db.Text
+  /// Colour of the chip in the month view.
+  color   String   @default("green")
+  isDone  Boolean  @default(false) @map("is_done")
+
+  createdById String?  @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User? @relation("CalendarCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([createdById])
+  @@map("calendar_notes")
 }

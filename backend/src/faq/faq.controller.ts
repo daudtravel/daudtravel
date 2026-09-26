@@ -17,6 +17,8 @@ import { FaqService } from './faq.service';
 import { CreateFaqDto } from './dto/create-faq.dto';
 import { UpdateFaqDto } from './dto/update-faq.dto';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 
 @ApiTags('FAQ')
 @Controller('faq')
@@ -25,6 +27,7 @@ export class FaqController {
 
   @Post('create_faq')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new FAQ (Admin only)' })
   @ApiResponse({ status: 201, description: 'FAQ created successfully' })
@@ -68,6 +71,7 @@ export class FaqController {
 
   @Put('update_faq/:id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update FAQ (Admin only)' })
   @ApiResponse({ status: 200, description: 'FAQ updated successfully' })
   @ApiResponse({ status: 404, description: 'FAQ not found' })
@@ -83,6 +87,7 @@ export class FaqController {
 
   @Delete('delete_faq/:id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete FAQ (Admin only)' })
   @ApiResponse({ status: 200, description: 'FAQ deleted successfully' })

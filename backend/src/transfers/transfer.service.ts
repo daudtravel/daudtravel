@@ -79,6 +79,7 @@ export class TransferService {
       vehicleType,
       minPrice,
       maxPrice,
+      isPublic,
     } = query;
 
     const skip = (page - 1) * limit;
@@ -87,6 +88,9 @@ export class TransferService {
 
     if (publicOnly) {
       whereClause.isPublic = true;
+    } else if (isPublic !== undefined) {
+      // Admin list can filter published vs hidden transfers
+      whereClause.isPublic = isPublic;
     }
 
     if (search) {

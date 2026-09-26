@@ -10,7 +10,8 @@ import {
 } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import {
   CreateTransferFormData,
   SUPPORTED_LOCALES,
@@ -54,7 +55,7 @@ const CreateTransfer = () => {
         onSuccess: () => {
           toast.success(t("transfers.created"));
           form.reset();
-          router.push("?transfers=all");
+          router.push(adminPaths.websiteTransfers);
         },
         onError: (error: unknown) => {
           const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;

@@ -14,6 +14,7 @@ import { CHAT_CONFIG, initWhatsAppWidget } from "@/src/utlis/chats/OnlineChats";
 import { SocialSection } from "./(main)/_components/SocialSection";
 import ConsentBanner from "@/src/components/shared/ConsentBanner";
 import { Toaster } from "sonner";
+import SiteChrome from "@/src/components/layout/SiteChrome";
 
 export async function generateMetadata({
   params,
@@ -156,6 +157,10 @@ export default async function LocaleLayout({
     notFound();
   }
   const messages = await getMessages();
+  // The admin namespace is large and only needed inside /admin (its layout
+  // provides the full messages), so public pages don't ship it to the browser.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { admin: _adminMessages, ...publicMessages } = messages;
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
@@ -168,20 +173,30 @@ export default async function LocaleLayout({
         />
       </head>
       <body>
-        <Script id="whatsapp-widget" strategy="afterInteractive">
-          {initWhatsAppWidget(CHAT_CONFIG.WHATSAPP_NUMBER)}
-        </Script>
-
         <AuthProvider>
           <QueryProvider>
-            <NextIntlClientProvider messages={messages}>
+            <NextIntlClientProvider messages={publicMessages}>
               <Toaster position="top-right" richColors closeButton />
-              <Header />
-              <SignInModal />
-              {children}
-              <Footer />
-              <SocialSection />
-              <ConsentBanner />
+              <SiteChrome
+                header={
+                  <>
+                    <Header />
+                    <SignInModal />
+                  </>
+                }
+                footer={<Footer />}
+                extras={
+                  <>
+                    <SocialSection />
+                    <ConsentBanner />
+                    <Script id="whatsapp-widget" strategy="afterInteractive">
+                      {initWhatsAppWidget(CHAT_CONFIG.WHATSAPP_NUMBER)}
+                    </Script>
+                  </>
+                }
+              >
+                {children}
+              </SiteChrome>
             </NextIntlClientProvider>
           </QueryProvider>
         </AuthProvider>

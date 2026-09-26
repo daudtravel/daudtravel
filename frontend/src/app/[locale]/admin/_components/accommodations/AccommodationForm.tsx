@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -186,7 +187,7 @@ export default function AccommodationForm({ accommodation }: Props) {
           {
             onSuccess: () => {
               toast.success(t("accommodations.updated"));
-              router.push("?accommodations=all");
+              router.push(adminPaths.websiteAccommodations);
             },
             onError: (error) =>
               toast.error(
@@ -213,7 +214,7 @@ export default function AccommodationForm({ accommodation }: Props) {
             onSuccess: () => {
               toast.success(t("accommodations.created"));
               form.reset();
-              router.push("?accommodations=all");
+              router.push(adminPaths.websiteAccommodations);
             },
             onError: (error) =>
               toast.error(

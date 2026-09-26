@@ -12,7 +12,8 @@ import {
   Percent,
   X,
 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -37,7 +38,6 @@ interface PriceExample {
 
 export default function InsuranceSettings() {
   const router = useRouter();
-  const pathname = usePathname();
   const t = useTranslations("admin");
 
   const { data: settingsData, isLoading } = useInsuranceSettings();
@@ -68,8 +68,14 @@ export default function InsuranceSettings() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const pricePerDay = parseFloat(formData.pricePerDay);
     const discount30 = parseFloat(formData.discount30Days);
     const discount90 = parseFloat(formData.discount90Days);
+
+    if (isNaN(pricePerDay) || pricePerDay < 0) {
+      toast.error(t("common.enterValidPrice"));
+      return;
+    }
 
     if (isNaN(discount30) || discount30 < 0 || discount30 > 100) {
       toast.error(t("insuranceSettings.discountRange"));
@@ -100,6 +106,8 @@ export default function InsuranceSettings() {
 
     try {
       await updateSettings.mutateAsync({
+        // was missing: editing the price had no effect
+        pricePerDay,
         discount30Days: discount30,
         discount90Days: discount90,
         adminEmail: formData.adminEmail,
@@ -184,7 +192,7 @@ export default function InsuranceSettings() {
         <div className="p-4 sm:p-6 border-b">
           <div className="flex items-center gap-3 sm:gap-4">
             <button
-              onClick={() => router.push(`${pathname}?insurance=all`)}
+              onClick={() => router.push(adminPaths.ordersInsurance)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
             >
               <ArrowLeft size={20} />
@@ -495,7 +503,7 @@ export default function InsuranceSettings() {
             </button>
             <button
               type="button"
-              onClick={() => router.push(`${pathname}?insurance=all`)}
+              onClick={() => router.push(adminPaths.ordersInsurance)}
               disabled={updateSettings.isPending}
               className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
             >

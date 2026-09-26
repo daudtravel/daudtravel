@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/src/i18n/routing";
+import { adminPaths } from "@/src/utlis/admin/paths";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -133,7 +134,7 @@ export default function CreateTour() {
           setMainImageFile(null);
           setGalleryPreviews([]);
           setGalleryFiles([]);
-          router.push("?tours=all");
+          router.push(adminPaths.websiteTours);
         },
         onError: (error) => {
           toast.error(error instanceof Error ? error.message : t("tours.createFailed"));

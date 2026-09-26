@@ -14,6 +14,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { toOptionalBoolean } from '@/common/dto/transforms';
 
 export enum AccommodationType {
   HOTEL = 'HOTEL',
@@ -214,4 +215,31 @@ export class GetAccommodationsQueryDto {
   @IsOptional()
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc';
+
+  /** Admin list only: published vs hidden. */
+  @IsOptional()
+  @Transform(toOptionalBoolean)
+  @IsBoolean()
+  isPublic?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  minPrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  maxPrice?: number;
 }
+
+/** Sortable columns of the admin accommodations list. */
+export const ACCOMMODATION_SORT_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'price',
+  'city',
+  'maxGuests',
+] as const;

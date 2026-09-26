@@ -95,3 +95,68 @@ body {
   outline: none;
   border: none;
 }
+
+/* ─── Admin panel ──────────────────────────────────────────────────────────
+   Scoped to the back office so the public website keeps its look. shadcn
+   components inside .admin-theme use the brand palette. */
+.admin-theme {
+  --primary: 144 55% 23%; /* brand-green #1B5C35 */
+  --primary-foreground: 37 39% 94%; /* brand-cream */
+  --ring: 144 55% 23%;
+  --accent: 146 30% 95%; /* brand-green-50 */
+  --accent-foreground: 144 55% 23%;
+  --secondary: 37 39% 94%;
+  --secondary-foreground: 144 55% 18%;
+  --radius: 0.75rem;
+}
+
+/* The chat widget is injected into <body> by the public site. */
+html.admin-mode #daud-whatsapp-widget {
+  display: none !important;
+}
+
+html.admin-mode body {
+  width: auto;
+}
+
+.admin-theme input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html.admin-mode,
+  html.admin-mode body {
+    background: #fff !important;
+  }
+
+  .admin-theme {
+    font-size: 11px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .admin-theme table {
+    width: 100%;
+  }
+
+  .admin-theme thead {
+    display: table-header-group;
+  }
+
+  .admin-theme tr,
+  .admin-theme .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .admin-theme [data-print-card] {
+    box-shadow: none !important;
+    border-color: #e5e7eb !important;
+  }
+}

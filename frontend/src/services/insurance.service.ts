@@ -16,6 +16,7 @@ export interface CreateInsuranceSubmissionDto {
 }
 
 export interface UpdateInsuranceSettingsDto {
+  pricePerDay?: number;
   discount30Days?: number;
   discount90Days?: number;
   adminEmail?: string;

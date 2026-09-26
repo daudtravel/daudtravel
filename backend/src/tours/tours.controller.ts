@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { RequirePermission } from '@/access/access.decorators';
+import { PermissionModule } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import {
   CreateTourDto,
@@ -27,6 +29,7 @@ export class ToursController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new tour' })
   @ApiResponse({ status: 201, description: 'Tour created successfully' })
@@ -102,6 +105,7 @@ export class ToursController {
 
   @Get('all')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
   @ApiOperation({ summary: 'Get all tours (admin)' })
   @ApiQuery({
     name: 'page',
@@ -183,6 +187,7 @@ export class ToursController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'edit')
   @ApiOperation({ summary: 'Update tour' })
   @ApiResponse({ status: 200, description: 'Tour updated successfully' })
   @ApiResponse({ status: 404, description: 'Tour not found' })
@@ -196,6 +201,7 @@ export class ToursController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete tour' })
   @ApiResponse({ status: 204, description: 'Tour deleted successfully' })
