@@ -51,7 +51,9 @@ export class HotelsController {
 
   @Get('filter-options')
   @RequirePermission(PermissionModule.HOTELS, 'view')
-  @ApiOperation({ summary: 'Distinct cities and regions for the filter bar' })
+  @ApiOperation({
+    summary: 'Distinct cities, regions and custom room types for the filters',
+  })
   filterOptions(@CurrentUser() user: AuthUser) {
     return this.hotelsService.filterOptions(user);
   }

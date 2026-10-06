@@ -93,7 +93,9 @@ export class TransferPaymentsController {
   }
 
   @Get('orders/:id')
-  @ApiOperation({ summary: 'Get transfer payment order by ID' })
+  @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.ONLINE_ORDERS, 'view')
+  @ApiOperation({ summary: 'Get transfer payment order by ID (Admin)' })
   @ApiResponse({ status: 200, description: 'Order retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Order not found' })
   async getOrderById(@Param('id') id: string) {

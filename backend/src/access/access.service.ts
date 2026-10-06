@@ -5,6 +5,7 @@ import {
   computeEffectivePermissions,
   hasPermission,
 } from './effective-permissions';
+import { narrowScopeToOwner, RecordScope } from './owner-scope';
 import { AccessRule, AuthUser, PermissionAction } from './access.types';
 
 export interface LoadedAuthUser extends AuthUser {
@@ -99,6 +100,22 @@ export class AccessService {
     const scope = user.permissions[module]?.[action];
     if (!scope) return null;
     return scope === 'ALL' ? {} : { createdById: user.userId };
+  }
+
+  /**
+   * scopeWhere narrowed by a list's "owner" filter (`?createdById=`). Use it
+   * instead of spreading the filter next to the scope, which would replace
+   * an own-records scope: here asking for another owner's records only
+   * narrows, so such a user gets none.
+   */
+  scopeWhereForOwner(
+    user: AuthUser,
+    module: PermissionModule,
+    action: PermissionAction,
+    ownerId: string | null | undefined,
+  ): RecordScope | null {
+    const scope = this.scopeWhere(user, module, action);
+    return scope && narrowScopeToOwner(scope, ownerId);
   }
 
   canAccessRecord(

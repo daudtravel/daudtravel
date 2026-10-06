@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
@@ -7,7 +8,10 @@ import { Button } from "@/src/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
@@ -16,9 +20,21 @@ import { useHotelOptions } from "@/src/hooks/admin/useHotels";
 import { useDriverOptions } from "@/src/hooks/admin/useDrivers";
 import { useVehicleOptions } from "@/src/hooks/admin/useVehicles";
 import { useAdminTours } from "@/src/hooks/admin/useAdminLists";
+import { useRoomTypeLabel } from "@/src/hooks/useRoomTypeLabel";
 import { usePermissions } from "@/src/components/admin/access/usePermissions";
 import { fullName, formatNumber } from "@/src/utlis/admin/format";
 import { pickLocalization } from "@/src/types/admin/website.types";
+import {
+  CUSTOM_ROOM_TYPE_MAX_LENGTH,
+  ROOM_TYPES,
+  cleanRoomTypeName,
+  dedupeCustomRoomTypes,
+  isRoomType,
+  matchRoomType,
+  sortRoomTypes,
+  type RoomType,
+} from "@/src/constants/roomTypes";
+import type { HotelOption } from "@/src/types/admin/hotels.types";
 import {
   ALLOWED_ITEM_TYPES,
   type BookingItemPayload,
@@ -54,6 +70,173 @@ export function presetItems(type: BookingType): BookingItemPayload[] {
     default:
       return [emptyItem("OTHER")];
   }
+}
+
+/** The room types a hotel offers (none while it isn't in the options list). */
+const roomTypesOf = (hotel: HotelOption | undefined) => ({
+  predefined: sortRoomTypes(hotel?.roomTypes),
+  custom: dedupeCustomRoomTypes(hotel?.customRoomTypes),
+});
+
+/** What the room type select shows for a stored value. */
+function roomTypeChoice(
+  value: string | null | undefined,
+  customAtHotel: readonly string[]
+) {
+  if (value === null || value === undefined) return "__none__";
+  if (isRoomType(value)) return value;
+  if (customAtHotel.includes(value)) return `custom:${value}`;
+  // "" (the box was just opened), older free text, another hotel's names
+  return "__custom__";
+}
+
+/**
+ * Room type of a hotel line: the hotel's own types first, then the other
+ * predefined ones, then "Something else…" with a text box. The value is a
+ * code, a name typed by hand, null when not given, or "" while the box is
+ * open but empty. What the select shows is derived from the value rather than
+ * kept per row, because rows can be moved and removed.
+ */
+function RoomTypeField({
+  value,
+  hotel,
+  onChange,
+  disabled,
+  className,
+}: {
+  value: string | null | undefined;
+  /** The line's hotel, when the options list has it. */
+  hotel: HotelOption | undefined;
+  onChange: (roomType: string | null) => void;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const t = useTranslations("admin");
+  const label = useRoomTypeLabel();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const focusInput = useRef(false);
+  // The box stays open while it has focus, even when the text on its way to
+  // "Villa with pool" passes through "Villa", one of the options
+  const [typing, setTyping] = useState(false);
+
+  const { predefined, custom } = roomTypesOf(hotel);
+  const others = ROOM_TYPES.filter((type) => !predefined.includes(type));
+  const choice = typing ? "__custom__" : roomTypeChoice(value, custom);
+
+  const select = (next: string) => {
+    if (next === "__none__") {
+      onChange(null);
+    } else if (next === "__custom__") {
+      focusInput.current = true;
+      onChange("");
+    } else {
+      onChange(
+        next.startsWith("custom:") ? next.slice("custom:".length) : next
+      );
+    }
+  };
+
+  /** Typed text that names one of the options is stored as that option. */
+  const tidy = (text: string) => {
+    const name = cleanRoomTypeName(text);
+    const lower = name.toLocaleLowerCase();
+    return (
+      matchRoomType(name, label) ??
+      custom.find((item) => item.toLocaleLowerCase() === lower) ??
+      name
+    );
+  };
+
+  const option = (type: RoomType) => (
+    <SelectItem key={type} value={type}>
+      {label(type)}
+    </SelectItem>
+  );
+
+  return (
+    <div className={className}>
+      <label className="block">
+        <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+          {t("bookings.roomType")}
+        </span>
+        <Select
+          value={choice}
+          onValueChange={select}
+          onOpenChange={(open) => {
+            if (open) focusInput.current = false;
+          }}
+          disabled={disabled}
+        >
+          <SelectTrigger className="h-10 rounded-xl border-gray-200 bg-white">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            className="max-h-72"
+            onCloseAutoFocus={(event) => {
+              // After "Something else…" the cursor goes to the new box
+              if (!focusInput.current) return;
+              focusInput.current = false;
+              event.preventDefault();
+              inputRef.current?.focus();
+            }}
+          >
+            <SelectItem value="__none__">
+              {t("bookings.roomTypeNone")}
+            </SelectItem>
+            {predefined.length || custom.length ? (
+              <>
+                <SelectGroup>
+                  <SelectLabel className="text-xs uppercase tracking-wide text-gray-500">
+                    {t("bookings.roomTypeAtHotel")}
+                  </SelectLabel>
+                  {predefined.map(option)}
+                  {custom.map((name) => (
+                    <SelectItem key={`custom:${name}`} value={`custom:${name}`}>
+                      <span dir="auto">{name}</span>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+                {others.length > 0 && (
+                  <SelectGroup>
+                    <SelectLabel className="text-xs uppercase tracking-wide text-gray-500">
+                      {t("bookings.roomTypeOther")}
+                    </SelectLabel>
+                    {others.map(option)}
+                  </SelectGroup>
+                )}
+              </>
+            ) : (
+              ROOM_TYPES.map(option)
+            )}
+            <SelectSeparator />
+            <SelectItem value="__custom__">
+              {t("bookings.roomTypeCustom")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </label>
+      {choice === "__custom__" && (
+        <Input
+          ref={inputRef}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setTyping(true)}
+          onBlur={() => {
+            setTyping(false);
+            if (!value) return;
+            const tidied = tidy(value);
+            if (tidied !== value) onChange(tidied);
+          }}
+          placeholder={t("bookings.roomTypeCustomPlaceholder")}
+          aria-label={t("bookings.roomType")}
+          maxLength={CUSTOM_ROOM_TYPE_MAX_LENGTH}
+          dir="auto"
+          disabled={disabled}
+          className={cn(adminInputClass, "mt-2 h-10 bg-white")}
+        />
+      )}
+    </div>
+  );
 }
 
 export default function BookingItemsField({
@@ -95,7 +278,10 @@ export default function BookingItemsField({
     onChange(next);
   };
 
-  /** Choosing a hotel fills the title and suggests our cost from its commission. */
+  /**
+   * Choosing a hotel fills the title, suggests our cost from its commission
+   * and, if the line has no room type yet, its only room type.
+   */
   const onHotelChange = (index: number, hotelId: string) => {
     const hotel = hotels.data?.find((h) => h.id === hotelId);
     const item = value[index];
@@ -110,6 +296,12 @@ export default function BookingItemsField({
       ) {
         patch.costPrice =
           Math.round(sale * (1 - hotel.commissionRate / 100) * 100) / 100;
+      }
+      // Offer the hotel's room type when it has only one
+      const { predefined, custom } = roomTypesOf(hotel);
+      const offered = [...predefined, ...custom];
+      if (offered.length === 1 && !item.roomType?.trim()) {
+        patch.roomType = offered[0];
       }
     }
     update(index, patch);
@@ -238,8 +430,8 @@ export default function BookingItemsField({
 
             {/* Fields that depend on what the line is */}
             {item.type === "HOTEL" && (
-              <div className="mb-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-                <label className="block lg:col-span-2">
+              <div className="mb-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+                <label className="block sm:col-span-2 lg:col-span-3">
                   <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {t("nav.hotels")}
                   </span>
@@ -265,6 +457,13 @@ export default function BookingItemsField({
                     </SelectContent>
                   </Select>
                 </label>
+                <RoomTypeField
+                  value={item.roomType}
+                  hotel={hotels.data?.find((h) => h.id === item.hotelId)}
+                  onChange={(roomType) => update(index, { roomType })}
+                  disabled={disabled}
+                  className="lg:col-span-2"
+                />
                 <label className="block">
                   <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {t("bookings.roomNumber")}
@@ -279,7 +478,7 @@ export default function BookingItemsField({
                     className={cn(adminInputClass, "h-10 bg-white")}
                   />
                 </label>
-                <label className="block">
+                <label className="block lg:col-span-3">
                   <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {t("bookings.checkIn")}
                   </span>
@@ -293,7 +492,7 @@ export default function BookingItemsField({
                     className={cn(adminInputClass, "h-10 bg-white")}
                   />
                 </label>
-                <label className="block">
+                <label className="block lg:col-span-3">
                   <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {t("bookings.checkOut")}
                   </span>

@@ -40,5 +40,22 @@
     "elevator": "مصعد",
     "petsAllowed": "يُسمح بالحيوانات الأليفة",
     "gym": "صالة رياضية"
+  },
+  "roomTypes": "أنواع الغرف",
+  "roomType": "نوع الغرفة",
+  "anyRoomType": "أي نوع من الغرف",
+  "inquiryRoomType": "نوع الغرفة: {roomType}",
+  "roomTypeLabels": {
+    "STANDARD_DOUBLE": "غرفة قياسية بسرير مزدوج",
+    "STANDARD_TWIN": "غرفة قياسية بسريرين منفصلين",
+    "TRIPLE": "غرفة ثلاثية",
+    "FAMILY": "غرفة عائلية",
+    "CONNECTING": "غرف متصلة",
+    "SUPERIOR_DOUBLE": "غرفة سوبيريور بسرير مزدوج",
+    "SUPERIOR_TRIPLE": "غرفة سوبيريور ثلاثية",
+    "JUNIOR_SUITE": "جناح جونيور",
+    "EXECUTIVE_SUITE": "جناح تنفيذي",
+    "SUITE": "جناح",
+    "DELUXE": "غرفة ديلوكس"
   }
 }

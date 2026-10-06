@@ -46,7 +46,10 @@ export class PartnersService {
   }
 
   async findAll(user: AuthUser, query: ListPartnersQueryDto) {
-    const scope = this.access.scopeWhere(user, MODULE, 'view') ?? {};
+    // An "all records" user can narrow the list down to one owner
+    const scope =
+      this.access.scopeWhereForOwner(user, MODULE, 'view', query.createdById) ??
+      {};
     const { page, limit, skip } = resolvePagination(query.page, query.limit);
     const { field, order } = resolveSort(
       query.sortBy,
@@ -60,8 +63,6 @@ export class PartnersService {
       ...scope,
       ...(query.type && { type: query.type }),
       ...(query.isActive !== undefined && { isActive: query.isActive }),
-      // An "all records" user can narrow the list down to one owner
-      ...(query.createdById && { createdById: query.createdById }),
       ...((query.minRate !== undefined || query.maxRate !== undefined) && {
         commissionRate: {
           ...(query.minRate !== undefined && { gte: query.minRate }),

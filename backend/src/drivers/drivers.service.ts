@@ -309,7 +309,9 @@ export class DriversService {
   // ------------------------------------------------------------ back office
 
   async findAllAdmin(user: AuthUser, query: ListDriversQueryDto) {
-    const scope = this.access.scopeWhere(user, MODULE, 'view') ?? {};
+    const scope =
+      this.access.scopeWhereForOwner(user, MODULE, 'view', query.createdById) ??
+      {};
     const { page, limit, skip } = resolvePagination(query.page, query.limit);
     const { field, order } = resolveSort(
       query.sortBy,
@@ -332,7 +334,6 @@ export class DriversService {
         showOnWebsite: query.showOnWebsite,
       }),
       ...(query.referrerId && { referrerId: query.referrerId }),
-      ...(query.createdById && { createdById: query.createdById }),
       ...(query.language && { languages: { has: query.language } }),
       ...(hasVehicleFilter &&
         (query.hasVehicle === false

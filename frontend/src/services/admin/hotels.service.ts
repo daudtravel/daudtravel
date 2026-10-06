@@ -22,12 +22,16 @@ export const hotelsApi = {
     (await axiosInstance.get<{ data: HotelOption[] }>("/hotels/options")).data
       .data,
 
-  filterOptions: async (): Promise<{ cities: string[]; regions: string[] }> =>
-    (
-      await axiosInstance.get<{
-        data: { cities: string[]; regions: string[] };
-      }>("/hotels/filter-options")
-    ).data.data,
+  filterOptions: async (): Promise<{
+    cities: string[];
+    regions: string[];
+    customRoomTypes: string[];
+  }> => {
+    const { data } = await axiosInstance.get<{
+      data: { cities: string[]; regions: string[]; customRoomTypes?: string[] };
+    }>("/hotels/filter-options");
+    return { ...data.data, customRoomTypes: data.data.customRoomTypes ?? [] };
+  },
 
   create: async (payload: HotelPayload): Promise<Hotel> =>
     (await axiosInstance.post<{ data: Hotel }>("/hotels", payload)).data.data,

@@ -1,10 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  usePathname,
+  useRouter as useNextRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Eye,
+  Globe,
   Mail,
   MapPin,
   MessageCircle,
@@ -47,6 +53,8 @@ import {
   type Hotel,
   type HotelContact,
 } from "@/src/types/admin/hotels.types";
+import { ROOM_TYPES } from "@/src/constants/roomTypes";
+import { useRoomTypeLabel } from "@/src/hooks/useRoomTypeLabel";
 import HotelFormDialog from "./HotelFormDialog";
 
 const FILTERS = [
@@ -55,8 +63,10 @@ const FILTERS = [
   "region",
   "category",
   "stars",
+  "roomType",
   "hasCommission",
   "isActive",
+  "hasListing",
   "createdById",
   "minPrice",
   "maxPrice",
@@ -115,8 +125,14 @@ export function ContactLinks({
 
 export default function HotelsListView() {
   const t = useTranslations("admin");
+  const tAcc = useTranslations("accommodations");
+  const roomTypeLabel = useRoomTypeLabel();
   const locale = useLocale();
   const router = useRouter();
+  // next/navigation's router: its paths keep the locale, as in useListQuery
+  const nextRouter = useNextRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const errorMessage = useApiErrorMessage();
   const { can, canAll } = usePermissions();
 
@@ -132,7 +148,31 @@ export default function HotelsListView() {
 
   const [editing, setEditing] = useState<Hotel | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [initialListingId, setInitialListingId] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Hotel | null>(null);
+
+  /** "Add to the hotel directory" from Website → Hotels & apartments. */
+  const fromListing = searchParams.get("fromListing");
+  const handledListing = useRef<string | null>(null);
+  useEffect(() => {
+    if (!fromListing) {
+      handledListing.current = null;
+      return;
+    }
+    if (handledListing.current === fromListing) return;
+    handledListing.current = fromListing;
+
+    if (can("HOTELS", "create")) {
+      setInitialListingId(fromListing);
+      setEditing(null);
+      setFormOpen(true);
+    }
+    // Drop the param, or every filter or page change would reopen the form
+    const rest = new URLSearchParams(searchParams.toString());
+    rest.delete("fromListing");
+    const qs = rest.toString();
+    nextRouter.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [fromListing, searchParams, pathname, nextRouter, can]);
 
   const fetchAll = useCallback(
     (limit: number) => hotelsApi.list({ ...list.params, page: 1, limit }),
@@ -142,6 +182,7 @@ export default function HotelsListView() {
 
   const openCreate = () => {
     setEditing(null);
+    setInitialListingId(null);
     setFormOpen(true);
   };
   const openEdit = (hotel: Hotel) => {
@@ -257,9 +298,23 @@ export default function HotelsListView() {
       key: "status",
       header: t("common.status"),
       cell: (row) => (
-        <Badge tone={row.isActive ? "green" : "neutral"}>
-          {row.isActive ? t("users.active") : t("users.inactive")}
-        </Badge>
+        <div className="flex flex-wrap gap-1">
+          <Badge tone={row.isActive ? "green" : "neutral"}>
+            {row.isActive ? t("users.active") : t("users.inactive")}
+          </Badge>
+          {row.accommodation &&
+            (row.accommodation.isPublic ? (
+              <Badge tone="blue">
+                <Globe />
+                {t("website.onWebsite")}
+              </Badge>
+            ) : (
+              <Badge tone="neutral">
+                <Globe />
+                {t("hotels.listingHiddenBadge")}
+              </Badge>
+            ))}
+        </div>
       ),
     },
     {
@@ -388,6 +443,22 @@ export default function HotelsListView() {
           }))}
         />
         <SelectFilter
+          label={tAcc("roomType")}
+          value={list.values.roomType}
+          onChange={(v) => list.setFilter("roomType", v)}
+          options={[
+            ...ROOM_TYPES.map((type) => ({
+              value: type,
+              label: roomTypeLabel(type),
+            })),
+            // Typed by hand: shown as written
+            ...(filterOptions.data?.customRoomTypes ?? []).map((name) => ({
+              value: name,
+              label: name,
+            })),
+          ]}
+        />
+        <SelectFilter
           label={t("hotels.commissionRate")}
           value={list.values.hasCommission}
           onChange={(v) => list.setFilter("hasCommission", v)}
@@ -403,6 +474,15 @@ export default function HotelsListView() {
           options={[
             { value: "true", label: t("users.active") },
             { value: "false", label: t("users.inactive") },
+          ]}
+        />
+        <SelectFilter
+          label={t("hotels.listing")}
+          value={list.values.hasListing}
+          onChange={(v) => list.setFilter("hasListing", v)}
+          options={[
+            { value: "true", label: t("hotels.listingLinked") },
+            { value: "false", label: t("hotels.listingUnlinked") },
           ]}
         />
         <NumberRangeFilter
@@ -461,7 +541,11 @@ export default function HotelsListView() {
       <HotelFormDialog
         open={formOpen}
         hotel={editing}
-        onOpenChange={setFormOpen}
+        initialListingId={initialListingId}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setInitialListingId(null);
+        }}
       />
 
       <ConfirmDialog

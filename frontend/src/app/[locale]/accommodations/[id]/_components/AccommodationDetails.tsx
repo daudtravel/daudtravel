@@ -29,12 +29,31 @@ import {
   Eye,
   TreePalm,
   Check,
+  BedSingle,
+  DoorOpen,
+  Sofa,
+  Briefcase,
+  Crown,
+  Sparkles,
 } from "lucide-react";
 import { Whatsapp } from "@/src/components/svg";
 import { Button } from "@/src/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
 import renderDescription from "@/src/components/textEditor/RenderText";
 import { useAccommodationById } from "@/src/hooks/accommodations/useAccommodationById";
 import { CONTACT } from "@/src/constants/accommodations.constants";
+import {
+  RoomType,
+  cleanRoomTypeName,
+  dedupeCustomRoomTypes,
+  sortRoomTypes,
+} from "@/src/constants/roomTypes";
 import TourLoader from "@/src/components/shared/loader/TourLoader";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -54,6 +73,32 @@ const AMENITY_ICONS: Record<string, typeof Wifi> = {
   gym: Dumbbell,
 };
 
+const ROOM_TYPE_ICONS: Record<RoomType, typeof Wifi> = {
+  STANDARD_DOUBLE: BedDouble,
+  STANDARD_TWIN: BedSingle,
+  TRIPLE: Users,
+  FAMILY: Users,
+  CONNECTING: DoorOpen,
+  SUPERIOR_DOUBLE: BedDouble,
+  SUPERIOR_TRIPLE: Users,
+  JUNIOR_SUITE: Sofa,
+  EXECUTIVE_SUITE: Briefcase,
+  SUITE: Crown,
+  DELUXE: Sparkles,
+};
+
+// Radix Select items can't have an empty value
+const ANY_ROOM_TYPE = "any";
+const INQUIRY_ROOM_TYPE_ID = "inquiry-room-type";
+
+interface RoomOption {
+  /** The code, or "custom:<name>" for a name typed in the admin */
+  value: string;
+  label: string;
+  Icon: typeof Wifi;
+  custom: boolean;
+}
+
 export default function AccommodationDetails() {
   const t = useTranslations("accommodations");
   const params = useParams();
@@ -63,6 +108,8 @@ export default function AccommodationDetails() {
 
   const { data, isLoading } = useAccommodationById({ id, locale });
   const [activeImage, setActiveImage] = useState(0);
+  // Optional room type for the WhatsApp message
+  const [inquiryRoomType, setInquiryRoomType] = useState(ANY_ROOM_TYPE);
 
   if (isLoading) return <TourLoader />;
 
@@ -89,11 +136,44 @@ export default function AccommodationDetails() {
 
   const currentImage = galleryImages[activeImage] || item.mainImage;
 
+  // Predefined types first, then the names typed for the language shown;
+  // a typed name that repeats a label already listed is skipped.
+  const predefinedRooms: RoomOption[] = sortRoomTypes(item.roomTypes).map(
+    (type) => ({
+      value: type,
+      label: t(`roomTypeLabels.${type}`),
+      Icon: ROOM_TYPE_ICONS[type],
+      custom: false,
+    })
+  );
+  const listedLabels = new Set(
+    predefinedRooms.map((room) =>
+      cleanRoomTypeName(room.label).toLocaleLowerCase()
+    )
+  );
+  const customRooms: RoomOption[] = dedupeCustomRoomTypes(
+    localization?.customRoomTypes
+  )
+    .filter((name) => !listedLabels.has(name.toLocaleLowerCase()))
+    .map((name) => ({
+      value: `custom:${name}`,
+      label: name,
+      Icon: BedDouble,
+      custom: true,
+    }));
+  const rooms = [...predefinedRooms, ...customRooms];
+  const chosenRoom = rooms.find((room) => room.value === inquiryRoomType);
+
   const pageUrl =
     typeof window !== "undefined" ? window.location.href : "";
 
+  // Extra line only when the visitor picked a room type
+  const roomTypeLine = chosenRoom
+    ? `\n${t("inquiryRoomType", { roomType: chosenRoom.label })}`
+    : "";
+
   const whatsappMessage = encodeURIComponent(
-    `${t("inquiryGreeting")} "${localization?.name}" (${item.city}) — ${item.price} ₾ / ${t("perNight")}.\n${pageUrl}`
+    `${t("inquiryGreeting")} "${localization?.name}" (${item.city}) — ${item.price} ₾ / ${t("perNight")}.${roomTypeLine}\n${pageUrl}`
   );
   const whatsappUrl = `https://wa.me/${CONTACT.WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
@@ -226,6 +306,26 @@ export default function AccommodationDetails() {
                 </div>
               </div>
             )}
+
+            {/* Room types */}
+            {rooms.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold text-brand-green mb-3">
+                  {t("roomTypes")}
+                </h2>
+                <ul className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {rooms.map(({ value, label, Icon, custom }) => (
+                    <li
+                      key={value}
+                      className="flex items-center gap-2 text-sm text-gray-700"
+                    >
+                      <Icon className="w-4 h-4 text-brand-green shrink-0" />
+                      <span dir={custom ? "auto" : undefined}>{label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Right: sticky contact card */}
@@ -239,6 +339,49 @@ export default function AccommodationDetails() {
               </div>
 
               <p className="text-sm text-gray-600">{t("contactPrompt")}</p>
+
+              {rooms.length > 0 && (
+                <div>
+                  <label
+                    htmlFor={INQUIRY_ROOM_TYPE_ID}
+                    className="block mb-1.5 text-sm font-medium text-gray-700"
+                  >
+                    {t("roomType")}
+                  </label>
+                  <Select
+                    value={chosenRoom ? chosenRoom.value : ANY_ROOM_TYPE}
+                    onValueChange={setInquiryRoomType}
+                    dir={isRTL ? "rtl" : "ltr"}
+                  >
+                    <SelectTrigger
+                      id={INQUIRY_ROOM_TYPE_ID}
+                      className="h-9 focus:outline-none focus:border-brand-green"
+                    >
+                      <SelectValue>
+                        {chosenRoom ? (
+                          <span dir={chosenRoom.custom ? "auto" : undefined}>
+                            {chosenRoom.label}
+                          </span>
+                        ) : (
+                          t("anyRoomType")
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ANY_ROOM_TYPE}>
+                        {t("anyRoomType")}
+                      </SelectItem>
+                      {rooms.map((room) => (
+                        <SelectItem key={room.value} value={room.value}>
+                          <span dir={room.custom ? "auto" : undefined}>
+                            {room.label}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                 <Button className="w-full gap-2 bg-[#25D366] hover:bg-[#1fb855] text-white">

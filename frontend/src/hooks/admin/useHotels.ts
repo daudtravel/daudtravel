@@ -53,12 +53,18 @@ export const useHotelFilterOptions = (enabled = true) =>
     retry: adminRetry,
   });
 
+/** Website listings show whether they are in the directory (and the picker which are taken). */
+const LISTING_KEYS = ["admin", "website", "accommodations"] as const;
+
 export function useSaveHotel() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id?: string; payload: HotelPayload }) =>
       id ? hotelsApi.update(id, payload) : hotelsApi.create(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: hotelKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: hotelKeys.all });
+      queryClient.invalidateQueries({ queryKey: LISTING_KEYS });
+    },
   });
 }
 
@@ -66,6 +72,9 @@ export function useDeleteHotel() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => hotelsApi.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: hotelKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: hotelKeys.all });
+      queryClient.invalidateQueries({ queryKey: LISTING_KEYS });
+    },
   });
 }

@@ -120,10 +120,11 @@ export class FinanceService {
     )
       ? await this.prisma.transaction.findMany({
           where: {
-            ...(this.access.scopeWhere(
+            ...(this.access.scopeWhereForOwner(
               user,
               PermissionModule.TRANSACTIONS,
               'view',
+              query.createdById,
             ) ?? {}),
             ...(range && { date: range }),
             ...(query.vehicleId && { vehicleId: query.vehicleId }),
@@ -131,7 +132,6 @@ export class FinanceService {
             ...(query.hotelId && { hotelId: query.hotelId }),
             ...(query.tourId && { tourId: query.tourId }),
             ...(query.partnerId && { partnerId: query.partnerId }),
-            ...(query.createdById && { createdById: query.createdById }),
           },
           select: {
             type: true,

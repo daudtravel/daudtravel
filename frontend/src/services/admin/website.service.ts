@@ -7,6 +7,7 @@ import type {
   AdminTourRow,
   AdminTransferRow,
   AdminVideoRow,
+  ListingOption,
 } from "@/src/types/admin/website.types";
 import { cleanParams } from "./access.service";
 
@@ -65,10 +66,20 @@ export const adminAccommodationsApi = {
     await axiosInstance.delete(`/accommodations/${id}`);
   },
   filterOptions: async () => {
-    const { data } = await axiosInstance.get<{ data: { cities: string[] } }>(
-      "/accommodations/filter-options"
+    const { data } = await axiosInstance.get<{
+      data: { cities: string[]; customRoomTypes?: string[] };
+    }>("/accommodations/filter-options");
+    return {
+      cities: data.data.cities,
+      customRoomTypes: data.data.customRoomTypes ?? [],
+    };
+  },
+  /** Every listing, for the hotel directory's "fill from the website" picker. */
+  listingOptions: async (): Promise<ListingOption[]> => {
+    const { data } = await axiosInstance.get<{ data: ListingOption[] }>(
+      "/accommodations/options"
     );
-    return data.data;
+    return data.data ?? [];
   },
 };
 

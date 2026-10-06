@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
+  BedDouble,
   Building2,
   Car,
   CheckCircle2,
@@ -32,6 +33,7 @@ import {
   useSupplierPaid,
 } from "@/src/hooks/admin/useBookings";
 import { usePermissions } from "@/src/components/admin/access/usePermissions";
+import { useRoomTypeLabel } from "@/src/hooks/useRoomTypeLabel";
 import { useApiErrorMessage } from "@/src/utlis/admin/errors";
 import {
   formatDateOnly,
@@ -83,6 +85,7 @@ export default function BookingDetailView({ id }: { id: string }) {
   const router = useRouter();
   const errorMessage = useApiErrorMessage();
   const { can } = usePermissions();
+  const roomTypeLabel = useRoomTypeLabel();
 
   const { data: booking, isLoading, isError } = useBooking(id);
   const changeStatus = useBookingStatus();
@@ -398,9 +401,23 @@ export default function BookingDetailView({ id }: { id: string }) {
                       <p className="flex items-center gap-1">
                         <Building2 className="h-3 w-3 text-gray-400" />
                         {item.hotel.name}
-                        {item.roomNumber
-                          ? ` · ${t("bookings.roomNumber")} ${item.roomNumber}`
-                          : ""}
+                      </p>
+                    )}
+                    {/* Even without a hotel on file (none picked, or deleted) */}
+                    {(item.roomType || item.roomNumber) && (
+                      <p className="flex items-center gap-1">
+                        <BedDouble className="h-3 w-3 shrink-0 text-gray-400" />
+                        <span>
+                          {item.roomType && (
+                            <span dir="auto">
+                              {roomTypeLabel(item.roomType)}
+                            </span>
+                          )}
+                          {item.roomType && item.roomNumber ? " · " : null}
+                          {item.roomNumber
+                            ? `${t("bookings.roomNumber")} ${item.roomNumber}`
+                            : null}
+                        </span>
                       </p>
                     )}
                     {(item.checkIn || item.checkOut) && (

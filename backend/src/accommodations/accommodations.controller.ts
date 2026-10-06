@@ -13,9 +13,20 @@ import {
 } from '@nestjs/common';
 import { AccommodationsService } from './accommodations.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
-import { RequirePermission } from '@/access/access.decorators';
+import {
+  CurrentUser,
+  RequireAnyPermission,
+  RequirePermission,
+} from '@/access/access.decorators';
+import type { AuthUser } from '@/access/access.types';
 import { PermissionModule } from '@prisma/client';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+} from '@nestjs/swagger';
 import {
   CreateAccommodationDto,
   GetAccommodationsQueryDto,
@@ -51,6 +62,7 @@ export class AccommodationsController {
   @ApiQuery({ name: 'locale', required: false, type: String })
   @ApiQuery({ name: 'city', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'roomType', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
   @ApiResponse({ status: 200, description: 'Accommodations retrieved successfully' })
@@ -75,11 +87,16 @@ export class AccommodationsController {
   @ApiQuery({ name: 'locale', required: false, type: String })
   @ApiQuery({ name: 'city', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'roomType', required: false, type: String })
+  @ApiQuery({ name: 'inDirectory', required: false, type: Boolean })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'] })
   @ApiResponse({ status: 200, description: 'Accommodations retrieved successfully' })
-  async findAll(@Query() query: GetAccommodationsQueryDto) {
-    const result = await this.accommodationsService.findAll(query, false);
+  async findAll(
+    @CurrentUser() user: AuthUser,
+    @Query() query: GetAccommodationsQueryDto,
+  ) {
+    const result = await this.accommodationsService.findAll(query, false, user);
     return {
       message:
         result.data.length > 0
@@ -92,9 +109,24 @@ export class AccommodationsController {
   @Get('filter-options')
   @UseGuards(AuthGuard)
   @RequirePermission(PermissionModule.WEBSITE, 'view')
-  @ApiOperation({ summary: 'Distinct cities for the admin filters' })
+  @ApiOperation({
+    summary: 'Distinct cities and custom room types for the admin filters',
+  })
   async filterOptions() {
     return { data: await this.accommodationsService.getFilterOptions() };
+  }
+
+  @Get('options')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @RequireAnyPermission(
+    { module: PermissionModule.HOTELS, action: 'create' },
+    { module: PermissionModule.HOTELS, action: 'edit' },
+    { module: PermissionModule.WEBSITE, action: 'view' },
+  )
+  @ApiOperation({ summary: 'Every listing, for the hotel directory picker' })
+  async listingOptions(@CurrentUser() user: AuthUser) {
+    return { data: await this.accommodationsService.getListingOptions(user) };
   }
 
   @Get(':id')

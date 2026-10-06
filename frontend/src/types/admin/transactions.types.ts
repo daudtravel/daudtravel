@@ -76,7 +76,8 @@ export interface Transaction {
   } | null;
   driver: { id: string; firstName: string; lastName: string } | null;
   hotel: { id: string; name: string; city: string } | null;
-  booking: { id: string; number: number; touristName: string } | null;
+  /** Null also when the entry has a booking the user may not open. */
+  booking: { id: string; number: number } | null;
   employee: OwnerRef | null;
   partner: { id: string; name: string } | null;
   createdBy: OwnerRef | null;

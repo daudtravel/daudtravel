@@ -12,9 +12,19 @@ import {
   Max,
   IsIn,
   MaxLength,
+  ArrayMaxSize,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { toOptionalBoolean } from '@/common/dto/transforms';
+import { RoomType } from '@prisma/client';
+import {
+  toOptionalBoolean,
+  toStringArrayAllowEmpty,
+  trimToUndefined,
+} from '@/common/dto/transforms';
+import {
+  CUSTOM_ROOM_TYPE_MAX_LENGTH,
+  CUSTOM_ROOM_TYPES_MAX,
+} from '@/common/utils/room-types.util';
 
 export enum AccommodationType {
   HOTEL = 'HOTEL',
@@ -59,6 +69,15 @@ export class AccommodationLocalizationDto {
   @IsOptional()
   @MaxLength(500)
   address?: string = '';
+
+  /** Room types typed by hand, written in this language. */
+  @IsOptional()
+  @Transform(toStringArrayAllowEmpty)
+  @IsArray()
+  @ArrayMaxSize(CUSTOM_ROOM_TYPES_MAX)
+  @IsString({ each: true })
+  @MaxLength(CUSTOM_ROOM_TYPE_MAX_LENGTH, { each: true })
+  customRoomTypes?: string[];
 }
 
 // Main Create DTO
@@ -100,6 +119,13 @@ export class CreateAccommodationDto {
   @IsString({ each: true })
   @IsOptional()
   amenities?: string[] = [];
+
+  @IsOptional()
+  @Transform(toStringArrayAllowEmpty)
+  @IsArray()
+  @ArrayMaxSize(50)
+  @IsEnum(RoomType, { each: true })
+  roomTypes?: RoomType[] = [];
 
   @IsString()
   @IsNotEmpty()
@@ -161,6 +187,14 @@ export class UpdateAccommodationDto {
   @IsString({ each: true })
   @IsOptional()
   amenities?: string[];
+
+  // No default: leaving it out keeps the stored selection
+  @IsOptional()
+  @Transform(toStringArrayAllowEmpty)
+  @IsArray()
+  @ArrayMaxSize(50)
+  @IsEnum(RoomType, { each: true })
+  roomTypes?: RoomType[];
 
   @IsString()
   @IsOptional()
@@ -233,6 +267,19 @@ export class GetAccommodationsQueryDto {
   @Min(0)
   @Type(() => Number)
   maxPrice?: number;
+
+  /** A room type code (FAMILY…) or the name of a custom one. */
+  @IsOptional()
+  @Transform(trimToUndefined)
+  @IsString()
+  @MaxLength(CUSTOM_ROOM_TYPE_MAX_LENGTH)
+  roomType?: string;
+
+  /** Admin list only: listings that fill a hotel-directory entry (or not). */
+  @IsOptional()
+  @Transform(toOptionalBoolean)
+  @IsBoolean()
+  inDirectory?: boolean;
 }
 
 /** Sortable columns of the admin accommodations list. */

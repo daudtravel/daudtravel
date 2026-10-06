@@ -16,6 +16,10 @@ export const useCreateAccommodation = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ADMIN_ACCOMMODATIONS],
       });
+      // The admin list and the hotel directory's listing picker
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "website", "accommodations"],
+      });
     },
   });
 };

@@ -28,6 +28,7 @@ import {
   parseDateRange,
   parseOptionalDateOnly,
 } from '@/common/utils/date-only.util';
+import { normalizeRoomTypeValue } from '@/common/utils/room-types.util';
 import { computeTotals, money } from './booking-totals';
 import {
   BOOKING_SORT_FIELDS,
@@ -40,7 +41,7 @@ import {
 } from './dto/bookings.dto';
 
 /** Which permission module covers which kind of booking. */
-const MODULE_BY_TYPE: Record<BookingType, PermissionModule> = {
+export const MODULE_BY_TYPE: Record<BookingType, PermissionModule> = {
   [BookingType.HOTEL]: PermissionModule.BOOKINGS_HOTEL,
   [BookingType.TOUR]: PermissionModule.BOOKINGS_TOUR,
   [BookingType.TRANSFER]: PermissionModule.BOOKINGS_TOUR,
@@ -380,7 +381,7 @@ export class BookingsService {
       title: item.title,
       hotelId: item.hotelId ?? null,
       roomNumber: item.roomNumber ?? null,
-      roomType: item.roomType ?? null,
+      roomType: normalizeRoomTypeValue(item.roomType) ?? null,
       checkIn: parseOptionalDateOnly(item.checkIn, 'checkIn'),
       checkOut: parseOptionalDateOnly(item.checkOut, 'checkOut'),
       tourId: item.tourId ?? null,

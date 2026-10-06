@@ -90,14 +90,18 @@ export class CalendarService {
     nextDay: Date,
     createdById?: string,
   ) {
-    const scope = this.access.scopeWhere(user, MODULE, 'view');
+    const scope = this.access.scopeWhereForOwner(
+      user,
+      MODULE,
+      'view',
+      createdById,
+    );
     if (!scope) return [];
 
     const rows = await this.prisma.calendarNote.findMany({
       where: {
         ...scope,
         date: { gte: from, lt: nextDay },
-        ...(createdById && { createdById }),
       },
       orderBy: [{ date: 'asc' }, { time: 'asc' }, { createdAt: 'asc' }],
       select: NOTE_SELECT,

@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { PermissionModule, Prisma } from '@prisma/client';
+import { AccessService } from '@/access/access.service';
+import type { AuthUser } from '@/access/access.types';
 import {
   ACCOMMODATION_SORT_FIELDS,
   CreateAccommodationDto,
@@ -10,6 +12,16 @@ import {
 } from './dto/accommodations.dto';
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { resolveSort } from '@/common/utils/pagination.util';
+import {
+  collectCustomRoomTypes,
+  customRoomTypeSpellings,
+  listingRoomTypeWhere,
+  mergeListingRoomTypes,
+  toRoomType,
+} from '@/common/utils/room-types.util';
+
+/** The hotel-directory entry filled from a listing (Hotel.accommodationId). */
+type DirectoryEntryRef = { id: string; createdById: string | null };
 
 @Injectable()
 export class AccommodationsService {
@@ -20,12 +32,43 @@ export class AccommodationsService {
     images: { orderBy: { order: 'asc' as const } },
   };
 
+  /** Admin rows also name the hotel-directory entry filled from a listing. */
+  private readonly ADMIN_INCLUDE = {
+    ...this.DEFAULT_INCLUDE,
+    hotel: { select: { id: true, createdById: true } },
+  };
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly fileUpload: FileUploadService,
+    private readonly access: AccessService,
   ) {}
 
+  /**
+   * A listing's directory entry as the caller may see it: that there is one,
+   * and its id only for someone allowed to open that entry (HOTELS scope).
+   */
+  private directoryEntry(
+    user: AuthUser | undefined,
+    hotel: DirectoryEntryRef | null | undefined,
+  ) {
+    if (!hotel) return null;
+    const canOpen =
+      !!user &&
+      this.access.canAccessRecord(
+        user,
+        PermissionModule.HOTELS,
+        'view',
+        hotel.createdById,
+      );
+    return { id: canOpen ? hotel.id : null };
+  }
+
   async create(dto: CreateAccommodationDto) {
+    const { roomTypes, customRoomTypes } = mergeListingRoomTypes(
+      dto.roomTypes ?? [],
+      dto.localizations.map((loc) => loc.customRoomTypes),
+    );
     const mainImageFile = await this.uploadMainImage(dto.mainImage);
     const galleryFiles = await this.uploadGalleryImages(dto.gallery);
 
@@ -39,14 +82,16 @@ export class AccommodationsService {
           bedrooms: dto.bedrooms ?? 1,
           bathrooms: dto.bathrooms ?? 1,
           amenities: dto.amenities ?? [],
+          roomTypes,
           isPublic: dto.isPublic ?? false,
           mainImage: mainImageFile.url,
           localizations: {
-            create: dto.localizations.map((loc) => ({
+            create: dto.localizations.map((loc, index) => ({
               locale: loc.locale,
               name: loc.name,
               description: loc.description,
               address: loc.address || '',
+              customRoomTypes: customRoomTypes[index],
             })),
           },
           images: galleryFiles.length
@@ -69,6 +114,7 @@ export class AccommodationsService {
   async findAll(
     query: GetAccommodationsQueryDto,
     publicOnly = false,
+    user?: AuthUser,
   ): Promise<{
     data: any[];
     meta: { total: number; page: number; limit: number; totalPages: number };
@@ -83,6 +129,8 @@ export class AccommodationsService {
       isPublic,
       minPrice,
       maxPrice,
+      roomType,
+      inDirectory,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = query;
@@ -95,6 +143,11 @@ export class AccommodationsService {
       isPublic,
       minPrice,
       maxPrice,
+      roomType,
+      roomTypeSpellings: roomType
+        ? await this.findRoomTypeSpellings(roomType)
+        : undefined,
+      inDirectory,
       publicOnly,
     });
     const orderBy = this.buildOrderBy(sortBy, sortOrder);
@@ -105,7 +158,8 @@ export class AccommodationsService {
         skip,
         take: limit,
         orderBy,
-        include: this.DEFAULT_INCLUDE,
+        // The public list is unauthenticated: no back-office data there
+        include: publicOnly ? this.DEFAULT_INCLUDE : this.ADMIN_INCLUDE,
       }),
       this.prisma.accommodation.count({ where }),
     ]);
@@ -113,7 +167,18 @@ export class AccommodationsService {
     // Pick the requested locale with fallback so an item is never hidden
     // just because a translation is missing
     const processed = items.map((item) =>
-      this.applyLocaleWithFallback(item, locale),
+      this.applyLocaleWithFallback(
+        publicOnly
+          ? item
+          : {
+              ...item,
+              hotel: this.directoryEntry(
+                user,
+                (item as { hotel?: DirectoryEntryRef | null }).hotel,
+              ),
+            },
+        locale,
+      ),
     );
 
     return {
@@ -138,12 +203,27 @@ export class AccommodationsService {
   async update(id: string, dto: UpdateAccommodationDto) {
     const existing = await this.prisma.accommodation.findUnique({
       where: { id },
-      include: { images: true },
+      include: {
+        images: true,
+        localizations: { select: { locale: true, customRoomTypes: true } },
+      },
     });
 
     if (!existing) {
       throw new NotFoundException('Accommodation not found');
     }
+
+    // A language sent without its custom room types keeps the stored ones
+    const { roomTypes, customRoomTypes } = mergeListingRoomTypes(
+      dto.roomTypes,
+      (dto.localizations ?? []).map(
+        (loc) =>
+          loc.customRoomTypes ??
+          existing.localizations.find((stored) => stored.locale === loc.locale)
+            ?.customRoomTypes,
+      ),
+      existing.roomTypes,
+    );
 
     const updateData: Prisma.AccommodationUpdateInput = {
       type: dto.type,
@@ -153,17 +233,19 @@ export class AccommodationsService {
       bedrooms: dto.bedrooms,
       bathrooms: dto.bathrooms,
       amenities: dto.amenities,
+      roomTypes,
       isPublic: dto.isPublic,
     };
 
     if (dto.localizations) {
       updateData.localizations = {
         deleteMany: {},
-        create: dto.localizations.map((loc) => ({
+        create: dto.localizations.map((loc, index) => ({
           locale: loc.locale,
           name: loc.name,
           description: loc.description,
           address: loc.address || '',
+          customRoomTypes: customRoomTypes[index],
         })),
       };
     }
@@ -258,10 +340,24 @@ export class AccommodationsService {
     isPublic?: boolean;
     minPrice?: number;
     maxPrice?: number;
+    roomType?: string;
+    /** Stored spellings of a custom room type (see customRoomTypeSpellings). */
+    roomTypeSpellings?: string[];
+    inDirectory?: boolean;
     publicOnly: boolean;
   }): Prisma.AccommodationWhereInput {
-    const { type, search, city, isPublic, minPrice, maxPrice, publicOnly } =
-      params;
+    const {
+      type,
+      search,
+      city,
+      isPublic,
+      minPrice,
+      maxPrice,
+      roomType,
+      roomTypeSpellings,
+      inDirectory,
+      publicOnly,
+    } = params;
     const where: Prisma.AccommodationWhereInput = {};
 
     if (publicOnly) {
@@ -300,6 +396,16 @@ export class AccommodationsService {
       };
     }
 
+    // Under AND, so a custom name (also on localizations) keeps the search
+    if (roomType) {
+      where.AND = [listingRoomTypeWhere(roomType, roomTypeSpellings)];
+    }
+
+    // Admin list only: listings that fill a hotel-directory entry (or not)
+    if (!publicOnly && inDirectory !== undefined) {
+      where.hotel = inDirectory ? { isNot: null } : { is: null };
+    }
+
     return where;
   }
 
@@ -317,17 +423,88 @@ export class AccommodationsService {
     return { [field]: order };
   }
 
-  /** Distinct cities for the admin filter dropdown. */
+  /** Distinct cities and custom room types for the admin filter dropdowns. */
   async getFilterOptions(publicOnly = false) {
-    const rows = await this.prisma.accommodation.findMany({
-      where: publicOnly ? { isPublic: true } : {},
-      select: { city: true },
-      distinct: ['city'],
-      orderBy: { city: 'asc' },
-    });
+    const [rows, localizations] = await Promise.all([
+      this.prisma.accommodation.findMany({
+        where: publicOnly ? { isPublic: true } : {},
+        select: { city: true },
+        distinct: ['city'],
+        orderBy: { city: 'asc' },
+      }),
+      this.prisma.accommodationLocalization.findMany({
+        where: {
+          customRoomTypes: { isEmpty: false },
+          ...(publicOnly && { accommodation: { isPublic: true } }),
+        },
+        // Oldest listing first, so the spelling shown for a name stays the
+        // same (localization rows are recreated on every save)
+        orderBy: [
+          { accommodation: { createdAt: 'asc' } },
+          { accommodationId: 'asc' },
+          { locale: 'asc' },
+        ],
+        select: { customRoomTypes: true },
+      }),
+    ]);
     return {
       cities: rows.map((r) => r.city).filter((city) => !!city?.trim()),
+      customRoomTypes: collectCustomRoomTypes(
+        localizations.map((loc) => loc.customRoomTypes),
+      ),
     };
+  }
+
+  /**
+   * Every stored spelling of a custom room type ("Sea view", "sea view"…),
+   * as the filter list shows them as one. Nothing to look up for a code.
+   */
+  private async findRoomTypeSpellings(roomType: string) {
+    if (toRoomType(roomType)) return undefined;
+    const localizations = await this.prisma.accommodationLocalization.findMany({
+      where: { customRoomTypes: { isEmpty: false } },
+      select: { customRoomTypes: true },
+    });
+    return customRoomTypeSpellings(
+      roomType,
+      localizations.map((loc) => loc.customRoomTypes),
+    );
+  }
+
+  /**
+   * Every listing, published or hidden, for the hotel directory's picker,
+   * with the id of the directory entry already filled from it.
+   */
+  async getListingOptions(user: AuthUser) {
+    const rows = await this.prisma.accommodation.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 500,
+      select: {
+        id: true,
+        type: true,
+        city: true,
+        price: true,
+        mainImage: true,
+        isPublic: true,
+        roomTypes: true,
+        localizations: {
+          select: {
+            locale: true,
+            name: true,
+            address: true,
+            customRoomTypes: true,
+          },
+        },
+        hotel: { select: { id: true, createdById: true } },
+      },
+    });
+    return rows.map(({ price, hotel, ...row }) => ({
+      ...row,
+      price: Number(price),
+      // Taken by a directory entry; which one only for those who may open it
+      linked: !!hotel,
+      hotelId: this.directoryEntry(user, hotel)?.id ?? null,
+    }));
   }
 
   /**

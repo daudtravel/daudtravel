@@ -40,5 +40,22 @@
     "elevator": "ლიფტი",
     "petsAllowed": "ცხოველების დაშვება",
     "gym": "სავარჯიშო დარბაზი"
+  },
+  "roomTypes": "ოთახის ტიპები",
+  "roomType": "ოთახის ტიპი",
+  "anyRoomType": "ოთახის ნებისმიერი ტიპი",
+  "inquiryRoomType": "ოთახის ტიპი: {roomType}",
+  "roomTypeLabels": {
+    "STANDARD_DOUBLE": "სტანდარტული ოთახი ორადგილიანი საწოლით",
+    "STANDARD_TWIN": "სტანდარტული ოთახი ორი ცალკე საწოლით",
+    "TRIPLE": "სამადგილიანი ოთახი",
+    "FAMILY": "საოჯახო ოთახი",
+    "CONNECTING": "დაკავშირებული ოთახები",
+    "SUPERIOR_DOUBLE": "სუპერიორ ოთახი ორადგილიანი საწოლით",
+    "SUPERIOR_TRIPLE": "სუპერიორ სამადგილიანი ოთახი",
+    "JUNIOR_SUITE": "ჯუნიორ სუიტი",
+    "EXECUTIVE_SUITE": "ექზეკუტივ სუიტი",
+    "SUITE": "სუიტი",
+    "DELUXE": "დელუქს ოთახი"
   }
 }

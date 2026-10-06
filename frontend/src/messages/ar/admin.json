@@ -738,8 +738,19 @@
       "minOneTranslation": "مطلوب ترجمة كاملة واحدة على الأقل (الاسم والوصف)",
       "cityRequired": "المدينة مطلوبة",
       "pricePositive": "يجب أن يكون السعر قيمة موجبة",
-      "minOneGuest": "ضيف واحد على الأقل"
-    }
+      "minOneGuest": "ضيف واحد على الأقل",
+      "customRoomTypesNeedTranslation": "املأ الاسم والوصف بهذه اللغة، أو احذف الأنواع المخصّصة المكتوبة بها."
+    },
+    "roomTypesHint": "اختر جميع أنواع الغرف التي يمكن حجزها هنا. سيراها الزوار بلغتهم.",
+    "customRoomTypes": "أنواع غرف مخصّصة",
+    "customRoomTypesHint": "أنواع غرف غير موجودة في القائمة. اكتبها بكل لغة تريد أن يراها الزوار بها.",
+    "customRoomTypesUnfilled": "املأ الاسم والوصف بهذه اللغة أولاً.",
+    "inDirectory": "في دليل الفنادق",
+    "notInDirectory": "ليس في دليل الفنادق",
+    "directory": "دليل الفنادق",
+    "addToDirectory": "إضافة إلى دليل الفنادق",
+    "openInDirectory": "فتح في دليل الفنادق",
+    "deleteLinkedNote": "سيبقى سجلّه في دليل الفنادق، لكنه لن يبقى مرتبطاً بهذا الإعلان."
   },
   "editor": {
     "link": "رابط",
@@ -894,7 +905,11 @@
     "replacePhoto": "استبدال الصورة",
     "removePhoto": "حذف الصورة",
     "imageOnly": "الرجاء اختيار ملف صورة",
-    "imageTooLarge": "الملف كبير جدًا (الحد الأقصى {max} ميغابايت)"
+    "imageTooLarge": "الملف كبير جدًا (الحد الأقصى {max} ميغابايت)",
+    "customRoomTypePlaceholder": "اكتب نوع الغرفة واضغط Enter",
+    "roomTypeMatched": "«{name}» موجود في القائمة بالفعل، لذا تم تحديده.",
+    "roomTypeDuplicate": "«{name}» مضاف بالفعل.",
+    "roomTypesLimit": "{max, plural, zero {لا يمكن إضافة أنواع مخصّصة} one {نوع مخصّص واحد كحدّ أقصى} two {نوعان مخصّصان كحدّ أقصى} few {# أنواع مخصّصة كحدّ أقصى} many {# نوعًا مخصّصًا كحدّ أقصى} other {# نوع مخصّص كحدّ أقصى}}"
   },
   "errors": {
     "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
@@ -934,7 +949,9 @@
     "PHOTO_NOT_FOUND": "الصورة غير موجودة.",
     "CATEGORY_TYPE_MISMATCH": "هذه الفئة تخص الجانب الآخر من السجل.",
     "BOOKING_NOT_FOUND": "الحجز غير موجود.",
-    "RANGE_TOO_LONG": "الفترة طويلة جدًا (62 يومًا كحد أقصى)."
+    "RANGE_TOO_LONG": "الفترة طويلة جدًا (62 يومًا كحد أقصى).",
+    "ACCOMMODATION_NOT_FOUND": "إعلان الموقع غير موجود.",
+    "ACCOMMODATION_ALREADY_LINKED": "هذا الإعلان مرتبط بالفعل بفندق آخر."
   },
   "users": {
     "title": "المستخدمون",
@@ -1244,7 +1261,32 @@
     "moveUp": "تحريك لأعلى",
     "moveDown": "تحريك لأسفل",
     "detailSubtitle": "جهات الاتصال والأسعار والشروط",
-    "details": "التفاصيل"
+    "details": "التفاصيل",
+    "listing": "إعلان الموقع",
+    "listingHint": "اختر الفندق من «الموقع الإلكتروني ← الفنادق والشقق» لملء بياناته.",
+    "listingPick": "اختر إعلاناً",
+    "listingSearch": "ابحث بالاسم أو المدينة",
+    "listingEmpty": "لا توجد إعلانات مطابقة لبحثك",
+    "listingNoneYet": "لا توجد إعلانات على الموقع بعد",
+    "listingTaken": "موجود في الدليل بالفعل",
+    "listingFilled": "تم ملء البيانات من إعلان الموقع",
+    "listingCopy": "نسخ البيانات من الإعلان",
+    "listingCopied": "تم نسخ البيانات من الإعلان",
+    "listingChange": "تغيير",
+    "listingUnlink": "إلغاء الربط",
+    "listingEdit": "تعديل الإعلان",
+    "listingView": "عرض على الموقع",
+    "listingNotLinked": "غير مرتبط بإعلان على الموقع",
+    "listingLink": "ربط بإعلان",
+    "listingHiddenBadge": "الإعلان مخفي",
+    "listingLinked": "مرتبط",
+    "listingUnlinked": "غير مرتبط",
+    "listingLoadFailed": "تعذّر تحميل إعلانات الموقع",
+    "listingAlreadyInDirectory": "هذا الإعلان موجود بالفعل في دليل الفنادق",
+    "roomTypesHint": "تُعرض عند إضافة هذا الفندق إلى حجز",
+    "customRoomTypes": "أنواع غرف أخرى",
+    "customRoomTypesHint": "أنواع غير موجودة في القائمة، اكتبها بالأسماء التي يستخدمها الفندق",
+    "noRoomTypes": "لا توجد أنواع غرف بعد"
   },
   "bookings": {
     "subtitle": "الحجوزات مع التكاليف والعمولات والأرباح",
@@ -1361,7 +1403,13 @@
     "fxRate": "سعر الصرف",
     "countLabel": "{count, plural, zero {# حجز} one {حجز واحد} two {حجزان} few {# حجوزات} many {# حجزًا} other {# حجز}}",
     "printVoucher": "طباعة القسيمة",
-    "printInternal": "طباعة داخلية"
+    "printInternal": "طباعة داخلية",
+    "roomType": "نوع الغرفة",
+    "roomTypeNone": "غير محدد",
+    "roomTypeAtHotel": "في هذا الفندق",
+    "roomTypeOther": "أنواع أخرى",
+    "roomTypeCustom": "غير ذلك…",
+    "roomTypeCustomPlaceholder": "اكتب نوع الغرفة"
   },
   "transactions": {
     "subtitle": "ما يكسبه المكتب وما ينفقه",

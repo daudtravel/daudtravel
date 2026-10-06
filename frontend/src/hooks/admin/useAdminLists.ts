@@ -30,6 +30,12 @@ export const adminKeys = {
   transfers: ["admin", "website", "transfers"] as const,
   accommodations: ["admin", "website", "accommodations"] as const,
   accommodationOptions: ["admin", "website", "accommodations", "options"] as const,
+  listingOptions: [
+    "admin",
+    "website",
+    "accommodations",
+    "listing-options",
+  ] as const,
   faqs: ["admin", "website", "faqs"] as const,
   videos: ["admin", "website", "videos"] as const,
   video: (id: string) => ["admin", "website", "videos", id] as const,
@@ -69,6 +75,16 @@ export const useAccommodationFilterOptions = () =>
     queryKey: adminKeys.accommodationOptions,
     queryFn: adminAccommodationsApi.filterOptions,
     staleTime: 5 * 60 * 1000,
+    retry: adminRetry,
+  });
+
+/** Website listings for the hotel directory's picker (needs HOTELS create/edit or WEBSITE view). */
+export const useListingOptions = (enabled = true) =>
+  useQuery({
+    queryKey: adminKeys.listingOptions,
+    queryFn: adminAccommodationsApi.listingOptions,
+    staleTime: 60 * 1000,
+    enabled,
     retry: adminRetry,
   });
 
@@ -155,6 +171,8 @@ export const useDeleteAccommodationRow = () =>
   useListMutation(adminKeys.accommodations, adminAccommodationsApi.remove, [
     ["admin-accommodations"],
     ["accommodations"],
+    // A linked hotel-directory entry loses its listing
+    ["admin", "hotels"],
   ]);
 
 export const useDeleteFaq = () =>

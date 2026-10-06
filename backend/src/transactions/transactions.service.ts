@@ -25,6 +25,7 @@ import {
   parseDateRange,
 } from '@/common/utils/date-only.util';
 import { money } from '@/bookings/booking-totals';
+import { MODULE_BY_TYPE as BOOKING_MODULE } from '@/bookings/bookings.service';
 import {
   CreateTransactionDto,
   EXPENSE_CATEGORIES,
@@ -60,7 +61,10 @@ const TRANSACTION_SELECT = {
   vehicle: { select: { id: true, brand: true, model: true, year: true } },
   driver: { select: { id: true, firstName: true, lastName: true } },
   hotel: { select: { id: true, name: true, city: true } },
-  booking: { select: { id: true, number: true, touristName: true } },
+  // Type and owner only decide whether the caller may see it (see format)
+  booking: {
+    select: { id: true, number: true, type: true, createdById: true },
+  },
   employee: { select: { id: true, firstName: true, lastName: true } },
   partner: { select: { id: true, name: true } },
   createdBy: { select: { id: true, firstName: true, lastName: true } },
@@ -78,9 +82,21 @@ export class TransactionsService {
     private readonly currency: CurrencyService,
   ) {}
 
-  private format(row: TransactionRow) {
+  private format(user: AuthUser, row: TransactionRow) {
+    const { booking, ...rest } = row;
     return {
-      ...row,
+      ...rest,
+      // The booking reference only for those who may open that booking
+      booking:
+        booking &&
+        this.access.canAccessRecord(
+          user,
+          BOOKING_MODULE[booking.type],
+          'view',
+          booking.createdById,
+        )
+          ? { id: booking.id, number: booking.number }
+          : null,
       date: formatDateOnly(row.date),
       amount: Number(row.amount),
       fxRate: Number(row.fxRate),
@@ -132,14 +148,6 @@ export class TransactionsService {
           'TOUR_NOT_FOUND',
         ],
         [
-          dto.bookingId,
-          () =>
-            this.prisma.booking.count({
-              where: { id: dto.bookingId as string },
-            }),
-          'BOOKING_NOT_FOUND',
-        ],
-        [
           dto.employeeId,
           () =>
             this.prisma.user.count({ where: { id: dto.employeeId as string } }),
@@ -161,11 +169,33 @@ export class TransactionsService {
     }
   }
 
+  /**
+   * A booking this user may tie an entry to: one they can open. Anyone else's
+   * answers like a missing one, so the reply doesn't reveal that it exists.
+   */
+  private async assertBookingLinkable(user: AuthUser, bookingId: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { type: true, createdById: true },
+    });
+    const allowed =
+      !!booking &&
+      this.access.canAccessRecord(
+        user,
+        BOOKING_MODULE[booking.type],
+        'view',
+        booking.createdById,
+      );
+    if (!allowed) throw new BadRequestException('BOOKING_NOT_FOUND');
+  }
+
   private buildWhere(
     user: AuthUser,
     query: ListTransactionsQueryDto,
   ): Prisma.TransactionWhereInput {
-    const scope = this.access.scopeWhere(user, MODULE, 'view') ?? {};
+    const scope =
+      this.access.scopeWhereForOwner(user, MODULE, 'view', query.createdById) ??
+      {};
     const dateRange = parseDateRange(query.dateFrom, query.dateTo);
 
     return {
@@ -181,7 +211,6 @@ export class TransactionsService {
       ...(query.bookingId && { bookingId: query.bookingId }),
       ...(query.employeeId && { employeeId: query.employeeId }),
       ...(query.partnerId && { partnerId: query.partnerId }),
-      ...(query.createdById && { createdById: query.createdById }),
       ...(query.paymentMethod && {
         paymentMethod: { contains: query.paymentMethod, mode: 'insensitive' },
       }),
@@ -224,7 +253,7 @@ export class TransactionsService {
     ]);
 
     return {
-      data: rows.map((row) => this.format(row)),
+      data: rows.map((row) => this.format(user, row)),
       meta: buildMeta(total, page, limit),
     };
   }
@@ -297,12 +326,13 @@ export class TransactionsService {
     });
     if (!row) throw new NotFoundException('NOT_FOUND');
     this.access.assertRecordAccess(user, MODULE, 'view', row.createdById);
-    return this.format(row);
+    return this.format(user, row);
   }
 
   async create(user: AuthUser, dto: CreateTransactionDto) {
     this.assertCategoryMatchesType(dto.type, dto.category);
     await this.assertReferencesExist(dto);
+    if (dto.bookingId) await this.assertBookingLinkable(user, dto.bookingId);
 
     const date = parseDateOnly(dto.date, 'date');
     const currency = dto.currency ?? Currency.GEL;
@@ -336,7 +366,7 @@ export class TransactionsService {
       select: TRANSACTION_SELECT,
     });
 
-    return this.format(row);
+    return this.format(user, row);
   }
 
   async update(user: AuthUser, id: string, dto: UpdateTransactionDto) {
@@ -348,6 +378,7 @@ export class TransactionsService {
         category: true,
         date: true,
         currency: true,
+        bookingId: true,
         createdById: true,
       },
     });
@@ -358,6 +389,11 @@ export class TransactionsService {
     const category = dto.category ?? existing.category;
     this.assertCategoryMatchesType(type, category);
     await this.assertReferencesExist(dto);
+    // Only a new link is checked: the form sends the current booking back on
+    // every save, even to someone who can't open it
+    if (dto.bookingId && dto.bookingId !== existing.bookingId) {
+      await this.assertBookingLinkable(user, dto.bookingId);
+    }
 
     const date = dto.date ? parseDateOnly(dto.date, 'date') : existing.date;
     const currency = dto.currency ?? existing.currency;
@@ -397,7 +433,7 @@ export class TransactionsService {
       select: TRANSACTION_SELECT,
     });
 
-    return this.format(row);
+    return this.format(user, row);
   }
 
   async remove(user: AuthUser, id: string) {

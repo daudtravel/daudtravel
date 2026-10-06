@@ -28,6 +28,9 @@ export const adminPaths = {
   vehicles: "/admin/vehicles",
   hotels: "/admin/hotels",
   hotel: (id: string) => `/admin/hotels/${encodeURIComponent(id)}`,
+  /** New hotel-directory entry filled from a website listing. */
+  hotelFromListing: (accommodationId: string) =>
+    `/admin/hotels?fromListing=${encodeURIComponent(accommodationId)}`,
   transactions: "/admin/transactions",
   /** New transaction with its links prefilled (from a driver, hotel, booking…). */
   transactionNew: (params: Record<string, string> = {}) => {
