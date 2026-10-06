@@ -153,7 +153,9 @@ export class HotelsService {
   }
 
   async findAll(user: AuthUser, query: ListHotelsQueryDto) {
-    const scope = this.access.scopeWhere(user, MODULE, 'view') ?? {};
+    const scope =
+      this.access.scopeWhereForOwner(user, MODULE, 'view', query.createdById) ??
+      {};
     const { page, limit, skip } = resolvePagination(query.page, query.limit);
     const { field, order } = resolveSort(
       query.sortBy,
@@ -173,7 +175,6 @@ export class HotelsService {
       ...(query.category && { category: query.category }),
       ...(query.stars !== undefined && { stars: query.stars }),
       ...(query.isActive !== undefined && { isActive: query.isActive }),
-      ...(query.createdById && { createdById: query.createdById }),
       ...roomTypeWhere,
       ...(query.hasListing !== undefined && {
         accommodationId: query.hasListing ? { not: null } : null,

@@ -44,18 +44,24 @@ export class QuickPaymentController {
   }
 
   @Get('links/:slug')
-  @ApiOperation({
-    summary: 'Get payment link details (Public or Authenticated)',
-  })
+  @ApiOperation({ summary: 'Get payment link details (Public)' })
   @ApiQuery({ name: 'locale', required: false, example: 'ka' })
   async getLink(
     @Param('slug') slug: string,
     @Query('locale') locale?: string,
-    @Headers('authorization') authHeader?: string,
   ) {
-    // Check if request is authenticated (has Bearer token)
-    const isAuthenticated = !!(authHeader && authHeader.startsWith('Bearer '));
-    return this.service.getQuickLink(slug, locale, isAuthenticated);
+    // Inactive links stay hidden here whatever headers are sent
+    return this.service.getQuickLink(slug, locale, false);
+  }
+
+  @Get('links/:slug/admin')
+  @UseGuards(AuthGuard)
+  @RequirePermission(PermissionModule.WEBSITE, 'view')
+  @ApiOperation({
+    summary: 'Get payment link with all translations, even inactive (Admin)',
+  })
+  async getLinkForAdmin(@Param('slug') slug: string) {
+    return this.service.getQuickLink(slug, undefined, true);
   }
 
   @Post('links/:slug/pay')

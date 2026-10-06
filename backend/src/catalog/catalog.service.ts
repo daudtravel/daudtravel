@@ -113,7 +113,9 @@ export class CatalogService {
     query: ListCatalogQueryDto,
     displayCurrency?: Currency,
   ) {
-    const scope = this.access.scopeWhere(user, MODULE, 'view') ?? {};
+    const scope =
+      this.access.scopeWhereForOwner(user, MODULE, 'view', query.createdById) ??
+      {};
     const { page, limit, skip } = resolvePagination(query.page, query.limit);
     const { field, order } = resolveSort(
       query.sortBy,
@@ -136,7 +138,6 @@ export class CatalogService {
       ...(query.currency && { currency: query.currency }),
       ...(query.city && { city: query.city }),
       ...(query.isActive !== undefined && { isActive: query.isActive }),
-      ...(query.createdById && { createdById: query.createdById }),
       ...((query.minPrice !== undefined || query.maxPrice !== undefined) && {
         price: {
           ...(query.minPrice !== undefined && { gte: query.minPrice }),

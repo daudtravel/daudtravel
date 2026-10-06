@@ -41,7 +41,7 @@ import {
 } from './dto/bookings.dto';
 
 /** Which permission module covers which kind of booking. */
-const MODULE_BY_TYPE: Record<BookingType, PermissionModule> = {
+export const MODULE_BY_TYPE: Record<BookingType, PermissionModule> = {
   [BookingType.HOTEL]: PermissionModule.BOOKINGS_HOTEL,
   [BookingType.TOUR]: PermissionModule.BOOKINGS_TOUR,
   [BookingType.TRANSFER]: PermissionModule.BOOKINGS_TOUR,

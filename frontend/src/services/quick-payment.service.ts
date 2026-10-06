@@ -52,11 +52,13 @@ export const quickPaymentService = {
   // ============ AUTHENTICATED METHODS ============
 
   /**
-   * Get single link details for authenticated users (includes all localizations)
-   * Backend automatically detects authentication via token and returns all localizations
+   * Get single link details for the admin (all localizations, also when the
+   * link is inactive). Needs the website permission.
    */
   getAuthenticatedLink: async (slug: string) => {
-    const response = await axiosInstance.get(`/quick-payment/links/${slug}`);
+    const response = await axiosInstance.get(
+      `/quick-payment/links/${slug}/admin`
+    );
     return response.data;
   },
 

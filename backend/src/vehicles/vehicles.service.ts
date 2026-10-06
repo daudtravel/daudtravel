@@ -51,16 +51,27 @@ export class VehiclesService {
     private readonly access: AccessService,
   ) {}
 
-  private async assertDriverExists(driverId: string) {
+  /**
+   * A driver this user may put on a vehicle: the ones the vehicle form's
+   * picker offers (see DriversService.options). Anyone else's driver answers
+   * like a missing one, so its existence and phone stay private.
+   */
+  private async assertDriverLinkable(user: AuthUser, driverId: string) {
     const driver = await this.prisma.driver.findUnique({
       where: { id: driverId },
-      select: { id: true },
+      select: { createdById: true },
     });
-    if (!driver) throw new BadRequestException('DRIVER_NOT_FOUND');
+    const allowed =
+      !!driver &&
+      (this.access.can(user, PermissionModule.ONLINE_ORDERS, 'edit') ||
+        this.access.canAccessRecord(user, MODULE, 'view', driver.createdById));
+    if (!allowed) throw new BadRequestException('DRIVER_NOT_FOUND');
   }
 
   async findAll(user: AuthUser, query: ListVehiclesQueryDto) {
-    const scope = this.access.scopeWhere(user, MODULE, 'view') ?? {};
+    const scope =
+      this.access.scopeWhereForOwner(user, MODULE, 'view', query.createdById) ??
+      {};
     const { page, limit, skip } = resolvePagination(query.page, query.limit);
     const { field, order } = resolveSort(
       query.sortBy,
@@ -81,7 +92,6 @@ export class VehiclesService {
         brand: { contains: query.brand, mode: 'insensitive' },
       }),
       ...(query.isActive !== undefined && { isActive: query.isActive }),
-      ...(query.createdById && { createdById: query.createdById }),
       ...((query.minYear !== undefined || query.maxYear !== undefined) && {
         year: {
           ...(query.minYear !== undefined && { gte: query.minYear }),
@@ -176,7 +186,7 @@ export class VehiclesService {
   }
 
   async create(user: AuthUser, dto: CreateVehicleDto) {
-    if (dto.driverId) await this.assertDriverExists(dto.driverId);
+    if (dto.driverId) await this.assertDriverLinkable(user, dto.driverId);
 
     return this.prisma.vehicle.create({
       data: {
@@ -205,12 +215,16 @@ export class VehiclesService {
   async update(user: AuthUser, id: string, dto: UpdateVehicleDto) {
     const existing = await this.prisma.vehicle.findUnique({
       where: { id },
-      select: { id: true, createdById: true },
+      select: { id: true, createdById: true, driverId: true },
     });
     if (!existing) throw new NotFoundException('NOT_FOUND');
     this.access.assertRecordAccess(user, MODULE, 'edit', existing.createdById);
 
-    if (dto.driverId) await this.assertDriverExists(dto.driverId);
+    // Only a new link is checked: the form sends the current driver back on
+    // every save, and it may have been assigned by someone who sees them all
+    if (dto.driverId && dto.driverId !== existing.driverId) {
+      await this.assertDriverLinkable(user, dto.driverId);
+    }
 
     return this.prisma.vehicle.update({
       where: { id },
