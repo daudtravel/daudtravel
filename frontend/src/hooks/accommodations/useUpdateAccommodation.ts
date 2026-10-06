@@ -24,6 +24,11 @@ export const useUpdateAccommodation = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.ACCOMMODATION_DETAIL],
       });
+      // The admin list, the listing picker, and hotels showing this listing
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "website", "accommodations"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin", "hotels"] });
     },
   });
 };

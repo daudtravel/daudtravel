@@ -252,7 +252,15 @@ export default function BookingFormView({ id }: { id?: string }) {
       items.length === 0 ||
       items.every(
         (item) =>
-          !item.title.trim() && !item.salePrice && !item.costPrice && !item.id
+          !item.title.trim() &&
+          !item.salePrice &&
+          !item.costPrice &&
+          !item.id &&
+          !item.hotelId &&
+          !item.roomType &&
+          !item.roomNumber &&
+          !item.checkIn &&
+          !item.checkOut
       );
     if (untouched) {
       setItems(presetItems(next));

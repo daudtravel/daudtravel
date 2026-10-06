@@ -16,15 +16,25 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Currency, HotelCategory, HotelContactType } from '@prisma/client';
+import {
+  Currency,
+  HotelCategory,
+  HotelContactType,
+  RoomType,
+} from '@prisma/client';
 import { PaginationQueryDto } from '@/common/dto/pagination.dto';
 import {
   toNullableNumber,
   toOptionalBoolean,
+  toStringArrayAllowEmpty,
   trimString,
   trimToNull,
   trimToUndefined,
 } from '@/common/dto/transforms';
+import {
+  CUSTOM_ROOM_TYPE_MAX_LENGTH,
+  CUSTOM_ROOM_TYPES_MAX,
+} from '@/common/utils/room-types.util';
 
 export const HOTEL_SORT_FIELDS = [
   'createdAt',
@@ -95,6 +105,23 @@ export class ListHotelsQueryDto extends PaginationQueryDto {
   @Transform(trimToUndefined)
   @IsString()
   createdById?: string;
+
+  @ApiPropertyOptional({
+    description: 'A room type code (FAMILY…) or the name of a custom one',
+  })
+  @IsOptional()
+  @Transform(trimToUndefined)
+  @IsString()
+  @MaxLength(CUSTOM_ROOM_TYPE_MAX_LENGTH)
+  roomType?: string;
+
+  @ApiPropertyOptional({
+    description: 'Only entries linked to a website listing (or only unlinked)',
+  })
+  @IsOptional()
+  @Transform(toOptionalBoolean)
+  @IsBoolean()
+  hasListing?: boolean;
 }
 
 export class HotelContactDto {
@@ -228,6 +255,36 @@ export class CreateHotelDto {
   @ValidateNested({ each: true })
   @Type(() => HotelContactDto)
   contacts?: HotelContactDto[];
+
+  @ApiPropertyOptional({ enum: RoomType, isArray: true })
+  @IsOptional()
+  @Transform(toStringArrayAllowEmpty)
+  @IsArray()
+  @ArrayMaxSize(50)
+  @IsEnum(RoomType, { each: true })
+  roomTypes?: RoomType[];
+
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Room types typed by hand (not in the predefined list)',
+  })
+  @IsOptional()
+  @Transform(toStringArrayAllowEmpty)
+  @IsArray()
+  @ArrayMaxSize(CUSTOM_ROOM_TYPES_MAX)
+  @IsString({ each: true })
+  @MaxLength(CUSTOM_ROOM_TYPE_MAX_LENGTH, { each: true })
+  customRoomTypes?: string[];
+
+  @ApiPropertyOptional({
+    nullable: true,
+    description: 'Website listing this entry is filled from; null unlinks it',
+  })
+  @IsOptional()
+  @Transform(trimToNull)
+  @IsString()
+  @MaxLength(60)
+  accommodationId?: string | null;
 
   @ApiPropertyOptional({
     description: 'Owner; only users with access to all records may set it',

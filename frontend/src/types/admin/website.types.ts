@@ -1,5 +1,7 @@
 /** Row shapes of the website-content admin lists. */
 
+import type { RoomType } from "@/src/constants/roomTypes";
+
 export interface Localization {
   locale: string;
   [key: string]: unknown;
@@ -62,6 +64,7 @@ export interface AdminAccommodationRow {
   bedrooms: number;
   bathrooms: number;
   amenities: string[];
+  roomTypes?: RoomType[];
   mainImage: string;
   isPublic: boolean;
   createdAt: string;
@@ -70,7 +73,38 @@ export interface AdminAccommodationRow {
     name: string;
     description: string;
     address: string;
+    customRoomTypes?: string[];
   }[];
+  /**
+   * The hotel-directory entry filled from this listing, if any; its id is
+   * null when the user may not open that entry.
+   */
+  hotel?: { id: string | null } | null;
+}
+
+/**
+ * A website listing as offered by the hotel form's picker
+ * (GET /accommodations/options — published and hidden ones alike).
+ */
+export interface ListingOption {
+  id: string;
+  type: "HOTEL" | "APARTMENT";
+  city: string;
+  /** GEL per night. */
+  price: number;
+  mainImage: string;
+  isPublic: boolean;
+  roomTypes: RoomType[];
+  localizations: {
+    locale: string;
+    name: string;
+    address: string;
+    customRoomTypes: string[];
+  }[];
+  /** Whether a directory entry is already filled from this listing. */
+  linked: boolean;
+  /** That entry, when the user may open it (null otherwise). */
+  hotelId: string | null;
 }
 
 export interface AdminFaqRow {

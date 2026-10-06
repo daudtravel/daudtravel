@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { ExternalLink, MapPin, Pencil, Star, Wallet } from "lucide-react";
+import {
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Link2,
+  MapPin,
+  Pencil,
+  Star,
+  Wallet,
+} from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -10,10 +19,18 @@ import { Link, useRouter } from "@/src/i18n/routing";
 import PageHeader from "@/src/components/admin/common/PageHeader";
 import PrintButton from "@/src/components/admin/common/PrintButton";
 import Panel from "@/src/components/admin/common/Panel";
+import Thumb from "@/src/components/admin/common/Thumb";
+import RoomTypeBadges from "@/src/components/admin/common/RoomTypeBadges";
 import { useHotel } from "@/src/hooks/admin/useHotels";
 import { usePermissions } from "@/src/components/admin/access/usePermissions";
-import { formatDate, formatNumber, fullName } from "@/src/utlis/admin/format";
+import {
+  formatDate,
+  formatMoney,
+  formatNumber,
+  fullName,
+} from "@/src/utlis/admin/format";
 import { adminPaths } from "@/src/utlis/admin/paths";
+import { pickLocalization } from "@/src/types/admin/website.types";
 import HotelFormDialog from "./HotelFormDialog";
 import { ContactLinks } from "./HotelsListView";
 
@@ -36,10 +53,13 @@ function Field({
 
 export default function HotelDetailView({ id }: { id: string }) {
   const t = useTranslations("admin");
+  const tAcc = useTranslations("accommodations");
   const locale = useLocale();
   const { can } = usePermissions();
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
+  /** The dialog was opened by "Link a listing". */
+  const [linkingListing, setLinkingListing] = useState(false);
 
   const { data: hotel, isLoading, isError } = useHotel(id);
 
@@ -69,6 +89,9 @@ export default function HotelDetailView({ id }: { id: string }) {
     );
   }
 
+  const listing = hotel.accommodation;
+  const canEditListing = can("WEBSITE", "edit");
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -94,7 +117,12 @@ export default function HotelDetailView({ id }: { id: string }) {
               </Button>
             )}
             {can("HOTELS", "edit") && (
-              <Button onClick={() => setEditOpen(true)}>
+              <Button
+                onClick={() => {
+                  setLinkingListing(false);
+                  setEditOpen(true);
+                }}
+              >
                 <Pencil />
                 {t("common.edit")}
               </Button>
@@ -156,6 +184,102 @@ export default function HotelDetailView({ id }: { id: string }) {
             </div>
           </div>
         </div>
+      </Panel>
+
+      <Panel
+        title={t("hotels.listing")}
+        actions={
+          listing
+            ? (canEditListing || listing.isPublic) && (
+                <>
+                  {canEditListing && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={adminPaths.websiteAccommodation(listing.id)}>
+                        <Pencil />
+                        {t("hotels.listingEdit")}
+                      </Link>
+                    </Button>
+                  )}
+                  {listing.isPublic && (
+                    <Button asChild size="sm" variant="outline">
+                      <a
+                        href={`/${locale}/accommodations/${encodeURIComponent(listing.id)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink />
+                        {t("hotels.listingView")}
+                      </a>
+                    </Button>
+                  )}
+                </>
+              )
+            : can("HOTELS", "edit") && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setLinkingListing(true);
+                    setEditOpen(true);
+                  }}
+                >
+                  <Link2 />
+                  {t("hotels.listingLink")}
+                </Button>
+              )
+        }
+      >
+        {listing ? (
+          <div className="flex flex-wrap items-center gap-4">
+            <Thumb
+              src={listing.mainImage}
+              className="h-16 w-24 print:hidden"
+              sizes="96px"
+            />
+            {/* The basis lets the price wrap below on a phone */}
+            <div className="min-w-[10rem] flex-1">
+              <p className="truncate font-semibold text-gray-900">
+                <span dir="auto">
+                  {pickLocalization(listing.localizations, locale)?.name ?? "—"}
+                </span>
+              </p>
+              <p className="mt-0.5 flex items-center gap-1 text-sm text-gray-500">
+                <MapPin className="h-3.5 w-3.5" />
+                {listing.city}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge tone={listing.type === "HOTEL" ? "blue" : "purple"}>
+                  {listing.type === "HOTEL" ? tAcc("hotel") : tAcc("apartment")}
+                </Badge>
+                <Badge tone={listing.isPublic ? "green" : "neutral"}>
+                  {listing.isPublic ? <Eye /> : <EyeOff />}
+                  {listing.isPublic
+                    ? t("website.published")
+                    : t("website.hidden")}
+                </Badge>
+              </div>
+            </div>
+            <p className="whitespace-nowrap text-sm text-gray-500">
+              <span className="text-lg font-bold tabular-nums text-gray-900">
+                {formatMoney(listing.price, "GEL", locale)}
+              </span>{" "}
+              / {tAcc("perNight")}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">
+            {t("hotels.listingNotLinked")}
+          </p>
+        )}
+      </Panel>
+
+      <Panel title={tAcc("roomTypes")}>
+        <RoomTypeBadges
+          roomTypes={hotel.roomTypes}
+          customRoomTypes={hotel.customRoomTypes}
+          emptyLabel={t("hotels.noRoomTypes")}
+        />
       </Panel>
 
       <Panel
@@ -248,6 +372,7 @@ export default function HotelDetailView({ id }: { id: string }) {
       <HotelFormDialog
         open={editOpen}
         hotel={hotel}
+        focusListing={linkingListing}
         onOpenChange={setEditOpen}
       />
     </div>

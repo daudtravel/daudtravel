@@ -40,5 +40,22 @@
     "elevator": "Elevator",
     "petsAllowed": "Pets allowed",
     "gym": "Gym"
+  },
+  "roomTypes": "Room types",
+  "roomType": "Room type",
+  "anyRoomType": "Any room type",
+  "inquiryRoomType": "Room type: {roomType}",
+  "roomTypeLabels": {
+    "STANDARD_DOUBLE": "Standard double",
+    "STANDARD_TWIN": "Standard twin",
+    "TRIPLE": "Triple room",
+    "FAMILY": "Family room",
+    "CONNECTING": "Connecting room",
+    "SUPERIOR_DOUBLE": "Superior double",
+    "SUPERIOR_TRIPLE": "Superior triple",
+    "JUNIOR_SUITE": "Junior suite",
+    "EXECUTIVE_SUITE": "Executive suite",
+    "SUITE": "Suite",
+    "DELUXE": "Deluxe"
   }
 }

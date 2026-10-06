@@ -40,5 +40,22 @@
     "elevator": "Лифт",
     "petsAllowed": "Можно с питомцами",
     "gym": "Спортзал"
+  },
+  "roomTypes": "Типы номеров",
+  "roomType": "Тип номера",
+  "anyRoomType": "Любой тип номера",
+  "inquiryRoomType": "Тип номера: {roomType}",
+  "roomTypeLabels": {
+    "STANDARD_DOUBLE": "Стандартный с двуспальной кроватью",
+    "STANDARD_TWIN": "Стандартный с двумя отдельными кроватями",
+    "TRIPLE": "Трёхместный номер",
+    "FAMILY": "Семейный номер",
+    "CONNECTING": "Смежные номера",
+    "SUPERIOR_DOUBLE": "Улучшенный с двуспальной кроватью",
+    "SUPERIOR_TRIPLE": "Улучшенный трёхместный",
+    "JUNIOR_SUITE": "Полулюкс",
+    "EXECUTIVE_SUITE": "Представительский люкс",
+    "SUITE": "Люкс",
+    "DELUXE": "Делюкс"
   }
 }

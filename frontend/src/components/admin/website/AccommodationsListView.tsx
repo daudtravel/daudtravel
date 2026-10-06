@@ -3,7 +3,16 @@
 import { useCallback, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { BedDouble, Eye, EyeOff, Pencil, Plus, Trash2, Users } from "lucide-react";
+import {
+  BedDouble,
+  Building2,
+  Eye,
+  EyeOff,
+  Pencil,
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { Link, useRouter } from "@/src/i18n/routing";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
@@ -36,12 +45,15 @@ import {
   pickLocalization,
   type AdminAccommodationRow,
 } from "@/src/types/admin/website.types";
+import { isRoomType, ROOM_TYPES } from "@/src/constants/roomTypes";
 
 const FILTERS = [
   "search",
   "type",
   "city",
+  "roomType",
   "isPublic",
+  "inDirectory",
   "minPrice",
   "maxPrice",
 ] as const;
@@ -76,6 +88,11 @@ export default function AccommodationsListView() {
   const name = (row: AdminAccommodationRow) =>
     pickLocalization(row.localizations, locale)?.name ?? "—";
 
+  // The linked hotel-directory entry; the API names it only to users who may
+  // open it
+  const directoryEntryId = (row: AdminAccommodationRow) =>
+    can("HOTELS", "view") ? (row.hotel?.id ?? null) : null;
+
   const confirmDelete = async () => {
     if (!toDelete) return;
     try {
@@ -99,6 +116,20 @@ export default function AccommodationsListView() {
     value: city,
     label: city,
   }));
+  const roomTypeOptions = [
+    ...ROOM_TYPES.map((type) => ({
+      value: type,
+      label: tAcc(`roomTypeLabels.${type}`),
+    })),
+    // Then the names typed by hand, as written
+    ...(options.data?.customRoomTypes ?? [])
+      .filter((custom) => !isRoomType(custom))
+      .map((custom) => ({ value: custom, label: custom })),
+  ];
+  const directoryOptions = [
+    { value: "true", label: t("accommodations.inDirectory") },
+    { value: "false", label: t("accommodations.notInDirectory") },
+  ];
 
   const columns: DataColumn<AdminAccommodationRow>[] = [
     {
@@ -115,6 +146,12 @@ export default function AccommodationsListView() {
             <p className="truncate text-xs text-gray-500">
               {pickLocalization(row.localizations, locale)?.address}
             </p>
+            {row.hotel && (
+              <Badge tone="dark" className="mt-1">
+                <Building2 />
+                {t("accommodations.inDirectory")}
+              </Badge>
+            )}
           </div>
         </div>
       ),
@@ -189,28 +226,45 @@ export default function AccommodationsListView() {
       mobileLabel: t("list.actions"),
       align: "end",
       hideOnPrint: true,
-      cell: (row) => (
-        <RowActions
-          actions={[
-            {
-              key: "edit",
-              label: t("common.edit"),
-              icon: Pencil,
-              href: adminPaths.websiteAccommodation(row.id),
-              hidden: !can("WEBSITE", "edit"),
-            },
-            {
-              key: "delete",
-              label: t("common.delete"),
-              icon: Trash2,
-              danger: true,
-              separated: true,
-              onSelect: () => setToDelete(row),
-              hidden: !can("WEBSITE", "delete"),
-            },
-          ]}
-        />
-      ),
+      cell: (row) => {
+        const hotelId = directoryEntryId(row);
+        return (
+          <RowActions
+            actions={[
+              {
+                key: "edit",
+                label: t("common.edit"),
+                icon: Pencil,
+                href: adminPaths.websiteAccommodation(row.id),
+                hidden: !can("WEBSITE", "edit"),
+              },
+              {
+                key: "addToDirectory",
+                label: t("accommodations.addToDirectory"),
+                icon: Building2,
+                href: adminPaths.hotelFromListing(row.id),
+                hidden: !!row.hotel || !can("HOTELS", "create"),
+              },
+              {
+                key: "openInDirectory",
+                label: t("accommodations.openInDirectory"),
+                icon: Building2,
+                href: hotelId ? adminPaths.hotel(hotelId) : undefined,
+                hidden: !hotelId,
+              },
+              {
+                key: "delete",
+                label: t("common.delete"),
+                icon: Trash2,
+                danger: true,
+                separated: true,
+                onSelect: () => setToDelete(row),
+                hidden: !can("WEBSITE", "delete"),
+              },
+            ]}
+          />
+        );
+      },
     },
   ];
 
@@ -261,10 +315,22 @@ export default function AccommodationsListView() {
           options={cityOptions}
         />
         <SelectFilter
+          label={tAcc("roomType")}
+          value={list.values.roomType}
+          onChange={(v) => list.setFilter("roomType", v)}
+          options={roomTypeOptions}
+        />
+        <SelectFilter
           label={t("website.visibility")}
           value={list.values.isPublic}
           onChange={(v) => list.setFilter("isPublic", v)}
           options={visibilityOptions}
+        />
+        <SelectFilter
+          label={t("accommodations.directory")}
+          value={list.values.inDirectory}
+          onChange={(v) => list.setFilter("inDirectory", v)}
+          options={directoryOptions}
         />
         <NumberRangeFilter
           label={t("accommodations.pricePerNight")}
@@ -307,9 +373,15 @@ export default function AccommodationsListView() {
         open={!!toDelete}
         onOpenChange={(open) => !open && setToDelete(null)}
         title={t("accommodations.deleteTitle")}
-        description={t("website.deleteText", {
-          name: toDelete ? name(toDelete) : "",
-        })}
+        description={[
+          t("website.deleteText", {
+            name: toDelete ? name(toDelete) : "",
+          }),
+          // Its hotel-directory entry stays, only unlinked
+          toDelete?.hotel ? t("accommodations.deleteLinkedNote") : null,
+        ]
+          .filter(Boolean)
+          .join(" ")}
         loading={deleteItem.isPending}
         onConfirm={() => void confirmDelete()}
       />

@@ -738,8 +738,19 @@
       "minOneTranslation": "At least one complete translation is required (name and description)",
       "cityRequired": "City is required",
       "pricePositive": "Price must be positive",
-      "minOneGuest": "At least 1 guest"
-    }
+      "minOneGuest": "At least 1 guest",
+      "customRoomTypesNeedTranslation": "Fill in the name and description in this language, or remove its custom room types."
+    },
+    "roomTypesHint": "Select every room type guests can book here. Visitors see them in their own language.",
+    "customRoomTypes": "Custom room types",
+    "customRoomTypesHint": "Room types that aren't on the list. Write them in every language visitors should see them in.",
+    "customRoomTypesUnfilled": "Fill in the name and description in this language first.",
+    "inDirectory": "In hotel directory",
+    "notInDirectory": "Not in hotel directory",
+    "directory": "Hotel directory",
+    "addToDirectory": "Add to hotel directory",
+    "openInDirectory": "Open in hotel directory",
+    "deleteLinkedNote": "Its entry in the hotel directory stays, just no longer linked to this listing."
   },
   "editor": {
     "link": "Link",
@@ -894,7 +905,11 @@
     "replacePhoto": "Replace photo",
     "removePhoto": "Remove photo",
     "imageOnly": "Please choose an image file",
-    "imageTooLarge": "The file is too large (max {max} MB)"
+    "imageTooLarge": "The file is too large (max {max} MB)",
+    "customRoomTypePlaceholder": "Type a room type and press Enter",
+    "roomTypeMatched": "“{name}” is already on the list — selected it instead.",
+    "roomTypeDuplicate": "“{name}” is already added.",
+    "roomTypesLimit": "{max, plural, one {Up to # custom room type} other {Up to # custom room types}}"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -934,7 +949,9 @@
     "PHOTO_NOT_FOUND": "That photo no longer exists.",
     "CATEGORY_TYPE_MISMATCH": "That category belongs to the other side of the ledger.",
     "BOOKING_NOT_FOUND": "That booking no longer exists.",
-    "RANGE_TOO_LONG": "That period is too long (62 days at most)."
+    "RANGE_TOO_LONG": "That period is too long (62 days at most).",
+    "ACCOMMODATION_NOT_FOUND": "That website listing no longer exists.",
+    "ACCOMMODATION_ALREADY_LINKED": "This website listing is already linked to another hotel."
   },
   "users": {
     "title": "Users",
@@ -1244,7 +1261,32 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "detailSubtitle": "Contacts, prices and terms",
-    "details": "Details"
+    "details": "Details",
+    "listing": "Website listing",
+    "listingHint": "Pick the hotel from Website → Hotels & apartments to fill in its details.",
+    "listingPick": "Choose a listing",
+    "listingSearch": "Search by name or city",
+    "listingEmpty": "No listings match your search",
+    "listingNoneYet": "There are no website listings yet",
+    "listingTaken": "Already in the directory",
+    "listingFilled": "Details filled in from the website listing",
+    "listingCopy": "Copy details from the listing",
+    "listingCopied": "Details copied from the listing",
+    "listingChange": "Change",
+    "listingUnlink": "Unlink",
+    "listingEdit": "Edit listing",
+    "listingView": "View on website",
+    "listingNotLinked": "Not linked to a website listing",
+    "listingLink": "Link a listing",
+    "listingHiddenBadge": "Listing hidden",
+    "listingLinked": "Linked",
+    "listingUnlinked": "Not linked",
+    "listingLoadFailed": "Couldn't load the website listings",
+    "listingAlreadyInDirectory": "This listing is already in the hotel directory",
+    "roomTypesHint": "Offered when you add this hotel to a booking",
+    "customRoomTypes": "Other room types",
+    "customRoomTypesHint": "Types that aren't on the list, named the way the hotel calls them",
+    "noRoomTypes": "No room types yet"
   },
   "bookings": {
     "subtitle": "Bookings with their costs, commissions and profit",
@@ -1361,7 +1403,13 @@
     "fxRate": "Exchange rate",
     "countLabel": "{count, plural, one {# booking} other {# bookings}}",
     "printVoucher": "Print voucher",
-    "printInternal": "Print internal sheet"
+    "printInternal": "Print internal sheet",
+    "roomType": "Room type",
+    "roomTypeNone": "Not specified",
+    "roomTypeAtHotel": "At this hotel",
+    "roomTypeOther": "Other types",
+    "roomTypeCustom": "Something else…",
+    "roomTypeCustomPlaceholder": "Type the room type"
   },
   "transactions": {
     "subtitle": "What the office earns and what it spends",

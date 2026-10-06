@@ -1,3 +1,4 @@
+import type { RoomType } from "@/src/constants/roomTypes";
 import type { OwnerRef } from "./partners.types";
 
 export const HOTEL_CATEGORIES = [
@@ -54,10 +55,28 @@ export interface Hotel {
   notes: string | null;
   isActive: boolean;
   contacts: HotelContact[];
+  roomTypes: RoomType[];
+  /** Room types typed by hand. */
+  customRoomTypes: string[];
+  /** The website listing this entry was filled from. */
+  accommodationId: string | null;
+  accommodation: HotelListing | null;
   createdById: string | null;
   createdBy: OwnerRef | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Summary of the linked website listing (Website → Hotels & apartments). */
+export interface HotelListing {
+  id: string;
+  type: "HOTEL" | "APARTMENT";
+  city: string;
+  /** GEL per night. */
+  price: number;
+  mainImage: string;
+  isPublic: boolean;
+  localizations: { locale: string; name: string }[];
 }
 
 export interface HotelOption {
@@ -67,6 +86,8 @@ export interface HotelOption {
   commissionRate: number | null;
   priceFrom: number | null;
   priceCurrency: string | null;
+  roomTypes: RoomType[];
+  customRoomTypes: string[];
 }
 
 export interface HotelPayload {
@@ -83,5 +104,9 @@ export interface HotelPayload {
   notes?: string | null;
   isActive?: boolean;
   contacts?: HotelContactPayload[];
+  roomTypes?: RoomType[];
+  customRoomTypes?: string[];
+  /** null unlinks the website listing. */
+  accommodationId?: string | null;
   createdById?: string | null;
 }

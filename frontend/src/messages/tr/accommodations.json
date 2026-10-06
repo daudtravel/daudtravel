@@ -40,5 +40,22 @@
     "elevator": "Asansör",
     "petsAllowed": "Evcil hayvan kabul edilir",
     "gym": "Spor salonu"
+  },
+  "roomTypes": "Oda tipleri",
+  "roomType": "Oda tipi",
+  "anyRoomType": "Herhangi bir oda tipi",
+  "inquiryRoomType": "Oda tipi: {roomType}",
+  "roomTypeLabels": {
+    "STANDARD_DOUBLE": "Standart çift kişilik oda",
+    "STANDARD_TWIN": "Standart iki ayrı yataklı oda",
+    "TRIPLE": "Üç kişilik oda",
+    "FAMILY": "Aile odası",
+    "CONNECTING": "Bağlantılı oda",
+    "SUPERIOR_DOUBLE": "Superior çift kişilik oda",
+    "SUPERIOR_TRIPLE": "Superior üç kişilik oda",
+    "JUNIOR_SUITE": "Junior süit",
+    "EXECUTIVE_SUITE": "Executive süit",
+    "SUITE": "Süit",
+    "DELUXE": "Deluxe oda"
   }
 }

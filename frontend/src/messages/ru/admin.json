@@ -738,8 +738,19 @@
       "minOneTranslation": "Требуется хотя бы один полный перевод (название и описание)",
       "cityRequired": "Город обязателен",
       "pricePositive": "Цена должна быть положительной",
-      "minOneGuest": "Минимум 1 гость"
-    }
+      "minOneGuest": "Минимум 1 гость",
+      "customRoomTypesNeedTranslation": "Заполните название и описание на этом языке или удалите свои типы номеров на нём."
+    },
+    "roomTypesHint": "Отметьте все типы номеров, которые здесь можно забронировать. Посетители увидят их на своём языке.",
+    "customRoomTypes": "Свои типы номеров",
+    "customRoomTypesHint": "Типы номеров, которых нет в списке. Впишите их на каждом языке, на котором их должны видеть посетители.",
+    "customRoomTypesUnfilled": "Сначала заполните название и описание на этом языке.",
+    "inDirectory": "В справочнике отелей",
+    "notInDirectory": "Нет в справочнике отелей",
+    "directory": "Справочник отелей",
+    "addToDirectory": "Добавить в справочник отелей",
+    "openInDirectory": "Открыть в справочнике отелей",
+    "deleteLinkedNote": "Запись в справочнике отелей останется, но больше не будет связана с этим объявлением."
   },
   "editor": {
     "link": "Ссылка",
@@ -894,7 +905,11 @@
     "replacePhoto": "Заменить фото",
     "removePhoto": "Удалить фото",
     "imageOnly": "Выберите файл изображения",
-    "imageTooLarge": "Файл слишком большой (максимум {max} МБ)"
+    "imageTooLarge": "Файл слишком большой (максимум {max} МБ)",
+    "customRoomTypePlaceholder": "Введите тип номера и нажмите Enter",
+    "roomTypeMatched": "«{name}» уже есть в списке — отмечен он.",
+    "roomTypeDuplicate": "«{name}» уже добавлен.",
+    "roomTypesLimit": "{max, plural, one {Не больше # своего типа} few {Не больше # своих типов} many {Не больше # своих типов} other {Не больше # своего типа}}"
   },
   "errors": {
     "generic": "Что-то пошло не так. Попробуйте ещё раз.",
@@ -934,7 +949,9 @@
     "PHOTO_NOT_FOUND": "Фотография не найдена.",
     "CATEGORY_TYPE_MISMATCH": "Категория относится к другой стороне учёта.",
     "BOOKING_NOT_FOUND": "Бронь не найдена.",
-    "RANGE_TOO_LONG": "Период слишком длинный (максимум 62 дня)."
+    "RANGE_TOO_LONG": "Период слишком длинный (максимум 62 дня).",
+    "ACCOMMODATION_NOT_FOUND": "Объявление на сайте не найдено.",
+    "ACCOMMODATION_ALREADY_LINKED": "Это объявление уже связано с другим отелем."
   },
   "users": {
     "title": "Пользователи",
@@ -1244,7 +1261,32 @@
     "moveUp": "Переместить вверх",
     "moveDown": "Переместить вниз",
     "detailSubtitle": "Контакты, цены и условия",
-    "details": "Подробности"
+    "details": "Подробности",
+    "listing": "Объявление на сайте",
+    "listingHint": "Выберите отель в разделе «Сайт → Отели и апартаменты», чтобы заполнить его данные.",
+    "listingPick": "Выбрать объявление",
+    "listingSearch": "Поиск по названию или городу",
+    "listingEmpty": "По запросу объявлений не найдено",
+    "listingNoneYet": "На сайте пока нет объявлений",
+    "listingTaken": "Уже в справочнике",
+    "listingFilled": "Данные заполнены из объявления на сайте",
+    "listingCopy": "Скопировать данные из объявления",
+    "listingCopied": "Данные скопированы из объявления",
+    "listingChange": "Изменить",
+    "listingUnlink": "Отвязать",
+    "listingEdit": "Редактировать объявление",
+    "listingView": "Открыть на сайте",
+    "listingNotLinked": "Не связан с объявлением на сайте",
+    "listingLink": "Связать с объявлением",
+    "listingHiddenBadge": "Объявление скрыто",
+    "listingLinked": "Связан",
+    "listingUnlinked": "Не связан",
+    "listingLoadFailed": "Не удалось загрузить объявления сайта",
+    "listingAlreadyInDirectory": "Это объявление уже есть в справочнике отелей",
+    "roomTypesHint": "Предлагаются, когда вы добавляете этот отель в бронь",
+    "customRoomTypes": "Другие типы номеров",
+    "customRoomTypesHint": "Типы, которых нет в списке, — так, как их называет отель",
+    "noRoomTypes": "Типов номеров пока нет"
   },
   "bookings": {
     "subtitle": "Брони с расходами, комиссиями и прибылью",
@@ -1361,7 +1403,13 @@
     "fxRate": "Курс",
     "countLabel": "{count, plural, one {# бронь} few {# брони} many {# броней} other {# брони}}",
     "printVoucher": "Печать ваучера",
-    "printInternal": "Печать для офиса"
+    "printInternal": "Печать для офиса",
+    "roomType": "Тип номера",
+    "roomTypeNone": "Не указан",
+    "roomTypeAtHotel": "В этом отеле",
+    "roomTypeOther": "Другие типы",
+    "roomTypeCustom": "Другое…",
+    "roomTypeCustomPlaceholder": "Введите тип номера"
   },
   "transactions": {
     "subtitle": "Что офис зарабатывает и на что тратит",

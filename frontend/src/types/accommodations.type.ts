@@ -1,3 +1,5 @@
+import type { RoomType } from "@/src/constants/roomTypes";
+
 export enum AccommodationType {
   HOTEL = "HOTEL",
   APARTMENT = "APARTMENT",
@@ -15,6 +17,8 @@ export interface AccommodationLocalization {
   name: string;
   description: string;
   address: string;
+  /** Room types typed by hand, written in this language. */
+  customRoomTypes?: string[];
 }
 
 export interface AccommodationImage {
@@ -34,6 +38,8 @@ export interface Accommodation {
   bedrooms: number;
   bathrooms: number;
   amenities: string[];
+  /** Predefined room types (custom ones are per localization). */
+  roomTypes?: RoomType[];
   mainImage: string;
   isPublic: boolean;
   createdAt: Date;
@@ -49,6 +55,8 @@ export interface AccommodationsQueryParams {
   locale?: string;
   city?: string;
   search?: string;
+  /** A RoomType code (or a custom room type name). */
+  roomType?: string;
   sortBy?: string;
   sortOrder?: SortOrder;
 }
@@ -79,6 +87,7 @@ export interface CreateAccommodationLocalizationInput {
   name: string;
   description: string;
   address?: string;
+  customRoomTypes?: string[];
 }
 
 export interface CreateAccommodationInput {
@@ -90,6 +99,7 @@ export interface CreateAccommodationInput {
   bedrooms: number;
   bathrooms: number;
   amenities?: string[];
+  roomTypes?: RoomType[];
   mainImage: string;
   gallery?: string[];
   isPublic?: boolean;
@@ -104,6 +114,7 @@ export interface UpdateAccommodationInput {
   bedrooms?: number;
   bathrooms?: number;
   amenities?: string[];
+  roomTypes?: RoomType[];
   mainImage?: string;
   gallery?: string[];
   isPublic?: boolean;

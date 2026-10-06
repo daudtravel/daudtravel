@@ -1,5 +1,11 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import {
+  RoomType,
+  cleanRoomTypeName,
+  dedupeCustomRoomTypes,
+  sortRoomTypes,
+} from "@/src/constants/roomTypes";
 import AccommodationDetails from "./_components/AccommodationDetails";
 
 const BASE_URL = "https://www.daudtravel.com";
@@ -34,6 +40,37 @@ function extractPlainText(description?: string, max = 160): string {
   } catch {
     return description.slice(0, max);
   }
+}
+
+/** Strings only: the API response isn't typed here. */
+function stringList(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
+}
+
+/**
+ * Room names as the page lists them: predefined types in this language, then
+ * the names typed for this language, skipping repeats of a listed label.
+ */
+function getRoomNames(
+  roomTypes: unknown,
+  customRoomTypes: unknown,
+  labelOf: (type: RoomType) => string
+): string[] {
+  const predefined = sortRoomTypes(stringList(roomTypes)).map(labelOf);
+  const listed = new Set(
+    predefined.map((label) => cleanRoomTypeName(label).toLocaleLowerCase())
+  );
+  const custom = dedupeCustomRoomTypes(stringList(customRoomTypes)).filter(
+    (name) => !listed.has(name.toLocaleLowerCase())
+  );
+  return [...predefined, ...custom];
+}
+
+/** JSON for a script tag; "<" escaped so typed text can't close the tag. */
+function toJsonLd(value: object): string {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 export async function generateMetadata({
@@ -134,6 +171,12 @@ export default async function Page({ params }: PageProps) {
     ? `${process.env.NEXT_PUBLIC_BASE_URL}${data.mainImage}`
     : `${BASE_URL}/images/Logo.png`;
 
+  const roomNames = getRoomNames(
+    data?.roomTypes,
+    localization?.customRoomTypes,
+    (type) => tAcc(`roomTypeLabels.${type}`)
+  );
+
   const jsonLd = data
     ? {
         "@context": "https://schema.org",
@@ -151,6 +194,13 @@ export default async function Page({ params }: PageProps) {
         },
         ...(data.maxGuests && { occupancy: { "@type": "QuantitativeValue", maxValue: data.maxGuests } }),
         ...(data.bedrooms && { numberOfBedrooms: data.bedrooms }),
+        ...(data.type === "HOTEL" &&
+          roomNames.length > 0 && {
+            containsPlace: roomNames.map((name) => ({
+              "@type": "HotelRoom",
+              name,
+            })),
+          }),
         ...(data.price && {
           priceRange: `${data.price} GEL`,
           offers: {
@@ -189,12 +239,12 @@ export default async function Page({ params }: PageProps) {
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }}
         />
       )}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbJsonLd) }}
       />
       <AccommodationDetails />
     </>

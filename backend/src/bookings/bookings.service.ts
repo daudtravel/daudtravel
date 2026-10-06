@@ -28,6 +28,7 @@ import {
   parseDateRange,
   parseOptionalDateOnly,
 } from '@/common/utils/date-only.util';
+import { normalizeRoomTypeValue } from '@/common/utils/room-types.util';
 import { computeTotals, money } from './booking-totals';
 import {
   BOOKING_SORT_FIELDS,
@@ -380,7 +381,7 @@ export class BookingsService {
       title: item.title,
       hotelId: item.hotelId ?? null,
       roomNumber: item.roomNumber ?? null,
-      roomType: item.roomType ?? null,
+      roomType: normalizeRoomTypeValue(item.roomType) ?? null,
       checkIn: parseOptionalDateOnly(item.checkIn, 'checkIn'),
       checkOut: parseOptionalDateOnly(item.checkOut, 'checkOut'),
       tourId: item.tourId ?? null,

@@ -6,6 +6,13 @@ import { useTranslations } from "next-intl";
 import { Search, Building2, Home, LayoutGrid } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
 import ToursSectionLoader from "@/src/components/shared/loader/ToursSectionLoader";
 import ToursPagination from "@/src/app/[locale]/tours/_components/ToursPagination";
 import {
@@ -14,8 +21,12 @@ import {
   AccommodationType,
 } from "@/src/types/accommodations.type";
 import { ACCOMMODATIONS_CONFIG } from "@/src/constants/accommodations.constants";
+import { ROOM_TYPES, RoomType, isRoomType } from "@/src/constants/roomTypes";
 import { useAccommodations } from "@/src/hooks/accommodations/useAccommodations";
 import { AccommodationCard } from "./AccommodationCard";
+
+// Radix Select items can't have an empty value
+const ANY_ROOM_TYPE = "all";
 
 const isValidType = (
   value: string | undefined
@@ -29,17 +40,24 @@ export default function AccommodationsList() {
   const searchParams = useSearchParams();
   const params = useParams();
   const locale = params.locale as string;
+  const isRTL = locale === "ar";
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const typeFilter = searchParams.get("type") || undefined;
+  // Predefined codes only; custom names are per language and not offered here
+  const roomTypeFilter = searchParams.get("roomType") || undefined;
   const searchFilter = searchParams.get("search") || "";
 
   const validatedType = isValidType(typeFilter) ? typeFilter : undefined;
+  const validatedRoomType = isRoomType(roomTypeFilter)
+    ? roomTypeFilter
+    : undefined;
 
   const [searchInput, setSearchInput] = useState(searchFilter);
   const [queryParams, setQueryParams] = useState<AccommodationsQueryParams>({
     locale,
     type: validatedType,
+    roomType: validatedRoomType,
     search: searchFilter || undefined,
     page: currentPage,
     limit: ACCOMMODATIONS_CONFIG.ITEMS_PER_PAGE,
@@ -49,34 +67,69 @@ export default function AccommodationsList() {
     setQueryParams((prev) => ({
       ...prev,
       type: isValidType(typeFilter) ? typeFilter : undefined,
+      roomType: isRoomType(roomTypeFilter) ? roomTypeFilter : undefined,
       search: searchFilter || undefined,
       page: currentPage,
     }));
-  }, [typeFilter, searchFilter, currentPage]);
+  }, [typeFilter, roomTypeFilter, searchFilter, currentPage]);
 
   const { data, isLoading } = useAccommodations(queryParams);
 
   const buildUrl = (
-    next: { type?: AccommodationType; search?: string },
+    next: { type?: AccommodationType; roomType?: RoomType; search?: string },
     page = 1
   ): string => {
     const sp = new URLSearchParams();
     if (next.type) sp.set("type", next.type);
+    if (next.roomType) sp.set("roomType", next.roomType);
     if (next.search) sp.set("search", next.search);
     sp.set("page", String(page));
     return `/${locale}/accommodations?${sp.toString()}`;
   };
 
   const handleTypeChange = (type?: AccommodationType) => {
-    router.push(buildUrl({ type, search: searchFilter }, 1));
+    router.push(
+      buildUrl({ type, roomType: validatedRoomType, search: searchFilter }, 1)
+    );
+  };
+
+  const handleRoomTypeChange = (value: string) => {
+    router.push(
+      buildUrl(
+        {
+          type: validatedType,
+          roomType: isRoomType(value) ? value : undefined,
+          search: searchFilter,
+        },
+        1
+      )
+    );
   };
 
   const handleSearch = () => {
-    router.push(buildUrl({ type: validatedType, search: searchInput }, 1));
+    router.push(
+      buildUrl(
+        {
+          type: validatedType,
+          roomType: validatedRoomType,
+          search: searchInput,
+        },
+        1
+      )
+    );
   };
 
   const handlePageChange = (page: number) => {
-    router.push(buildUrl({ type: validatedType, search: searchFilter }, page));
+    router.push(
+      buildUrl(
+        {
+          type: validatedType,
+          roomType: validatedRoomType,
+          search: searchFilter,
+        },
+        page
+      )
+    );
   };
 
   const hasResults = data?.data && data.data.length > 0;
@@ -100,7 +153,7 @@ export default function AccommodationsList() {
           </p>
         </header>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-8 md:items-center md:justify-between">
+        <div className="flex flex-col md:flex-row md:flex-wrap gap-4 mb-8 md:items-center md:justify-between">
           <div className="flex gap-2 flex-wrap">
             {typeButtons.map((btn) => {
               const Icon = btn.icon;
@@ -121,17 +174,50 @@ export default function AccommodationsList() {
             })}
           </div>
 
-          <div className="flex gap-2 w-full md:w-auto">
-            <Input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder={t("searchPlaceholder")}
-              className="h-9 md:w-64 border-brand-green-100 focus-visible:ring-brand-green"
-            />
-            <Button onClick={handleSearch} className="h-9 gap-2">
-              <Search className="w-4 h-4" />
-            </Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <Select
+              value={validatedRoomType ?? ANY_ROOM_TYPE}
+              onValueChange={handleRoomTypeChange}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
+              <SelectTrigger
+                aria-label={t("roomType")}
+                className="h-9 shrink-0 sm:w-56 focus:outline-none focus:border-brand-green"
+              >
+                <SelectValue>
+                  {validatedRoomType
+                    ? t(`roomTypeLabels.${validatedRoomType}`)
+                    : t("anyRoomType")}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ANY_ROOM_TYPE}>
+                  {t("anyRoomType")}
+                </SelectItem>
+                {ROOM_TYPES.map((code) => (
+                  <SelectItem key={code} value={code}>
+                    {t(`roomTypeLabels.${code}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex gap-2 w-full md:w-auto">
+              <Input
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder={t("searchPlaceholder")}
+                className="h-9 md:w-64 border-brand-green-100 focus-visible:ring-brand-green"
+              />
+              <Button
+                onClick={handleSearch}
+                className="h-9 gap-2"
+                aria-label={t("searchPlaceholder")}
+              >
+                <Search className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -156,7 +242,7 @@ export default function AccommodationsList() {
         ) : (
           <div className="text-center py-16">
             <p className="text-gray-600">{t("noResults")}</p>
-            {(validatedType || searchFilter) && (
+            {(validatedType || validatedRoomType || searchFilter) && (
               <Button
                 variant="outline"
                 onClick={() => router.push(`/${locale}/accommodations?page=1`)}

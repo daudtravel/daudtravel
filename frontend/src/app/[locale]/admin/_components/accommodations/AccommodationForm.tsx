@@ -1,9 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/src/i18n/routing";
 import { adminPaths } from "@/src/utlis/admin/paths";
-import { useForm } from "react-hook-form";
+import { useApiErrorMessage } from "@/src/utlis/admin/errors";
+import {
+  useForm,
+  useFormContext,
+  useFormState,
+  useWatch,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { Loader2, X, Building2, Home } from "lucide-react";
@@ -30,13 +36,20 @@ import {
 import { Switch } from "@/src/components/ui/switch";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import RichTextEditor from "@/src/components/textEditor/TextEditor";
+import RoomTypePicker from "@/src/components/admin/form/RoomTypePicker";
+import CustomRoomTypesInput from "@/src/components/admin/form/CustomRoomTypesInput";
 import {
   AccommodationFormData,
   accommodationFormSchema,
   AccommodationType,
+  isLocalizationFilled,
   SUPPORTED_LOCALES,
 } from "./AccommodationValidator";
 import { AMENITY_KEYS } from "@/src/constants/accommodations.constants";
+import {
+  dedupeCustomRoomTypes,
+  sortRoomTypes,
+} from "@/src/constants/roomTypes";
 import { Accommodation } from "@/src/types/accommodations.type";
 import { useCreateAccommodation } from "@/src/hooks/accommodations/useCreateAccommodation";
 import { useUpdateAccommodation } from "@/src/hooks/accommodations/useUpdateAccommodation";
@@ -49,6 +62,84 @@ const fileToBase64 = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
+/**
+ * Custom room types of one language. They are saved with that language's
+ * translation, so it has to be filled in (checked on submit).
+ */
+function CustomRoomTypesRow({
+  locale,
+  index,
+  disabled,
+}: {
+  locale: (typeof SUPPORTED_LOCALES)[number];
+  index: number;
+  disabled: boolean;
+}) {
+  const t = useTranslations("admin");
+  const { control, getValues, setValue, trigger } =
+    useFormContext<AccommodationFormData>();
+  const fieldName = `localizations.${index}.customRoomTypes` as const;
+  const [name, description] = useWatch({
+    control,
+    name: [`localizations.${index}.name`, `localizations.${index}.description`],
+  });
+  const filled = isLocalizationFilled({ name, description });
+  const { errors } = useFormState({ control, name: fieldName });
+  const hasError = !!errors.localizations?.[index]?.customRoomTypes;
+
+  // Filling the language in clears its "needs a translation" error right away
+  useEffect(() => {
+    if (filled && hasError) void trigger(fieldName);
+  }, [filled, hasError, trigger, fieldName]);
+
+  return (
+    <FormField
+      control={control}
+      name={fieldName}
+      render={({ field, fieldState }) => (
+        <FormItem className="flex items-start gap-3 space-y-0">
+          <FormLabel
+            className={`w-8 shrink-0 text-xs font-semibold uppercase ${
+              field.value?.length ? "pt-1.5" : "pt-3.5"
+            }`}
+          >
+            {locale}
+          </FormLabel>
+          <div className="min-w-0 flex-1 space-y-1">
+            <FormControl>
+              <CustomRoomTypesInput
+                // A failed submit focuses the text box, which names the error
+                ref={field.ref}
+                value={field.value ?? []}
+                onChange={field.onChange}
+                onPredefinedMatch={(code) =>
+                  setValue(
+                    "roomTypes",
+                    sortRoomTypes([...getValues("roomTypes"), code]),
+                    { shouldDirty: true, shouldValidate: true }
+                  )
+                }
+                dir={locale === "ar" ? "rtl" : "ltr"}
+                ariaLabel={`${t("accommodations.customRoomTypes")} (${t(
+                  `common.languages.${locale}`
+                )})`}
+                invalid={!!fieldState.error}
+                disabled={disabled}
+              />
+            </FormControl>
+            <FormMessage />
+            {!filled && !fieldState.error && (
+              <p className="text-xs text-muted-foreground">
+                {t("accommodations.customRoomTypesUnfilled")}
+              </p>
+            )}
+          </div>
+        </FormItem>
+      )}
+    />
+  );
+}
+
 interface Props {
   accommodation?: Accommodation;
 }
@@ -59,8 +150,9 @@ export default function AccommodationForm({ accommodation }: Props) {
   const createMutation = useCreateAccommodation();
   const updateMutation = useUpdateAccommodation();
   const t = useTranslations("admin");
-  // Amenity and type labels are shared with the public accommodations pages
+  // Amenity, room-type and type labels are shared with the public pages
   const tAcc = useTranslations("accommodations");
+  const errorMessage = useApiErrorMessage();
   const schema = useMemo(() => accommodationFormSchema(t), [t]);
 
   const [type, setType] = useState<AccommodationType>(
@@ -92,6 +184,7 @@ export default function AccommodationForm({ accommodation }: Props) {
           name: loc?.name || "",
           description: loc?.description || "",
           address: loc?.address || "",
+          customRoomTypes: loc?.customRoomTypes ?? [],
         };
       }),
       city: accommodation?.city || "",
@@ -100,6 +193,7 @@ export default function AccommodationForm({ accommodation }: Props) {
       bedrooms: accommodation?.bedrooms ?? 1,
       bathrooms: accommodation?.bathrooms ?? 1,
       amenities: accommodation?.amenities || [],
+      roomTypes: sortRoomTypes(accommodation?.roomTypes),
       isPublic: accommodation?.isPublic || false,
       mainImage: "",
       gallery: [],
@@ -158,12 +252,13 @@ export default function AccommodationForm({ accommodation }: Props) {
 
       // Only send languages the admin actually filled in
       const localizations = data.localizations
-        .filter((loc) => loc.name?.trim() && loc.description?.trim())
+        .filter(isLocalizationFilled)
         .map((loc) => ({
           locale: loc.locale,
           name: loc.name.trim(),
           description: loc.description,
           address: loc.address || "",
+          customRoomTypes: dedupeCustomRoomTypes(loc.customRoomTypes),
         }));
 
       if (isEdit && accommodation) {
@@ -179,6 +274,7 @@ export default function AccommodationForm({ accommodation }: Props) {
               bedrooms: data.bedrooms,
               bathrooms: data.bathrooms,
               amenities: data.amenities,
+              roomTypes: data.roomTypes,
               isPublic: data.isPublic,
               ...(mainImageBase64 && { mainImage: mainImageBase64 }),
               gallery: [...existingGallery, ...newGalleryBase64],
@@ -189,10 +285,7 @@ export default function AccommodationForm({ accommodation }: Props) {
               toast.success(t("accommodations.updated"));
               router.push(adminPaths.websiteAccommodations);
             },
-            onError: (error) =>
-              toast.error(
-                error instanceof Error ? error.message : t("common.updateFailed")
-              ),
+            onError: (error) => toast.error(errorMessage(error)),
           }
         );
       } else {
@@ -206,6 +299,7 @@ export default function AccommodationForm({ accommodation }: Props) {
             bedrooms: data.bedrooms,
             bathrooms: data.bathrooms,
             amenities: data.amenities,
+            roomTypes: data.roomTypes,
             isPublic: data.isPublic,
             mainImage: mainImageBase64!,
             gallery: newGalleryBase64,
@@ -216,10 +310,7 @@ export default function AccommodationForm({ accommodation }: Props) {
               form.reset();
               router.push(adminPaths.websiteAccommodations);
             },
-            onError: (error) =>
-              toast.error(
-                error instanceof Error ? error.message : t("common.createFailed")
-              ),
+            onError: (error) => toast.error(errorMessage(error)),
           }
         );
       }
@@ -512,6 +603,53 @@ export default function AccommodationForm({ accommodation }: Props) {
                 </FormItem>
               )}
             />
+
+            {/* Room types: predefined for the listing, custom ones per language */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="roomTypes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{tAcc("roomTypes")}</FormLabel>
+                    <FormDescription>
+                      {t("accommodations.roomTypesHint")}
+                    </FormDescription>
+                    <div
+                      role="group"
+                      aria-label={tAcc("roomTypes")}
+                      className="mt-2"
+                    >
+                      <RoomTypePicker
+                        value={field.value ?? []}
+                        onChange={field.onChange}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="space-y-4 rounded-lg border p-4">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-medium">
+                    {t("accommodations.customRoomTypes")}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    {t("accommodations.customRoomTypesHint")}
+                  </p>
+                </div>
+                {SUPPORTED_LOCALES.map((locale, idx) => (
+                  <CustomRoomTypesRow
+                    key={locale}
+                    locale={locale}
+                    index={idx}
+                    disabled={isSubmitting}
+                  />
+                ))}
+              </div>
+            </div>
 
             {/* Main image */}
             <FormField

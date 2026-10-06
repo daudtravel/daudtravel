@@ -738,8 +738,19 @@
       "minOneTranslation": "En az bir eksiksiz çeviri gereklidir (ad ve açıklama)",
       "cityRequired": "Şehir zorunludur",
       "pricePositive": "Fiyat pozitif olmalıdır",
-      "minOneGuest": "En az 1 misafir"
-    }
+      "minOneGuest": "En az 1 misafir",
+      "customRoomTypesNeedTranslation": "Bu dilde adı ve açıklamayı doldurun ya da bu dildeki özel oda tiplerini kaldırın."
+    },
+    "roomTypesHint": "Burada rezerve edilebilecek tüm oda tiplerini seçin. Ziyaretçiler bunları kendi dillerinde görür.",
+    "customRoomTypes": "Özel oda tipleri",
+    "customRoomTypesHint": "Listede olmayan oda tipleri. Ziyaretçilerin görmesini istediğiniz her dilde ayrıca yazın.",
+    "customRoomTypesUnfilled": "Önce bu dilde adı ve açıklamayı doldurun.",
+    "inDirectory": "Otel rehberinde",
+    "notInDirectory": "Otel rehberinde değil",
+    "directory": "Otel rehberi",
+    "addToDirectory": "Otel rehberine ekle",
+    "openInDirectory": "Otel rehberinde aç",
+    "deleteLinkedNote": "Otel rehberindeki kaydı kalır, yalnızca bu ilanla bağlantısı kaldırılır."
   },
   "editor": {
     "link": "Bağlantı",
@@ -894,7 +905,11 @@
     "replacePhoto": "Fotoğrafı değiştir",
     "removePhoto": "Fotoğrafı kaldır",
     "imageOnly": "Lütfen bir resim dosyası seçin",
-    "imageTooLarge": "Dosya çok büyük (en fazla {max} MB)"
+    "imageTooLarge": "Dosya çok büyük (en fazla {max} MB)",
+    "customRoomTypePlaceholder": "Bir oda tipi yazıp Enter tuşuna basın",
+    "roomTypeMatched": "“{name}” listede zaten var, bu yüzden o seçildi.",
+    "roomTypeDuplicate": "“{name}” zaten eklendi.",
+    "roomTypesLimit": "En fazla {max} özel oda tipi"
   },
   "errors": {
     "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
@@ -934,7 +949,9 @@
     "PHOTO_NOT_FOUND": "Fotoğraf bulunamadı.",
     "CATEGORY_TYPE_MISMATCH": "Bu kategori kaydın diğer tarafına ait.",
     "BOOKING_NOT_FOUND": "Rezervasyon bulunamadı.",
-    "RANGE_TOO_LONG": "Bu dönem çok uzun (en fazla 62 gün)."
+    "RANGE_TOO_LONG": "Bu dönem çok uzun (en fazla 62 gün).",
+    "ACCOMMODATION_NOT_FOUND": "Web sitesi ilanı bulunamadı.",
+    "ACCOMMODATION_ALREADY_LINKED": "Bu ilan zaten başka bir otele bağlı."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -1244,7 +1261,32 @@
     "moveUp": "Yukarı taşı",
     "moveDown": "Aşağı taşı",
     "detailSubtitle": "İletişim, fiyatlar ve koşullar",
-    "details": "Ayrıntılar"
+    "details": "Ayrıntılar",
+    "listing": "Web sitesi ilanı",
+    "listingHint": "Bilgilerini doldurmak için oteli Web sitesi → Oteller ve daireler bölümünden seçin.",
+    "listingPick": "İlan seçin",
+    "listingSearch": "İsim veya şehir ile ara",
+    "listingEmpty": "Aramanızla eşleşen ilan yok",
+    "listingNoneYet": "Sitede henüz ilan yok",
+    "listingTaken": "Zaten rehberde",
+    "listingFilled": "Bilgiler web sitesi ilanından dolduruldu",
+    "listingCopy": "Bilgileri ilandan kopyala",
+    "listingCopied": "Bilgiler ilandan kopyalandı",
+    "listingChange": "Değiştir",
+    "listingUnlink": "Bağlantıyı kaldır",
+    "listingEdit": "İlanı düzenle",
+    "listingView": "Sitede görüntüle",
+    "listingNotLinked": "Bir web sitesi ilanına bağlı değil",
+    "listingLink": "İlan bağla",
+    "listingHiddenBadge": "İlan gizli",
+    "listingLinked": "Bağlı",
+    "listingUnlinked": "Bağlı değil",
+    "listingLoadFailed": "Web sitesi ilanları yüklenemedi",
+    "listingAlreadyInDirectory": "Bu ilan zaten otel rehberinde",
+    "roomTypesHint": "Bu oteli bir rezervasyona eklerken sunulur",
+    "customRoomTypes": "Diğer oda tipleri",
+    "customRoomTypesHint": "Listede olmayan tipler; otelin kullandığı adlarla yazın",
+    "noRoomTypes": "Henüz oda tipi yok"
   },
   "bookings": {
     "subtitle": "Masrafları, komisyonları ve kârıyla rezervasyonlar",
@@ -1361,7 +1403,13 @@
     "fxRate": "Kur",
     "countLabel": "{count, plural, one {# rezervasyon} other {# rezervasyon}}",
     "printVoucher": "Voucher yazdır",
-    "printInternal": "Ofis çıktısı"
+    "printInternal": "Ofis çıktısı",
+    "roomType": "Oda tipi",
+    "roomTypeNone": "Belirtilmedi",
+    "roomTypeAtHotel": "Bu otelde",
+    "roomTypeOther": "Diğer tipler",
+    "roomTypeCustom": "Başka…",
+    "roomTypeCustomPlaceholder": "Oda tipini yazın"
   },
   "transactions": {
     "subtitle": "Ofisin kazandığı ve harcadığı",

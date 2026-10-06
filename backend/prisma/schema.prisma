@@ -26,6 +26,23 @@ enum AccommodationType {
   APARTMENT
 }
 
+/// Room types offered by a hotel. Labels are translated on the frontend
+/// (accommodations.roomTypeLabels); types typed by hand are stored as text
+/// next to these (customRoomTypes).
+enum RoomType {
+  STANDARD_DOUBLE
+  STANDARD_TWIN
+  TRIPLE
+  FAMILY
+  CONNECTING
+  SUPERIOR_DOUBLE
+  SUPERIOR_TRIPLE
+  JUNIOR_SUITE
+  EXECUTIVE_SUITE
+  SUITE
+  DELUXE
+}
+
 enum PaymentStatus {
   PENDING
   PAID
@@ -127,6 +144,9 @@ model Accommodation {
   bedrooms  Int               @default(1)
   bathrooms Int               @default(1)
   amenities String[]          @default([])
+  /// Predefined room types; the ones typed by hand are kept per language
+  /// in AccommodationLocalization.customRoomTypes.
+  roomTypes RoomType[]        @default([]) @map("room_types")
   mainImage String            @map("main_image")
   isPublic  Boolean           @default(false) @map("is_public")
   createdAt DateTime          @default(now()) @map("created_at")
@@ -134,6 +154,8 @@ model Accommodation {
 
   localizations AccommodationLocalization[]
   images        AccommodationImage[]
+  /// Back-office directory entry filled from this listing (if any).
+  hotel         Hotel?
 
   @@index([type, isPublic])
   @@index([city])
@@ -141,12 +163,14 @@ model Accommodation {
 }
 
 model AccommodationLocalization {
-  id              String @id @default(cuid())
-  accommodationId String @map("accommodation_id")
-  locale          String @default("ka")
+  id              String   @id @default(cuid())
+  accommodationId String   @map("accommodation_id")
+  locale          String   @default("ka")
   name            String
-  description     String @db.Text
-  address         String @default("")
+  description     String   @db.Text
+  address         String   @default("")
+  /// Room types typed by hand, written in this language.
+  customRoomTypes String[] @default([]) @map("custom_room_types")
 
   accommodation Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
 
@@ -809,13 +833,22 @@ model Hotel {
   isActive       Boolean       @default(true) @map("is_active")
   createdById    String?       @map("created_by_id")
 
+  roomTypes       RoomType[] @default([]) @map("room_types")
+  /// Room types typed by hand (not in the RoomType list).
+  customRoomTypes String[]   @default([]) @map("custom_room_types")
+
+  /// The website listing (Website → Hotels & apartments) this entry was
+  /// filled from; one directory entry per listing.
+  accommodationId String? @unique @map("accommodation_id")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  contacts     HotelContact[]
-  createdBy    User?          @relation("HotelCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  bookingItems BookingItem[]
-  transactions Transaction[]
+  contacts      HotelContact[]
+  createdBy     User?          @relation("HotelCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  accommodation Accommodation? @relation(fields: [accommodationId], references: [id], onDelete: SetNull)
+  bookingItems  BookingItem[]
+  transactions  Transaction[]
 
   @@index([city])
   @@index([region])
