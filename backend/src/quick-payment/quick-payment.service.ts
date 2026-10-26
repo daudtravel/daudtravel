@@ -23,6 +23,10 @@ import {
 import { FileUploadService } from '@/common/utils/file-upload.util';
 import { getPrimaryFrontendUrl } from '@/common/utils/frontend-url.util';
 import { MailService } from '@/mail/mail.service';
+import {
+  quickPaymentAdminEmail,
+  toAdminNotificationOrder,
+} from './admin-notification.util';
 
 @Injectable()
 export class QuickPaymentService {
@@ -409,34 +413,28 @@ export class QuickPaymentService {
       if (!order) return;
 
       if (order.customerEmail) {
-        await this.mailService.sendQuickPaymentCustomerConfirmation({
-          email: order.customerEmail,
-          customerFullName: order.customerFullName,
-          externalOrderId: order.externalOrderId,
-          productName: order.productName,
-          productDescription: order.productDescription ?? undefined,
-          quantity: order.productQuantity,
-          totalAmount: Number(order.productTotalPrice),
-        });
+        // Sent on its own: a refused confirmation must not stop the admin email
+        try {
+          await this.mailService.sendQuickPaymentCustomerConfirmation({
+            email: order.customerEmail,
+            customerFullName: order.customerFullName,
+            externalOrderId: order.externalOrderId,
+            productName: order.productName,
+            productDescription: order.productDescription ?? undefined,
+            quantity: order.productQuantity,
+            totalAmount: Number(order.productTotalPrice),
+          });
+        } catch (error) {
+          console.error(
+            `❌ Quick payment ${order.externalOrderId}: customer confirmation not sent:`,
+            error,
+          );
+        }
       }
 
-      const adminEmail = process.env.ADMIN_EMAIL || 'traveldaud@gmail.com';
       await this.mailService.sendQuickPaymentAdminNotification({
-        order: {
-          id: order.id,
-          externalOrderId: order.externalOrderId,
-          customerFullName: order.customerFullName,
-          customerEmail: order.customerEmail ?? undefined,
-          customerPhone: order.customerPhone ?? undefined,
-          productName: order.productName,
-          productDescription: order.productDescription ?? undefined,
-          quantity: order.productQuantity,
-          totalAmount: Number(order.productTotalPrice),
-          transactionId: order.transactionId ?? undefined,
-          paymentMethod: order.paymentMethod ?? undefined,
-          paidAt: order.paidAt ?? undefined,
-        },
-        adminEmail,
+        order: toAdminNotificationOrder(order),
+        adminEmail: quickPaymentAdminEmail(),
       });
 
       await this.prisma.quickPaymentOrder.update({
@@ -447,7 +445,10 @@ export class QuickPaymentService {
         },
       });
     } catch (error) {
-      console.error('❌ Failed to send email notifications:', error);
+      console.error(
+        `❌ Quick payment order ${orderId}: email notifications failed:`,
+        error,
+      );
     }
   }
 
