@@ -424,7 +424,7 @@ Reply to submitter: ${submission.submitterEmail}
 Paid on ${submission.paidAt?.toLocaleString()}
   `.trim();
 
-      await this.resend.emails.send({
+      const { error } = await this.resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@daudtravel.com',
         to: Array.isArray(adminEmail) ? adminEmail : [adminEmail],
         replyTo: submission.submitterEmail,
@@ -432,6 +432,8 @@ Paid on ${submission.paidAt?.toLocaleString()}
         html,
         text,
       });
+
+      if (error) throw new Error(error.message, { cause: error });
     } catch (error) {
       console.error('❌ Failed to send admin notification:', error);
       throw error;
@@ -513,13 +515,15 @@ If you have any questions, please contact us with your Order ID.
 © 2025 Daud Travel. All rights reserved.
     `.trim();
 
-      await this.resend.emails.send({
+      const { error } = await this.resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@daudtravel.com',
         to: [email],
         subject: `Payment Confirmation - ${externalOrderId}`,
         html,
         text,
       });
+
+      if (error) throw new Error(error.message, { cause: error });
     } catch (error) {
       console.error('❌ Error sending quick payment confirmation:', error);
       throw error;
@@ -610,7 +614,7 @@ ${order.customerEmail ? `Reply to customer: ${order.customerEmail}\n` : ''}
 Paid on ${order.paidAt?.toLocaleString()}
     `.trim();
 
-      await this.resend.emails.send({
+      const { error } = await this.resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'noreply@daudtravel.com',
         to: Array.isArray(adminEmail) ? adminEmail : [adminEmail],
         replyTo: order.customerEmail,
@@ -618,6 +622,8 @@ Paid on ${order.paidAt?.toLocaleString()}
         html,
         text,
       });
+
+      if (error) throw new Error(error.message, { cause: error });
     } catch (error) {
       console.error('❌ Failed to send admin notification:', error);
       throw error;
